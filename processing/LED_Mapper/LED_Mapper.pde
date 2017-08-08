@@ -14,6 +14,7 @@ void setup()
   opencv = new OpenCV(this, 640, 480);
   
   cam.start();
+  opencv.startBackgroundSubtraction(5, 3, 0.5);
   //opencv.startBackgroundSubtraction(50, 30, 1.0);
   
   // Connect to the local instance of fcserver
@@ -38,10 +39,11 @@ void draw()
   background(0);
   if (cam.available() == true) {
     cam.read();
-    //opencv = new OpenCV(this, cam); 
+    opencv.loadImage(cam);
+    
     // Background differencing 
     //delay(1000);
-    //opencv.updateBackground();
+    opencv.updateBackground();
    
   }
  
