@@ -10,11 +10,11 @@ int counter = 0;
 void setup()
 {
   size(640, 480);
-  
-  
   cam = new Capture(this, 640, 480);
-  opencv = new OpenCV(this, cam);  
+  opencv = new OpenCV(this, 640, 480);
+  
   cam.start();
+  //opencv.startBackgroundSubtraction(50, 30, 1.0);
   
   // Connect to the local instance of fcserver
   //opc = new OPC(this, "127.0.0.1", 7890);
@@ -38,8 +38,13 @@ void draw()
   background(0);
   if (cam.available() == true) {
     cam.read();
-    opencv = new OpenCV(this, cam); 
+    //opencv = new OpenCV(this, cam); 
+    // Background differencing 
+    //delay(1000);
+    //opencv.updateBackground();
+   
   }
+ 
   image(cam, 0, 0, width, height);
   
   // Light up LEDs sequentially 
@@ -51,7 +56,7 @@ void draw()
   opc.writePixels();
   
   // Get the brightest point
-  image(opencv.getOutput(), 0, 0); 
+ // image(opencv.getOutput(), 0, 0); 
   PVector loc = opencv.max();
   
   stroke(255, 0, 0);
