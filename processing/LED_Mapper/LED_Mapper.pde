@@ -6,6 +6,9 @@ Capture cam;
 OpenCV opencv;
 
 int counter = 0;
+int numLeds = 50;
+PVector[] points = new PVector[numLeds];
+
 
 void setup()
 {
@@ -19,6 +22,7 @@ void setup()
   
   // Connect to the local instance of fcserver
   //opc = new OPC(this, "127.0.0.1", 7890);
+  // Connect with the Raspberry Pi FadeCandy server
   opc = new OPC(this, "fade1.local", 7890);
   
   colorMode(RGB, 100);
@@ -42,13 +46,13 @@ void draw()
     opencv.loadImage(cam);
     
     // Background differencing 
-    //delay(1000);
+    delay(100);
     opencv.updateBackground();
-   
+    
+    // Display the camera input
+    image(cam, 0, 0, width, height);
   }
  
-  image(cam, 0, 0, width, height);
-  
   // Light up LEDs sequentially 
   color on = color(255, 255, 255);
   color off = color(0,0,0);
@@ -60,7 +64,7 @@ void draw()
   // Get the brightest point
  // image(opencv.getOutput(), 0, 0); 
   PVector loc = opencv.max();
-  
+  points[counter] = loc;
   stroke(255, 0, 0);
   strokeWeight(4);
   noFill();
@@ -69,7 +73,17 @@ void draw()
   
   delay(30);
   counter++;
-  if (counter > 50) {
+  // Calibration over, display the results
+  if (counter >=  numLeds) {
     counter = 0;
+    noLoop();
+    background(0);
+    // Print the points
+    for (int i = 0; i < numLeds; i++) {
+      print(points[i]);
+      point(points[i].x, points[i].y);
+      
+    }
+
   }
 }
