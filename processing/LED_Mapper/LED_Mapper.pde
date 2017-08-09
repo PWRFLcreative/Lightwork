@@ -41,23 +41,32 @@ void setup()
 void draw()
 {
   background(0);
-  if (cam.available() == true) {
-    cam.read();
-    opencv.loadImage(cam);
-    
-    // Background differencing 
-    delay(100);
-    opencv.updateBackground();
-    
-    // Display the camera input
-    image(cam, 0, 0, width, height);
-  }
+  
  
   // Light up LEDs sequentially 
   color on = color(255, 255, 255);
   color off = color(0,0,0);
   opc.setPixel(counter, on);
   opc.writePixels();
+  
+  // Get a new camera frame after we turn the LED on
+  if (cam.available() == true) {
+    cam.read();
+    opencv.loadImage(cam);
+    
+    // Background differencing 
+    opencv.updateBackground();
+    
+    // Display the camera input
+    image(cam, 0, 0, width, height);
+    
+   // delay(1000);
+  }
+  else {
+    print("No Camera Found!"); 
+  }
+  
+  // Turn the LED off when we've detected its location
   opc.setPixel(counter, off);
   opc.writePixels();
   
@@ -76,7 +85,7 @@ void draw()
   // Calibration over, display the results
   if (counter >=  numLeds) {
     counter = 0;
-    noLoop();
+    //noLoop();
     background(0);
     // Print the points
     for (int i = 0; i < numLeds; i++) {
@@ -86,4 +95,11 @@ void draw()
     }
 
   }
+}
+
+
+void keyPressed() {
+ if (key == 's') {
+   saveFrame();
+ }
 }
