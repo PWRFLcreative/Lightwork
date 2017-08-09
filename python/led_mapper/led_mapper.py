@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# Using OpenCV verison 3.1.0
+# Light LEDs in sequence and stores the coordinates for each one. 
 
-# Light each LED in sequence, and repeat.
 import numpy as np
 import cv2
 import opc, time
