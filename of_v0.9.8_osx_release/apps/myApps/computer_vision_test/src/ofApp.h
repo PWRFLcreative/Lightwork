@@ -22,6 +22,7 @@ public:
     bool hide;
     
     int ledIndex;
+    int numLeds;
     vector <ofColor> pixels;
 
 };

@@ -7,6 +7,10 @@ void ofApp::setup()
     effect = 3;
     
     ledIndex = 0;
+    numLeds = 50;
+    // Set up the color vector, with all LEDs set to off(black)
+    pixels.assign(numLeds, ofColor(88,12,0));
+    
     // Connect to the fcserver
     opcClient.setup("192.168.0.211", 7890);
     
@@ -42,21 +46,36 @@ void ofApp::update()
         // Will continue to try and reconnect to the Pixel Server
         opcClient.tryConnecting();
     }
-    else {
-        // Write out the first set of data
-        opcClient.writeChannelOne(stick.colorData());
-    }
+    // TODO: Look into why opcClient isConnected is returning false
+//    else {
+//        // Write out the first set of data
+//        //opcClient.writeChannelOne(stick.colorData());
+//        cout << "OPC Not Connected \n";
+//        opcClient.writeChannel(1, pixels);
+//        
+//    }
     
-    int numLeds = 50;
     
     for (int i = 0; i <  numLeds; i++) {
-        ofColor col = ofColor(0, 0, 255);
-        pixels.push_back(col);
+        ofColor col;
+        if (i == ledIndex) {
+            col = ofColor(255, 255, 255);
+            pixels.pop_back();
+            pixels.insert(pixels.begin(), col);
+            
+        }
+        else {
+            col = ofColor(0, 0, 0);
+            pixels.pop_back();
+            pixels.insert(pixels.begin(), col);
+        }
     }
-    
+
     opcClient.writeChannel(1, pixels);
     
+    
     ledIndex++;
+    if (ledIndex >= numLeds) ledIndex = 0;
     
 }
 //--------------------------------------------------------------
