@@ -28,19 +28,6 @@ void ofApp::update()
     
     opcClient.update();
     
-    // Now Draw the effects to the stage
-    //opcClient.beginStage();
-    
-    // Draw what you want rendered here
-    
-    // For now here are some default effects
-    //defaultEffects.draw(effect);
-    
-    //opcClient.endStage();
-    
-    // New Get Method
-    //opcClient.getStagePixels(stick.getPixelCoordinates(), stick.colors);
-    
     // If the client is not connected do not try and send information
     if (!opcClient.isConnected()) {
         // Will continue to try and reconnect to the Pixel Server
@@ -55,20 +42,16 @@ void ofApp::update()
 //        
 //    }
     
-    
+    // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
         if (i == ledIndex) {
             col = ofColor(255, 255, 255);
-            pixels.pop_back();
-            pixels.insert(pixels.begin(), col);
-            
         }
         else {
             col = ofColor(0, 0, 0);
-            pixels.pop_back();
-            pixels.insert(pixels.begin(), col);
         }
+        pixels.at(i) = col;
     }
 
     opcClient.writeChannel(1, pixels);
