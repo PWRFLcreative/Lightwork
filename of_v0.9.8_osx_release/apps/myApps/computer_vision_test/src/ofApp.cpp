@@ -6,15 +6,16 @@ void ofApp::setup()
     ofSetFrameRate(60);
     effect = 3;
     
+    ledIndex = 0;
     // Connect to the fcserver
     opcClient.setup("192.168.0.211", 7890);
     
     // You define the stage size and draw into the stage
-    opcClient.setupStage(500, 500);
+    //opcClient.setupStage(500, 500);
     
-    defaultEffects.setup(opcClient.getStageCenterX(), opcClient.getStageCenterY(), opcClient.getStageWidth(), opcClient.getStageHeight());
+    //defaultEffects.setup(opcClient.getStageCenterX(), opcClient.getStageCenterY(), opcClient.getStageWidth(), opcClient.getStageHeight());
     
-    stick.setupLedStrip(0, 0, 50, 7);
+    //stick.setupLedStrip(0, 0, 50, 7);
 }
 //--------------------------------------------------------------
 void ofApp::update()
@@ -24,17 +25,17 @@ void ofApp::update()
     opcClient.update();
     
     // Now Draw the effects to the stage
-    opcClient.beginStage();
+    //opcClient.beginStage();
     
     // Draw what you want rendered here
     
     // For now here are some default effects
-    defaultEffects.draw(effect);
+    //defaultEffects.draw(effect);
     
-    opcClient.endStage();
+    //opcClient.endStage();
     
     // New Get Method
-    opcClient.getStagePixels(stick.getPixelCoordinates(), stick.colors);
+    //opcClient.getStagePixels(stick.getPixelCoordinates(), stick.colors);
     
     // If the client is not connected do not try and send information
     if (!opcClient.isConnected()) {
@@ -45,18 +46,31 @@ void ofApp::update()
         // Write out the first set of data
         opcClient.writeChannelOne(stick.colorData());
     }
+    
+    int numLeds = 50;
+    
+    for (int i = 0; i <  numLeds; i++) {
+        ofColor col = ofColor(0, 0, 255);
+        pixels.push_back(col);
+    }
+    
+    opcClient.writeChannel(1, pixels);
+    
+    ledIndex++;
+    
 }
 //--------------------------------------------------------------
 void ofApp::draw()
 {
     ofBackground(0);
-    opcClient.drawStage(hide);
+    //opcClient.drawStage(hide);
+    
     
     // Show the grabber area
-    stick.drawGrabRegion(hide);
+    //stick.drawGrabRegion(hide);
     
     // Draw the output
-    stick.draw(opcClient.getStageWidth()+25, 10);
+    //stick.draw(opcClient.getStageWidth()+25, 10);
     
     // Report Messages
     stringstream ss;

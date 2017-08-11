@@ -20,4 +20,8 @@ public:
     
     int effect;
     bool hide;
+    
+    int ledIndex;
+    vector <ofColor> pixels;
+
 };
