@@ -3,13 +3,14 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    ofSetFrameRate(60);
+    ofSetFrameRate(30);
     effect = 3;
     
     ledIndex = 0;
     numLeds = 50;
     // Set up the color vector, with all LEDs set to off(black)
-    pixels.assign(numLeds, ofColor(88,12,0));
+    pixels.assign(numLeds, ofColor(0,0,0));
+    setAllLEDColours(ofColor(0, 0,0));
     
     // Connect to the fcserver
     opcClient.setup("192.168.0.211", 7890);
@@ -30,6 +31,9 @@ void ofApp::setup()
     
     bLearnBakground = true;
     threshold = 80;
+    
+    isMapping = false;
+    
 }
 //--------------------------------------------------------------
 void ofApp::update()
@@ -43,31 +47,14 @@ void ofApp::update()
         // Will continue to try and reconnect to the Pixel Server
         opcClient.tryConnecting();
     }
-    // TODO: Look into why opcClient isConnected is returning false
-//    else {
-//        // Write out the first set of data
-//        //opcClient.writeChannelOne(stick.colorData());
-//        cout << "OPC Not Connected \n";
-//        opcClient.writeChannel(1, pixels);
-//        
-//    }
-    
-    // Chase animation
-    for (int i = 0; i <  numLeds; i++) {
-        ofColor col;
-        if (i == ledIndex) {
-            col = ofColor(255, 255, 255);
+
+    if (isMapping) {
+        isMapping = chaseAnimation();
+        if (!isMapping) {
+            setAllLEDColours(ofColor(0,0,0));
         }
-        else {
-            col = ofColor(0, 0, 0);
-        }
-        pixels.at(i) = col;
     }
 
-    opcClient.writeChannel(1, pixels);
-    
-    ledIndex++;
-    if (ledIndex >= numLeds) ledIndex = 0;
     
     // OpenCV
     bool bNewFrame = false;
@@ -157,6 +144,23 @@ void ofApp::keyPressed(int key)
     if (key == ' ') {
         hide = !hide;
     }
+    switch (key){
+        case ' ':
+            bLearnBakground = true;
+            break;
+        case '+':
+            threshold ++;
+            if (threshold > 255) threshold = 255;
+            break;
+        case '-':
+            threshold --;
+            if (threshold < 0) threshold = 0;
+            break;
+        case 's':
+            isMapping = true;
+            break;
+    }
+    
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key)
@@ -168,4 +172,37 @@ void ofApp::exit()
 {
     // Close Connection
     opcClient.close();
+}
+
+// Cycle through all LEDs, return false when done
+bool ofApp::chaseAnimation()
+{
+    // Chase animation
+    for (int i = 0; i <  numLeds; i++) {
+        ofColor col;
+        if (i == ledIndex) {
+            col = ofColor(255, 255, 255);
+        }
+        else {
+            col = ofColor(0, 0, 0);
+        }
+        pixels.at(i) = col;
+    }
+    
+    opcClient.writeChannel(1, pixels);
+    
+    ledIndex++;
+    if (ledIndex >= numLeds) {
+        ledIndex = 0;
+        return false;
+    }
+    return true;
+}
+
+void ofApp::setAllLEDColours(ofColor col) {
+    // Chase animation
+    for (int i = 0; i <  numLeds; i++) {
+        pixels.at(i) = col;
+    }
+    opcClient.writeChannel(1, pixels);
 }

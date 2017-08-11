@@ -14,6 +14,9 @@ public:
     void keyReleased(int key);
     void exit();
     
+    bool chaseAnimation();
+    void setAllLEDColours(ofColor col);
+    
     // OPC
     ofxOPC opcClient;
     ofxNeoPixelStrip stick;
@@ -39,6 +42,8 @@ public:
     
     int                     threshold;
     bool                    bLearnBakground;
+    
+    bool                    isMapping;
     
 
 };
