@@ -37,6 +37,7 @@ public:
     ofxCvGrayscaleImage 	grayImage;
     ofxCvGrayscaleImage 	grayBg;
     ofxCvGrayscaleImage 	grayDiff;
+    ofxCvGrayscaleImage     previousFrame;
     
     ofxCvContourFinder      contourFinder;
     vector <ofPoint>        centroids;

@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    ofSetFrameRate(30);
+    ofSetFrameRate(10);
     effect = 3;
     
     ledIndex = 0;
@@ -31,9 +31,10 @@ void ofApp::setup()
     grayImage.allocate(320,240);
     grayBg.allocate(320,240);
     grayDiff.allocate(320,240);
+    previousFrame.allocate(320,240);
     
     bLearnBakground = true;
-    threshold = 80;
+    threshold = 11;
     
     isMapping = false;
     
@@ -79,12 +80,15 @@ void ofApp::update()
         
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, true);	// find holes
+        contourFinder.findContours(previousFrame, 20, (340*240)/3, 10, true);	// find holes
         
         // Store the contours
         for (int i = 0; i < contourFinder.nBlobs; i++) {
             centroids.push_back(contourFinder.blobs[i].centroid);
         }
+        
+        // Store this frame for the next iteration
+        previousFrame = grayDiff;
     }
 }
 //--------------------------------------------------------------
@@ -166,10 +170,12 @@ void ofApp::keyPressed(int key)
             break;
         case '+':
             threshold ++;
+            cout << "Threshold: " << threshold;
             if (threshold > 255) threshold = 255;
             break;
         case '-':
             threshold --;
+            cout << "Threshold: " << threshold;
             if (threshold < 0) threshold = 0;
             break;
         case 's':
