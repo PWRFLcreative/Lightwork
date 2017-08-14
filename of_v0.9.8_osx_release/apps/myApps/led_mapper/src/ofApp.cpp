@@ -2,8 +2,13 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetFrameRate(30);
+    
     // Input
+    cam.listDevices();
+    cam.setDeviceID(1); // Exter
     cam.setup(640, 480);
+    
     
     // GUI
     gui.setup();
@@ -23,7 +28,6 @@ void ofApp::setup(){
     showLabels = true;
     
     // LED
-    ofSetFrameRate(10);
     
     ledIndex = 0;
     numLeds = 50;
