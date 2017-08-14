@@ -8,6 +8,9 @@ void ofApp::setup()
     
     ledIndex = 0;
     numLeds = 50;
+    ledBrightness = 127;
+    
+    
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
     setAllLEDColours(ofColor(0, 0,0));
@@ -47,14 +50,6 @@ void ofApp::update()
         // Will continue to try and reconnect to the Pixel Server
         opcClient.tryConnecting();
     }
-
-    if (isMapping) {
-        isMapping = chaseAnimation();
-        if (!isMapping) {
-            setAllLEDColours(ofColor(0,0,0));
-        }
-    }
-
     
     // OpenCV
     bool bNewFrame = false;
@@ -63,8 +58,14 @@ void ofApp::update()
     bNewFrame = vidGrabber.isFrameNew();
     
     if (bNewFrame){
-        colorImg.setFromPixels(vidGrabber.getPixels());
         
+        // Light up a new LED for every frame
+        if (isMapping) {
+            chaseAnimation();
+        }
+        
+        // Grab camera pixels
+        colorImg.setFromPixels(vidGrabber.getPixels());
         
         grayImage = colorImg;
         if (bLearnBakground == true){
@@ -79,12 +80,18 @@ void ofApp::update()
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
         contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, true);	// find holes
+        
+        // Store the contours
+        for (int i = 0; i < contourFinder.nBlobs; i++) {
+            centroids.push_back(contourFinder.blobs[i].centroid);
+        }
     }
 }
 //--------------------------------------------------------------
 void ofApp::draw()
 {
     ofBackground(0);
+    
     // draw the incoming, the grayscale, the bg and the thresholded difference
     ofSetHexColor(0xffffff);
     colorImg.draw(20,20);
@@ -114,6 +121,14 @@ void ofApp::draw()
                                contourFinder.blobs[i].boundingRect.getCenter().x + 360,
                                contourFinder.blobs[i].boundingRect.getCenter().y + 540);
         }
+    }
+    
+    
+    // Draw the detected centroids
+    ofSetColor(255, 255, 255);
+    ofFill();
+    for (int i = 0; i < centroids.size(); i++) {
+        ofDrawCircle(20+centroids[i].x, 280+centroids[i].y, 3);
     }
     
     // finally, a report:
@@ -147,6 +162,7 @@ void ofApp::keyPressed(int key)
     switch (key){
         case ' ':
             bLearnBakground = true;
+            centroids.clear();
             break;
         case '+':
             threshold ++;
@@ -175,13 +191,13 @@ void ofApp::exit()
 }
 
 // Cycle through all LEDs, return false when done
-bool ofApp::chaseAnimation()
+void ofApp::chaseAnimation()
 {
     // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
         if (i == ledIndex) {
-            col = ofColor(255, 255, 255);
+            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
         }
         else {
             col = ofColor(0, 0, 0);
@@ -194,11 +210,13 @@ bool ofApp::chaseAnimation()
     ledIndex++;
     if (ledIndex >= numLeds) {
         ledIndex = 0;
-        return false;
+        setAllLEDColours(ofColor(0, 0, 0));
+        isMapping = false;
     }
-    return true;
+    
 }
 
+// Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
     // Chase animation
     for (int i = 0; i <  numLeds; i++) {

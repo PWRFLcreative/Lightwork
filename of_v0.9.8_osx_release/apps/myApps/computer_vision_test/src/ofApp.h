@@ -14,7 +14,7 @@ public:
     void keyReleased(int key);
     void exit();
     
-    bool chaseAnimation();
+    void chaseAnimation();
     void setAllLEDColours(ofColor col);
     
     // OPC
@@ -39,11 +39,13 @@ public:
     ofxCvGrayscaleImage 	grayDiff;
     
     ofxCvContourFinder      contourFinder;
+    vector <ofPoint>        centroids;
     
     int                     threshold;
     bool                    bLearnBakground;
     
     bool                    isMapping;
+    int                     ledBrightness;
     
 
 };
