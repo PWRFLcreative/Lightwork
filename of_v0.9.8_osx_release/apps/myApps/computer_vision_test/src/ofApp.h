@@ -2,7 +2,8 @@
 
 #include "ofMain.h"
 #include "ofxOPC.h"
-#include "ofxOpenCv.h"
+#include "ofxCv.h"
+//  #include "ofxOpenCv.h"
 
 class ofApp : public ofBaseApp{
     
@@ -32,14 +33,19 @@ public:
     // OpenCV
     
     ofVideoGrabber          vidGrabber;
-    ofxCvColorImage			colorImg;
     
-    ofxCvGrayscaleImage 	grayImage;
-    ofxCvGrayscaleImage 	grayBg;
-    ofxCvGrayscaleImage 	grayDiff;
-    ofxCvGrayscaleImage     previousFrame;
+    ColorImage              colorImg;
+    GrayscaleImage          grayImg;
     
-    ofxCvContourFinder      contourFinder;
+//    ofxCvColorImage			colorImg;
+//    
+//    ofxCvGrayscaleImage 	grayImage;
+//    ofxCvGrayscaleImage 	grayBg;
+//    ofxCvGrayscaleImage 	grayDiff;
+//    ofxCvGrayscaleImage     previousFrame;
+//    
+//    ofxCvContourFinder      contourFinder;
+    
     vector <ofPoint>        centroids;
     
     int                     threshold;
