@@ -6,7 +6,7 @@ void ofApp::setup(){
     
     // Input
     cam.listDevices();
-    cam.setDeviceID(1); // Exter
+    cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
     
     
