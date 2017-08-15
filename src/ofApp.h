@@ -4,6 +4,7 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxOPC.h"
+#include "ofxEditableSvg.h"
 
 class ofApp : public ofBaseApp{
 
@@ -26,7 +27,8 @@ class ofApp : public ofBaseApp{
     
         void chaseAnimation();
         void setAllLEDColours(ofColor col);
-        
+        void generateSVG(vector <ofPoint> points);
+    
         // OPC
         ofxOPC              opcClient;
         Effects             defaultEffects;
@@ -54,5 +56,9 @@ class ofApp : public ofBaseApp{
         ofxCv::ContourFinder    contourFinder;
         bool                    showLabels;
         vector <ofPoint>        centroids;
+    
+        // SVG
+        ofxEditableSVG svg;
+        
     
 };

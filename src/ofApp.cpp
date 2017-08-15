@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 50;
+    numLeds = 51;
     ledBrightness = 127;
     isMapping = false;
     
@@ -41,6 +41,8 @@ void ofApp::setup(){
     // Connect to the fcserver
     opcClient.setup("192.168.0.211", 7890);
     
+    // SVG
+    svg.setViewbox(0, 0, 640, 480);
 }
 
 //--------------------------------------------------------------
@@ -174,6 +176,8 @@ void ofApp::keyPressed(int key){
         case 's':
             isMapping = true;
             break;
+        case 'g':
+            generateSVG(centroids);
     }
 
 }
@@ -261,4 +265,17 @@ void ofApp::setAllLEDColours(ofColor col) {
         pixels.at(i) = col;
     }
     opcClient.writeChannel(1, pixels);
+}
+
+void ofApp::generateSVG(vector <ofPoint> points) {
+    ofPath path;
+    for (int i = 0; i < points.size(); i++) {
+        path.lineTo(points[i]);
+        cout << points[i].x;
+        cout << ", ";
+        cout << points[i].y;
+        cout << "\n";
+    }
+    svg.addPath(path);
+    svg.save("mapper-test.svg");
 }
