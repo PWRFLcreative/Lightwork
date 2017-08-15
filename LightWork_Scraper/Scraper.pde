@@ -52,7 +52,7 @@ public class Scraper {
   void update() {
     int index =0;
     for (PVector temp : loc) { 
-      opc.led(index, temp.x, temp.y);
+      opc.led(index, (int)temp.x, (int)temp.y);
       index++;
     }
   }
