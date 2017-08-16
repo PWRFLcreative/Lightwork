@@ -18,7 +18,7 @@ void setup() {
   clouds = createImage(128, 128, RGB);
 
   //initialize scraper
-  scrape = new Scraper("hexes.svg"); 
+  scrape = new Scraper("mapper-test.svg"); 
   scrape.init();
 
   //display array of points from SVG
