@@ -13,8 +13,8 @@ void ofApp::setup(){
     // GUI
     gui.setup();
     gui.add(resetBackground.set("Reset Background", false));
-    gui.add(learningTime.set("Learning Time", 30, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 10, 0, 255));
+    gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
+    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255));
     
     // Contours
     contourFinder.setMinAreaRadius(1);
