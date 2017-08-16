@@ -6,7 +6,7 @@ void ofApp::setup(){
     
     // Input
     cam.listDevices();
-    cam.setDeviceID(1); // External webcam
+    cam.setDeviceID(0); // External webcam
     cam.setup(640, 480);
     
     
@@ -30,8 +30,8 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 51;
-    ledBrightness = 127;
+    numLeds = 35;
+    ledBrightness = 100;
     isMapping = false;
     
     // Set up the color vector, with all LEDs set to off(black)
@@ -39,7 +39,8 @@ void ofApp::setup(){
     setAllLEDColours(ofColor(0, 0,0));
     
     // Connect to the fcserver
-    opcClient.setup("192.168.0.211", 7890);
+//    opcClient.setup("192.168.0.211", 7890);
+    opcClient.setup("127.0.0.1", 7890);
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
@@ -155,6 +156,7 @@ void ofApp::draw(){
         ofDrawLine(j, 12, j, 16);
     }
     
+    
 }
 
 //--------------------------------------------------------------
@@ -255,7 +257,6 @@ void ofApp::chaseAnimation()
         setAllLEDColours(ofColor(0, 0, 0));
         isMapping = false;
     }
-    
 }
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
@@ -277,5 +278,6 @@ void ofApp::generateSVG(vector <ofPoint> points) {
         cout << "\n";
     }
     svg.addPath(path);
+    path.draw();
     svg.save("mapper-test.svg");
 }
