@@ -39,8 +39,8 @@ void ofApp::setup(){
     setAllLEDColours(ofColor(0, 0,0));
     
     // Connect to the fcserver
-//    opcClient.setup("192.168.1.104", 7890);
-    opcClient.setup("127.0.0.1", 7890);
+    opcClient.setup("192.168.1.104", 7890);
+//    opcClient.setup("127.0.0.1", 7890);
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
