@@ -5,6 +5,7 @@
 #include "ofxGui.h"
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
+#include "ofxJSON.h"
 
 class ofApp : public ofBaseApp{
 
@@ -28,6 +29,7 @@ class ofApp : public ofBaseApp{
         void chaseAnimation();
         void setAllLEDColours(ofColor col);
         void generateSVG(vector <ofPoint> points);
+        void generateJSON(vector <ofPoint> points);
     
         // OPC
         ofxOPC              opcClient;
