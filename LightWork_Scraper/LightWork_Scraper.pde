@@ -1,65 +1,51 @@
 /* Make OPC LED layout, based on vertecies of an input SVG
  Tim Rolls 2017*/
 
-PShape s;
-ArrayList<PVector> loc = new ArrayList<PVector>();
+Scraper scrape;
+OPC opc;
 
-PShape line;
-PrintWriter output;
+PImage clouds;
 
 void setup() {
   size(800, 800, P2D);
-  background(255);
+  background(0);
+  
+  colorMode(HSB, 100);
+  noiseDetail(5, 0.4);
+  loadPixels();
 
-  //initialize shapes
-  s = loadShape("hexes.svg");
-  line = createShape();
+  // Render the noise to a smaller image, it's faster than updating the entire window.
+  clouds = createImage(128, 128, RGB);
 
-  output = createWriter("layout.csv"); 
+  //initialize scraper
+  scrape = new Scraper("mapper-test.svg"); 
+  scrape.init();
 
-  // Iterate over the children
-  int children = s.getChildCount(); //duplicate
-  for (int i = 0; i < children; i++) {
-    PShape child = s.getChild(i);
-    int total = child.getVertexCount();
-
-    // Now we can actually get the vertices from each child
-    for (int j = 0; j < total; j++) {
-      PVector v = child.getVertex(j);
-      loc.add(v);
-    }
-  }
-
-  //console feedback
-  println("svg contains "+loc.size()+" vertecies");
-  println(loc);
-
-  //write vals out to file
-  int id=0;
-  output.println("id"+","+"x"+","+"y");
-  for (PVector temp : loc) { 
-    output.println(id+","+temp.x+","+temp.y);
-    id++;
-  }
-  output.close(); // Finishes the file
+  opc = new OPC(this, "fade1.local", 7890);
+  scrape.update();
+  
+   //display array of points from SVG
+  //println(scrape.getArray());
 }
 
 void draw() {
-  noFill();
-  //translate to center
-  translate(width/2 - s.width/2, height/2- s.height/2);
 
-  //line style
-  line.beginShape();
-  line.stroke(100); 
-  line.strokeWeight(1); 
-  line.noFill();
+  //scrape.update();
+  scrape.display();
+  
+  //generate noise based clouds
+  float hue = (noise(millis() * 0.0001) * 200) % 100;
+  float z = millis() * 0.0001;
+  float dx = millis() * 0.0001;
 
-  //draw based on coords in arraylist. advanced arraylist loop
-  for (PVector temp : loc) { 
-    ellipse(temp.x, temp.y, 5, 5);
-    line.vertex(temp.x, temp.y);
+  for (int x=0; x < clouds.width; x++) {
+    for (int y=0; y < clouds.height; y++) {
+      float n = 500 * (noise(dx + x * 0.01, y * 0.01, z) - 0.4);
+      color c = color(hue, 80 - n, n);
+      clouds.pixels[x + clouds.width*y] = c;
+    }
   }
-  line.endShape();
-  shape(line);
+  clouds.updatePixels();
+
+  image(clouds, 0, 0, width, height);
 }
