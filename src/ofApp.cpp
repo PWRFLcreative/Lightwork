@@ -13,8 +13,8 @@ void ofApp::setup(){
     // GUI
     gui.setup();
     gui.add(resetBackground.set("Reset Background", false));
-    gui.add(learningTime.set("Learning Time", 30, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 10, 0, 255));
+    gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
+    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255));
     
     // Contours
     contourFinder.setMinAreaRadius(1);
@@ -31,7 +31,7 @@ void ofApp::setup(){
     
     ledIndex = 0;
     numLeds = 50;
-    ledBrightness = 127;
+    ledBrightness = 100;
     isMapping = false;
     
     // Set up the color vector, with all LEDs set to off(black)
@@ -39,8 +39,11 @@ void ofApp::setup(){
     setAllLEDColours(ofColor(0, 0,0));
     
     // Connect to the fcserver
-    opcClient.setup("192.168.0.211", 7890);
+    opcClient.setup("192.168.1.104", 7890);
+//    opcClient.setup("127.0.0.1", 7890);
     
+    // SVG
+    svg.setViewbox(0, 0, 640, 480);
 }
 
 //--------------------------------------------------------------
@@ -72,7 +75,6 @@ void ofApp::update(){
         // Contour
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
-        
     }
 }
 
@@ -104,6 +106,8 @@ void ofApp::draw(){
             ofScale(5, 5);
             ofDrawLine(0, 0, velocity.x, velocity.y);
             ofPopMatrix();
+            
+            
         }
     } else {
         for(int i = 0; i < contourFinder.size(); i++) {
@@ -153,6 +157,7 @@ void ofApp::draw(){
         ofDrawLine(j, 12, j, 16);
     }
     
+    
 }
 
 //--------------------------------------------------------------
@@ -174,6 +179,10 @@ void ofApp::keyPressed(int key){
         case 's':
             isMapping = true;
             break;
+        case 'g':
+            generateSVG(centroids);
+        case 'j':
+            generateJSON(centroids);
     }
 
 }
@@ -237,6 +246,10 @@ void ofApp::chaseAnimation()
         if (i == ledIndex) {
             col = ofColor(ledBrightness, ledBrightness, ledBrightness);
         }
+        // wait a bit if this is the last LED
+        //else if (i == numLeds) {
+        
+        //}
         else {
             col = ofColor(0, 0, 0);
         }
@@ -251,7 +264,6 @@ void ofApp::chaseAnimation()
         setAllLEDColours(ofColor(0, 0, 0));
         isMapping = false;
     }
-    
 }
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
@@ -261,4 +273,47 @@ void ofApp::setAllLEDColours(ofColor col) {
         pixels.at(i) = col;
     }
     opcClient.writeChannel(1, pixels);
+}
+
+void ofApp::generateSVG(vector <ofPoint> points) {
+    ofPath path;
+    for (int i = 0; i < points.size(); i++) {
+        path.lineTo(points[i]);
+        cout << points[i].x;
+        cout << ", ";
+        cout << points[i].y;
+        cout << "\n";
+    }
+    svg.addPath(path);
+    path.draw();
+    svg.save("mapper-test-new.svg");
+}
+
+void ofApp::generateJSON(vector<ofPoint> points) {
+    /*
+     [
+     {"point": [1.32, 0.00, 1.32]},
+     {"point": [1.32, 0.00, 1.21]}
+     ]
+     */
+    
+    int maxX = ofToInt(svg.info.width);
+    int maxY = ofToInt(svg.info.height);
+    cout << maxX;
+    cout << maxY;
+    
+    ofxJSONElement json; // For output
+    
+    for (int i = 0; i < points.size(); i++) {
+        Json::Value event;
+        Json::Value vec(Json::arrayValue);
+        vec.append(Json::Value(points[i].x/maxX)); // Normalized
+        vec.append(Json::Value(0.0)); // Normalized
+        vec.append(Json::Value(points[i].y/maxY));
+        event["point"]=vec;
+        json.append(event);
+    }
+    
+    json.save("testLayout.json");
+    
 }
