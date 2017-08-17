@@ -21,17 +21,17 @@ void setup() {
   scrape = new Scraper("mapper-test.svg"); 
   scrape.init();
 
-  //display array of points from SVG
-  //println(scrape.getArray());
-
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
+  
+   //display array of points from SVG
+  //println(scrape.getArray());
 }
 
 void draw() {
 
   //scrape.update();
-  //scrape.display();
+  scrape.display();
   
   //generate noise based clouds
   float hue = (noise(millis() * 0.0001) * 200) % 100;

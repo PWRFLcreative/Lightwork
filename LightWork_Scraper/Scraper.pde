@@ -26,7 +26,9 @@ public class Scraper {
       // Now we can actually get the vertices from each child
       for (int j = 0; j < total; j++) {
         PVector v = child.getVertex(j);
+        v.set (map(v.x,0,viewBox[2],0,1), map(v.y,0,viewBox[3],0,1));
         loc.add(v);
+        //print(v);
       }
     }
   }
@@ -43,11 +45,11 @@ public class Scraper {
     //line.noFill();
 
     stroke(255);
-    strokeWeight(2); 
+    strokeWeight(5); 
 
     //draw based on coords in arraylist. advanced arraylist loop
     for (PVector temp : loc) { 
-      point(temp.x, temp.y);
+      point(temp.x*width, temp.y*height);
     }
     //line.endShape();
     //shape(points);
@@ -56,7 +58,7 @@ public class Scraper {
   void update() {
     int index =0;
     for (PVector temp : loc) { 
-      opc.led(index, (int)temp.x, (int)temp.y);
+      opc.led(index, (int)(temp.x*width), (int)(temp.y*height));
       index++;
     }
   }
