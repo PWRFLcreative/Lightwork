@@ -167,11 +167,13 @@ void ofApp::keyPressed(int key){
             centroids.clear();
             break;
         case '+':
+		case '=':
             threshold ++;
             cout << "Threshold: " << threshold;
             if (threshold > 255) threshold = 255;
             break;
         case '-':
+		case '_':
             threshold --;
             cout << "Threshold: " << threshold;
             if (threshold < 0) threshold = 0;
