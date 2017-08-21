@@ -35,7 +35,10 @@
 *.depend  
 *.layout  
 *.mode1v3  
-*.pbxuser  
+*.pbxuser
+
+# Visual Studio specific
+*.VC  
 
 .svn/  
 obj/  
