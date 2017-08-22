@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(15);
+    ofSetFrameRate(5);
     
     // Input
     cam.listDevices();
@@ -67,10 +67,11 @@ void ofApp::update(){
         resetBackground = false;
     }
 
+    
     if(cam.isFrameNew() && isTesting==false) {
         // Light up a new LED for every frame
         if (isMapping) {
-            chaseAnimation();
+            chaseAnimationOn();
         }
         // Background subtraction
         background.setLearningTime(learningTime);
@@ -127,6 +128,10 @@ void ofApp::update(){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             //ofLogNotice("NO CONTOUR FOUND!!!");
         }
+        if (isMapping) {
+            chaseAnimationOff();
+        }
+        
     }
     
     ofSetColor(ofColor::white);
@@ -237,7 +242,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 // Cycle through all LEDs, return false when done
-void ofApp::chaseAnimation()
+void ofApp::chaseAnimationOn()
 {
     // Chase animation
     for (int i = 0; i <  numLeds; i++) {
@@ -245,10 +250,6 @@ void ofApp::chaseAnimation()
         if (i == ledIndex) {
             col = ofColor(ledBrightness, ledBrightness, ledBrightness);
         }
-        // wait a bit if this is the last LED
-        //else if (i == numLeds) {
-        
-        //}
         else {
             col = ofColor(0, 0, 0);
         }
@@ -257,6 +258,11 @@ void ofApp::chaseAnimation()
     
     opcClient.writeChannel(1, pixels);
     
+    
+}
+
+void ofApp::chaseAnimationOff()
+{
     ledIndex++;
     if (ledIndex >= numLeds) {
         ledIndex = 0;
@@ -264,7 +270,6 @@ void ofApp::chaseAnimation()
         isMapping = false;
     }
 }
-
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLeds; i++) {
