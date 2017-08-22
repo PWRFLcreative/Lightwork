@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(30);
+    ofSetFrameRate(15);
     
     // Input
     cam.listDevices();
@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 50;
+    numLeds = 51;
     ledBrightness = 100;
     isMapping = false;
     
@@ -41,6 +41,7 @@ void ofApp::setup(){
     // Connect to the fcserver
     opcClient.setup("192.168.1.104", 7890);
 //    opcClient.setup("127.0.0.1", 7890);
+    opcClient.sendFirmwareConfigPacket();
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
@@ -61,6 +62,7 @@ void ofApp::update(){
         background.reset();
         resetBackground = false;
     }
+    // TODO: turn on LED here
     if(cam.isFrameNew()) {
         // Light up a new LED for every frame
         if (isMapping) {
@@ -75,6 +77,7 @@ void ofApp::update(){
         // Contour
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
+        // TODO: Turn off LED here
     }
 }
 
@@ -89,8 +92,9 @@ void ofApp::draw(){
     ofSetBackgroundAuto(showLabels);
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
+    
     if(showLabels) {
-        ofSetColor(255);
+        ofSetColor(0, 255, 0);
         //movie.draw(0, 0);
         contourFinder.draw();
         for(int i = 0; i < contourFinder.size(); i++) {
@@ -101,7 +105,7 @@ void ofApp::draw(){
             ofTranslate(center.x, center.y);
             int label = contourFinder.getLabel(i);
             string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
-            ofDrawBitmapString(msg, 0, 0);
+            //ofDrawBitmapString(msg, 0, 0);
             ofVec2f velocity = ofxCv::toOf(contourFinder.getVelocity(i));
             ofScale(5, 5);
             ofDrawLine(0, 0, velocity.x, velocity.y);
