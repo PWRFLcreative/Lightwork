@@ -56,13 +56,17 @@ void ofApp::update(){
         // Will continue to try and reconnect to the Pixel Server
         opcClient.tryConnecting();
     }
-    
-    cam.update();
+
+	if (isTesting) {
+		test(); // TODO: turn off blob detection while testing - also find source of delay
+	}
+
+	cam.update();
     if(resetBackground) {
         background.reset();
         resetBackground = false;
     }
-    if(cam.isFrameNew()) {
+    if(cam.isFrameNew() && isTesting==false) {
         // Light up a new LED for every frame
         if (isMapping) {
             chaseAnimation();
@@ -78,9 +82,7 @@ void ofApp::update(){
         contourFinder.findContours(thresholded);
     }
 
-	if (isTesting) {
-		test();
-	}
+	
 }
 
 //--------------------------------------------------------------
@@ -278,7 +280,6 @@ void ofApp::chaseAnimation()
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
-    // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         pixels.at(i) = col;
     }
@@ -296,6 +297,7 @@ void ofApp::test() {
 	ofSleepMillis(2000);
 	setAllLEDColours(ofColor(0, 0, 0));
 	//ofSetFrameRate(30);
+	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
 	isTesting = false;
 }
 
