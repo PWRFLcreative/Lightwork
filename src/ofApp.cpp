@@ -6,7 +6,7 @@ void ofApp::setup(){
     
     // Input
     cam.listDevices();
-    cam.setDeviceID(1); // External webcam
+    cam.setDeviceID(0); // External webcam
     cam.setup(640, 480);
     
     
@@ -59,6 +59,11 @@ void ofApp::update(){
 
 	if (isTesting) {
 		test(); // TODO: turn off blob detection while testing - also find source of delay
+	}
+
+	if (isMasking) {
+		drawMask();
+		line.draw();
 	}
 
 	cam.update();
@@ -195,6 +200,9 @@ void ofApp::keyPressed(int key){
 		case 't':
 			isTesting = true;
 			break;
+		case 'm':
+			isMasking= true;
+			break;
     }
 
 }
@@ -216,7 +224,29 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+	//Draw mask
+	if (isMasking) {
+		ofPoint pt;
+		pt.set(x, y);
+		float distance=0;
+		
+		if (line.size() > 2) {
+			vector<ofPoint> points = line.getVertices();
+			ofPoint firstPoint = points.front();
 
+			distance = pt.distance(firstPoint);
+		}
+
+		//if point is close to first, close shape
+		if (distance<10) {
+			line.close();
+		}
+		
+		else {
+			line.addVertex(pt);
+		}
+
+		}
 }
 
 //--------------------------------------------------------------
@@ -299,6 +329,12 @@ void ofApp::test() {
 	//ofSetFrameRate(30);
 	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
 	isTesting = false;
+}
+
+void ofApp::drawMask()
+{
+	isMasking = true;
+
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {

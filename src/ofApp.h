@@ -28,6 +28,7 @@ class ofApp : public ofBaseApp{
     
         void chaseAnimation();
 		void test();
+		void drawMask();
         void setAllLEDColours(ofColor col);
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
@@ -42,6 +43,8 @@ class ofApp : public ofBaseApp{
         bool                isMapping;
 		bool				isTesting;
         int                 ledBrightness;
+		ofPolyline			line;
+		bool				isMasking;
     
         // Input
         ofVideoGrabber cam;
