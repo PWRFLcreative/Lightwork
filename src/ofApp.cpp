@@ -24,6 +24,7 @@ void ofApp::setup(){
     contourFinder.getTracker().setPersistence(30);
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
+    contourFinder.getTracker().setSmoothingRate(1.0);
     
     
     // LED
@@ -130,7 +131,7 @@ void ofApp::update(){
         else if (isMapping && !success){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             ofLogNotice("NO CONTOUR FOUND!!!");
-            chaseAnimationOn();
+            //chaseAnimationOn();
         }
 
         if(isMapping && success) {
