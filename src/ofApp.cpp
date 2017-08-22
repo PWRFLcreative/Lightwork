@@ -33,6 +33,7 @@ void ofApp::setup(){
     numLeds = 50;
     ledBrightness = 100;
     isMapping = false;
+	isTesting = false;
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
@@ -76,6 +77,10 @@ void ofApp::update(){
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
     }
+
+	if (isTesting) {
+		test();
+	}
 }
 
 //--------------------------------------------------------------
@@ -185,6 +190,9 @@ void ofApp::keyPressed(int key){
             generateSVG(centroids);
         case 'j':
             generateJSON(centroids);
+		case 't':
+			isTesting = true;
+			break;
     }
 
 }
@@ -275,6 +283,20 @@ void ofApp::setAllLEDColours(ofColor col) {
         pixels.at(i) = col;
     }
     opcClient.writeChannel(1, pixels);
+}
+
+//LED Pre-flight test
+void ofApp::test() {
+	//ofSetFrameRate(1);
+	setAllLEDColours(ofColor(255, 0, 0));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 255, 0));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 0, 255));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 0, 0));
+	//ofSetFrameRate(30);
+	isTesting = false;
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {
