@@ -25,7 +25,6 @@ void ofApp::setup(){
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
     
-    showLabels = true;
     
     // LED
     
@@ -89,48 +88,29 @@ void ofApp::draw(){
     }
     gui.draw();
     
-    ofSetBackgroundAuto(showLabels);
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     
-    if(showLabels) {
-        ofSetColor(0, 255, 0);
-        //movie.draw(0, 0);
-        contourFinder.draw();
-        for(int i = 0; i < contourFinder.size(); i++) {
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(i));
-            // Store centroids for drawing/saving
-            centroids.push_back(center);
-            ofPushMatrix();
-            ofTranslate(center.x, center.y);
-            int label = contourFinder.getLabel(i);
-            string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
-            //ofDrawBitmapString(msg, 0, 0);
-            ofVec2f velocity = ofxCv::toOf(contourFinder.getVelocity(i));
-            ofScale(5, 5);
-            ofDrawLine(0, 0, velocity.x, velocity.y);
-            ofPopMatrix();
+    ofSetColor(0, 255, 0);
+    //movie.draw(0, 0);
+    contourFinder.draw();
+    for(int i = 0; i < contourFinder.size(); i++) {
+        ofPoint center = ofxCv::toOf(contourFinder.getCenter(i));
+        // Store centroids for drawing/saving
+        centroids.push_back(center);
+        ofPushMatrix();
+        ofTranslate(center.x, center.y);
+        int label = contourFinder.getLabel(i);
+        string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
+        //ofDrawBitmapString(msg, 0, 0);
+        ofVec2f velocity = ofxCv::toOf(contourFinder.getVelocity(i));
+        ofScale(5, 5);
+        ofDrawLine(0, 0, velocity.x, velocity.y);
+        ofPopMatrix();
+        
             
-            
-        }
-    } else {
-        for(int i = 0; i < contourFinder.size(); i++) {
-            unsigned int label = contourFinder.getLabel(i);
-            // only draw a line if this is not a new label
-            if(tracker.existsPrevious(label)) {
-                // use the label to pick a random color
-                ofSeedRandom(label << 24);
-                ofSetColor(ofColor::fromHsb(ofRandom(255), 255, 255));
-                // get the tracked object (cv::Rect) at current and previous position
-                const cv::Rect& previous = tracker.getPrevious(label);
-                const cv::Rect& current = tracker.getCurrent(label);
-                // get the centers of the rectangles
-                ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height / 2);
-                ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
-                ofDrawLine(previousPosition, currentPosition);
-            }
-        }
     }
+    
     for (int i = 0; i < centroids.size(); i++) {
         ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }

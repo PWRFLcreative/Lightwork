@@ -56,7 +56,6 @@ class ofApp : public ofBaseApp{
         // Contours
         float                   threshold;
         ofxCv::ContourFinder    contourFinder;
-        bool                    showLabels;
         vector <ofPoint>        centroids;
     
         // SVG
