@@ -61,6 +61,7 @@ void ofApp::update(){
         background.reset();
         resetBackground = false;
     }
+    
     // TODO: turn on LED here
     if(cam.isFrameNew()) {
         // Light up a new LED for every frame
@@ -77,10 +78,19 @@ void ofApp::update(){
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
         // TODO: Turn off LED here
-        for(int i = 0; i < contourFinder.size(); i++) {
-            // Store centroids for drawing/saving
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(i));
+        
+        // We have 1 contour
+        if (contourFinder.size() < 2 ) {
+            ofLogNotice("Detected one contour, as expected.");
+            ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
+        }
+        // We have more than 1 contour, deal with it.
+        else {
+            ofLogNotice("Detected more contours than needed.");
+            for(int i = 0; i < contourFinder.size(); i++) {
+                ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+            }
         }
     }
     
@@ -97,7 +107,6 @@ void ofApp::draw(){
     
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
-    
     ofSetColor(0, 255, 0);
     //movie.draw(0, 0);
     contourFinder.draw(); // Draws the blob rect surrounding the contour
@@ -106,9 +115,6 @@ void ofApp::draw(){
     for (int i = 0; i < centroids.size(); i++) {
         ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
-    
-    
-
 }
 
 //--------------------------------------------------------------
