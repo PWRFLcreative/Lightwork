@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(5);
+    ofSetFrameRate(10);
     
     // Input
     cam.listDevices();
@@ -20,8 +20,8 @@ void ofApp::setup(){
     contourFinder.setMinAreaRadius(1);
     contourFinder.setMaxAreaRadius(100);
     contourFinder.setThreshold(15);
-    // wait for half a frame before forgetting something
-    contourFinder.getTracker().setPersistence(15);
+    // wait for half a frame before forgetting something (15)
+    contourFinder.getTracker().setPersistence(30);
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
     
@@ -29,7 +29,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 51;
+    numLeds = 50;
     ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
@@ -67,12 +67,12 @@ void ofApp::update(){
         resetBackground = false;
     }
 
-    
-    if(cam.isFrameNew() && isTesting==false) {
+    if (isMapping) {
+        chaseAnimationOn();
+    }
+    if(cam.isFrameNew() && !isTesting) {
         // Light up a new LED for every frame
-        if (isMapping) {
-            chaseAnimationOn();
-        }
+        bool success = false; // Indicate if we successfully mapped an LED on this frame
         // Background subtraction
         background.setLearningTime(learningTime);
         background.setThresholdValue(thresholdValue);
@@ -89,6 +89,7 @@ void ofApp::update(){
 //            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
+            success = true;
             
         }
         // We have more than 1 contour, select the brightest one.
@@ -122,15 +123,21 @@ void ofApp::update(){
             ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
+            success = true;
         }
         // Deal with no contours found
-        else {
+        
+        else if (isMapping && !success){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
-            //ofLogNotice("NO CONTOUR FOUND!!!");
+            ofLogNotice("NO CONTOUR FOUND!!!");
+            chaseAnimationOn();
         }
-        if (isMapping) {
+
+        if(isMapping && success) {
             chaseAnimationOff();
         }
+        
+        
         
     }
     
@@ -264,7 +271,7 @@ void ofApp::chaseAnimationOn()
 void ofApp::chaseAnimationOff()
 {
     ledIndex++;
-    if (ledIndex >= numLeds) {
+    if (ledIndex > numLeds) {
         ledIndex = 0;
         setAllLEDColours(ofColor(0, 0, 0));
         isMapping = false;
