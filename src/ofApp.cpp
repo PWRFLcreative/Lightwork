@@ -14,7 +14,7 @@ void ofApp::setup(){
     gui.setup();
     gui.add(resetBackground.set("Reset Background", false));
     gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255));
+    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255)); //TODO: update at runtime
     
     // Contours
     contourFinder.setMinAreaRadius(1);
