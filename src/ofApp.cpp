@@ -95,8 +95,9 @@ void ofApp::update(){
         else if (contourFinder.size() > 1){
             ofLogNotice("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
-            int brightness, previousBrightness = 0;
+            int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
+                int brightness = 0;
                 cv::Rect rect = contourFinder.getBoundingRect(i);
                 ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
                 ofImage img;
@@ -118,6 +119,8 @@ void ofApp::update(){
                 ofLogNotice("Brightness: " + ofToString(brightness));
             }
             ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
+            centroids.push_back(center);
         }
         // Deal with no contours found
         else {
@@ -172,8 +175,10 @@ void ofApp::keyPressed(int key){
             break;
         case 'g':
             generateSVG(centroids);
+            break;
         case 'j':
             generateJSON(centroids);
+            break;
 		case 't':
 			isTesting = true;
 			break;
