@@ -85,19 +85,44 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 ) {
-            ofLogNotice("Detected one contour, as expected.");
+//            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
+            
         }
-        // We have more than 1 contour, deal with it.
+        // We have more than 1 contour, select the brightest one.
+        
         else if (contourFinder.size() > 1){
+            ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+            int brightestIndex = 0;
+            int brightness, previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
-                ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+                cv::Rect rect = contourFinder.getBoundingRect(i);
+                ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
+                ofImage img;
+                img = thresholded;
+                img.crop(rect.x, rect.y, rect.width, rect.height);
+                ofPixels pixels = img.getPixels();
+                
+                for (int i = 0; i< pixels.size(); i++) {
+                    brightness += pixels[i];
+                }
+                brightness /= pixels.size();
+                
+                // Check if the brightness is greater than the previous contour brightness
+                if (brightness > previousBrightness) {
+                    brightestIndex = i;
+                }
+                previousBrightness = brightness;
+                
+                ofLogNotice("Brightness: " + ofToString(brightness));
             }
+            ofLogNotice("brightest index: " + ofToString(brightestIndex));
         }
         // Deal with no contours found
         else {
-            
+            // This doesn't care if we're trying to find a contour or not, it goes in here by default
+            //ofLogNotice("NO CONTOUR FOUND!!!");
         }
     }
     
