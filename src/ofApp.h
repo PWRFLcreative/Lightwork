@@ -27,6 +27,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
         void chaseAnimation();
+		void test();
         void setAllLEDColours(ofColor col);
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
@@ -39,6 +40,7 @@ class ofApp : public ofBaseApp{
         int                 ledIndex;
         int                 numLeds;
         bool                isMapping;
+		bool				isTesting;
         int                 ledBrightness;
     
         // Input

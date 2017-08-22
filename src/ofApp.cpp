@@ -14,7 +14,7 @@ void ofApp::setup(){
     gui.setup();
     gui.add(resetBackground.set("Reset Background", false));
     gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255));
+    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255)); //TODO: update at runtime
     
     // Contours
     contourFinder.setMinAreaRadius(1);
@@ -33,6 +33,7 @@ void ofApp::setup(){
     numLeds = 51;
     ledBrightness = 100;
     isMapping = false;
+	isTesting = false;
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
@@ -56,14 +57,18 @@ void ofApp::update(){
         // Will continue to try and reconnect to the Pixel Server
         opcClient.tryConnecting();
     }
-    
-    cam.update();
+
+	if (isTesting) {
+		test(); // TODO: turn off blob detection while testing - also find source of delay
+	}
+
+	cam.update();
     if(resetBackground) {
         background.reset();
         resetBackground = false;
     }
-    // TODO: turn on LED here
-    if(cam.isFrameNew()) {
+
+    if(cam.isFrameNew() && isTesting==false) {
         // Light up a new LED for every frame
         if (isMapping) {
             chaseAnimation();
@@ -79,6 +84,8 @@ void ofApp::update(){
         contourFinder.findContours(thresholded);
         // TODO: Turn off LED here
     }
+
+	
 }
 
 //--------------------------------------------------------------
@@ -171,11 +178,13 @@ void ofApp::keyPressed(int key){
             centroids.clear();
             break;
         case '+':
+		case '=':
             threshold ++;
             cout << "Threshold: " << threshold;
             if (threshold > 255) threshold = 255;
             break;
         case '-':
+		case '_':
             threshold --;
             cout << "Threshold: " << threshold;
             if (threshold < 0) threshold = 0;
@@ -187,6 +196,9 @@ void ofApp::keyPressed(int key){
             generateSVG(centroids);
         case 'j':
             generateJSON(centroids);
+		case 't':
+			isTesting = true;
+			break;
     }
 
 }
@@ -272,11 +284,25 @@ void ofApp::chaseAnimation()
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
-    // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         pixels.at(i) = col;
     }
     opcClient.writeChannel(1, pixels);
+}
+
+//LED Pre-flight test
+void ofApp::test() {
+	//ofSetFrameRate(1);
+	setAllLEDColours(ofColor(255, 0, 0));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 255, 0));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 0, 255));
+	ofSleepMillis(2000);
+	setAllLEDColours(ofColor(0, 0, 0));
+	//ofSetFrameRate(30);
+	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
+	isTesting = false;
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {
