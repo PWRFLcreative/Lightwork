@@ -1,4 +1,4 @@
-/* Make OPC LED layout, based on vertecies of an input SVG
+p/* Make OPC LED layout, based on vertecies of an input SVG
  Tim Rolls 2017*/
 
 Scraper scrape;

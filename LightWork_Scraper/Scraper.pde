@@ -60,4 +60,24 @@ public class Scraper {
   ArrayList getArray() {
     return loc;
   }
+
+  Float[] getMinMaxCoords() {
+    float xArr[] = new float[loc.size()];
+    float yArr[] = new float[loc.size()];
+    int index =0;
+    for (PVector temp : loc) { 
+      xArr[index] = temp.x;
+      yArr[index] = temp.y;
+      index++;
+    }
+    
+    float minX = min(xArr);
+    float minY = min(yArr);
+    float maxX = max(xArr);
+    float maxY = max(yArr);
+    
+    Float[] out = {minX, minY, maxX, maxY };
+    return out;
+  }
+  
 }
