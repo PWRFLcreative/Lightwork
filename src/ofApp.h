@@ -6,6 +6,7 @@
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
+#include "ofxVideoRecorder.h"
 
 class ofApp : public ofBaseApp{
 
@@ -44,9 +45,11 @@ class ofApp : public ofBaseApp{
 		bool				isTesting;
         int                 ledBrightness;
     
-        // Input
+        bool                isLedOn;
+    
+        // Input/Output
         ofVideoGrabber cam;
-    ofVideo
+        ofxVideoRecorder videoRecorder;
     
         // Background subtraction
         ofxCv::RunningBackground background;

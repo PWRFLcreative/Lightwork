@@ -2,15 +2,17 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 20; // Used to set oF and camera framerate
+    int framerate = 15; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     // Input
     cam.listDevices();
     cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
-    cam.setDesiredFrameRate(framerate);
+    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
     
+    // Output
+    //videoRecorder.
     
     // GUI
     gui.setup();
@@ -23,7 +25,7 @@ void ofApp::setup(){
     contourFinder.setMaxAreaRadius(100);
     contourFinder.setThreshold(15);
     // wait for half a frame before forgetting something (15)
-    contourFinder.getTracker().setPersistence(30);
+    contourFinder.getTracker().setPersistence(1);
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
     contourFinder.getTracker().setSmoothingRate(1.0);
@@ -33,9 +35,10 @@ void ofApp::setup(){
     
     ledIndex = 0;
     numLeds = 50;
-    ledBrightness = 100;
+    ledBrightness = 200;
     isMapping = false;
 	isTesting = false;
+    isLedOn = false; // Prevent sending multiple ON messages
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
@@ -71,7 +74,7 @@ void ofApp::update(){
         resetBackground = false;
     }
 
-    if (isMapping) {
+    if (isMapping && !isLedOn) {
         chaseAnimationOn();
     }
     if(cam.isFrameNew() && !isTesting) {
@@ -89,23 +92,23 @@ void ofApp::update(){
         // TODO: Turn off LED here
         
         // We have 1 contour
-        if (contourFinder.size() == 1 ) {
+        if (contourFinder.size() == 1 && isLedOn) {
 //            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
-            
+            ofLogNotice("added point (only found 1)");
         }
         // We have more than 1 contour, select the brightest one.
         
-        else if (contourFinder.size() > 1){
-            ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+        else if (contourFinder.size() > 1 && isLedOn){
+            //ofLogNotice("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
                 int brightness = 0;
                 cv::Rect rect = contourFinder.getBoundingRect(i);
-                ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
+                //ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
                 ofImage img;
                 img = thresholded;
                 img.crop(rect.x, rect.y, rect.width, rect.height);
@@ -122,21 +125,22 @@ void ofApp::update(){
                 }
                 previousBrightness = brightness;
                 
-                ofLogNotice("Brightness: " + ofToString(brightness));
+                //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            //ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             success = true;
+            ofLogNotice("added point, ignored additional points");
         }
         // Deal with no contours found
         
-        else if (isMapping && !success){
+        else if (isMapping && !success && isLedOn){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             ofLogNotice("NO CONTOUR FOUND!!!");
             //chaseAnimationOn();
         }
-
+        
         if(isMapping && success) {
             chaseAnimationOff();
         }
@@ -166,6 +170,9 @@ void ofApp::draw(){
     for (int i = 0; i < centroids.size(); i++) {
         ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
+//    if (isMapping) {
+//        ofSaveFrame();
+//    }
 }
 
 //--------------------------------------------------------------
@@ -255,6 +262,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
+    ofLogNotice("animation: ON");
     // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
@@ -269,17 +277,20 @@ void ofApp::chaseAnimationOn()
     
     opcClient.writeChannel(1, pixels);
     
-    
+    isLedOn = true;
 }
 
 void ofApp::chaseAnimationOff()
 {
+    ofLogNotice("animation: OFF");
+    
     ledIndex++;
     if (ledIndex > numLeds) {
         ledIndex = 0;
         setAllLEDColours(ofColor(0, 0, 0));
         isMapping = false;
     }
+    isLedOn = false;
 }
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
@@ -315,17 +326,10 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("mapper-test-new.svg");
+    svg.save("mapper-test-accurate.svg");
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
-    /*
-     [
-     {"point": [1.32, 0.00, 1.32]},
-     {"point": [1.32, 0.00, 1.21]}
-     ]
-     */
-    
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     cout << maxX;
