@@ -13,6 +13,7 @@ public class Scraper {
   }
 
   void init() {
+    //shapeMode(CENTER);
     viewBox = getViewBox();
     s = loadShape(file);
     points = createShape();
@@ -36,20 +37,22 @@ public class Scraper {
   void display() {
     //translate to center
     //translate(width/2 - s.width/2, height/2- s.height/2);
-    translate(-viewBox[0], -viewBox[1]);
+    //translate(-viewBox[0], -viewBox[1]);
+    //translate(width/2,height/2);
     
     //line style
     //line.beginShape();
     //line.stroke(100); 
     //line.strokeWeight(1); 
     //line.noFill();
-
+    
+    noFill();
     stroke(255);
-    strokeWeight(5); 
+    strokeWeight(1); 
 
     //draw based on coords in arraylist. advanced arraylist loop
     for (PVector temp : loc) { 
-      point(temp.x*width, temp.y*height);
+      ellipse(temp.x*width, temp.y*height,10,10);
     }
     //line.endShape();
     //shape(points);
