@@ -1,4 +1,4 @@
-p/* Make OPC LED layout, based on vertecies of an input SVG
+/* Make OPC LED layout, based on vertecies of an input SVG
  Tim Rolls 2017*/
 
 Scraper scrape;
@@ -18,20 +18,20 @@ void setup() {
   clouds = createImage(128, 128, RGB);
 
   //initialize scraper
-  scrape = new Scraper("hexes.svg"); 
+  scrape = new Scraper("mapper-test.svg"); 
   scrape.init();
-
-  //display array of points from SVG
-  //println(scrape.getArray());
 
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
+  
+   //display array of points from SVG
+  //println(scrape.getArray());
 }
 
 void draw() {
 
   //scrape.update();
-  //scrape.display();
+  scrape.display();
   
   //generate noise based clouds
   float hue = (noise(millis() * 0.0001) * 200) % 100;
