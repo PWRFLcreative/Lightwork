@@ -19,7 +19,7 @@ void setup() {
   //clouds = createImage(128, 128, RGB);
 
   //initialize scraper
-  scrape = new Scraper("mapper-test-convert.svg"); 
+  scrape = new Scraper("hexes.svg"); 
   scrape.init();
 
   opc = new OPC(this, "fade1.local", 7890);
