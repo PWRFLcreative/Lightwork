@@ -46,6 +46,7 @@ class ofApp : public ofBaseApp{
     
         // Input
         ofVideoGrabber cam;
+    ofVideo
     
         // Background subtraction
         ofxCv::RunningBackground background;

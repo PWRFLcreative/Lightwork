@@ -2,12 +2,14 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(10);
+    int framerate = 20; // Used to set oF and camera framerate
+    ofSetFrameRate(framerate);
     
     // Input
     cam.listDevices();
     cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
+    cam.setDesiredFrameRate(framerate);
     
     
     // GUI
@@ -37,12 +39,13 @@ void ofApp::setup(){
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
-    setAllLEDColours(ofColor(0, 0,0));
+    
     
     // Connect to the fcserver
     opcClient.setup("192.168.1.104", 7890);
 //    opcClient.setup("127.0.0.1", 7890);
     opcClient.sendFirmwareConfigPacket();
+    setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
