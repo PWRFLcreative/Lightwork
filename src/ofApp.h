@@ -26,10 +26,13 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-        void chaseAnimation();
+        void chaseAnimationOn();
+        void chaseAnimationOff();
+		void test();
         void setAllLEDColours(ofColor col);
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
+        vector <ofPoint> removeDuplicatesFromPoints(vector <ofPoint> points);
     
         // OPC
         ofxOPC              opcClient;
@@ -39,7 +42,10 @@ class ofApp : public ofBaseApp{
         int                 ledIndex;
         int                 numLeds;
         bool                isMapping;
+		bool				isTesting;
         int                 ledBrightness;
+    
+        bool                isLedOn;
     
         // Input
         ofVideoGrabber cam;
@@ -56,11 +62,9 @@ class ofApp : public ofBaseApp{
         // Contours
         float                   threshold;
         ofxCv::ContourFinder    contourFinder;
-        bool                    showLabels;
         vector <ofPoint>        centroids;
     
         // SVG
         ofxEditableSVG svg;
         
-    
 };
