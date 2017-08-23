@@ -6,7 +6,6 @@
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
-#include "ofxVideoRecorder.h"
 
 class ofApp : public ofBaseApp{
 
@@ -33,6 +32,7 @@ class ofApp : public ofBaseApp{
         void setAllLEDColours(ofColor col);
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
+        vector <ofPoint> removeDuplicatesFromPoints(vector <ofPoint> points);
     
         // OPC
         ofxOPC              opcClient;
@@ -47,9 +47,8 @@ class ofApp : public ofBaseApp{
     
         bool                isLedOn;
     
-        // Input/Output
+        // Input
         ofVideoGrabber cam;
-        ofxVideoRecorder videoRecorder;
     
         // Background subtraction
         ofxCv::RunningBackground background;
@@ -68,5 +67,4 @@ class ofApp : public ofBaseApp{
         // SVG
         ofxEditableSVG svg;
         
-    
 };

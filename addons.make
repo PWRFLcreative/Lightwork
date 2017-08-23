@@ -5,4 +5,3 @@ ofxJSON
 ofxNetwork
 ofxOPC
 ofxOpenCv
-ofxVideoRecorder

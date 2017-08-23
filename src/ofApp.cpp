@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 15; // Used to set oF and camera framerate
+    int framerate = 5; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     // Input
@@ -10,9 +10,6 @@ void ofApp::setup(){
     cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
     cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
-    
-    // Output
-    //videoRecorder.
     
     // GUI
     gui.setup();
@@ -77,7 +74,7 @@ void ofApp::update(){
     if (isMapping && !isLedOn) {
         chaseAnimationOn();
     }
-    if(cam.isFrameNew() && !isTesting) {
+    if(cam.isFrameNew() && !isTesting && isMapping) {
         // Light up a new LED for every frame
         bool success = false; // Indicate if we successfully mapped an LED on this frame
         // Background subtraction
@@ -143,10 +140,7 @@ void ofApp::update(){
         
         if(isMapping && success) {
             chaseAnimationOff();
-        }
-        
-        
-        
+        } 
     }
     
     ofSetColor(ofColor::white);
@@ -205,6 +199,8 @@ void ofApp::keyPressed(int key){
 		case 't':
 			isTesting = true;
 			break;
+        case 'f': // filter points
+            centroids = removeDuplicatesFromPoints(centroids);
     }
 
 }
@@ -326,7 +322,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("mapper-test-accurate.svg");
+    svg.save("mapper-test-tilted.svg");
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
@@ -348,5 +344,24 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     }
     
     json.save("testLayout.json");
+}
+
+vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     
+    vector <ofPoint> filtered;
+    
+    float thresh = 5.0;
+    for (int i = 0; i < points.size(); i++) {
+        float dist = points[i].distance(points[i-1]);
+        ofLogNotice("distance: "+ofToString(dist));
+        if (dist > thresh) {
+            filtered.push_back(points[i]);
+        }
+        else {
+            ofLogNotice("distance below threshold, removing point. distance: " + ofToString(dist));
+        }
+  
+    }
+    
+    return filtered;
 }
