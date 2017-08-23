@@ -11,7 +11,6 @@ float margin =50;
 void setup() {
   size(800, 800, P2D);
   background(0);
-  //translate(0,25);
   
   //initialize scraper
   scrape = new Scraper("mapper-test-new.svg"); 
@@ -27,6 +26,7 @@ void setup() {
 
 void draw() {
   background(0);
+  
   rect(0,0,50,50);
   //scrape.update();
   scrape.display();

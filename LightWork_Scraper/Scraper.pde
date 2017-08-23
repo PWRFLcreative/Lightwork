@@ -11,7 +11,6 @@ public class Scraper {
   }
 
   void init() {
-    //viewBox = getViewBox();
     s = loadShape(file);
 
     // Iterate over the children
@@ -23,31 +22,28 @@ public class Scraper {
       // Now we can actually get the vertices from each child
       for (int j = 1; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
         PVector v = child.getVertex(j);
-        v.set (v.x,v.y);
+        v.set (v.x, v.y);
         loc.add(v);
         //print(v);
       }
     }
   }
-  
+
   //normalize point coordinates
   void normCoords()
   {
     float[] norm = new float[4];
     norm = getMinMaxCoords();
-    
-    //println(norm);
+
     int index=0;
 
-      for (PVector temp : loc) {
+    for (PVector temp : loc) {
       temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
       loc.set(index, temp);
       index++;
     }
-    
-    //println(loc);
   }
-  
+
   //show points in output window
   void display() {
 
@@ -57,33 +53,29 @@ public class Scraper {
 
     //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      ellipse(map(temp.x,0,1, margin,width-margin), map(temp.y,0,1, margin,height-margin), 10, 10);
+      ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
     }
-    
-    //rectMode(CORNER);
-    
+
   }
-  
+
   //set led coords in opc client
   void update() {
     int index =0;
     for (PVector temp : loc) {
-      //println(index);
-      //opc.led(index, (int)(temp.x*width), (int)(temp.y*height)); 
-      opc.led(index, (int)map(temp.x,0,1, margin,width-margin), (int)map(temp.y,0,1, margin,height-margin));
+      opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
       index++;
     }
   }
-  
+
   ArrayList getArray() {
     return loc;
   }
-  
+
   //deterimines bounding box of points in SVG for normalizing
   float[] getMinMaxCoords() {
     float xArr[] = new float[loc.size()];
     float yArr[] = new float[loc.size()];
-    
+
     int index =0;
     for (PVector temp : loc) { 
       xArr[index] = temp.x;
@@ -99,7 +91,7 @@ public class Scraper {
     float[] out = {minX, minY, maxX, maxY };
     return out;
   }
-  
+
   //returns viewBox parameter from SVG for normalizing / drawing points
   float[] getViewBox()
   {
