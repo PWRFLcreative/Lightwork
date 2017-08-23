@@ -6,21 +6,17 @@ OPC opc;
 
 PImage clouds;
 int pos;
+float margin =50;
 
 void setup() {
   size(800, 800, P2D);
   background(0);
+  //translate(0,25);
   
-  //colorMode(HSB, 100);
-  //noiseDetail(5, 0.4);
-  //loadPixels();
-
-  //// Render the noise to a smaller image, it's faster than updating the entire window.
-  //clouds = createImage(128, 128, RGB);
-
   //initialize scraper
-  scrape = new Scraper("hexes.svg"); 
+  scrape = new Scraper("mapper-test-new.svg"); 
   scrape.init();
+  scrape.normCoords();
 
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
@@ -31,28 +27,16 @@ void setup() {
 
 void draw() {
   background(0);
-  scrape.update();
+  rect(0,0,50,50);
+  //scrape.update();
   scrape.display();
   
-  //generate noise based clouds
-  //float hue = (noise(millis() * 0.0001) * 200) % 100;
-  //float z = millis() * 0.0001;
-  //float dx = millis() * 0.0001;
-
-  //for (int x=0; x < clouds.width; x++) {
-  //  for (int y=0; y < clouds.height; y++) {
-  //    float n = 500 * (noise(dx + x * 0.01, y * 0.01, z) - 0.4);
-  //    color c = color(hue, 80 - n, n);
-  //    clouds.pixels[x + clouds.width*y] = c;
-  //  }
-  //}
-  //clouds.updatePixels();
-
-  //image(clouds, 0, 0, width, height);
-  
+  //simple chase animation
   noStroke();
   fill(0,0,255);
   if(pos<=width)pos+=10;
   else pos=0;
   rect(pos,0,30,height);
+  
+  
 }

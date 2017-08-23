@@ -240,7 +240,8 @@ public class OPC implements Runnable
 
     setPixelCount(numPixels);
     loadPixels();
-
+    
+    //print(numPixels);
     for (int i = 0; i < numPixels; i++) {
       int pixelLocation = pixelLocations[i];
       int pixel = pixels[pixelLocation];

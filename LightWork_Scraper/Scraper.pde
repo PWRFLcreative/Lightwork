@@ -4,8 +4,6 @@ public class Scraper {
   PShape s;
   ArrayList<PVector> loc = new ArrayList<PVector>();
 
-  PShape points;
-  
   float[] viewBox;
 
   Scraper ( String in) {  
@@ -13,11 +11,9 @@ public class Scraper {
   }
 
   void init() {
-    //shapeMode(CENTER);
-    viewBox = getViewBox();
+    //viewBox = getViewBox();
     s = loadShape(file);
-    points = createShape();
-    
+
     // Iterate over the children
     int children = s.getChildCount(); //duplicate
     for (int i = 0; i < children; i++) {
@@ -25,70 +21,86 @@ public class Scraper {
       int total = child.getVertexCount();
 
       // Now we can actually get the vertices from each child
-      for (int j = 0; j < total; j++) {
+      for (int j = 1; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
         PVector v = child.getVertex(j);
-        v.set (map(v.x,0,viewBox[2],0,1), map(v.y,0,viewBox[3],0,1));
+        v.set (v.x,v.y);
         loc.add(v);
         //print(v);
       }
     }
   }
+  
+  //normalize point coordinates
+  void normCoords()
+  {
+    float[] norm = new float[4];
+    norm = getMinMaxCoords();
+    
+    //println(norm);
+    int index=0;
 
+      for (PVector temp : loc) {
+      temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
+      loc.set(index, temp);
+      index++;
+    }
+    
+    //println(loc);
+  }
+  
+  //show points in output window
   void display() {
-    //translate to center
-    //translate(width/2 - s.width/2, height/2- s.height/2);
-    //translate(-viewBox[0], -viewBox[1]);
-    //translate(width/2,height/2);
-    
-    //line style
-    //line.beginShape();
-    //line.stroke(100); 
-    //line.strokeWeight(1); 
-    //line.noFill();
-    
+
     noFill();
     stroke(255);
     strokeWeight(1); 
 
-    //draw based on coords in arraylist. advanced arraylist loop
+    //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      ellipse(temp.x*width, temp.y*height,10,10);
+      ellipse(map(temp.x,0,1, margin,width-margin), map(temp.y,0,1, margin,height-margin), 10, 10);
     }
-    //line.endShape();
-    //shape(points);
+    
+    //rectMode(CORNER);
+    
   }
-
+  
+  //set led coords in opc client
   void update() {
     int index =0;
-    for (PVector temp : loc) { 
-      opc.led(index, (int)(temp.x*width), (int)(temp.y*height));
+    for (PVector temp : loc) {
+      //println(index);
+      //opc.led(index, (int)(temp.x*width), (int)(temp.y*height)); 
+      opc.led(index, (int)map(temp.x,0,1, margin,width-margin), (int)map(temp.y,0,1, margin,height-margin));
       index++;
     }
   }
-
+  
   ArrayList getArray() {
     return loc;
   }
-
-  Float[] getMinMaxCoords() {
+  
+  //deterimines bounding box of points in SVG for normalizing
+  float[] getMinMaxCoords() {
     float xArr[] = new float[loc.size()];
     float yArr[] = new float[loc.size()];
+    
     int index =0;
     for (PVector temp : loc) { 
       xArr[index] = temp.x;
       yArr[index] = temp.y;
       index++;
     }
-    
+
     float minX = min(xArr);
     float minY = min(yArr);
     float maxX = max(xArr);
     float maxY = max(yArr);
-    
-    Float[] out = {minX, minY, maxX, maxY };
+
+    float[] out = {minX, minY, maxX, maxY };
     return out;
   }
   
+  //returns viewBox parameter from SVG for normalizing / drawing points
   float[] getViewBox()
   {
     float[] viewBox = { 0, 0, 0, 0 };
