@@ -31,7 +31,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 50;
+    numLeds = 64;
     ledBrightness = 200;
     isMapping = false;
 	isTesting = false;
@@ -151,7 +151,7 @@ void ofApp::update(){
             // Make a fake point off at 0,0
             cout << "making a fake point";
             ofPoint fakePoint;
-            fakePoint.set(0, 0);
+            fakePoint.set(-1, -1);
             centroids.push_back(fakePoint);
             numDeadFrames = 0;
             chaseAnimationOff(); // Make sure to increment the animation counter
@@ -337,7 +337,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("mapper-test-tilted.svg");
+    svg.save("mapper-lightwork.svg");
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
