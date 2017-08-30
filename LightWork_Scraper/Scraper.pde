@@ -20,11 +20,13 @@ public class Scraper {
       int total = child.getVertexCount();
 
       // Now we can actually get the vertices from each child
-      for (int j = 1; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
+      for (int j = 0; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
         PVector v = child.getVertex(j);
+        if(v.x>=0 && v.y>=0){
         v.set (v.x, v.y);
         loc.add(v);
         //print(v);
+        }
       }
     }
   }

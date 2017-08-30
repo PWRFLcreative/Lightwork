@@ -9,16 +9,17 @@ int pos;
 float margin =50;
 
 void setup() {
-  size(800, 800, P2D);
+  size(800, 800, JAVA2D); //wtf
   background(0);
   
   //initialize scraper
-  scrape = new Scraper("mapper-test-new.svg"); 
+  scrape = new Scraper("mapper-lightwork-filtered-negative.svg"); 
   scrape.init();
   scrape.normCoords();
 
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
+  opc.showLocations(false);
   
   //display array of points from SVG
   //println(scrape.getArray());
@@ -34,9 +35,9 @@ void draw() {
   //simple chase animation
   noStroke();
   fill(0,0,255);
-  if(pos<=width)pos+=10;
+  if(pos<=width)pos+=5;
   else pos=0;
-  rect(pos,0,30,height);
+  rect(pos,0,100,height);
   
   
 }
