@@ -37,6 +37,10 @@ void ofApp::setup(){
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
     
+    // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
+    deadFrameThreshold = 10;
+    numDeadFrames = 0;
+    
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
     
@@ -136,11 +140,22 @@ void ofApp::update(){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             ofLogNotice("NO CONTOUR FOUND!!!");
             //chaseAnimationOn();
+            numDeadFrames++;
         }
         
         if(isMapping && success) {
             chaseAnimationOff();
-        } 
+        }
+        // Handle dead LEDs
+        if (numDeadFrames >= deadFrameThreshold) {
+            // Make a fake point off at 0,0
+            cout << "making a fake point";
+            ofPoint fakePoint;
+            fakePoint.set(0, 0);
+            centroids.push_back(fakePoint);
+            numDeadFrames = 0;
+            chaseAnimationOff(); // Make sure to increment the animation counter
+        }
     }
     
     ofSetColor(ofColor::white);

@@ -63,6 +63,8 @@ class ofApp : public ofBaseApp{
         float                   threshold;
         ofxCv::ContourFinder    contourFinder;
         vector <ofPoint>        centroids;
+        int                     deadFrameThreshold; // How many frames to wait before giving up on detecting a single LED
+        int                     numDeadFrames;
     
         // SVG
         ofxEditableSVG svg;
