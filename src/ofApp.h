@@ -41,6 +41,8 @@ class ofApp : public ofBaseApp{
     
         int                 ledIndex;
         int                 numLeds;
+        int                 numStrips; // How many strips total
+        int                 currentStripNum; // Strip currently being mapped
         bool                isMapping;
 		bool				isTesting;
         int                 ledBrightness;
