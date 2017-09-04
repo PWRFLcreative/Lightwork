@@ -379,7 +379,7 @@ void ofApp::generateJSON(vector<ofPoint> points) {
 vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     cout << "Removing duplicates" << endl;
     // Nex vector to accumulate the points we want, we don't add unwanted points
-    vector <ofPoint> filtered = points;
+    //vector <ofPoint> filtered = points;
     float thresh = 5.0;
     
     std::vector<ofPoint>::iterator iter;
@@ -389,10 +389,22 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         cout << "BASE: " << pt << endl;
         std::vector<ofPoint>::iterator j_iter;
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
-            cout << "NESTED: " << *j_iter << endl;
+            ofPoint pt2 = *j_iter;
+            cout << "NESTED: " << pt2 << endl;
+            float dist = pt.distance(pt2);
+            cout << "DISTANCE: " << dist << endl;
+            if (pt == pt2) {
+                cout << "COMPARING POINT TO ITSELF" << endl;
+                break;
+            }
+            else if (dist < thresh) {
+                cout << "REMOVING" << endl;
+                iter = points.erase(iter);
+                break;
+            }
         }
     }
     
     
-    return filtered;
+    return points;
 }
