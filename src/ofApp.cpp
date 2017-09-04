@@ -382,63 +382,17 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     vector <ofPoint> filtered = points;
     float thresh = 5.0;
     
-    // Iter.erase approach
     std::vector<ofPoint>::iterator iter;
-    std::vector<ofPoint>::iterator j_iter;
-    // Iterated through 'filtered' (which we'll be modifying while iterating over it...)
-    cout << "num points in filtered:" << filtered.size() << endl;
-    for (iter = filtered.begin(); iter != filtered.end(); ) {
+    
+    for (iter = points.begin(); iter < points.end(); iter++) {
         ofPoint pt = *iter;
-        cout << "----------------------------------------------------------------------------" << endl;
-        cout << "BASE point: " << pt << endl;
-        if (pt.x < 0.0) {
-            // Invisible LED point detected, do nothing
-            cout << "keeping invisible LED point " << pt << endl;
-            
+        cout << "BASE: " << pt << endl;
+        std::vector<ofPoint>::iterator j_iter;
+        for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
+            cout << "NESTED: " << *j_iter << endl;
         }
-        else {
-            cout << "visible led at point: " << pt << endl;
-            // Visible LED, check distance to other LEDs and remove it if it's too close
-            
-            for (j_iter = iter; j_iter != filtered.end()-2;) {
-                
-                ofPoint pt2 = *j_iter+2; // This actually adds to the VALUE of the points (100, 100, 0 becomes 102, 102, 2) 
-                cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-                cout << "COMPARING BASE POINT TO: " << pt2 << endl;
-                float dist = pt.distance(pt2);
-                cout << "pt1 " << pt << endl;
-                cout << "pt2 " << pt2 << endl;
-                cout << "distance: " << dist << endl;
-                if ((dist <= thresh)) {
-                    cout << "distance is too low, discarding point" << endl;
-                    iter = filtered.erase(iter);
-                    //j_iter = filtered.erase(j_iter);
-                    break;
-                }
-                else {
-                    cout << "distance is ok, keeping point" << endl;
-                }
-                
-                j_iter++;
-            }
-            
-            /*
-            for (j_iter = filtered.begin()+1; j_iter != filtered.end();) {
-                ofPoint pt2 = *j_iter;
-                if (pt.distance(pt2) < thresh) {
-                    cout << "removing point (too close) " << pt << endl;
-                    iter = filtered.erase(iter);
-                }
-                else {
-                    cout << "keeping point " << pt << endl;
-                }
-            }
-            
-         */
-        }
-        iter++;
-        
     }
-
+    
+    
     return filtered;
 }
