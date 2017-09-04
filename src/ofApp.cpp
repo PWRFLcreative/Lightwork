@@ -380,14 +380,17 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     cout << "Removing duplicates" << endl;
     // Nex vector to accumulate the points we want, we don't add unwanted points
     vector <ofPoint> filtered = points;
-    float thresh = 5.0;
+    float thresh = 2.0;
     
     // Iter.erase approach
     std::vector<ofPoint>::iterator iter;
     std::vector<ofPoint>::iterator j_iter;
     // Iterated through 'filtered' (which we'll be modifying while iterating over it...)
+    cout << "num points in filtered:" << filtered.size() << endl;
     for (iter = filtered.begin(); iter != filtered.end(); ) {
         ofPoint pt = *iter;
+        cout << "----------------------------------------------------------------------------" << endl;
+        cout << "BASE point: " << pt << endl;
         if (pt.x < 0.0) {
             // Invisible LED point detected, do nothing
             cout << "keeping invisible LED point " << pt << endl;
@@ -396,13 +399,20 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             cout << "visible led at point: " << pt << endl;
             // Visible LED, check distance to other LEDs and remove it if it's too close
             
-            for (j_iter = filtered.begin()+1; j_iter != filtered.end();) {
+            for (j_iter = filtered.begin(); j_iter != filtered.end();) {
+                
                 ofPoint pt2 = *j_iter;
+                cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+                cout << "COMPARING BASE POINT TO: " << pt2 << endl;
                 float dist = pt.distance(pt2);
+                cout << "pt1 " << pt << endl;
+                cout << "pt2 " << pt2 << endl;
                 cout << "distance: " << dist << endl;
-                if (dist <= thresh) {
+                if ((dist <= thresh)) {
                     cout << "distance is too low, discarding point" << endl;
                     iter = filtered.erase(iter);
+                    //j_iter = filtered.erase(j_iter);
+                    break;
                 }
                 else {
                     cout << "distance is ok, keeping point" << endl;
@@ -427,44 +437,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         }
         iter++;
         
-        
-//        if (::DeleteFile(iter->c_str()))
-//            iter = m_vPaths.erase(iter);
-//        else
-//            ++iter;
     }
-    
-    // Go through all detected points
-    /*
-    for (int i = 0; i < points.size(); i++) {
-        ofPoint pt = points[i];
-        cout << "point index: " << i << endl;
-        
-        bool isValid = false;
-        // Check if point has a negative coordinate (if it's an 'invisible' physical LED)
-        
-        if (pt.x < 0) {
-            filtered.push_back(pt);
-            continue; // Move on to the next point, no need to check for more conditions
-        }
-         */
-        // Check the distance between this point and every other positive point
-        /*
-        for (int j = 0; j < points.size(); j++) {
-            ofPoint pt2 = points[j];
-            cout << "comparing " << i << " to " << j << " -> " << i << " " << j << endl;
-            
-            // Previous if-statement makes sure pt is positive, so we only check if pt2 is positive (and the distance is greater than the threshold)
-            if ((pt.distance(pt2) > thresh) && (pt2.x >= 0.0)) {
-                cout << "point is positive and not too close" << endl;
-                filtered.push_back(pt);
-                break; // Exit the j for loop
-            }
-            else {
-                cout << "BAD point!" << endl;
-            }
-        }
-    }
-    */
+
     return filtered;
 }
