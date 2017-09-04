@@ -380,7 +380,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     cout << "Removing duplicates" << endl;
     // Nex vector to accumulate the points we want, we don't add unwanted points
     vector <ofPoint> filtered = points;
-    float thresh = 2.0;
+    float thresh = 5.0;
     
     // Iter.erase approach
     std::vector<ofPoint>::iterator iter;
@@ -394,14 +394,15 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         if (pt.x < 0.0) {
             // Invisible LED point detected, do nothing
             cout << "keeping invisible LED point " << pt << endl;
+            
         }
         else {
             cout << "visible led at point: " << pt << endl;
             // Visible LED, check distance to other LEDs and remove it if it's too close
             
-            for (j_iter = filtered.begin(); j_iter != filtered.end();) {
+            for (j_iter = iter; j_iter != filtered.end()-2;) {
                 
-                ofPoint pt2 = *j_iter;
+                ofPoint pt2 = *j_iter+2; // This actually adds to the VALUE of the points (100, 100, 0 becomes 102, 102, 2) 
                 cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
                 cout << "COMPARING BASE POINT TO: " << pt2 << endl;
                 float dist = pt.distance(pt2);
