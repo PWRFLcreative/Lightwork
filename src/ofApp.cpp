@@ -380,11 +380,12 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     cout << "Removing duplicates" << endl;
     // Nex vector to accumulate the points we want, we don't add unwanted points
     vector <ofPoint> filtered = points;
-    float thresh = 15.0;
+    float thresh = 5.0;
     
     // Iter.erase approach
     std::vector<ofPoint>::iterator iter;
     std::vector<ofPoint>::iterator j_iter;
+    // Iterated through 'filtered' (which we'll be modifying while iterating over it...)
     for (iter = filtered.begin(); iter != filtered.end(); ) {
         ofPoint pt = *iter;
         if (pt.x < 0.0) {
@@ -392,7 +393,25 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             cout << "keeping invisible LED point " << pt << endl;
         }
         else {
+            cout << "visible led at point: " << pt << endl;
             // Visible LED, check distance to other LEDs and remove it if it's too close
+            
+            for (j_iter = filtered.begin()+1; j_iter != filtered.end();) {
+                ofPoint pt2 = *j_iter;
+                float dist = pt.distance(pt2);
+                cout << "distance: " << dist << endl;
+                if (dist <= thresh) {
+                    cout << "distance is too low, discarding point" << endl;
+                    iter = filtered.erase(iter);
+                }
+                else {
+                    cout << "distance is ok, keeping point" << endl;
+                }
+                
+                j_iter++;
+            }
+            
+            /*
             for (j_iter = filtered.begin()+1; j_iter != filtered.end();) {
                 ofPoint pt2 = *j_iter;
                 if (pt.distance(pt2) < thresh) {
@@ -404,9 +423,11 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
                 }
             }
             
-            
+         */
         }
         iter++;
+        
+        
 //        if (::DeleteFile(iter->c_str()))
 //            iter = m_vPaths.erase(iter);
 //        else
