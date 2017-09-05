@@ -48,6 +48,7 @@ class ofApp : public ofBaseApp{
         int                 ledBrightness;
     
         bool                isLedOn;
+        bool                hasFoundFirstContour;
     
         // Input
         ofVideoGrabber cam;

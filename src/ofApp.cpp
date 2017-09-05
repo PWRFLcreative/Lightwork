@@ -2,10 +2,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 5; // Used to set oF and camera framerate
+    int framerate = 13; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
-    // Input
     cam.listDevices();
     cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
@@ -41,6 +40,7 @@ void ofApp::setup(){
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
     deadFrameThreshold = 2;
     numDeadFrames = 0;
+    hasFoundFirstContour = false;
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
@@ -77,7 +77,7 @@ void ofApp::update(){
     }
 
     
-    if(cam.isFrameNew() && !isTesting && isMapping) {
+    if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Light up a new LED for every frame
         if (isMapping && !isLedOn) {
             chaseAnimationOn();
@@ -95,17 +95,20 @@ void ofApp::update(){
         // TODO: Turn off LED here
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && isLedOn) {
+        if (contourFinder.size() == 1 && isLedOn && !success) {
 //            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
-            success = true;
+            if (hasFoundFirstContour) {
+               success = true;
+            }
+            hasFoundFirstContour = true;
             ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
             
         }
         // We have more than 1 contour, select the brightest one.
         
-        else if (contourFinder.size() > 1 && isLedOn){
+        else if (contourFinder.size() > 1 && isLedOn && !success){
             //ofLogNotice("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
@@ -134,12 +137,15 @@ void ofApp::update(){
             //ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
-            success = true;
+            if (hasFoundFirstContour) {
+                success = true;
+            }
+            hasFoundFirstContour = true;
             ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
         }
         // Deal with no contours found
         
-        else if (isMapping && !success){
+        else if (isMapping && !success && hasFoundFirstContour){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             //ofLogNotice("NO CONTOUR FOUND!!!");
             //chaseAnimationOn();
@@ -149,11 +155,13 @@ void ofApp::update(){
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            cout << "CREATING FAKE POINT at frame: " << " " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds) << endl;
-            chaseAnimationOff();
+            cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds) << endl;
+            success = true;
+//            chaseAnimationOff();
         }
         
         if(isMapping && success) {
+            hasFoundFirstContour = true;
             chaseAnimationOff(); // TODO: this is redundant, see above else if
         }
         
