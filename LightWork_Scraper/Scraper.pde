@@ -66,8 +66,10 @@ public class Scraper {
   void update() {
     int index =0;
     for (PVector temp : loc) {
+      if(temp.x>0 && temp.y>0){ //ignore skipped points
       opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
       index++;
+      }
     }
   }
 
@@ -82,9 +84,11 @@ public class Scraper {
 
     int index =0;
     for (PVector temp : loc) { 
+      if(temp.x>0 && temp.y>0){ //ignore skipped points
       xArr[index] = temp.x;
       yArr[index] = temp.y;
       index++;
+      }
     }
 
     float minX = min(xArr);
