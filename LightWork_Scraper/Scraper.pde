@@ -22,12 +22,11 @@ public class Scraper {
       // Now we can actually get the vertices from each child
       for (int j = 0; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
         PVector v = child.getVertex(j);
-        
+
         v.set (v.x, v.y);
         loc.add(v);
         //print(v);
-        }
-      
+      }
     }
   }
 
@@ -35,16 +34,18 @@ public class Scraper {
   void normCoords()
   {
     float[] norm = new float[4];
-    norm = getMinMaxCoords();
+    norm = getMinMaxCoords(loc);
 
     int index=0;
 
+    //println(loc);
+
     for (PVector temp : loc) {
-      if(temp.x>0 && temp.y>0){
-      temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
-      loc.set(index, temp);
+      if (temp.x>0 && temp.y>0) {
+        temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
+        loc.set(index, temp);
+      }
       index++;
-    }
     }
   }
 
@@ -57,20 +58,23 @@ public class Scraper {
 
     //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
+      if (temp.x>0 && temp.y>0) {
+        ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
+      }
     }
-
   }
 
   //set led coords in opc client
   void update() {
     int index =0;
     for (PVector temp : loc) {
-      if(temp.x>0 && temp.y>0){ //ignore skipped points
+      //if(temp.x>0 && temp.y>0){ //ignore skipped points
       opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
       index++;
-      }
+      //}
     }
+
+    println(loc.size());
   }
 
   ArrayList getArray() {
@@ -78,16 +82,16 @@ public class Scraper {
   }
 
   //deterimines bounding box of points in SVG for normalizing
-  float[] getMinMaxCoords() {
-    float xArr[] = new float[loc.size()];
-    float yArr[] = new float[loc.size()];
+  float[] getMinMaxCoords(ArrayList<PVector> points) {
+    float xArr[] = new float[points.size()];
+    float yArr[] = new float[points.size()];
 
     int index =0;
-    for (PVector temp : loc) { 
-      if(temp.x>0 && temp.y>0){ //ignore skipped points
-      xArr[index] = temp.x;
-      yArr[index] = temp.y;
-      index++;
+    for (PVector temp : points) { 
+      if (temp.x>0 && temp.y>0) { //ignore skipped points
+        xArr[index] = temp.x;
+        yArr[index] = temp.y;
+        index++;
       }
     }
 

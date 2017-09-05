@@ -28,7 +28,7 @@ void setup() {
 void draw() {
   background(0);
   
-  rect(0,0,50,50);
+  //rect(0,0,50,50);
   //scrape.update();
   scrape.display();
   
@@ -37,7 +37,7 @@ void draw() {
   fill(0,0,255);
   if(pos<=width)pos+=5;
   else pos=0;
-  //rect(pos,0,100,height);
-  ellipse(mouseX, mouseY, 30, 30);
+  rect(pos,0,100,height);
+  //ellipse(mouseX, mouseY, 30, 30);
   
 }
