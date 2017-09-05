@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 30; // Used to set oF and camera framerate
+    int framerate = 7; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     // Input
@@ -47,8 +47,8 @@ void ofApp::setup(){
     
     
     // Connect to the fcserver
-//    opcClient.setup("192.168.1.104", 7890);
-    opcClient.setup("127.0.0.1", 7890);
+    opcClient.setup("192.168.1.104", 7890);
+//    opcClient.setup("127.0.0.1", 7890);
     opcClient.sendFirmwareConfigPacket();
     setAllLEDColours(ofColor(0, 0,0));
     
@@ -153,7 +153,7 @@ void ofApp::update(){
             // Make a fake point off at 0,0
             cout << "making a fake point";
             ofPoint fakePoint;
-            fakePoint.set(-1, -1);
+            fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
             numDeadFrames = 0;
             chaseAnimationOff(); // Make sure to increment the animation counter
@@ -384,9 +384,16 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     
     std::vector<ofPoint>::iterator iter;
     
+    // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
     for (iter = points.begin(); iter < points.end(); iter++) {
         ofPoint pt = *iter;
         cout << "BASE: " << pt << endl;
+        
+        // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
+        if (pt.x == 0 && pt.y == 0) {
+            continue; // Go to the next iteration
+        }
+        
         std::vector<ofPoint>::iterator j_iter;
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
             ofPoint pt2 = *j_iter;
