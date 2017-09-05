@@ -68,10 +68,8 @@ public class Scraper {
   void update() {
     int index =0;
     for (PVector temp : loc) {
-      //if(temp.x>0 && temp.y>0){ //ignore skipped points
       opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
       index++;
-      //}
     }
 
     println(loc.size());
@@ -83,16 +81,25 @@ public class Scraper {
 
   //deterimines bounding box of points in SVG for normalizing
   float[] getMinMaxCoords(ArrayList<PVector> points) {
-    float xArr[] = new float[points.size()];
-    float yArr[] = new float[points.size()];
+    ArrayList<PVector> pointsCopy = new ArrayList<PVector>(points);
+
+    for (int i=pointsCopy.size()-1; i>=0; i--) {
+      PVector temp = pointsCopy.get(i);
+      if (temp.x==0 && temp.y==0) {
+        pointsCopy.remove(i);
+      }
+    }
+
+    float xArr[] = new float[pointsCopy.size()];
+    float yArr[] = new float[pointsCopy.size()];
 
     int index =0;
-    for (PVector temp : points) { 
-      if (temp.x>0 && temp.y>0) { //ignore skipped points
-        xArr[index] = temp.x;
-        yArr[index] = temp.y;
-        index++;
-      }
+    for (PVector temp : pointsCopy) { 
+
+      xArr[index] = temp.x;
+      yArr[index] = temp.y;
+
+      index++;
     }
 
     float minX = min(xArr);

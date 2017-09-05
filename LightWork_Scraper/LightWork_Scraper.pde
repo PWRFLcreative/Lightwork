@@ -11,7 +11,7 @@ float margin =50;
 void setup() {
   size(800, 800, JAVA2D); //wtf
   background(0);
-  
+
   //initialize scraper
   scrape = new Scraper("lightwork_map_complete.svg"); 
   scrape.init();
@@ -20,24 +20,22 @@ void setup() {
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
   opc.showLocations(false);
-  
+
   //display array of points from SVG
   //println(scrape.getArray());
 }
 
 void draw() {
   background(0);
-  
-  //rect(0,0,50,50);
-  //scrape.update();
+
+  //rect(0,0,50,50); //test margin bounds
   scrape.display();
-  
+
   //simple chase animation
   noStroke();
-  fill(0,0,255);
-  if(pos<=width)pos+=5;
+  fill(0, 0, 255);
+  if (pos<=width)pos+=5;
   else pos=0;
-  rect(pos,0,100,height);
+  rect(pos, 0, 100, height);
   //ellipse(mouseX, mouseY, 30, 30);
-  
 }
