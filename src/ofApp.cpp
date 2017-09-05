@@ -39,7 +39,7 @@ void ofApp::setup(){
     numStrips = 8;
     currentStripNum = 1;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
-    deadFrameThreshold = 3;
+    deadFrameThreshold = 2;
     numDeadFrames = 0;
     
     // Set up the color vector, with all LEDs set to off(black)
@@ -76,11 +76,12 @@ void ofApp::update(){
         resetBackground = false;
     }
 
-    if (isMapping && !isLedOn) {
-        chaseAnimationOn();
-    }
+    
     if(cam.isFrameNew() && !isTesting && isMapping) {
         // Light up a new LED for every frame
+        if (isMapping && !isLedOn) {
+            chaseAnimationOn();
+        }
         bool success = false; // Indicate if we successfully mapped an LED on this frame
         // Background subtraction
         background.setLearningTime(learningTime);
@@ -99,7 +100,8 @@ void ofApp::update(){
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
-            ofLogNotice("added point (only found 1)");
+            ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            
         }
         // We have more than 1 contour, select the brightest one.
         
@@ -133,31 +135,38 @@ void ofApp::update(){
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             success = true;
-            ofLogNotice("added point, ignored additional points");
+            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
         }
         // Deal with no contours found
         
-        else if (isMapping && !success && isLedOn){
+        else if (isMapping && !success){
             // This doesn't care if we're trying to find a contour or not, it goes in here by default
             //ofLogNotice("NO CONTOUR FOUND!!!");
             //chaseAnimationOn();
             numDeadFrames++;
-        }
-        
-        if(isMapping && success) {
-            chaseAnimationOff();
-        }
-        
-        // Handle dead LEDs
-        if (numDeadFrames >= deadFrameThreshold) {
-            // Make a fake point off at 0,0
-            cout << "making a fake point";
+            
+            // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            numDeadFrames = 0;
-            chaseAnimationOff(); // Make sure to increment the animation counter
+            cout << "CREATING FAKE POINT at frame: " << " " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds) << endl;
+            chaseAnimationOff();
         }
+        
+        if(isMapping && success) {
+            chaseAnimationOff(); // TODO: this is redundant, see above else if
+        }
+        
+        // Handle dead LEDs
+//        if (numDeadFrames >= deadFrameThreshold) {
+//            // Make a fake point off at 0,0
+//            
+//            ofPoint fakePoint;
+//            fakePoint.set(0, 0);
+//            centroids.push_back(fakePoint);
+//            numDeadFrames = 0;
+//            chaseAnimationOff(); // Make sure to increment the animation counter
+//        }
     }
     
     ofSetColor(ofColor::white);
@@ -275,7 +284,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    ofLogNotice("animation: ON");
+    //ofLogNotice("animation: ON");
     // Chase animation
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
@@ -295,7 +304,7 @@ void ofApp::chaseAnimationOn()
 
 void ofApp::chaseAnimationOff()
 {
-    ofLogNotice("animation: OFF");
+    //ofLogNotice("animation: OFF");
     
     ledIndex++;
     if (ledIndex > numLeds) {

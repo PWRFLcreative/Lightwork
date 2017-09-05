@@ -40,7 +40,7 @@ class ofApp : public ofBaseApp{
         vector <ofColor>    pixels;
     
         int                 ledIndex;
-        int                 numLeds;
+        int                 numLeds; // Number of LEDs per strip
         int                 numStrips; // How many strips total
         int                 currentStripNum; // Strip currently being mapped
         bool                isMapping;
