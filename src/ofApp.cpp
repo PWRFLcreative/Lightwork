@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 7; // Used to set oF and camera framerate
+    int framerate = 5; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     // Input
@@ -32,7 +32,7 @@ void ofApp::setup(){
     
     ledIndex = 0;
     numLeds = 64;
-    ledBrightness = 200;
+    ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
