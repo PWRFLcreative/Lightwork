@@ -22,12 +22,12 @@ public class Scraper {
       // Now we can actually get the vertices from each child
       for (int j = 0; j < total; j++) { //using 1 to fix duplicate first point issue temporarily
         PVector v = child.getVertex(j);
-        if(v.x>=0 && v.y>=0){
+        
         v.set (v.x, v.y);
         loc.add(v);
         //print(v);
         }
-      }
+      
     }
   }
 
@@ -40,9 +40,11 @@ public class Scraper {
     int index=0;
 
     for (PVector temp : loc) {
+      if(temp.x>0 && temp.y>0){
       temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
       loc.set(index, temp);
       index++;
+    }
     }
   }
 
