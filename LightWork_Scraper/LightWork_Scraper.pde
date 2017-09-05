@@ -13,7 +13,7 @@ void setup() {
   background(0);
   
   //initialize scraper
-  scrape = new Scraper("mapper-lightwork-filtered-negative.svg"); 
+  scrape = new Scraper("lightwork_map_complete.svg"); 
   scrape.init();
   scrape.normCoords();
 
@@ -37,7 +37,7 @@ void draw() {
   fill(0,0,255);
   if(pos<=width)pos+=5;
   else pos=0;
-  rect(pos,0,100,height);
-  
+  //rect(pos,0,100,height);
+  ellipse(mouseX, mouseY, 30, 30);
   
 }
