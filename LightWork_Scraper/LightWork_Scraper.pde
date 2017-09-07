@@ -13,7 +13,7 @@ void setup() {
   background(0);
 
   //initialize scraper
-  scrape = new Scraper("lightwork_map_complete.svg"); 
+  scrape = new Scraper("mapper-lightwork_filteringTesting.svg"); 
   scrape.init();
   scrape.normCoords();
 
@@ -27,7 +27,17 @@ void setup() {
 
 void draw() {
   background(0);
-
+  
+  // Test animation
+  //noFill();
+  //strokeWeight(25);
+  //for (int i = 0; i < 100; i+=10) {
+  //  stroke(255-i*2.5, i*2.5, 255*sin(frameCount*0.02));
+  //  ellipse(width/2, height/2, i*100*sin(frameCount*0.02), i*100*sin(frameCount*0.02));
+  //}
+  // End test animation
+  
+  
   //rect(0,0,50,50); //test margin bounds
   scrape.display();
 
@@ -36,6 +46,8 @@ void draw() {
   fill(0, 0, 255);
   if (pos<=width)pos+=5;
   else pos=0;
-  rect(pos, 0, 100, height);
-  //ellipse(mouseX, mouseY, 30, 30);
+  //rect(pos, 0, 100, height);
+  ellipse(mouseX, mouseY, 30, 30);
+  
+
 }

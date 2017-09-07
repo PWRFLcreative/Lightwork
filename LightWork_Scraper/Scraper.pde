@@ -58,11 +58,15 @@ public class Scraper {
 
     //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      if (temp.x>0 && temp.y>0) {
-        ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
+      if (temp.x==0.0 && temp.y==0.0) {
+        stroke(0,0,0);
       }
+      else {
+        stroke(255, 255, 255);
+      }
+      ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
     }
-  }
+  } //<>//
 
   //set led coords in opc client
   void update() {
