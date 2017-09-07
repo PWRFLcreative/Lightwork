@@ -318,6 +318,8 @@ void ofApp::chaseAnimationOn()
         }
         pixels.at(i) = col;
     }
+    //setAllLEDColours(ofColor(ledBrightness, ledBrightness, ledBrightness));
+    
     
     opcClient.writeChannel(currentStripNum, pixels);
     
@@ -331,30 +333,31 @@ void ofApp::chaseAnimationOff()
     
     ledIndex++;
     if (ledIndex == numLeds) {
+        
+        //setAllLEDColours(ofColor(0, 0, 0));
+        for (int i = 0; i <  numLeds; i++) {
+            ofColor col;
+            if (i == ledIndex) {
+                col = ofColor(0, 0, 0);
+            }
+            else {
+                col = ofColor(0, 0, 0);
+            }
+            pixels.at(i) = col;
+        }
+        opcClient.writeChannel(currentStripNum, pixels);
         ledIndex = 0;
-        setAllLEDColours(ofColor(0, 0, 0));
         currentStripNum++;
-        
-        
     }
+    else {
+        opcClient.writeChannel(currentStripNum, pixels);
+    }
+    
+    
     // TODO: review this conditional
     if (currentStripNum > numStrips) {
         isMapping = false;
     }
-    
-    // Turn off all LEDs for the current strips
-    
-    for (int i = 0; i <  numLeds; i++) {
-        ofColor col;
-        if (i == ledIndex) {
-            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
-        }
-        else {
-            col = ofColor(0, 0, 0);
-        }
-        pixels.at(i) = col;
-    }
-    
     
     isLedOn = false;
 }
