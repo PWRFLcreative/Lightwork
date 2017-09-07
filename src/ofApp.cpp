@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 30; // Used to set oF and camera framerate
+    int framerate = 8; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     cam.listDevices();
@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 64; // TODO: Change name to ledsPerStrip or similar
+    numLeds = 65; // TODO: Change name to ledsPerStrip or similar
     ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
@@ -75,8 +75,6 @@ void ofApp::update(){
         background.reset();
         resetBackground = false;
     }
-
-    /* Main program, commented out for testing purposes
      
     if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Light up a new LED for every frame
@@ -177,13 +175,13 @@ void ofApp::update(){
 //            chaseAnimationOff(); // Make sure to increment the animation counter
 //        }
     }
-     */
-    if (ofGetFrameNum() % 2 == 0) {
-        chaseAnimationOn();
-    }
-    else {
-       chaseAnimationOff();
-    }
+    
+//    if (ofGetFrameNum() % 2 == 0) {
+//        chaseAnimationOn();
+//    }
+//    else {
+//       chaseAnimationOff();
+//    }
     
     
     ofSetColor(ofColor::white);
