@@ -413,7 +413,14 @@ void ofApp::test() {
 void ofApp::generateSVG(vector <ofPoint> points) {
     ofPath path;
     for (int i = 0; i < points.size(); i++) {
-        path.lineTo(points[i]);
+        // Avoid generating a moveTo AND lineTo for the first point
+        if (i == 0) {
+            path.moveTo(points[i]);
+        }
+        else {
+           path.lineTo(points[i]); 
+        }
+        
         cout << points[i].x;
         cout << ", ";
         cout << points[i].y;
