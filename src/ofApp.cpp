@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 13; // Used to set oF and camera framerate
+    int framerate = 8; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     cam.listDevices();
@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 64;
+    numLeds = 50;
     ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
@@ -76,7 +76,8 @@ void ofApp::update(){
         resetBackground = false;
     }
 
-    
+    /* Main program, commented out for testing purposes
+     
     if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Light up a new LED for every frame
         if (isMapping && !isLedOn) {
@@ -176,6 +177,14 @@ void ofApp::update(){
 //            chaseAnimationOff(); // Make sure to increment the animation counter
 //        }
     }
+     */
+    if (ofGetFrameNum() % 2 == 0) {
+        chaseAnimationOn();
+    }
+    else {
+       chaseAnimationOff();
+    }
+    
     
     ofSetColor(ofColor::white);
 }
@@ -294,6 +303,7 @@ void ofApp::chaseAnimationOn()
 {
     //ofLogNotice("animation: ON");
     // Chase animation
+    // Set the colors of all LEDs on the current strip
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
         if (i == ledIndex) {
@@ -313,12 +323,23 @@ void ofApp::chaseAnimationOn()
 void ofApp::chaseAnimationOff()
 {
     //ofLogNotice("animation: OFF");
+    // Turn off all LEDs for the current strips
+    for (int i = 0; i <  numLeds; i++) {
+        ofColor col;
+        if (i == ledIndex) {
+            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
+        }
+        else {
+            col = ofColor(0, 0, 0);
+        }
+        pixels.at(i) = col;
+    }
     
     ledIndex++;
     if (ledIndex > numLeds) {
         ledIndex = 0;
         currentStripNum++;
-        setAllLEDColours(ofColor(0, 0, 0));
+       // setAllLEDColours(ofColor(0, 0, 0));
         
     }
     // TODO: review this conditional
