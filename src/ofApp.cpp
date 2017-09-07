@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 8; // Used to set oF and camera framerate
+    int framerate = 30; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     cam.listDevices();
@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 50;
+    numLeds = 64; // TODO: Change name to ledsPerStrip or similar
     ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
@@ -323,7 +323,22 @@ void ofApp::chaseAnimationOn()
 void ofApp::chaseAnimationOff()
 {
     //ofLogNotice("animation: OFF");
+    
+    ledIndex++;
+    if (ledIndex == numLeds) {
+        ledIndex = 0;
+        setAllLEDColours(ofColor(0, 0, 0));
+        currentStripNum++;
+        
+        
+    }
+    // TODO: review this conditional
+    if (currentStripNum > numStrips) {
+        isMapping = false;
+    }
+    
     // Turn off all LEDs for the current strips
+    
     for (int i = 0; i <  numLeds; i++) {
         ofColor col;
         if (i == ledIndex) {
@@ -335,17 +350,7 @@ void ofApp::chaseAnimationOff()
         pixels.at(i) = col;
     }
     
-    ledIndex++;
-    if (ledIndex > numLeds) {
-        ledIndex = 0;
-        currentStripNum++;
-       // setAllLEDColours(ofColor(0, 0, 0));
-        
-    }
-    // TODO: review this conditional
-    if (currentStripNum > numStrips) {
-        isMapping = false;
-    }
+    
     isLedOn = false;
 }
 // Set all LEDs to the same colour (useful to turn them all on or off).
@@ -353,7 +358,10 @@ void ofApp::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLeds; i++) {
         pixels.at(i) = col;
     }
-    opcClient.writeChannel(1, pixels);
+    
+    opcClient.writeChannel(currentStripNum, pixels);
+    
+    
 }
 
 //LED Pre-flight test
