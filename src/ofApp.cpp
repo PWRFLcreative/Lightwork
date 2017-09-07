@@ -37,6 +37,7 @@ void ofApp::setup(){
     isLedOn = false; // Prevent sending multiple ON messages
     numStrips = 8;
     currentStripNum = 1;
+    lastStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
     deadFrameThreshold = 2;
     numDeadFrames = 0;
@@ -308,8 +309,7 @@ void ofApp::chaseAnimationOn()
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
-    vector <ofColor> pix;
-    pix.assign(numLeds, ofColor(0,0,0));
+    
     if (!isLedOn) {
         for (int i = 0; i <  numLeds; i++) {
             ofColor col;
@@ -319,12 +319,23 @@ void ofApp::chaseAnimationOn()
             else {
                 col = ofColor(0, 0, 0);
             }
-            pix.at(i) = col;
+            pixels.at(i) = col;
         }
     }
 
-    opcClient.writeChannel(currentStripNum, pix);
+    opcClient.writeChannel(currentStripNum, pixels);
     
+    if (currentStripNum != lastStripNum) {
+        for (int i = 0; i <  numLeds; i++) {
+            ofColor col;
+            
+            col = ofColor(0, 0, 0);
+            
+            pixels.at(i) = col;
+        }
+        opcClient.writeChannel(lastStripNum, pixels);
+        lastStripNum = currentStripNum;
+    }
     isLedOn = true;
 }
 
@@ -337,19 +348,18 @@ void ofApp::chaseAnimationOff()
         ledIndex++;
         if (ledIndex == numLeds) {
             
-            setAllLEDColours(ofColor(0, 0, 0));
-//            for (int i = 0; i <  numLeds; i++) {
-//                ofColor col;
-//                if (i == ledIndex) {
-//                    col = ofColor(0, 0, 0);
-//                }
-//                else {
-//                    col = ofColor(0, 0, 0);
-//                }
-//                pixels.at(i) = col;
-//            }
+            //setAllLEDColours(ofColor(0, 0, 0));
+            for (int i = 0; i <  numLeds; i++) {
+                ofColor col;
+            
+                col = ofColor(0, 0, 0);
+            
+                pixels.at(i) = col;
+            }
+            //opcClient.writeChannel(currentStripNum, pixels);
             
             ledIndex = 0;
+            lastStripNum = currentStripNum;
             currentStripNum++;
         }
         else {
