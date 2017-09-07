@@ -320,8 +320,15 @@ void ofApp::chaseAnimationOn()
     }
     //setAllLEDColours(ofColor(ledBrightness, ledBrightness, ledBrightness));
     
+    if (currentStripNum == 1) {
+        opcClient.writeChannelOne(pixels);
+    }
+    else if (currentStripNum == 2) {
+        opcClient.writeChannelTwo(pixels);
+    }
+
     
-    opcClient.writeChannel(currentStripNum, pixels);
+    //pcClient.writeChannel(currentStripNum, pixels);
     
     isLedOn = true;
 }
@@ -345,12 +352,24 @@ void ofApp::chaseAnimationOff()
             }
             pixels.at(i) = col;
         }
-        opcClient.writeChannel(currentStripNum, pixels);
+        if (currentStripNum == 1) {
+            opcClient.writeChannelOne(pixels);
+        }
+        else if (currentStripNum == 2) {
+            opcClient.writeChannelTwo(pixels);
+        }
+
         ledIndex = 0;
         currentStripNum++;
     }
     else {
-        opcClient.writeChannel(currentStripNum, pixels);
+        if (currentStripNum == 1) {
+            opcClient.writeChannelOne(pixels);
+        }
+        else if (currentStripNum == 2) {
+            opcClient.writeChannelTwo(pixels);
+        }
+        //opcClient.writeChannel(currentStripNum, pixels);
     }
     
     
