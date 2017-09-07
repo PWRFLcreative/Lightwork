@@ -46,6 +46,7 @@ class ofApp : public ofBaseApp{
         bool                isMapping;
 		bool				isTesting;
         int                 ledBrightness;
+        float               ledTimeDelta;
     
         bool                isLedOn;
         bool                hasFoundFirstContour;

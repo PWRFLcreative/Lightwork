@@ -41,6 +41,7 @@ void ofApp::setup(){
     deadFrameThreshold = 2;
     numDeadFrames = 0;
     hasFoundFirstContour = false;
+    ledTimeDelta = 0.0;
     
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
@@ -77,7 +78,7 @@ void ofApp::update(){
         resetBackground = false;
     }
     
-    /*
+    
     if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Light up a new LED for every frame
         if (isMapping && !isLedOn) {
@@ -104,7 +105,7 @@ void ofApp::update(){
                success = true;
             }
             hasFoundFirstContour = true;
-            ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            //ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
             
         }
         // We have more than 1 contour, select the brightest one.
@@ -142,7 +143,7 @@ void ofApp::update(){
                 success = true;
             }
             hasFoundFirstContour = true;
-            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            //ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
         }
         // Deal with no contours found
         
@@ -177,15 +178,16 @@ void ofApp::update(){
 //            chaseAnimationOff(); // Make sure to increment the animation counter
 //        }
     }
-     */
     
-    if (ofGetFrameNum() % 2 == 0) {
-        chaseAnimationOn();
-    }
-    else {
-       chaseAnimationOff();
-    }
     
+//    if (ofGetFrameNum() % 5 == 0) {
+//        if (!isLedOn) {
+//           chaseAnimationOn();
+//        }
+//        else {
+//            chaseAnimationOff();
+//        }
+//    }
     
     ofSetColor(ofColor::white);
 }
@@ -302,7 +304,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    //ofLogNotice("animation: ON");
+    //ofLogNotice("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
     for (int i = 0; i <  numLeds; i++) {
@@ -323,7 +326,8 @@ void ofApp::chaseAnimationOn()
 
 void ofApp::chaseAnimationOff()
 {
-    //ofLogNotice("animation: OFF");
+    ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
+    ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
     
     ledIndex++;
     if (ledIndex == numLeds) {
