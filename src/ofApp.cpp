@@ -30,7 +30,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 65; // TODO: Change name to ledsPerStrip or similar
+    numLeds = 50; // TODO: Change name to ledsPerStrip or similar
     ledBrightness = 100;
     isMapping = false;
 	isTesting = false;
@@ -47,7 +47,8 @@ void ofApp::setup(){
     
     
     // Connect to the fcserver
-    opcClient.setup("192.168.1.104", 7890);
+    opcClient.setup("192.168.1.104", 7890, 1, numLeds);
+    
 //    opcClient.setup("127.0.0.1", 7890);
     opcClient.sendFirmwareConfigPacket();
     setAllLEDColours(ofColor(0, 0,0));
@@ -75,7 +76,8 @@ void ofApp::update(){
         background.reset();
         resetBackground = false;
     }
-     
+    
+    /*
     if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Light up a new LED for every frame
         if (isMapping && !isLedOn) {
@@ -175,13 +177,14 @@ void ofApp::update(){
 //            chaseAnimationOff(); // Make sure to increment the animation counter
 //        }
     }
+     */
     
-//    if (ofGetFrameNum() % 2 == 0) {
-//        chaseAnimationOn();
-//    }
-//    else {
-//       chaseAnimationOff();
-//    }
+    if (ofGetFrameNum() % 2 == 0) {
+        chaseAnimationOn();
+    }
+    else {
+       chaseAnimationOff();
+    }
     
     
     ofSetColor(ofColor::white);
