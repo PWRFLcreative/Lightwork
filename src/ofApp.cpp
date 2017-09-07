@@ -133,15 +133,15 @@ void ofApp::update(){
                     brightestIndex = i;
                 }
                 previousBrightness = brightness;
-                
+                success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
             //ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
-            if (hasFoundFirstContour) {
-                success = true;
-            }
+//            if (hasFoundFirstContour) {
+//                success = true;
+//            }
             hasFoundFirstContour = true;
             //ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
         }
@@ -308,85 +308,79 @@ void ofApp::chaseAnimationOn()
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
-    for (int i = 0; i <  numLeds; i++) {
-        ofColor col;
-        if (i == ledIndex) {
-            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
+    vector <ofColor> pix;
+    pix.assign(numLeds, ofColor(0,0,0));
+    if (!isLedOn) {
+        for (int i = 0; i <  numLeds; i++) {
+            ofColor col;
+            if (i == ledIndex) {
+                col = ofColor(ledBrightness, ledBrightness, ledBrightness);
+            }
+            else {
+                col = ofColor(0, 0, 0);
+            }
+            pix.at(i) = col;
         }
-        else {
-            col = ofColor(0, 0, 0);
-        }
-        pixels.at(i) = col;
-    }
-    //setAllLEDColours(ofColor(ledBrightness, ledBrightness, ledBrightness));
-    
-    if (currentStripNum == 1) {
-        opcClient.writeChannelOne(pixels);
-    }
-    else if (currentStripNum == 2) {
-        opcClient.writeChannelTwo(pixels);
     }
 
-    
-    //pcClient.writeChannel(currentStripNum, pixels);
+    opcClient.writeChannel(currentStripNum, pix);
     
     isLedOn = true;
 }
 
 void ofApp::chaseAnimationOff()
 {
-    ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-    ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
-    
-    ledIndex++;
-    if (ledIndex == numLeds) {
+    if (isLedOn) {
+        ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
+        ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
         
-        //setAllLEDColours(ofColor(0, 0, 0));
-        for (int i = 0; i <  numLeds; i++) {
-            ofColor col;
-            if (i == ledIndex) {
-                col = ofColor(0, 0, 0);
-            }
-            else {
-                col = ofColor(0, 0, 0);
-            }
-            pixels.at(i) = col;
+        ledIndex++;
+        if (ledIndex == numLeds) {
+            
+            setAllLEDColours(ofColor(0, 0, 0));
+//            for (int i = 0; i <  numLeds; i++) {
+//                ofColor col;
+//                if (i == ledIndex) {
+//                    col = ofColor(0, 0, 0);
+//                }
+//                else {
+//                    col = ofColor(0, 0, 0);
+//                }
+//                pixels.at(i) = col;
+//            }
+            
+            ledIndex = 0;
+            currentStripNum++;
         }
-        if (currentStripNum == 1) {
-            opcClient.writeChannelOne(pixels);
+        else {
+            //        if (currentStripNum == 1) {
+            //            opcClient.writeChannelOne(pixels);
+            //        }
+            //        else if (currentStripNum == 2) {
+            //            opcClient.writeChannelTwo(pixels);
+            //        }
+            //opcClient.writeChannel(currentStripNum, pixels);
         }
-        else if (currentStripNum == 2) {
-            opcClient.writeChannelTwo(pixels);
+        
+        
+        // TODO: review this conditional
+        if (currentStripNum > numStrips) {
+            isMapping = false;
         }
-
-        ledIndex = 0;
-        currentStripNum++;
-    }
-    else {
-        if (currentStripNum == 1) {
-            opcClient.writeChannelOne(pixels);
-        }
-        else if (currentStripNum == 2) {
-            opcClient.writeChannelTwo(pixels);
-        }
-        //opcClient.writeChannel(currentStripNum, pixels);
+        
+        isLedOn = false;
     }
     
-    
-    // TODO: review this conditional
-    if (currentStripNum > numStrips) {
-        isMapping = false;
-    }
-    
-    isLedOn = false;
 }
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
+    vector <ofColor> pix;
+    pix.assign(numLeds, ofColor(0,0,0));
     for (int i = 0; i <  numLeds; i++) {
-        pixels.at(i) = col;
+        pix.at(i) = col;
     }
     
-    opcClient.writeChannel(currentStripNum, pixels);
+    opcClient.writeChannel(currentStripNum, pix);
     
     
 }
