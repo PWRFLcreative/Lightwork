@@ -457,12 +457,13 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     cout << "Removing duplicates" << endl;
     // Nex vector to accumulate the points we want, we don't add unwanted points
     //vector <ofPoint> filtered = points;
-    float thresh = 5.0;
+    float thresh = 3.0;
     
     std::vector<ofPoint>::iterator iter;
     
     // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
     for (iter = points.begin(); iter < points.end(); iter++) {
+        int i = std::distance(points.begin(), iter); // Index of iter
         ofPoint pt = *iter;
         cout << "BASE: " << pt << endl;
         
@@ -471,15 +472,22 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             continue; // Go to the next iteration
         }
         
+        // Check point distance, remove points that are too close
         std::vector<ofPoint>::iterator j_iter;
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
+            int j = std::distance(points.begin(), j_iter); // Index of j_iter
             ofPoint pt2 = *j_iter;
             cout << "NESTED: " << pt2 << endl;
             float dist = pt.distance(pt2);
             cout << "DISTANCE: " << dist << endl;
-            if (pt == pt2) {
-                cout << "COMPARING POINT TO ITSELF" << endl;
+            cout << i << endl << j << endl;
+            if (i == j) {
+                cout << "COMPARING POINT TO ITSELF " << pt << endl;
                 break;
+            }
+            else if (pt.x == pt2.x && pt.y == pt2.y) {
+                cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
+                iter = points.erase(iter);
             }
             else if (dist < thresh) {
                 cout << "REMOVING" << endl;
