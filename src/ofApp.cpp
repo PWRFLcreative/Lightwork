@@ -474,6 +474,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         
         // Check point distance, remove points that are too close
         std::vector<ofPoint>::iterator j_iter;
+        
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
             int j = std::distance(points.begin(), j_iter); // Index of j_iter
             ofPoint pt2 = *j_iter;
@@ -483,11 +484,11 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             cout << i << endl << j << endl;
             if (i == j) {
                 cout << "COMPARING POINT TO ITSELF " << pt << endl;
-                break;
             }
             else if (pt.x == pt2.x && pt.y == pt2.y) {
                 cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
                 iter = points.erase(iter);
+                break;
             }
             else if (dist < thresh) {
                 cout << "REMOVING" << endl;
