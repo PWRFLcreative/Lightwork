@@ -45,7 +45,7 @@ class ofApp : public ofBaseApp{
 		void onDropdownEvent(ofxDatGuiDropdownEvent e);
 		void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
 		void onMatrixEvent(ofxDatGuiMatrixEvent e);
-		void switchCamera(int num);
+		
     
         // OPC
         ofxOPC              opcClient;
@@ -62,13 +62,19 @@ class ofApp : public ofBaseApp{
     
         // Input
         ofVideoGrabber cam;
+		void switchCamera(int num);
+		void enumerateCams();
+		vector <ofVideoDevice> devices;
+		vector <string> deviceStrings;
     
         // Background subtraction
         ofxCv::RunningBackground background;
         ofImage thresholded;
     
         // GUI
-        //ofxPanel gui;
+		void buildUI();
+		ofxDatGui* gui;
+
         bool resetBackground;
         ofParameter<float> learningTime, thresholdValue;
 		string IP;
