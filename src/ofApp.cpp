@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 8; // Used to set oF and camera framerate
+    int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
     cam.listDevices();
@@ -26,18 +26,20 @@ void ofApp::setup(){
     contourFinder.getTracker().setMaximumDistance(32);
     contourFinder.getTracker().setSmoothingRate(1.0);
     
+    // Allocate the thresholded view so that it draws on launch (before calibration starts).
+    thresholded.allocate(640, 480, OF_IMAGE_COLOR);
     
     // LED
     
     ledIndex = 0;
     numLeds = 50; // TODO: Change name to ledsPerStrip or similar
-    ledBrightness = 100;
+    ledBrightness = 50;
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
     numStrips = 8;
     currentStripNum = 1;
-    lastStripNum = currentStripNum;
+    previousStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
     deadFrameThreshold = 2;
     numDeadFrames = 0;
@@ -47,12 +49,11 @@ void ofApp::setup(){
     // Set up the color vector, with all LEDs set to off(black)
     pixels.assign(numLeds, ofColor(0,0,0));
     
-    
     // Connect to the fcserver
     opcClient.setup("192.168.1.104", 7890, 1, numLeds);
-    
 //    opcClient.setup("127.0.0.1", 7890);
-    opcClient.sendFirmwareConfigPacket();
+    
+    opcClient.sendFirmwareConfigPacket(); // Turns off dithering (hard-coded in OPC right now...)
     setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
@@ -79,13 +80,16 @@ void ofApp::update(){
         resetBackground = false;
     }
     
-    
+    // New camera frame: Turn on a new LED and detect the location.
+    // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
     if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
+        bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
+        
         // Light up a new LED for every frame
-        if (isMapping && !isLedOn) {
+        if (!isLedOn) {
             chaseAnimationOn();
         }
-        bool success = false; // Indicate if we successfully mapped an LED on this frame
+        
         // Background subtraction
         background.setLearningTime(learningTime);
         background.setThresholdValue(thresholdValue);
@@ -95,7 +99,6 @@ void ofApp::update(){
         // Contour
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
-        // TODO: Turn off LED here
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
@@ -149,7 +152,6 @@ void ofApp::update(){
         // Deal with no contours found
         
         else if (isMapping && !success && hasFoundFirstContour){
-            // This doesn't care if we're trying to find a contour or not, it goes in here by default
             //ofLogNotice("NO CONTOUR FOUND!!!");
             //chaseAnimationOn();
             numDeadFrames++;
@@ -325,7 +327,7 @@ void ofApp::chaseAnimationOn()
 
     opcClient.writeChannel(currentStripNum, pixels);
     
-    if (currentStripNum != lastStripNum) {
+    if (currentStripNum != previousStripNum) {
         for (int i = 0; i <  numLeds; i++) {
             ofColor col;
             
@@ -333,8 +335,8 @@ void ofApp::chaseAnimationOn()
             
             pixels.at(i) = col;
         }
-        opcClient.writeChannel(lastStripNum, pixels);
-        lastStripNum = currentStripNum;
+        opcClient.writeChannel(previousStripNum, pixels);
+        previousStripNum = currentStripNum;
     }
     isLedOn = true;
 }
@@ -359,7 +361,7 @@ void ofApp::chaseAnimationOff()
             //opcClient.writeChannel(currentStripNum, pixels);
             
             ledIndex = 0;
-            lastStripNum = currentStripNum;
+            previousStripNum = currentStripNum;
             currentStripNum++;
         }
         else {
@@ -418,7 +420,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
             path.moveTo(points[i]);
         }
         else {
-           path.lineTo(points[i]); 
+           path.lineTo(points[i]);
         }
         
         cout << points[i].x;
@@ -428,7 +430,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("mapper-lightwork_filteringTest.svg");
+    svg.save("layout.svg");
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
@@ -455,8 +457,7 @@ void ofApp::generateJSON(vector<ofPoint> points) {
 /*
  I'm expecting a series of 2D points. I need to filter out points that are too close together, but keep
  negative points. The one that are negative represent 'invisible' or 'skipped' LEDs that have a physical presence
- in an LED strip. We need to store them 'off the canvas' so that our client application (Lightwork Scraper) can
- be aware of the missing LEDs (as they are treated sequentially, with no 'fixed' address mapping.
+ in an LED strip but are not visuable. We need to store them 'off the canvas' so that our client application (Lightwork Scraper) can be aware of the missing LEDs (as they are treated sequentially, with no 'fixed' address mapping.
  IDEA: Can we store the physical address as the 'z' in a Vec3 or otherwise encode it in the SVG. Maybe we can make another
  'path' in the SVG that stores the address in a path of the same length.
  */

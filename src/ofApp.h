@@ -43,14 +43,14 @@ class ofApp : public ofBaseApp{
         int                 numLeds; // Number of LEDs per strip
         int                 numStrips; // How many strips total
         int                 currentStripNum; // Strip currently being mapped
-        int                 lastStripNum;
+        int                 previousStripNum; //
         bool                isMapping;
 		bool				isTesting;
         int                 ledBrightness;
         float               ledTimeDelta;
     
         bool                isLedOn;
-        bool                hasFoundFirstContour;
+        bool                hasFoundFirstContour; // Avoid registering 'fake' points before the first detection
     
         // Input
         ofVideoGrabber cam;
