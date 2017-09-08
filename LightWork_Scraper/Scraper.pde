@@ -42,8 +42,9 @@ public class Scraper {
 
     for (PVector temp : loc) {
       if (temp.x>0 && temp.y>0) {
-        temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
+        temp.set (map(temp.x, norm[0], norm[2], 0.001, 1), map(temp.y, norm[1], norm[3], 0.001, 1));
         loc.set(index, temp);
+        
       }
       index++;
     }
@@ -58,18 +59,14 @@ public class Scraper {
 
     //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      if (temp.x==0.0 && temp.y==0.0) {
-        stroke(0,0,0);
-      }
-      else {
-        stroke(255, 255, 255);
-      }
-      ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
+      if (!(temp.x == 0.0) && !(temp.y == 0.0)) {
+        ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
+      } 
     }
-  } //<>//
+  }
 
   //set led coords in opc client
-  void update() {
+  void update() { //<>//
     int index =0;
     for (PVector temp : loc) {
       opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
