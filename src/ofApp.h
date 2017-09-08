@@ -6,6 +6,8 @@
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
+#include "ofxDatGui.h"
+#include "ofVideoGrabber.h"
 
 class ofApp : public ofBaseApp{
 
@@ -33,6 +35,17 @@ class ofApp : public ofBaseApp{
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
         vector <ofPoint> removeDuplicatesFromPoints(vector <ofPoint> points);
+
+		//GUI
+		void onButtonEvent(ofxDatGuiButtonEvent e);
+		void onToggleEvent(ofxDatGuiToggleEvent e);
+		void onSliderEvent(ofxDatGuiSliderEvent e);
+		void onTextInputEvent(ofxDatGuiTextInputEvent e);
+		void on2dPadEvent(ofxDatGui2dPadEvent e);
+		void onDropdownEvent(ofxDatGuiDropdownEvent e);
+		void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+		void onMatrixEvent(ofxDatGuiMatrixEvent e);
+		
     
         // OPC
         ofxOPC              opcClient;
@@ -54,17 +67,22 @@ class ofApp : public ofBaseApp{
         bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     
         // Input
-        ofVideoGrabber cam;                         // Video Camera
+        ofVideoGrabber cam;
+		void switchCamera(int num);
+		void enumerateCams();
+		vector <ofVideoDevice> devices;
+		vector <string> deviceStrings;
     
         // Background subtraction
         ofxCv::RunningBackground background;        // Background subtraction class with running average
         ofImage thresholded;                        // Binary threshold image
     
         // GUI
-        ofxPanel gui;
-        ofParameter<bool> resetBackground;          // Reset the background detection (TODO: Review if needed)
-        ofParameter<float> learningTime;            // Set the time for the running averabe background detection.
-        ofParameter<float> thresholdValue;
+		void buildUI();
+		ofxDatGui* gui;
+        bool resetBackground;
+        ofParameter<float> learningTime, thresholdValue;
+		string IP;
     
         // Contours
         float                   threshold;          // Brightness threshold for contour detection

@@ -4,17 +4,20 @@
 void ofApp::setup(){
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
+
+	IP = "192.168.1.104"; //Default IP for Fadecandy
     
-    cam.listDevices();
-    cam.setDeviceID(1); // External webcam
-    cam.setup(640, 480);
-    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate, keeping them at same settings.
-    
-    // GUI
-    gui.setup();
-    gui.add(resetBackground.set("Reset Background", false));
-    gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255)); //TODO: update at runtime
+	//Video Devices
+	enumerateCams();
+	cam.setup(640, 480);
+	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+
+	// GUI - OLD
+	//gui.setup();
+	//resetBackground.set("Reset Background", false);
+	learningTime.set("Learning Time", 30, 0, 30);
+	thresholdValue.set("Threshold Value", 10, 0, 255);
+
     
     // Contours
     contourFinder.setMinAreaRadius(1);
@@ -48,14 +51,15 @@ void ofApp::setup(){
     pixels.assign(numLedsPerStrip, ofColor(0,0,0));
     
     // Connect to the fcserver
-//    opcClient.setup("192.168.1.104", 7890, 1, numLedsPerStrip);
-    opcClient.setup("127.0.0.1", 7890, 1, numLedsPerStrip);
-    
-    opcClient.sendFirmwareConfigPacket(); // Turns off dithering (hard-coded in OPC right now...)
+    opcClient.setup(IP, 7890, 1, numLedsPerStrip);
+    opcClient.sendFirmwareConfigPacket();
     setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
+
+	//GUI
+	buildUI();
 }
 
 //--------------------------------------------------------------
@@ -73,10 +77,6 @@ void ofApp::update(){
 	}
 
 	cam.update();
-    if(resetBackground) {
-        background.reset();
-        resetBackground = false;
-    }
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
@@ -169,7 +169,7 @@ void ofApp::draw(){
     if(thresholded.isAllocated()) {
         thresholded.draw(640, 0);
     }
-    gui.draw();
+    //gui.draw();
     
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
@@ -344,15 +344,22 @@ void ofApp::setAllLEDColours(ofColor col) {
 
 //LED Pre-flight test
 void ofApp::test() {
-	setAllLEDColours(ofColor(255, 0, 0));
-	ofSleepMillis(2000);
-	setAllLEDColours(ofColor(0, 255, 0));
-	ofSleepMillis(2000);
-	setAllLEDColours(ofColor(0, 0, 255));
-	ofSleepMillis(2000);
-	setAllLEDColours(ofColor(0, 0, 0));
-	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
-	isTesting = false;
+	int start = ofGetFrameNum(); // needs global variables to work properly
+	int currFrame = start; 
+	int diff = currFrame - start;
+	if (diff <300){
+		if (diff < 100) { setAllLEDColours(ofColor(255, 0, 0)); }
+		else if (diff <200 && diff >100){ setAllLEDColours(ofColor(0, 255, 0)); }
+		else if (diff < 300 && diff >200) { setAllLEDColours(ofColor(0, 0, 255)); }	
+	}
+	currFrame = ofGetFrameNum();
+	diff = currFrame - start;
+
+	if (diff >= 300) {
+		setAllLEDColours(ofColor(0, 0, 0));
+		isTesting = false;
+	}
+
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {
@@ -454,4 +461,122 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     }
     
     return points;
+}
+
+//Dropdown Handler
+void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
+{
+	cout << "the option at index # " << e.child << " was selected " << endl;
+
+	if (e.target->is("Select Camera")) {
+		enumerateCams();
+		gui->getDropdown("Select Camera")->update(); //TODO : Not working
+		switchCamera(e.child);
+	}
+
+	if (e.target->is("Select Driver Type")) {
+		if (e.child == 0) {
+			cout << "Pixel Pusher was selected" << endl;
+		}
+		else if (e.child == 1) {
+			cout << "Fadecandy/Octo was selected" << endl;
+		}
+	}
+}
+
+
+void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
+{
+	cout << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText() << endl;
+
+	if (e.target->is("IP")) {
+		IP= e.target->getText();
+		opcClient.setup(IP, 7890);
+	}
+
+	if (e.target->is("LEDS")) {
+		string temp = e.target->getText();
+		numLedsPerStrip = ofToInt(temp);
+	}
+}
+
+void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
+{
+	cout << "onButtonEvent: " << e.target->getLabel() << endl;
+
+	if (e.target->is("TEST LEDS")) {
+		isTesting = true;
+	}
+	if (e.target->is("MAP LEDS")) {
+		isMapping = true;
+	}
+	if (e.target->is("SAVE LAYOUT")) {
+		centroids = removeDuplicatesFromPoints(centroids);
+		generateSVG(centroids);
+	}
+
+}
+
+
+void ofApp::switchCamera(int num)
+{
+	cam.close();
+	cam.setDeviceID(num);
+	cam.setup(640, 480);
+}
+
+void ofApp::enumerateCams()
+{
+	devices = cam.listDevices();
+
+	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
+		ofVideoDevice device = *it;
+		string name = device.deviceName;
+		int id = device.id;
+		cout << "Device Name: " << id << name << endl;
+		deviceStrings.push_back(name);
+	}
+}
+
+void ofApp::buildUI()
+{
+	//GUI
+	gui = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_LEFT);
+	//gui->setTheme(new ofxDatGuiThemeCharcoal());
+
+	gui->addDropdown("Select Camera", deviceStrings);
+	gui->addBreak();
+
+	vector<string> opts = { "PixelPusher", "Fadecandy/Octo" };
+	gui->addDropdown("Select Driver Type", opts);
+	gui->addBreak();
+
+	gui->addTextInput("IP", IP);
+	gui->addTextInput("LEDS", ofToString(numLedsPerStrip));
+	gui->addBreak();
+
+	ofxDatGuiFolder* folder = gui->addFolder("Mapping Settings", ofColor::white);
+	folder->addSlider(learningTime);
+	folder->addSlider(thresholdValue);
+	folder->addButton("Test LEDS");
+	folder->addButton("Map LEDS");
+	//gui->addButton(resetBackground);
+	folder->addButton("Save Layout");
+	folder->expand();
+	folder->addBreak();
+
+	gui->addFRM();
+
+	gui->addHeader(":: drag me to reposition ::");
+	gui->addFooter();
+
+	// once the gui has been assembled, register callbacks to listen for component specific events //
+	gui->onButtonEvent(this, &ofApp::onButtonEvent);
+	//gui->onToggleEvent(this, &ofApp::onToggleEvent);
+	//gui->onSliderEvent(this, &ofApp::onSliderEvent);
+	gui->onTextInputEvent(this, &ofApp::onTextInputEvent);
+	//gui->on2dPadEvent(this, &ofApp::on2dPadEvent);
+	gui->onDropdownEvent(this, &ofApp::onDropdownEvent);
+	//gui->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
+	//gui->onMatrixEvent(this, &ofApp::onMatrixEvent);
 }
