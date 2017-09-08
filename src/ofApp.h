@@ -6,6 +6,8 @@
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
+#include "ofxDatGui.h"
+#include "ofVideoGrabber.h"
 
 class ofApp : public ofBaseApp{
 
@@ -33,6 +35,17 @@ class ofApp : public ofBaseApp{
         void generateSVG(vector <ofPoint> points);
         void generateJSON(vector <ofPoint> points);
         vector <ofPoint> removeDuplicatesFromPoints(vector <ofPoint> points);
+
+		//GUI
+		void onButtonEvent(ofxDatGuiButtonEvent e);
+		void onToggleEvent(ofxDatGuiToggleEvent e);
+		void onSliderEvent(ofxDatGuiSliderEvent e);
+		void onTextInputEvent(ofxDatGuiTextInputEvent e);
+		void on2dPadEvent(ofxDatGui2dPadEvent e);
+		void onDropdownEvent(ofxDatGuiDropdownEvent e);
+		void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+		void onMatrixEvent(ofxDatGuiMatrixEvent e);
+		void switchCamera(int num);
     
         // OPC
         ofxOPC              opcClient;
@@ -55,9 +68,10 @@ class ofApp : public ofBaseApp{
         ofImage thresholded;
     
         // GUI
-        ofxPanel gui;
-        ofParameter<bool> resetBackground;
+        //ofxPanel gui;
+        bool resetBackground;
         ofParameter<float> learningTime, thresholdValue;
+		string IP;
     
         // Contours
         float                   threshold;

@@ -95,32 +95,8 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\components;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs\ofxSmartFont;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\themes;
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxGui\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -128,12 +104,7 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_calib3d249d.lib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_contrib249d.lib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_core249d.lib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_features2d249d.lib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_flann249d.lib;
-;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_contrib249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_core249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_features2d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_flann249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_gpu249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_highgui249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_imgproc249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_legacy249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_ml249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_nonfree249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_objdetect249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_photo249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_stitching249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_superres249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_ts249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_video249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_videostab249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_calib3d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_contrib249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_core249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_features2d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_flann249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_contrib249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_core249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_features2d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_flann249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_gpu249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_highgui249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_imgproc249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_legacy249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_ml249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_nonfree249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_objdetect249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_photo249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_stitching249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_superres249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_ts249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_video249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\opencv_videostab249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Debug\zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -146,32 +117,8 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_calib3d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_contrib249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_core249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_features2d249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_flann249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_gpu249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_highgui249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_imgproc249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_legacy249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_ml249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_nonfree249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_objdetect249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_photo249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_stitching249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_superres249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_ts249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_video249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_videostab249d.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\zlibd.lib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\components;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs\ofxSmartFont;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\themes;
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -207,32 +154,8 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\components;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs\ofxSmartFont;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\themes;
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxGui\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -273,32 +196,8 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxCv\libs\ofxCv\include;..\..\..\addons\ofxCv\libs\CLD\include\CLD;..\..\..\addons\ofxCv\src;..\..\..\addons\ofxEditableSVG\libs;..\..\..\addons\ofxEditableSVG\libs\svgTiny;..\..\..\addons\ofxEditableSVG\libs\svgTiny\src;..\..\..\addons\ofxEditableSVG\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxJSON\libs;..\..\..\addons\ofxJSON\libs\jsoncpp;..\..\..\addons\ofxJSON\libs\jsoncpp\include;..\..\..\addons\ofxJSON\libs\jsoncpp\include\json;..\..\..\addons\ofxJSON\libs\jsoncpp\src;..\..\..\addons\ofxJSON\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxOPC\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\features2d;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\flann;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\gpu\device\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\highgui;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\imgproc;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\legacy;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ml;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\nonfree;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\objdetect;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\photo;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\stitching\detail;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\superres;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\ts;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\video;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\include\opencv2\videostab;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\components;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\core;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\libs\ofxSmartFont;C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxDatGui\src\themes;
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxGui\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -310,29 +209,40 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_calib3d249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_contrib249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_core249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_features2d249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_flann249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_gpu249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_highgui249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_imgproc249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_legacy249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_ml249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_nonfree249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_objdetect249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_photo249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_stitching249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_superres249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_ts249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_video249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\opencv_videostab249d.lib%3b
-C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\x64\Debug\zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_calib3d249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_contrib249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_core249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_features2d249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_flann249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_gpu249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_highgui249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_imgproc249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_legacy249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_ml249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_nonfree249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_objdetect249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_photo249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_stitching249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_superres249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_ts249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_video249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\opencv_videostab249.lib%3b
+C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\lib\vs\Win32\Release\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxDatGui\src\ofxDatGui.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxButton.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxLabel.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxPanel.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvContourFinder.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvFloatImage.cpp" />
@@ -360,14 +270,6 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
     <ClCompile Include="..\..\..\addons\ofxEditableSVG\libs\svgTiny\src\svgtiny.cpp" />
     <ClCompile Include="..\..\..\addons\ofxEditableSVG\libs\svgTiny\src\svgtiny_gradient.cpp" />
     <ClCompile Include="..\..\..\addons\ofxEditableSVG\libs\svgTiny\src\svgtiny_list.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxButton.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxLabel.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxPanel.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="..\..\..\addons\ofxJSON\src\ofxJSONElement.cpp" />
     <ClCompile Include="..\..\..\addons\ofxJSON\libs\jsoncpp\src\jsoncpp.cpp" />
     <ClCompile Include="..\..\..\addons\ofxNetwork\src\ofxTCPClient.cpp" />
@@ -382,6 +284,36 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
     <ClCompile Include="..\..\..\addons\ofxOPC\src\ofxOPC.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGui2dPad.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiButton.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiColorPicker.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiControls.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiFRM.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiGroups.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiLabel.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiMatrix.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiScrollView.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiSlider.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiTextInput.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiTextInputField.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\components\ofxDatGuiTimeGraph.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\core\ofxDatGuiComponent.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\core\ofxDatGuiConstants.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\core\ofxDatGuiEvents.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\core\ofxDatGuiIntObject.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\ofxDatGui.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\themes\ofxDatGuiTheme.h" />
+    <ClInclude Include="..\..\..\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxGui.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxLabel.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxPanel.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h" />
+    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\calib3d\calib3d.hpp" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib\contrib.hpp" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\contrib\detection_based_tracker.hpp" />
@@ -572,15 +504,6 @@ C:\Users\DellXPS\Documents\of\of_v0.9.8_vs_release\addons\ofxOpenCv\libs\opencv\
     <ClInclude Include="..\..\..\addons\ofxEditableSVG\src\ofxSVGTypes.h" />
     <ClInclude Include="..\..\..\addons\ofxEditableSVG\libs\svgTiny\src\svgtiny.h" />
     <ClInclude Include="..\..\..\addons\ofxEditableSVG\libs\svgTiny\src\svgtiny_internal.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxGui.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxLabel.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxPanel.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h" />
-    <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="..\..\..\addons\ofxJSON\src\ofxJSON.h" />
     <ClInclude Include="..\..\..\addons\ofxJSON\src\ofxJSONElement.h" />
     <ClInclude Include="..\..\..\addons\ofxJSON\libs\jsoncpp\include\json\json-forwards.h" />

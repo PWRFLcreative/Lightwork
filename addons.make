@@ -1,7 +1,8 @@
-ofxCv
-ofxEditableSVG
 ofxGui
-ofxJSON
 ofxNetwork
-ofxOPC
 ofxOpenCv
+ofxCv
+ofxDatGui
+ofxEditableSVG
+ofxJSON
+ofxOPC

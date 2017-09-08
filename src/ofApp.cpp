@@ -2,20 +2,80 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 5; // Used to set oF and camera framerate
+    int framerate = 30; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
+
+	IP = "192.168.1.104";
     
     // Input
-    cam.listDevices();
-    cam.setDeviceID(1); // External webcam
-    cam.setup(640, 480);
-    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
+//    cam.listDevices();
+//   cam.setDeviceID(1); // External webcam
+//    cam.setup(640, 480);
+//    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
     
-    // GUI
-    gui.setup();
-    gui.add(resetBackground.set("Reset Background", false));
-    gui.add(learningTime.set("Learning Time", 1.2, 0, 30));
-    gui.add(thresholdValue.set("Threshold Value", 53, 0, 255)); //TODO: update at runtime
+	//Video Devices
+	vector <ofVideoDevice> devices;
+	devices = cam.listDevices();
+	vector <string> deviceStrings;
+
+	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
+		ofVideoDevice device = *it;
+		string name = device.deviceName;
+		int id = device.id;
+		cout << "Device Name: " << id << name << endl;
+		deviceStrings.push_back(name);
+	}
+
+	// Input
+	//cam.setDeviceID(0); // External webcam
+	cam.setup(1280, 720);
+	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+
+	// GUI - OLD
+	//gui.setup();
+	//resetBackground.set("Reset Background", false);
+	learningTime.set("Learning Time", 30, 0, 30);
+	thresholdValue.set("Threshold Value", 10, 0, 255);
+
+	//GUI
+	ofxDatGui* gui = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_LEFT);
+	//gui->setTheme(new ofxDatGuiThemeCharcoal());
+
+	gui->addDropdown("Select Camera", deviceStrings);
+	gui->addBreak();
+
+	vector<string> opts = { "PixelPusher", "Fadecandy/Octo" };
+	gui->addDropdown("Select Driver Type", opts);
+	gui->addBreak();
+
+	gui->addTextInput("IP", IP);
+	gui->addTextInput("LEDS", "150");
+	gui->addBreak();
+
+	ofxDatGuiFolder* folder = gui->addFolder("Mapping Settings", ofColor::white);
+	folder->addSlider(learningTime);
+	folder->addSlider(thresholdValue);
+	folder->addButton("Test LEDS");
+	folder->addButton("Map LEDS");
+	//gui->addButton(resetBackground);
+	folder->addButton("Save Layout");
+	folder->expand();
+	folder->addBreak();
+
+	gui->addFRM();
+
+	gui->addHeader(":: drag me to reposition ::");
+	gui->addFooter();
+
+	// once the gui has been assembled, register callbacks to listen for component specific events //
+	gui->onButtonEvent(this, &ofApp::onButtonEvent);
+	//gui->onToggleEvent(this, &ofApp::onToggleEvent);
+	//gui->onSliderEvent(this, &ofApp::onSliderEvent);
+	gui->onTextInputEvent(this, &ofApp::onTextInputEvent);
+	//gui->on2dPadEvent(this, &ofApp::on2dPadEvent);
+	gui->onDropdownEvent(this, &ofApp::onDropdownEvent);
+	//gui->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
+	//gui->onMatrixEvent(this, &ofApp::onMatrixEvent);
     
     // Contours
     contourFinder.setMinAreaRadius(1);
@@ -42,7 +102,7 @@ void ofApp::setup(){
     
     
     // Connect to the fcserver
-    opcClient.setup("192.168.1.104", 7890);
+    opcClient.setup(IP, 7890);
 //    opcClient.setup("127.0.0.1", 7890);
     opcClient.sendFirmwareConfigPacket();
     setAllLEDColours(ofColor(0, 0,0));
@@ -66,10 +126,10 @@ void ofApp::update(){
 	}
 
 	cam.update();
-    if(resetBackground) {
-        background.reset();
-        resetBackground = false;
-    }
+    //if(resetBackground) {
+    //    background.reset();
+    //    resetBackground = false;
+    //}
 
     if (isMapping && !isLedOn) {
         chaseAnimationOn();
@@ -152,7 +212,7 @@ void ofApp::draw(){
     if(thresholded.isAllocated()) {
         thresholded.draw(640, 0);
     }
-    gui.draw();
+    //gui.draw();
     
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
@@ -364,4 +424,47 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     }
     
     return filtered;
+}
+
+//Dropdown Handler
+void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
+{
+	cout << "the option at index # " << e.child << " was selected " << endl;
+
+	if (e.target->is("Select Camera")) {
+		switchCamera(e.child);
+	}
+
+	if (e.target->is("Select Driver Type")) {
+		if (e.child == 0) {
+			cout << "Pixel Pusher was selected" << endl;
+		}
+		else if (e.child == 1) {
+			cout << "Fadecandy/Octo was selected" << endl;
+		}
+	}
+}
+
+
+void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
+{
+	cout << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText() << endl;
+
+	if (e.target->is("IP")) {
+		IP= e.target->getText();
+		opcClient.setup(IP, 7890);
+	}
+}
+
+void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
+{
+	cout << "onButtonEvent: " << e.target->getLabel() << endl;
+}
+
+
+void ofApp::switchCamera(int num)
+{
+	cam.close();
+	cam.setDeviceID(num);
+	cam.setup(1280, 720);
 }
