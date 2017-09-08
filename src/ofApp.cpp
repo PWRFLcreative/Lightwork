@@ -41,8 +41,6 @@ void ofApp::setup(){
     currentStripNum = 1;
     previousStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
-    deadFrameThreshold = 2;
-    numDeadFrames = 0;
     hasFoundFirstContour = false;
     ledTimeDelta = 0.0;
     
@@ -150,7 +148,6 @@ void ofApp::update(){
         
         else if (isMapping && !success && hasFoundFirstContour){
             ofLogNotice("NO CONTOUR FOUND!!!");
-            numDeadFrames++;
             
             // No point detected, create fake point
             ofPoint fakePoint;
@@ -158,7 +155,6 @@ void ofApp::update(){
             centroids.push_back(fakePoint);
             cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds) << endl;
             success = true;
-//            chaseAnimationOff();
         }
         
         if(isMapping && success) {
@@ -352,7 +348,6 @@ void ofApp::setAllLEDColours(ofColor col) {
 
 //LED Pre-flight test
 void ofApp::test() {
-	//ofSetFrameRate(1);
 	setAllLEDColours(ofColor(255, 0, 0));
 	ofSleepMillis(2000);
 	setAllLEDColours(ofColor(0, 255, 0));
@@ -360,7 +355,6 @@ void ofApp::test() {
 	setAllLEDColours(ofColor(0, 0, 255));
 	ofSleepMillis(2000);
 	setAllLEDColours(ofColor(0, 0, 0));
-	//ofSetFrameRate(30);
 	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
 	isTesting = false;
 }
