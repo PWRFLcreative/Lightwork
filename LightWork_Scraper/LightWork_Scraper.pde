@@ -19,7 +19,7 @@ void setup() {
 
   opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
-  opc.showLocations(false);
+  opc.showLocations(true);
 
   //display array of points from SVG
   //println(scrape.getArray());
@@ -28,14 +28,16 @@ void setup() {
 void draw() {
   background(0);
 
-  //rect(0,0,50,50); //test margin bounds
-  scrape.display();
+
 
   //simple chase animation
   noStroke();
   fill(0, 0, 255);
   if (pos<=width)pos+=5;
   else pos=0;
-  rect(pos, 0, 100, height);
-  //ellipse(mouseX, mouseY, 30, 30);
+  //rect(pos, 0, 100, height);
+  ellipse(mouseX, mouseY, 30, 30);
+  
+    //rect(0,0,50,50); //test margin bounds
+  scrape.display();
 }

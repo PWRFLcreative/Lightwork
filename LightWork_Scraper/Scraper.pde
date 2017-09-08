@@ -58,9 +58,9 @@ public class Scraper {
 
     //draw based on coords in arraylist. enhanced arraylist loop
     for (PVector temp : loc) { 
-      if (temp.x>0 && temp.y>0) {
+      //if (temp.x>0 && temp.y>0) {
         ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
-      }
+      //}
     }
   }
 
