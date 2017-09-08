@@ -102,7 +102,7 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
-//            ofLogNotice("Detected one contour, as expected.");
+            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             if (hasFoundFirstContour) {
@@ -115,7 +115,7 @@ void ofApp::update(){
         // We have more than 1 contour, select the brightest one.
         
         else if (contourFinder.size() > 1 && isLedOn && !success){
-            //ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+            ofLogNotice("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -140,20 +140,16 @@ void ofApp::update(){
                 success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            //ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
-//            if (hasFoundFirstContour) {
-//                success = true;
-//            }
             hasFoundFirstContour = true;
-            //ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
         }
         // Deal with no contours found
         
         else if (isMapping && !success && hasFoundFirstContour){
-            //ofLogNotice("NO CONTOUR FOUND!!!");
-            //chaseAnimationOn();
+            ofLogNotice("NO CONTOUR FOUND!!!");
             numDeadFrames++;
             
             // No point detected, create fake point
@@ -169,29 +165,7 @@ void ofApp::update(){
             hasFoundFirstContour = true;
             chaseAnimationOff(); // TODO: this is redundant, see above else if
         }
-        
-        // Handle dead LEDs
-//        if (numDeadFrames >= deadFrameThreshold) {
-//            // Make a fake point off at 0,0
-//            
-//            ofPoint fakePoint;
-//            fakePoint.set(0, 0);
-//            centroids.push_back(fakePoint);
-//            numDeadFrames = 0;
-//            chaseAnimationOff(); // Make sure to increment the animation counter
-//        }
     }
-    
-    
-//    if (ofGetFrameNum() % 5 == 0) {
-//        if (!isLedOn) {
-//           chaseAnimationOn();
-//        }
-//        else {
-//            chaseAnimationOff();
-//        }
-//    }
-    
     ofSetColor(ofColor::white);
 }
 
@@ -206,16 +180,13 @@ void ofApp::draw(){
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     ofSetColor(0, 255, 0);
-    //movie.draw(0, 0);
     contourFinder.draw(); // Draws the blob rect surrounding the contour
     
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
         ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
-//    if (isMapping) {
-//        ofSaveFrame();
-//    }
+
 }
 
 //--------------------------------------------------------------
@@ -307,7 +278,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    //ofLogNotice("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ofLogNotice("Animation ON: "+ ofToString(ofGetElapsedTimef()));
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
@@ -349,31 +320,16 @@ void ofApp::chaseAnimationOff()
         
         ledIndex++;
         if (ledIndex == numLeds) {
-            
-            //setAllLEDColours(ofColor(0, 0, 0));
             for (int i = 0; i <  numLeds; i++) {
                 ofColor col;
-            
                 col = ofColor(0, 0, 0);
-            
                 pixels.at(i) = col;
             }
-            //opcClient.writeChannel(currentStripNum, pixels);
-            
+
             ledIndex = 0;
             previousStripNum = currentStripNum;
             currentStripNum++;
         }
-        else {
-            //        if (currentStripNum == 1) {
-            //            opcClient.writeChannelOne(pixels);
-            //        }
-            //        else if (currentStripNum == 2) {
-            //            opcClient.writeChannelTwo(pixels);
-            //        }
-            //opcClient.writeChannel(currentStripNum, pixels);
-        }
-        
         
         // TODO: review this conditional
         if (currentStripNum > numStrips) {
@@ -391,10 +347,7 @@ void ofApp::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLeds; i++) {
         pix.at(i) = col;
     }
-    
     opcClient.writeChannel(currentStripNum, pix);
-    
-    
 }
 
 //LED Pre-flight test
@@ -416,6 +369,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     ofPath path;
     for (int i = 0; i < points.size(); i++) {
         // Avoid generating a moveTo AND lineTo for the first point
+        // If we don't specify the first moveTo message then the first lineTo will also produce a moveTo point with the same coordinates
         if (i == 0) {
             path.moveTo(points[i]);
         }
@@ -471,7 +425,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     
     // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
     for (iter = points.begin(); iter < points.end(); iter++) {
-        int i = std::distance(points.begin(), iter); // Index of iter
+        int i = std::distance(points.begin(), iter); // Index of iter, used to avoid comporating a point to itself
         ofPoint pt = *iter;
         cout << "BASE: " << pt << endl;
         
@@ -480,9 +434,8 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             continue; // Go to the next iteration
         }
         
-        // Check point distance, remove points that are too close
+        // Compare point to all other points
         std::vector<ofPoint>::iterator j_iter;
-        
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
             int j = std::distance(points.begin(), j_iter); // Index of j_iter
             ofPoint pt2 = *j_iter;
@@ -490,14 +443,18 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             float dist = pt.distance(pt2);
             cout << "DISTANCE: " << dist << endl;
             cout << i << endl << j << endl;
+            // Comparing point to itself... do nothing and move on.
             if (i == j) {
                 cout << "COMPARING POINT TO ITSELF " << pt << endl;
+                continue; // Move on to the next j point
             }
+            // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
             else if (pt.x == pt2.x && pt.y == pt2.y) {
                 cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
                 iter = points.erase(iter);
                 break;
             }
+            // Check point distance, remove points that are too close
             else if (dist < thresh) {
                 cout << "REMOVING" << endl;
                 iter = points.erase(iter);
@@ -505,7 +462,6 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
             }
         }
     }
-    
     
     return points;
 }
