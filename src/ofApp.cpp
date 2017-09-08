@@ -32,7 +32,7 @@ void ofApp::setup(){
     // LED
     
     ledIndex = 0;
-    numLeds = 50; // TODO: Change name to ledsPerStrip or similar
+    numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
     ledBrightness = 50;
     isMapping = false;
 	isTesting = false;
@@ -45,11 +45,11 @@ void ofApp::setup(){
     ledTimeDelta = 0.0;
     
     // Set up the color vector, with all LEDs set to off(black)
-    pixels.assign(numLeds, ofColor(0,0,0));
+    pixels.assign(numLedsPerStrip, ofColor(0,0,0));
     
     // Connect to the fcserver
-    opcClient.setup("192.168.1.104", 7890, 1, numLeds);
-//    opcClient.setup("127.0.0.1", 7890);
+    opcClient.setup("192.168.1.104", 7890, 1, numLedsPerStrip);
+//    opcClient.setup("127.0.0.1", 7890, 1, numLedsPerStrip);
     
     opcClient.sendFirmwareConfigPacket(); // Turns off dithering (hard-coded in OPC right now...)
     setAllLEDColours(ofColor(0, 0,0));
@@ -64,12 +64,12 @@ void ofApp::update(){
     
     // If the client is not connected do not try and send information
     if (!opcClient.isConnected()) {
-        // Will continue to try and reconnect to the Pixel Server
+        // Will continue to try connecting to the OPC Pixel Server
         opcClient.tryConnecting();
     }
 
 	if (isTesting) {
-		test(); // TODO: turn off blob detection while testing - also find source of delay
+		test(); // TODO: turn off blob detection while testing
 	}
 
 	cam.update();
@@ -103,11 +103,9 @@ void ofApp::update(){
             ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
-            if (hasFoundFirstContour) {
-               success = true;
-            }
-            hasFoundFirstContour = true;
-            //ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            success = true;
+            
+            //ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
             
         }
         // We have more than 1 contour, select the brightest one.
@@ -142,7 +140,7 @@ void ofApp::update(){
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
-            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds));
+            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
         }
         // Deal with no contours found
         
@@ -153,7 +151,7 @@ void ofApp::update(){
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLeds) << endl;
+            cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip) << endl;
             success = true;
         }
         
@@ -280,7 +278,7 @@ void ofApp::chaseAnimationOn()
     // Set the colors of all LEDs on the current strip
     
     if (!isLedOn) {
-        for (int i = 0; i <  numLeds; i++) {
+        for (int i = 0; i <  numLedsPerStrip; i++) {
             ofColor col;
             if (i == ledIndex) {
                 col = ofColor(ledBrightness, ledBrightness, ledBrightness);
@@ -295,7 +293,7 @@ void ofApp::chaseAnimationOn()
     opcClient.writeChannel(currentStripNum, pixels);
     
     if (currentStripNum != previousStripNum) {
-        for (int i = 0; i <  numLeds; i++) {
+        for (int i = 0; i <  numLedsPerStrip; i++) {
             ofColor col;
             
             col = ofColor(0, 0, 0);
@@ -315,8 +313,8 @@ void ofApp::chaseAnimationOff()
         ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
         
         ledIndex++;
-        if (ledIndex == numLeds) {
-            for (int i = 0; i <  numLeds; i++) {
+        if (ledIndex == numLedsPerStrip) {
+            for (int i = 0; i <  numLedsPerStrip; i++) {
                 ofColor col;
                 col = ofColor(0, 0, 0);
                 pixels.at(i) = col;
@@ -338,12 +336,10 @@ void ofApp::chaseAnimationOff()
 }
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
-    vector <ofColor> pix;
-    pix.assign(numLeds, ofColor(0,0,0));
-    for (int i = 0; i <  numLeds; i++) {
-        pix.at(i) = col;
+    for (int i = 0; i <  numLedsPerStrip; i++) {
+        pixels.at(i) = col;
     }
-    opcClient.writeChannel(currentStripNum, pix);
+    opcClient.writeChannel(currentStripNum, pixels);
 }
 
 //LED Pre-flight test

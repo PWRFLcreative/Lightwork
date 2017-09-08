@@ -39,7 +39,7 @@ class ofApp : public ofBaseApp{
         vector <ofColor>    pixels;
     
         int                 ledIndex;               // Index of LED being mapped (lit and detected).
-        int                 numLeds;                // Number of LEDs per strip
+        int                 numLedsPerStrip;                // Number of LEDs per strip
         int                 numStrips;              // How many strips total
         int                 currentStripNum;        // Strip currently being mapped
         int                 previousStripNum;       // The previous strip being mapped. This is used to turn off last LED in
