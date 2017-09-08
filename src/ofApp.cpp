@@ -2,14 +2,13 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    int framerate = 5; // Used to set oF and camera framerate
+    int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     
-    // Input
     cam.listDevices();
     cam.setDeviceID(1); // External webcam
     cam.setup(640, 480);
-    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
+    cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate, keeping them at same settings.
     
     // GUI
     gui.setup();
@@ -27,24 +26,32 @@ void ofApp::setup(){
     contourFinder.getTracker().setMaximumDistance(32);
     contourFinder.getTracker().setSmoothingRate(1.0);
     
+    // Allocate the thresholded view so that it draws on launch (before calibration starts).
+    thresholded.allocate(640, 480, OF_IMAGE_COLOR);
     
     // LED
     
     ledIndex = 0;
-    numLeds = 50;
-    ledBrightness = 200;
+    numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
+    ledBrightness = 50;
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
+    numStrips = 8;
+    currentStripNum = 1;
+    previousStripNum = currentStripNum;
+    // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
+    hasFoundFirstContour = false;
+    ledTimeDelta = 0.0;
     
     // Set up the color vector, with all LEDs set to off(black)
-    pixels.assign(numLeds, ofColor(0,0,0));
-    
+    pixels.assign(numLedsPerStrip, ofColor(0,0,0));
     
     // Connect to the fcserver
-    opcClient.setup("192.168.1.104", 7890);
-//    opcClient.setup("127.0.0.1", 7890);
-    opcClient.sendFirmwareConfigPacket();
+//    opcClient.setup("192.168.1.104", 7890, 1, numLedsPerStrip);
+    opcClient.setup("127.0.0.1", 7890, 1, numLedsPerStrip);
+    
+    opcClient.sendFirmwareConfigPacket(); // Turns off dithering (hard-coded in OPC right now...)
     setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
@@ -57,12 +64,12 @@ void ofApp::update(){
     
     // If the client is not connected do not try and send information
     if (!opcClient.isConnected()) {
-        // Will continue to try and reconnect to the Pixel Server
+        // Will continue to try connecting to the OPC Pixel Server
         opcClient.tryConnecting();
     }
 
 	if (isTesting) {
-		test(); // TODO: turn off blob detection while testing - also find source of delay
+		test(); // TODO: turn off blob detection while testing
 	}
 
 	cam.update();
@@ -70,13 +77,17 @@ void ofApp::update(){
         background.reset();
         resetBackground = false;
     }
-
-    if (isMapping && !isLedOn) {
-        chaseAnimationOn();
-    }
-    if(cam.isFrameNew() && !isTesting && isMapping) {
+    
+    // New camera frame: Turn on a new LED and detect the location.
+    // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
+    if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
+        bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
+        
         // Light up a new LED for every frame
-        bool success = false; // Indicate if we successfully mapped an LED on this frame
+        if (!isLedOn) {
+            chaseAnimationOn();
+        }
+        
         // Background subtraction
         background.setLearningTime(learningTime);
         background.setThresholdValue(thresholdValue);
@@ -86,20 +97,21 @@ void ofApp::update(){
         // Contour
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
-        // TODO: Turn off LED here
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && isLedOn) {
-//            ofLogNotice("Detected one contour, as expected.");
+        if (contourFinder.size() == 1 && isLedOn && !success) {
+            ofLogNotice("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
-            ofLogNotice("added point (only found 1)");
+            
+            //ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            
         }
         // We have more than 1 contour, select the brightest one.
         
-        else if (contourFinder.size() > 1 && isLedOn){
-            //ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+        else if (contourFinder.size() > 1 && isLedOn && !success){
+            ofLogNotice("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -121,28 +133,33 @@ void ofApp::update(){
                     brightestIndex = i;
                 }
                 previousBrightness = brightness;
-                
+                success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            //ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            ofLogNotice("brightest index: " + ofToString(brightestIndex));
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
-            success = true;
-            ofLogNotice("added point, ignored additional points");
+            hasFoundFirstContour = true;
+            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
         }
         // Deal with no contours found
         
-        else if (isMapping && !success && isLedOn){
-            // This doesn't care if we're trying to find a contour or not, it goes in here by default
+        else if (isMapping && !success && hasFoundFirstContour){
             ofLogNotice("NO CONTOUR FOUND!!!");
-            //chaseAnimationOn();
+            
+            // No point detected, create fake point
+            ofPoint fakePoint;
+            fakePoint.set(0, 0);
+            centroids.push_back(fakePoint);
+            cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip) << endl;
+            success = true;
         }
         
         if(isMapping && success) {
-            chaseAnimationOff();
-        } 
+            hasFoundFirstContour = true;
+            chaseAnimationOff(); // TODO: this is redundant, see above else if
+        }
     }
-    
     ofSetColor(ofColor::white);
 }
 
@@ -157,16 +174,13 @@ void ofApp::draw(){
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     ofSetColor(0, 255, 0);
-    //movie.draw(0, 0);
     contourFinder.draw(); // Draws the blob rect surrounding the contour
     
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
         ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
-//    if (isMapping) {
-//        ofSaveFrame();
-//    }
+
 }
 
 //--------------------------------------------------------------
@@ -188,7 +202,7 @@ void ofApp::keyPressed(int key){
             if (threshold < 0) threshold = 0;
             break;
         case 's':
-            isMapping = true;
+            isMapping = !isMapping;
             break;
         case 'g':
             generateSVG(centroids);
@@ -258,47 +272,78 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    ofLogNotice("animation: ON");
+    ofLogNotice("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
-    for (int i = 0; i <  numLeds; i++) {
-        ofColor col;
-        if (i == ledIndex) {
-            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
+    // Set the colors of all LEDs on the current strip
+    
+    if (!isLedOn) {
+        for (int i = 0; i <  numLedsPerStrip; i++) {
+            ofColor col;
+            if (i == ledIndex) {
+                col = ofColor(ledBrightness, ledBrightness, ledBrightness);
+            }
+            else {
+                col = ofColor(0, 0, 0);
+            }
+            pixels.at(i) = col;
         }
-        else {
-            col = ofColor(0, 0, 0);
-        }
-        pixels.at(i) = col;
     }
+
+    opcClient.writeChannel(currentStripNum, pixels);
     
-    opcClient.writeChannel(1, pixels);
-    
+    if (currentStripNum != previousStripNum) {
+        for (int i = 0; i <  numLedsPerStrip; i++) {
+            ofColor col;
+            
+            col = ofColor(0, 0, 0);
+            
+            pixels.at(i) = col;
+        }
+        opcClient.writeChannel(previousStripNum, pixels);
+        previousStripNum = currentStripNum;
+    }
     isLedOn = true;
 }
 
 void ofApp::chaseAnimationOff()
 {
-    ofLogNotice("animation: OFF");
-    
-    ledIndex++;
-    if (ledIndex > numLeds) {
-        ledIndex = 0;
-        setAllLEDColours(ofColor(0, 0, 0));
-        isMapping = false;
+    if (isLedOn) {
+        ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
+        ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
+        
+        ledIndex++;
+        if (ledIndex == numLedsPerStrip) {
+            for (int i = 0; i <  numLedsPerStrip; i++) {
+                ofColor col;
+                col = ofColor(0, 0, 0);
+                pixels.at(i) = col;
+            }
+
+            ledIndex = 0;
+            previousStripNum = currentStripNum;
+            currentStripNum++;
+        }
+        
+        // TODO: review this conditional
+        if (currentStripNum > numStrips) {
+            isMapping = false;
+        }
+        
+        isLedOn = false;
     }
-    isLedOn = false;
+    
 }
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void ofApp::setAllLEDColours(ofColor col) {
-    for (int i = 0; i <  numLeds; i++) {
+    for (int i = 0; i <  numLedsPerStrip; i++) {
         pixels.at(i) = col;
     }
-    opcClient.writeChannel(1, pixels);
+    opcClient.writeChannel(currentStripNum, pixels);
 }
 
 //LED Pre-flight test
 void ofApp::test() {
-	//ofSetFrameRate(1);
 	setAllLEDColours(ofColor(255, 0, 0));
 	ofSleepMillis(2000);
 	setAllLEDColours(ofColor(0, 255, 0));
@@ -306,7 +351,6 @@ void ofApp::test() {
 	setAllLEDColours(ofColor(0, 0, 255));
 	ofSleepMillis(2000);
 	setAllLEDColours(ofColor(0, 0, 0));
-	//ofSetFrameRate(30);
 	ofSleepMillis(3000); // wait to stop blob detection - remove when cam algorithm changed
 	isTesting = false;
 }
@@ -314,7 +358,15 @@ void ofApp::test() {
 void ofApp::generateSVG(vector <ofPoint> points) {
     ofPath path;
     for (int i = 0; i < points.size(); i++) {
-        path.lineTo(points[i]);
+        // Avoid generating a moveTo AND lineTo for the first point
+        // If we don't specify the first moveTo message then the first lineTo will also produce a moveTo point with the same coordinates
+        if (i == 0) {
+            path.moveTo(points[i]);
+        }
+        else {
+           path.lineTo(points[i]);
+        }
+        
         cout << points[i].x;
         cout << ", ";
         cout << points[i].y;
@@ -322,7 +374,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("mapper-test-tilted.svg");
+    svg.save("layout.svg");
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
@@ -346,22 +398,60 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     json.save("testLayout.json");
 }
 
+/*
+ I'm expecting a series of 2D points. I need to filter out points that are too close together, but keep
+ negative points. The one that are negative represent 'invisible' or 'skipped' LEDs that have a physical presence
+ in an LED strip but are not visuable. We need to store them 'off the canvas' so that our client application (Lightwork Scraper) can be aware of the missing LEDs (as they are treated sequentially, with no 'fixed' address mapping.
+ IDEA: Can we store the physical address as the 'z' in a Vec3 or otherwise encode it in the SVG. Maybe we can make another
+ 'path' in the SVG that stores the address in a path of the same length.
+ */
 vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
+    cout << "Removing duplicates" << endl;
+    // Nex vector to accumulate the points we want, we don't add unwanted points
+    //vector <ofPoint> filtered = points;
+    float thresh = 3.0;
     
-    vector <ofPoint> filtered;
+    std::vector<ofPoint>::iterator iter;
     
-    float thresh = 5.0;
-    for (int i = 0; i < points.size(); i++) {
-        float dist = points[i].distance(points[i-1]);
-        ofLogNotice("distance: "+ofToString(dist));
-        if (dist > thresh) {
-            filtered.push_back(points[i]);
+    // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
+    for (iter = points.begin(); iter < points.end(); iter++) {
+        int i = std::distance(points.begin(), iter); // Index of iter, used to avoid comporating a point to itself
+        ofPoint pt = *iter;
+        cout << "BASE: " << pt << endl;
+        
+        // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
+        if (pt.x == 0 && pt.y == 0) {
+            continue; // Go to the next iteration
         }
-        else {
-            ofLogNotice("distance below threshold, removing point. distance: " + ofToString(dist));
+        
+        // Compare point to all other points
+        std::vector<ofPoint>::iterator j_iter;
+        for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
+            int j = std::distance(points.begin(), j_iter); // Index of j_iter
+            ofPoint pt2 = *j_iter;
+            cout << "NESTED: " << pt2 << endl;
+            float dist = pt.distance(pt2);
+            cout << "DISTANCE: " << dist << endl;
+            cout << i << endl << j << endl;
+            // Comparing point to itself... do nothing and move on.
+            if (i == j) {
+                cout << "COMPARING POINT TO ITSELF " << pt << endl;
+                continue; // Move on to the next j point
+            }
+            // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
+            else if (pt.x == pt2.x && pt.y == pt2.y) {
+                cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
+                iter = points.erase(iter);
+                break;
+            }
+            // Check point distance, remove points that are too close
+            else if (dist < thresh) {
+                cout << "REMOVING" << endl;
+                iter = points.erase(iter);
+                break;
+            }
         }
-  
     }
     
-    return filtered;
+    return points;
 }
