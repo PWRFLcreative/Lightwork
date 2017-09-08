@@ -48,8 +48,8 @@ void ofApp::setup(){
     pixels.assign(numLedsPerStrip, ofColor(0,0,0));
     
     // Connect to the fcserver
-    opcClient.setup("192.168.1.104", 7890, 1, numLedsPerStrip);
-//    opcClient.setup("127.0.0.1", 7890, 1, numLedsPerStrip);
+//    opcClient.setup("192.168.1.104", 7890, 1, numLedsPerStrip);
+    opcClient.setup("127.0.0.1", 7890, 1, numLedsPerStrip);
     
     opcClient.sendFirmwareConfigPacket(); // Turns off dithering (hard-coded in OPC right now...)
     setAllLEDColours(ofColor(0, 0,0));
