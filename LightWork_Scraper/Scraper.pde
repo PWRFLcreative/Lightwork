@@ -6,7 +6,7 @@ public class Scraper {
 
   float[] viewBox;
 
-  Scraper ( String in) {  
+  Scraper ( String in) {
     file=in;
   }
 
@@ -42,8 +42,9 @@ public class Scraper {
 
     for (PVector temp : loc) {
       if (temp.x>0 && temp.y>0) {
-        temp.set (map(temp.x, norm[0], norm[2], 0, 1), map(temp.y, norm[1], norm[3], 0, 1));
+        temp.set (map(temp.x, norm[0], norm[2], 0.001, 1), map(temp.y, norm[1], norm[3], 0.001, 1));
         loc.set(index, temp);
+
       }
       index++;
     }
@@ -54,18 +55,20 @@ public class Scraper {
 
     noFill();
     stroke(255);
-    strokeWeight(1); 
+    strokeWeight(1);
 
     //draw based on coords in arraylist. enhanced arraylist loop
-    for (PVector temp : loc) { 
-      //if (temp.x>0 && temp.y>0) {
+    for (PVector temp : loc) {
+
+      if (!(temp.x == 0.0) && !(temp.y == 0.0)) {
         ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
-      //}
+      }
+
     }
   }
 
   //set led coords in opc client
-  void update() {
+  void update() { //<>//
     int index =0;
     for (PVector temp : loc) {
       opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
@@ -94,7 +97,7 @@ public class Scraper {
     float yArr[] = new float[pointsCopy.size()];
 
     int index =0;
-    for (PVector temp : pointsCopy) { 
+    for (PVector temp : pointsCopy) {
 
       xArr[index] = temp.x;
       yArr[index] = temp.y;
@@ -119,7 +122,7 @@ public class Scraper {
     XML xml = loadXML(file);
     String viewBoxStr = xml.getString("viewBox");
     println("viewBox: "+viewBoxStr);
-    if (viewBoxStr != null) 
+    if (viewBoxStr != null)
     {
       viewBox = float(split(viewBoxStr, ' '));
     }

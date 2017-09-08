@@ -9,11 +9,11 @@ int pos;
 float margin =50;
 
 void setup() {
-  size(800, 800, JAVA2D); //wtf
+  size(640, 480, JAVA2D); //wtf
   background(0);
 
   //initialize scraper
-  scrape = new Scraper("lightwork_map_complete.svg"); 
+  scrape = new Scraper("layout.svg"); 
   scrape.init();
   scrape.normCoords();
 
@@ -27,17 +27,40 @@ void setup() {
 
 void draw() {
   background(0);
+<<<<<<< HEAD
 
 
+=======
+  
+  // Test animation
+  //noFill();
+  //strokeWeight(25);
+  //for (int i = 0; i < 100; i+=10) {
+  //  stroke(255-i*2.5*sin(frameCount*0.7), i*2.5*sin(frameCount*0.5), 255*sin(frameCount*0.2));
+  //  ellipse(width/2, height/2, i*100*sin(frameCount*0.02), i*100*sin(frameCount*0.02));
+  //}
+  // End test animation
+  
+  
+  //rect(0,0,50,50); //test margin bounds
+  scrape.display();
+>>>>>>> a7dcef3d99a78fdf21186678aa80b4b2df344fb1
 
   //simple chase animation
   noStroke();
-  fill(0, 0, 255);
+  fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
   if (pos<=width)pos+=5;
   else pos=0;
+<<<<<<< HEAD
   //rect(pos, 0, 100, height);
   ellipse(mouseX, mouseY, 30, 30);
   
     //rect(0,0,50,50); //test margin bounds
   scrape.display();
+=======
+  rect(pos, 0, 100, height);
+  ellipse(mouseX, mouseY, 30, 30);
+  
+
+>>>>>>> a7dcef3d99a78fdf21186678aa80b4b2df344fb1
 }
