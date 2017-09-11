@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-//    X ofLogLevel(OF_LOG_VERBOSE);
+    //ofLogLevel(OF_LOG_VERBOSE);
     
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
@@ -106,7 +106,7 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
-            ofLogVerbose("Detected one contour, as expected.");
+            //ofLogVerbose("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
@@ -114,7 +114,7 @@ void ofApp::update(){
         
         // We have more than 1 contour, select the brightest one.
         else if (contourFinder.size() > 1 && isLedOn && !success){
-            ofLogVerbose("num contours: " + ofToString(contourFinder.size()));
+            //ofLogVerbose("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -148,13 +148,14 @@ void ofApp::update(){
         
         // Deal with no contours found
         else if (isMapping && !success && hasFoundFirstContour){
-            ofLogVerbose("NO CONTOUR FOUND!!!");
+            //ofLogVerbose("NO CONTOUR FOUND!!!");
             
             // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            ofLogVerbose("CREATING FAKE POINT                     at frame: " + ofToString(ofGetFrameNum()) + " ledIndex " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            success = true;
+            //ofLogVerbose("CREATING FAKE POINT                     at frame: " + ofToString(ofGetFrameNum()) + " ledIndex " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
         }
         
         if(isMapping && success) {
@@ -274,7 +275,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    ofLogVerbose("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    //ofLogVerbose("Animation ON: "+ ofToString(ofGetElapsedTimef()));
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
@@ -312,7 +313,7 @@ void ofApp::chaseAnimationOff()
 {
     if (isLedOn) {
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        ofLogVerbose("Animation OFF, duration: "+ ofToString(ledTimeDelta));
+        //ofLogVerbose("Animation OFF, duration: "+ ofToString(ledTimeDelta));
         
         ledIndex++;
         if (ledIndex == numLedsPerStrip) {
