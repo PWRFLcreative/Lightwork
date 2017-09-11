@@ -9,6 +9,7 @@ void ofApp::setup(){
     
 	//Video Devices
 	enumerateCams();
+//    cam.setDeviceID(1);
 	cam.setup(640, 480);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
@@ -520,7 +521,9 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 
 void ofApp::switchCamera(int num)
 {
-	cam.close();
+    cout << "Switching camera" << endl;
+//	cam.close();
+    cam.listDevices();
 	cam.setDeviceID(num);
 	cam.setup(640, 480);
 }
@@ -541,9 +544,9 @@ void ofApp::enumerateCams()
 void ofApp::buildUI()
 {
 	//GUI
-	gui = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_LEFT);
+	gui = new ofxDatGui(0,0);
 	//gui->setTheme(new ofxDatGuiThemeCharcoal());
-
+    gui->setAssetPath("./bin/data/");
 	gui->addDropdown("Select Camera", deviceStrings);
 	gui->addBreak();
 
