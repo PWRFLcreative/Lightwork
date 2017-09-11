@@ -80,7 +80,8 @@ class ofApp : public ofBaseApp{
 		void buildUI();
 		ofxDatGui* gui;
         bool resetBackground;
-        ofParameter<float> learningTime, thresholdValue;
+        ofParameter<float> learningTime;
+        ofParameter<float> thresholdValue;
 		string IP;
     
         // Contours
