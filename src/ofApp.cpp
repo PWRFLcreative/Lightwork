@@ -2,6 +2,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    // Set the log level
+//    X ofLogLevel(OF_LOG_VERBOSE);
+    
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 
@@ -37,7 +40,7 @@ void ofApp::setup(){
     
     ledIndex = 0;
     numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
-    ledBrightness = 50;
+    ledBrightness = 150;
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
@@ -60,7 +63,7 @@ void ofApp::setup(){
     svg.setViewbox(0, 0, 640, 480);
 
 	//GUI
-	buildUI();
+//	buildUI();
 }
 
 //--------------------------------------------------------------
@@ -101,18 +104,15 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
-            ofLogNotice("Detected one contour, as expected.");
+            ofLogVerbose("Detected one contour, as expected.");
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
-            
-            //ofLogNotice("added point (only found 1). FrameCount: "+ ofToString(ofGetFrameNum()) + " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
-            
         }
-        // We have more than 1 contour, select the brightest one.
         
+        // We have more than 1 contour, select the brightest one.
         else if (contourFinder.size() > 1 && isLedOn && !success){
-            ofLogNotice("num contours: " + ofToString(contourFinder.size()));
+            ofLogVerbose("num contours: " + ofToString(contourFinder.size()));
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -143,17 +143,16 @@ void ofApp::update(){
             hasFoundFirstContour = true;
             ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
         }
-        // Deal with no contours found
         
+        // Deal with no contours found
         else if (isMapping && !success && hasFoundFirstContour){
-            ofLogNotice("NO CONTOUR FOUND!!!");
+            ofLogVerbose("NO CONTOUR FOUND!!!");
             
             // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            cout << "CREATING FAKE POINT                     at frame: " << ofGetFrameNum() << " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip) << endl;
-            success = true;
+            ofLogVerbose("CREATING FAKE POINT                     at frame: " + ofToString(ofGetFrameNum()) + " ledIndex " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
         }
         
         if(isMapping && success) {
@@ -273,7 +272,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    ofLogNotice("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ofLogVerbose("Animation ON: "+ ofToString(ofGetElapsedTimef()));
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
@@ -311,7 +310,7 @@ void ofApp::chaseAnimationOff()
 {
     if (isLedOn) {
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        ofLogNotice("Animation OFF, duration: "+ ofToString(ledTimeDelta));
+        ofLogVerbose("Animation OFF, duration: "+ ofToString(ledTimeDelta));
         
         ledIndex++;
         if (ledIndex == numLedsPerStrip) {
@@ -521,8 +520,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 
 void ofApp::switchCamera(int num)
 {
-    cout << "Switching camera" << endl;
-//	cam.close();
+    ofLogNotice("Switching camera");
     cam.listDevices();
 	cam.setDeviceID(num);
 	cam.setup(640, 480);
@@ -531,7 +529,7 @@ void ofApp::switchCamera(int num)
 void ofApp::enumerateCams()
 {
 	devices = cam.listDevices();
-
+    
 	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
