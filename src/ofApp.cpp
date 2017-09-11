@@ -7,6 +7,7 @@ void ofApp::setup(){
     
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
+	ofBackground(0, 0, 0);
 
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
@@ -15,6 +16,7 @@ void ofApp::setup(){
     cam.setDeviceID(1); // Default to external camera
 	cam.setup(640, 480);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+
 
 	// GUI - OLD
 	//gui.setup();
@@ -40,7 +42,7 @@ void ofApp::setup(){
     
     ledIndex = 0;
     numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
-    ledBrightness = 150;
+    ledBrightness = 250;
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
@@ -63,7 +65,7 @@ void ofApp::setup(){
     svg.setViewbox(0, 0, 640, 480);
 
 	//GUI
-//	buildUI();
+	buildUI();
 }
 
 //--------------------------------------------------------------
@@ -339,7 +341,10 @@ void ofApp::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLedsPerStrip; i++) {
         pixels.at(i) = col;
     }
-    opcClient.writeChannel(currentStripNum, pixels);
+    for (int i = 1; i <= numStrips; i++) {
+        opcClient.writeChannel(i, pixels);
+    }
+    
 }
 
 //LED Pre-flight test
@@ -471,6 +476,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 	if (e.target->is("Select Camera")) {
 		enumerateCams();
 		gui->getDropdown("Select Camera")->update(); //TODO : Not working
+		gui->update();
 		switchCamera(e.child);
 	}
 
@@ -484,6 +490,12 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 	}
 }
 
+
+void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
+{
+		cout << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+
+}
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
@@ -526,17 +538,25 @@ void ofApp::switchCamera(int num)
 	cam.setup(640, 480);
 }
 
-void ofApp::enumerateCams()
+vector<string> ofApp::enumerateCams()
 {
+	vector <ofVideoDevice> devices;
 	devices = cam.listDevices();
-    
+	vector<string> deviceStrings;
+
 	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
+		int i = std::distance(devices.begin(), it);
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
 		int id = device.id;
-		cout << "Device Name: " << id << name << endl;
+		cout << "Camera " << id << ": " <<  name << endl;
+		//newStrings[i] = name;
 		deviceStrings.push_back(name);
+
 	}
+	
+	//deviceStrings = new vector<string>(newStrings);
+	return deviceStrings;
 }
 
 void ofApp::buildUI()
@@ -544,8 +564,7 @@ void ofApp::buildUI()
 	//GUI
 	gui = new ofxDatGui(0,0);
 	//gui->setTheme(new ofxDatGuiThemeCharcoal());
-    gui->setAssetPath("./bin/data/");
-	gui->addDropdown("Select Camera", deviceStrings);
+	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();
 
 	vector<string> opts = { "PixelPusher", "Fadecandy/Octo" };
@@ -574,7 +593,7 @@ void ofApp::buildUI()
 	// once the gui has been assembled, register callbacks to listen for component specific events //
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);
 	//gui->onToggleEvent(this, &ofApp::onToggleEvent);
-	//gui->onSliderEvent(this, &ofApp::onSliderEvent);
+	gui->onSliderEvent(this, &ofApp::onSliderEvent);
 	gui->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	//gui->on2dPadEvent(this, &ofApp::on2dPadEvent);
 	gui->onDropdownEvent(this, &ofApp::onDropdownEvent);
