@@ -9,15 +9,15 @@ void ofApp::setup(){
     
 	//Video Devices
 	enumerateCams();
-//    cam.setDeviceID(1);
+    cam.setDeviceID(1); // Default to external camera
 	cam.setup(640, 480);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
 	// GUI - OLD
 	//gui.setup();
 	//resetBackground.set("Reset Background", false);
-	learningTime.set("Learning Time", 30, 0, 30);
-	thresholdValue.set("Threshold Value", 10, 0, 255);
+	learningTime.set("Learning Time", 1.3, 0, 30);
+	thresholdValue.set("Threshold Value", 50, 0, 255);
 
     
     // Contours
@@ -242,7 +242,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
