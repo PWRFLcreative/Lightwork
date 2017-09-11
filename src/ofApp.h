@@ -69,9 +69,8 @@ class ofApp : public ofBaseApp{
         // Input
         ofVideoGrabber cam;
 		void switchCamera(int num);
-		void enumerateCams();
-		vector <ofVideoDevice> devices;
-		vector <string> deviceStrings;
+		vector <string> enumerateCams();
+		
     
         // Background subtraction
         ofxCv::RunningBackground background;        // Background subtraction class with running average
