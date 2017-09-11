@@ -502,9 +502,14 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 		opcClient.setup(IP, 7890);
 	}
 
-	if (e.target->is("LEDS")) {
+	if (e.target->is("LEDS per Strip")) {
 		string temp = e.target->getText();
 		numLedsPerStrip = ofToInt(temp);
+	}
+
+	if (e.target->is("STRIPS")) {
+		string temp = e.target->getText();
+		numStrips = ofToInt(temp);
 	}
 }
 
@@ -568,7 +573,8 @@ void ofApp::buildUI()
 	gui->addBreak();
 
 	gui->addTextInput("IP", IP);
-	gui->addTextInput("LEDS", ofToString(numLedsPerStrip));
+	gui->addTextInput("STRIPS", ofToString(numStrips));
+	gui->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
 	gui->addBreak();
 
 	ofxDatGuiFolder* folder = gui->addFolder("Mapping Settings", ofColor::white);
