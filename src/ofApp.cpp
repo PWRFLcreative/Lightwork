@@ -8,6 +8,7 @@ void ofApp::setup(){
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(0, 0, 0);
+	ofSetWindowTitle("LightWork");
 
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
@@ -483,9 +484,21 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 	if (e.target->is("Select Driver Type")) {
 		if (e.child == 0) {
 			cout << "Pixel Pusher was selected" << endl;
+			gui->getFolder("PixelPusher Settings")->setVisible(true);
+			gui->getFolder("PixelPusher Settings")->expand();
+			gui->getFolder("Mapping Settings")->setVisible(true);
+			gui->getFolder("Mapping Settings")->expand();
+			gui->getFolder("Fadecandy Settings")->setVisible(false);
+			gui->getFolder("Fadecandy Settings")->collapse();
 		}
 		else if (e.child == 1) {
 			cout << "Fadecandy/Octo was selected" << endl;
+			gui->getFolder("Fadecandy Settings")->setVisible(true);
+			gui->getFolder("Fadecandy Settings")->expand();
+			gui->getFolder("Mapping Settings")->setVisible(true);
+			gui->getFolder("Mapping Settings")->expand();
+			gui->getFolder("PixelPusher Settings")->setVisible(false);
+			gui->getFolder("PixelPusher Settings")->collapse();
 		}
 	}
 }
@@ -538,7 +551,8 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 void ofApp::switchCamera(int num)
 {
     ofLogNotice("Switching camera");
-    cam.listDevices();
+	cam.close(); 
+	//cam.listDevices();
 	cam.setDeviceID(num);
 	cam.setup(640, 480);
 }
@@ -567,8 +581,11 @@ vector<string> ofApp::enumerateCams()
 void ofApp::buildUI()
 {
 	//GUI
-	gui = new ofxDatGui(0,0);
+	gui = new ofxDatGui(ofGetWidth()-290,40);
 	//gui->setTheme(new ofxDatGuiThemeCharcoal());
+	
+	//gui->addHeader(":: drag me to reposition ::");
+
 	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();
 
@@ -576,25 +593,34 @@ void ofApp::buildUI()
 	gui->addDropdown("Select Driver Type", opts);
 	gui->addBreak();
 
-	gui->addTextInput("IP", IP);
-	gui->addTextInput("STRIPS", ofToString(numStrips));
-	gui->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
-	gui->addBreak();
+	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
+	fcSettings->addTextInput("IP", IP);
+	fcSettings->addTextInput("STRIPS", ofToString(numStrips));
+	fcSettings->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
+	fcSettings->setVisible(false);
+	fcSettings->addBreak();
+	
+	ofxDatGuiFolder* ppSettings = gui->addFolder("PixelPusher Settings", ofColor::white);
+	ppSettings->addTextInput("IP", IP);
+	ppSettings->addTextInput("STRIPS", ofToString(numStrips));
+	ppSettings->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
+	ppSettings->setVisible(false);
+	ppSettings->addBreak();
 
-	ofxDatGuiFolder* folder = gui->addFolder("Mapping Settings", ofColor::white);
-	folder->addSlider(learningTime);
-	folder->addSlider(thresholdValue);
-	folder->addButton("Test LEDS");
-	folder->addButton("Map LEDS");
+	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::white);
+	mapSettings->addSlider(learningTime);
+	mapSettings->addSlider(thresholdValue);
+	mapSettings->addButton("Test LEDS");
+	mapSettings->addButton("Map LEDS");
 	//gui->addButton(resetBackground);
-	folder->addButton("Save Layout");
-	folder->expand();
-	folder->addBreak();
+	mapSettings->addButton("Save Layout");
+	mapSettings->setVisible(false);
+	mapSettings->addBreak();
 
 	gui->addFRM();
 
-	gui->addHeader(":: drag me to reposition ::");
 	gui->addFooter();
+	gui->setOpacity(15.0);
 
 	// once the gui has been assembled, register callbacks to listen for component specific events //
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);
