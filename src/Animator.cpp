@@ -22,7 +22,7 @@ void Animator::setup() {
     ofLogNotice("Setting up Animator");
 }
 
-void Animator::chaseAnimationOn()
+vector <ofColor> Animator::chaseAnimationOn()
 {
     ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
@@ -56,6 +56,8 @@ void Animator::chaseAnimationOn()
         previousStripNum = currentStripNum;
     }
     isLedOn = true;
+    
+    return pixels;
 }
 
 void Animator::chaseAnimationOff()

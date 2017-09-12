@@ -14,8 +14,8 @@ void ofApp::setup(){
     
 	//Video Devices
     //enumerateCams();
-    cam.setDeviceID(0); // Default to external camera
-	//cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
+    cam.setDeviceID(1); // Default to external camera
+	cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
 	// GUI - OLD
@@ -93,7 +93,10 @@ void ofApp::update(){
         
         // Light up a new LED for every frame
         if (!animator.isLedOn) {
-            animator.chaseAnimationOn();
+            vector <ofColor>  pixels = animator.chaseAnimationOn();
+
+            opcClient.writeChannel(animator.currentStripNum, pixels);
+            
         }
         
         // Background subtraction

@@ -24,7 +24,7 @@ public:
     ~Animator(); // Destructor
     
     void setup();
-    void chaseAnimationOn();
+    vector <ofColor> chaseAnimationOn();
     void chaseAnimationOff();
     void setAllLEDColours(ofColor col);
     void test();
