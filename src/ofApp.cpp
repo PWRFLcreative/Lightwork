@@ -47,7 +47,7 @@ void ofApp::setup(){
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
-    numStrips = 8;
+    numStrips = 3;
     currentStripNum = 1;
     previousStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
