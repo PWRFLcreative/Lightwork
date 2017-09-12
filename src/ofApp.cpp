@@ -9,15 +9,12 @@ void ofApp::setup(){
     ofSetFrameRate(framerate);
 	ofBackground(0, 0, 0);
 	ofSetWindowTitle("LightWork");
-
-	IP = "192.168.1.104"; //Default IP for Fadecandy
     
 	//Video Devices
 	enumerateCams();
     cam.setDeviceID(1); // Default to external camera
-	cam.setup(640, 480);
+	cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
-
 
 	// GUI - OLD
 	//gui.setup();
@@ -25,7 +22,6 @@ void ofApp::setup(){
 	learningTime.set("Learning Time", 1.3, 0, 30);
 	thresholdValue.set("Threshold Value", 50, 0, 255);
 
-    
     // Contours
     contourFinder.setMinAreaRadius(1);
     contourFinder.setMaxAreaRadius(100);
@@ -37,10 +33,10 @@ void ofApp::setup(){
     contourFinder.getTracker().setSmoothingRate(1.0);
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
-    thresholded.allocate(640, 480, OF_IMAGE_COLOR);
+    thresholded.allocate(ofGetWindowWidth()/2, ofGetWindowHeight(), OF_IMAGE_COLOR);
     
     // LED
-    
+	IP = "192.168.1.104"; //Default IP for Fadecandy
     ledIndex = 0;
     numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
     ledBrightness = 250;
@@ -170,9 +166,8 @@ void ofApp::update(){
 void ofApp::draw(){
     cam.draw(0, 0);
     if(thresholded.isAllocated()) {
-        thresholded.draw(640, 0);
+        thresholded.draw(ofGetWindowWidth()/2, 0);
     }
-    //gui.draw();
     
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
@@ -387,7 +382,19 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    svg.save("layout.svg");
+    //svg.save("layout.svg");
+
+	if (centroids.size() == 0) {
+		//User is trying to save without anything to output - bail
+		ofLogError("No point data to save, run mapping first");
+		return;
+	}
+
+	//
+	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout" + ofGetTimestampString() + ".svg", "Save your file");
+	if (saveFileResult.bSuccess) {
+		svg.save(saveFileResult.filePath);
+	}
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
@@ -410,6 +417,7 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     
     json.save("testLayout.json");
 }
+
 
 /*
  I'm expecting a series of 2D points. I need to filter out points that are too close together, but keep
@@ -503,7 +511,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 	}
 }
 
-
+//GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
 		cout << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
@@ -547,16 +555,15 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 
 }
 
-
+//Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
 void ofApp::switchCamera(int num)
 {
     ofLogNotice("Switching camera");
 	cam.close(); 
-	//cam.listDevices();
 	cam.setDeviceID(num);
 	cam.setup(640, 480);
 }
-
+//Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
 {
 	vector <ofVideoDevice> devices;
@@ -583,7 +590,6 @@ void ofApp::buildUI()
 	//GUI
 	gui = new ofxDatGui(ofGetWidth()-290,40);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
-	
 	//gui->addHeader(":: drag me to reposition ::");
 
 	gui->addDropdown("Select Camera", enumerateCams());
