@@ -3,8 +3,9 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-//    X ofLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_VERBOSE);
     
+    ofLogToConsole();
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(0, 0, 0);
@@ -103,7 +104,7 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
-            ofLogVerbose("Detected one contour, as expected.");
+            ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
@@ -111,7 +112,7 @@ void ofApp::update(){
         
         // We have more than 1 contour, select the brightest one.
         else if (contourFinder.size() > 1 && isLedOn && !success){
-            ofLogVerbose("num contours: " + ofToString(contourFinder.size()));
+            ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -136,22 +137,23 @@ void ofApp::update(){
                 success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            ofLogNotice() << "brightest index: " << ofToString(brightestIndex);
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
-            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
         }
         
         // Deal with no contours found
         else if (isMapping && !success && hasFoundFirstContour){
-            ofLogVerbose("NO CONTOUR FOUND!!!");
+            ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
-            ofLogVerbose("CREATING FAKE POINT                     at frame: " + ofToString(ofGetFrameNum()) + " ledIndex " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            success = true;
+            ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
         }
         
         if(isMapping && success) {
@@ -270,7 +272,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    ofLogVerbose("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
@@ -308,7 +310,7 @@ void ofApp::chaseAnimationOff()
 {
     if (isLedOn) {
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        ofLogVerbose("Animation OFF, duration: "+ ofToString(ledTimeDelta));
+        ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
         
         ledIndex++;
         if (ledIndex == numLedsPerStrip) {
@@ -374,11 +376,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
         else {
            path.lineTo(points[i]);
         }
-        
-        cout << points[i].x;
-        cout << ", ";
-        cout << points[i].y;
-        cout << "\n";
+        ofLogVerbose("output") << points[i].x << ", "<< points[i].y;
     }
     svg.addPath(path);
     path.draw();
@@ -395,11 +393,13 @@ void ofApp::generateSVG(vector <ofPoint> points) {
 	if (saveFileResult.bSuccess) {
 		svg.save(saveFileResult.filePath);
 	}
+    ofLogNotice("output") << "Saved SVG file.";
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
+    ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
     cout << maxX;
     cout << maxY;
     
@@ -416,6 +416,7 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     }
     
     json.save("testLayout.json");
+    ofLogNotice("output") << "Saved JSON file.";
 }
 
 
@@ -427,10 +428,9 @@ void ofApp::generateJSON(vector<ofPoint> points) {
  'path' in the SVG that stores the address in a path of the same length.
  */
 vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
-    cout << "Removing duplicates" << endl;
-    // Nex vector to accumulate the points we want, we don't add unwanted points
-    //vector <ofPoint> filtered = points;
-    float thresh = 3.0;
+    ofLogNotice("tracking") << "Removing duplicates";
+    
+    float thresh = 3.0; // TODO: Add interface to GUI
     
     std::vector<ofPoint>::iterator iter;
     
@@ -438,7 +438,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     for (iter = points.begin(); iter < points.end(); iter++) {
         int i = std::distance(points.begin(), iter); // Index of iter, used to avoid comporating a point to itself
         ofPoint pt = *iter;
-        cout << "BASE: " << pt << endl;
+        ofLogVerbose("tracking") << "BASE: " << pt << endl;
         
         // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
         if (pt.x == 0 && pt.y == 0) {
@@ -450,24 +450,24 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
             int j = std::distance(points.begin(), j_iter); // Index of j_iter
             ofPoint pt2 = *j_iter;
-            cout << "NESTED: " << pt2 << endl;
+            ofLogVerbose("tracking") << "NESTED: " << pt2 << endl;
             float dist = pt.distance(pt2);
-            cout << "DISTANCE: " << dist << endl;
-            cout << i << endl << j << endl;
+            ofLogVerbose("tracking") << "DISTANCE: " << dist << endl;
+            ofLogVerbose("tracking") << "i: " << i << " j: " << j << endl;
             // Comparing point to itself... do nothing and move on.
             if (i == j) {
-                cout << "COMPARING POINT TO ITSELF " << pt << endl;
+                ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
                 continue; // Move on to the next j point
             }
             // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
             else if (pt.x == pt2.x && pt.y == pt2.y) {
-                cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
+                ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
                 iter = points.erase(iter);
                 break;
             }
             // Check point distance, remove points that are too close
             else if (dist < thresh) {
-                cout << "REMOVING" << endl;
+                ofLogVerbose("tracking") << "REMOVING" << endl;
                 iter = points.erase(iter);
                 break;
             }
