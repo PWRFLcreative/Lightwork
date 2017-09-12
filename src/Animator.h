@@ -5,6 +5,7 @@
 //  Created by Leó Stefánsson on 11.9.2017.
 //
 //
+#pragma once
 
 #ifndef Animator_h
 #define Animator_h
@@ -14,9 +15,13 @@
 
 #endif /* Animator_h */
 
+using namespace std;
+
 class Animator {
     
 public:
+    Animator();  // Constructor
+//    ~Animator(); // Destructor
     
     void setup();
     void chaseAnimationOn();
@@ -41,16 +46,15 @@ public:
     bool                isLedOn;                // Tracks LED state for the sequenctial animation
 
     
-    //Animator();  // Constructor
-//    ~Animator(); // Destructor
+
     
 };
 
 
-//Animator::Animator(void) {
-//    cout << "Animator created" << endl;
-//}
-
+Animator::Animator(void) {
+    //cout << "Animator created" << endl;
+}
+//
 //Animator::~Animator(void) {
 //    cout << "Animator destroyed" << endl;
 //}
