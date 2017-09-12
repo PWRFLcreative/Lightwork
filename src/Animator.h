@@ -24,7 +24,7 @@ public:
     ~Animator(); // Destructor
     
     void setup();
-    vector <ofColor> chaseAnimationOn();
+    void chaseAnimationOn();
     void chaseAnimationOff();
     void setAllLEDColours(ofColor col);
     void test();
@@ -45,9 +45,6 @@ public:
     float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
     bool                isLedOn;                // Tracks LED state for the sequenctial animation
 
-    
-
-    
 };
 
 

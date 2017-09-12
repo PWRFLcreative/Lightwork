@@ -22,8 +22,7 @@ void Animator::setup() {
     ofLogNotice("Setting up Animator");
 }
 
-vector <ofColor> Animator::chaseAnimationOn()
-{
+void Animator::chaseAnimationOn() {
     ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
@@ -44,25 +43,19 @@ vector <ofColor> Animator::chaseAnimationOn()
     
     //opcClient.writeChannel(currentStripNum, pixels);
     
-    if (currentStripNum != previousStripNum) {
-        for (int i = 0; i <  numLedsPerStrip; i++) {
-            ofColor col;
-            
-            col = ofColor(0, 0, 0);
-            
-            pixels.at(i) = col;
-        }
-        //opcClient.writeChannel(previousStripNum, pixels);
-        previousStripNum = currentStripNum;
-    }
+    
     isLedOn = true;
     
-    return pixels;
 }
 
 void Animator::chaseAnimationOff()
 {
     if (isLedOn) {
+        if (currentStripNum != previousStripNum) {
+
+            previousStripNum = currentStripNum;
+        }
+        
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
         ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
         

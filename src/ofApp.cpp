@@ -93,10 +93,8 @@ void ofApp::update(){
         
         // Light up a new LED for every frame
         if (!animator.isLedOn) {
-            vector <ofColor>  pixels = animator.chaseAnimationOn();
-
-            opcClient.writeChannel(animator.currentStripNum, pixels);
-            
+            animator.chaseAnimationOn();
+            opcClient.writeChannel(animator.currentStripNum, animator.pixels);
         }
         
         // Background subtraction
@@ -165,7 +163,8 @@ void ofApp::update(){
         
         if(animator.isMapping && success) {
             hasFoundFirstContour = true;
-            animator.chaseAnimationOff(); // TODO: this is redundant, see above else if
+            animator.chaseAnimationOff();
+            opcClient.writeChannel(animator.currentStripNum, animator.pixels);
         }
     }
     ofSetColor(ofColor::white);
