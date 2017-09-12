@@ -380,20 +380,18 @@ void ofApp::generateSVG(vector <ofPoint> points) {
         else {
            path.lineTo(points[i]);
         }
-        
-        cout << points[i].x;
-        cout << ", ";
-        cout << points[i].y;
-        cout << "\n";
+        ofLogVerbose("output") << points[i].x << ", "<< points[i].y;
     }
     svg.addPath(path);
     path.draw();
     svg.save("layout.svg");
+    ofLogNotice("output") << "Saved SVG file.";
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
+    ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
     cout << maxX;
     cout << maxY;
     
@@ -410,6 +408,7 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     }
     
     json.save("testLayout.json");
+    ofLogNotice("output") << "Saved JSON file.";
 }
 
 /*
@@ -420,10 +419,9 @@ void ofApp::generateJSON(vector<ofPoint> points) {
  'path' in the SVG that stores the address in a path of the same length.
  */
 vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
-    cout << "Removing duplicates" << endl;
-    // Nex vector to accumulate the points we want, we don't add unwanted points
-    //vector <ofPoint> filtered = points;
-    float thresh = 3.0;
+    ofLogNotice("tracking") << "Removing duplicates";
+    
+    float thresh = 3.0; // TODO: Add interface to GUI
     
     std::vector<ofPoint>::iterator iter;
     
@@ -431,7 +429,7 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
     for (iter = points.begin(); iter < points.end(); iter++) {
         int i = std::distance(points.begin(), iter); // Index of iter, used to avoid comporating a point to itself
         ofPoint pt = *iter;
-        cout << "BASE: " << pt << endl;
+        ofLogVerbose("tracking") << "BASE: " << pt << endl;
         
         // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
         if (pt.x == 0 && pt.y == 0) {
@@ -443,24 +441,24 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
         for (j_iter = points.begin(); j_iter < points.end(); j_iter++) {
             int j = std::distance(points.begin(), j_iter); // Index of j_iter
             ofPoint pt2 = *j_iter;
-            cout << "NESTED: " << pt2 << endl;
+            ofLogVerbose("tracking") << "NESTED: " << pt2 << endl;
             float dist = pt.distance(pt2);
-            cout << "DISTANCE: " << dist << endl;
-            cout << i << endl << j << endl;
+            ofLogVerbose("tracking") << "DISTANCE: " << dist << endl;
+            ofLogVerbose("tracking") << "i: " << i << " j: " << j << endl;
             // Comparing point to itself... do nothing and move on.
             if (i == j) {
-                cout << "COMPARING POINT TO ITSELF " << pt << endl;
+                ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
                 continue; // Move on to the next j point
             }
             // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
             else if (pt.x == pt2.x && pt.y == pt2.y) {
-                cout << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
+                ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
                 iter = points.erase(iter);
                 break;
             }
             // Check point distance, remove points that are too close
             else if (dist < thresh) {
-                cout << "REMOVING" << endl;
+                ofLogVerbose("tracking") << "REMOVING" << endl;
                 iter = points.erase(iter);
                 break;
             }
