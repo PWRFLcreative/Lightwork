@@ -3,16 +3,16 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-    ofSetLogLevel(OF_LOG_VERBOSE);
-    
+    ofSetLogLevel(OF_LOG_ERROR);
     ofLogToConsole();
+
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(0, 0, 0);
 	ofSetWindowTitle("LightWork");
     
 	//Video Devices
-	enumerateCams();
+	cam.setVerbose(false);
     cam.setDeviceID(1); // Default to external camera
 	cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
@@ -192,13 +192,13 @@ void ofApp::keyPressed(int key){
         case '+':
 		case '=':
             threshold ++;
-            cout << "Threshold: " << threshold;
+            oflogNotice() << "Threshold: " << threshold;
             if (threshold > 255) threshold = 255;
             break;
         case '-':
 		case '_':
             threshold --;
-            cout << "Threshold: " << threshold;
+			oflogNotice() << "Threshold: " << threshold;
             if (threshold < 0) threshold = 0;
             break;
         case 's':
@@ -366,7 +366,13 @@ void ofApp::test() {
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {
-    ofPath path;
+	if (points.size() == 0) {
+		//User is trying to save without anything to output - bail
+		ofLogError("No point data to save, run mapping first");
+		return;
+	}
+	
+	ofPath path;
     for (int i = 0; i < points.size(); i++) {
         // Avoid generating a moveTo AND lineTo for the first point
         // If we don't specify the first moveTo message then the first lineTo will also produce a moveTo point with the same coordinates
@@ -380,16 +386,9 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-    //svg.save("layout.svg");
-
-	if (centroids.size() == 0) {
-		//User is trying to save without anything to output - bail
-		ofLogError("No point data to save, run mapping first");
-		return;
-	}
 
 	//
-	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout" + ofGetTimestampString() + ".svg", "Save your file");
+	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout.svg", "Save layout file");
 	if (saveFileResult.bSuccess) {
 		svg.save(saveFileResult.filePath);
 	}
@@ -400,8 +399,8 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
-    cout << maxX;
-    cout << maxY;
+	oflogNotice() << maxX;
+	oflogNotice() << maxY;
     
     ofxJSONElement json; // For output
     
@@ -480,18 +479,17 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
 //Dropdown Handler
 void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 {
-	cout << "the option at index # " << e.child << " was selected " << endl;
-
 	if (e.target->is("Select Camera")) {
-		enumerateCams();
+		//enumerateCams();
 		gui->getDropdown("Select Camera")->update(); //TODO : Not working
 		gui->update();
 		switchCamera(e.child);
+		ofLogNotice() << "Camera " << e.child << " was selected";
 	}
 
 	if (e.target->is("Select Driver Type")) {
 		if (e.child == 0) {
-			cout << "Pixel Pusher was selected" << endl;
+			ofLogNotice() << "Pixel Pusher was selected";
 			gui->getFolder("PixelPusher Settings")->setVisible(true);
 			gui->getFolder("PixelPusher Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -500,7 +498,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 			gui->getFolder("Fadecandy Settings")->collapse();
 		}
 		else if (e.child == 1) {
-			cout << "Fadecandy/Octo was selected" << endl;
+			ofLogNotice() << "Fadecandy/Octo was selected";
 			gui->getFolder("Fadecandy Settings")->setVisible(true);
 			gui->getFolder("Fadecandy Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -514,13 +512,13 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 //GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
-		cout << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+		ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
 		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
-	cout << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText() << endl;
+	ofLogNotice() << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
@@ -540,7 +538,7 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	cout << "onButtonEvent: " << e.target->getLabel() << endl;
+	ofLogNotice() << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
 		isTesting = true;
@@ -575,7 +573,7 @@ vector<string> ofApp::enumerateCams()
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
 		int id = device.id;
-		cout << "Camera " << id << ": " <<  name << endl;
+		ofLogNotice() << "Camera " << id << ": " <<  name << endl;
 		//newStrings[i] = name;
 		deviceStrings.push_back(name);
 
