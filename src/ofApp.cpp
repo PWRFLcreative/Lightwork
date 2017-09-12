@@ -507,7 +507,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
 		cout << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
-
+		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
@@ -582,7 +582,7 @@ void ofApp::buildUI()
 {
 	//GUI
 	gui = new ofxDatGui(ofGetWidth()-290,40);
-	//gui->setTheme(new ofxDatGuiThemeCharcoal());
+	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	
 	//gui->addHeader(":: drag me to reposition ::");
 
@@ -617,10 +617,11 @@ void ofApp::buildUI()
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();
 
+	gui->addSlider("gui opacity", 0, 100, 30);
 	gui->addFRM();
 
 	gui->addFooter();
-	gui->setOpacity(15.0);
+	gui->setOpacity(gui->getSlider("gui opacity")->getScale());
 
 	// once the gui has been assembled, register callbacks to listen for component specific events //
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);
