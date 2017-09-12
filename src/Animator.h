@@ -15,15 +15,44 @@
 #endif /* Animator_h */
 
 class Animator {
+    
 public:
-    Animator();  // Constructor
-    ~Animator(); // Destructor
     
     void setup();
+    void chaseAnimationOn();
+    void chaseAnimationOff();
+    void setAllLEDColours(ofColor col);
+    void test();
+    
+    vector <ofColor>    pixels;
+    
+    int                 ledIndex;               // Index of LED being mapped (lit and detected).
+    int                 numLedsPerStrip;                // Number of LEDs per strip
+    int                 numStrips;              // How many strips total
+    int                 currentStripNum;        // Strip currently being mapped
+    int                 previousStripNum;       // The previous strip being mapped. This is used to turn off last LED in
+                                                //previous strip after switching to the next strip
+    bool                isMapping;              // Top-level conditional. Indicates if we are currently mapping the LEDs
+    bool				isTesting;              // Used for LED test pattern toggle
+    int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
+                                                // will be determined by camera frame brightness (to avoid flaring by
+                                                // excessively bright LEDs).
+    float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
+    bool                isLedOn;                // Tracks LED state for the sequenctial animation
+
+    
+    //Animator();  // Constructor
+//    ~Animator(); // Destructor
     
 };
 
-void Animator::setup() {
-    ofLogNotice("Setting up Animator");
-}
+
+//Animator::Animator(void) {
+//    cout << "Animator created" << endl;
+//}
+
+//Animator::~Animator(void) {
+//    cout << "Animator destroyed" << endl;
+//}
+
 
