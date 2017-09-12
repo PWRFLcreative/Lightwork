@@ -21,7 +21,7 @@ class Animator {
     
 public:
     Animator();  // Constructor
-//    ~Animator(); // Destructor
+    ~Animator(); // Destructor
     
     void setup();
     void chaseAnimationOn();
@@ -51,12 +51,6 @@ public:
 };
 
 
-Animator::Animator(void) {
-    //cout << "Animator created" << endl;
-}
-//
-//Animator::~Animator(void) {
-//    cout << "Animator destroyed" << endl;
-//}
+
 
 

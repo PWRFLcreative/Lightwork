@@ -10,6 +10,14 @@
 
 using namespace std;
 
+Animator::Animator(void) {
+    cout << "Animator created" << endl;
+}
+
+Animator::~Animator(void) {
+    cout << "Animator destroyed" << endl;
+}
+
 void Animator::setup() {
     ofLogNotice("Setting up Animator");
 }
