@@ -3,8 +3,9 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-    //ofLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_VERBOSE);
     
+    ofLogToConsole();
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(0, 0, 0);
@@ -106,7 +107,7 @@ void ofApp::update(){
         
         // We have 1 contour
         if (contourFinder.size() == 1 && isLedOn && !success) {
-            //ofLogVerbose("Detected one contour, as expected.");
+            ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
             success = true;
@@ -114,7 +115,7 @@ void ofApp::update(){
         
         // We have more than 1 contour, select the brightest one.
         else if (contourFinder.size() > 1 && isLedOn && !success){
-            //ofLogVerbose("num contours: " + ofToString(contourFinder.size()));
+            ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
             for(int i = 0; i < contourFinder.size(); i++) {
@@ -139,23 +140,23 @@ void ofApp::update(){
                 success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            ofLogNotice("brightest index: " + ofToString(brightestIndex));
+            ofLogNotice() << "brightest index: " << ofToString(brightestIndex);
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
-            ofLogNotice("added point, ignored additional points. FrameCount: " + ofToString(ofGetFrameNum())+ " ledIndex: " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
         }
         
         // Deal with no contours found
         else if (isMapping && !success && hasFoundFirstContour){
-            //ofLogVerbose("NO CONTOUR FOUND!!!");
+            ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
             success = true;
-            //ofLogVerbose("CREATING FAKE POINT                     at frame: " + ofToString(ofGetFrameNum()) + " ledIndex " + ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip));
+            ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
         }
         
         if(isMapping && success) {
@@ -275,7 +276,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
-    //ofLogVerbose("Animation ON: "+ ofToString(ofGetElapsedTimef()));
+    ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
     // Chase animation
     // Set the colors of all LEDs on the current strip
@@ -313,7 +314,7 @@ void ofApp::chaseAnimationOff()
 {
     if (isLedOn) {
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        //ofLogVerbose("Animation OFF, duration: "+ ofToString(ledTimeDelta));
+        ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
         
         ledIndex++;
         if (ledIndex == numLedsPerStrip) {
