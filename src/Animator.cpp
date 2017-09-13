@@ -20,8 +20,6 @@ Animator::Animator(void) {
     isTesting_ = false;
     
     ledIndex = 0;
-    currentStripNum = 1;
-    ledTimeDelta = 0.0;
     
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
@@ -91,9 +89,6 @@ vector <ofColor> Animator::getPixels() {
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
 void Animator::chaseAnimationOn() {
-    ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
-    ledTimeDelta = ofGetElapsedTimef();
-    
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
         ofColor col;
         if (i == ledIndex) {

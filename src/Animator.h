@@ -56,7 +56,6 @@ private:
     int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
-    float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
     
 
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
