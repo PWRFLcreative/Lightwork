@@ -5,7 +5,6 @@
 void ofApp::setup(){
     // Set the log level
     ofSetLogLevel(OF_LOG_NOTICE);
-    
     ofLogToConsole();
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
@@ -39,24 +38,12 @@ void ofApp::setup(){
     
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
-    animator.ledIndex = 0;
-    animator.numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
-    animator.ledBrightness = 250;
-    animator.isMapping = false;
-	animator.isTesting = false;
-    animator.isLedOn = false; // Prevent sending multiple ON messages
-    animator.numStrips = 3;
-    animator.currentStripNum = 1;
-    animator.previousStripNum = animator.currentStripNum;
     
-    animator.ledTimeDelta = 0.0;
+    // Animator settings
+    animator.numLedsPerStrip = 50;
     
     // Tracking
     hasFoundFirstContour = false;
-    
-    // Set up the color vector, with all LEDs set to off(black)
-    // TODO: Should be handled internally by the animator setup() or init()
-    animator.pixels.assign(animator.numLedsPerStrip, ofColor(0,0,0));
     
     // Connect to the fcserver
     opcClient.setup(IP, 7890, 1, animator.numLedsPerStrip);
@@ -497,7 +484,7 @@ void ofApp::buildUI()
 	//GUI
 	gui = new ofxDatGui(ofGetWidth()-290,40);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
-	//gui->addHeader(":: drag me to reposition ::");
+	gui->addHeader(":: drag me to reposition ::");
 
 	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();

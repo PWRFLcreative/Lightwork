@@ -12,6 +12,19 @@ using namespace std;
 
 Animator::Animator(void) {
     cout << "Animator created" << endl;
+    ledIndex = 0;
+    numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
+    ledBrightness = 250;
+    isMapping = false;
+    isTesting = false;
+    isLedOn = false; // Prevent sending multiple ON messages
+    numStrips = 3;
+    currentStripNum = 1;
+    previousStripNum = currentStripNum;
+    ledTimeDelta = 0.0;
+    
+    // TODO: assign pixels for the full setup (all the channels)iter
+    pixels.assign(numLedsPerStrip, ofColor(0,0,0));
 }
 
 Animator::~Animator(void) {
@@ -22,6 +35,8 @@ void Animator::setup() {
     ofLogNotice("Setting up Animator");
 }
 
+// Update the pixels for all the strips
+// This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
 void Animator::chaseAnimationOn() {
     ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
@@ -40,12 +55,7 @@ void Animator::chaseAnimationOn() {
             pixels.at(i) = col;
         }
     }
-    
-    //opcClient.writeChannel(currentStripNum, pixels);
-    
-    
     isLedOn = true;
-    
 }
 
 void Animator::chaseAnimationOff()
