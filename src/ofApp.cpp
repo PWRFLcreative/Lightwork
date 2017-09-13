@@ -51,11 +51,7 @@ void ofApp::setup(){
     opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
     opcClient.sendFirmwareConfigPacket();
     // Clear the LED strips
-    for (int i = 0; i < animator.getNumStrips(); i++) {
-        opcClient.writeChannel(i, animator.getPixels());
-    }
-    
-    
+    opcClient.autoWriteData(animator.getPixels()); // TODO: create Clear() method
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
@@ -89,7 +85,6 @@ void ofApp::update(){
         //if (!animator.isLedOn()) {
         animator.chaseAnimationOn();
         opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
-        //}
         
         // Background subtraction
         background.setLearningTime(learningTime);

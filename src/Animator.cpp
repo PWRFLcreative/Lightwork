@@ -97,17 +97,16 @@ void Animator::chaseAnimationOn() {
     // Chase animation
     // Set the colors of all LEDs on the current strip
     
-    //if (!isLedOn_) {
-        for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
-            ofColor col;
-            if (i == ledIndex) {
-                col = ofColor(ledBrightness, ledBrightness, ledBrightness);
-            }
-            else {
-                col = ofColor(0, 0, 0);
-            }
-            pixels.at(i) = col;
+    for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
+        ofColor col;
+        if (i == ledIndex) {
+            col = ofColor(ledBrightness, ledBrightness, ledBrightness);
         }
+        else {
+            col = ofColor(0, 0, 0);
+        }
+        pixels.at(i) = col;
+    }
     
     ledIndex++;
     if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
@@ -120,14 +119,11 @@ void Animator::chaseAnimationOn() {
     if (currentStripNum > numStrips) {
         isMapping_ = false;
     }
-    
-   // }
-    //isLedOn_ = true;
 }
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void Animator::setAllLEDColours(ofColor col) {
-    for (int i = 0; i <  numLedsPerStrip; i++) {
+    for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
         pixels.at(i) = col;
     }
 }
