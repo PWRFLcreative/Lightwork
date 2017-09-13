@@ -23,7 +23,11 @@ public:
     Animator();  // Constructor
     ~Animator(); // Destructor
     
-    void setup();
+    // Setters and getters
+    void setNumLedsPerStrip(int num);
+    void setNumStrips(int num);
+    
+    // Animation methods
     void chaseAnimationOn();
     void chaseAnimationOff();
     void setAllLEDColours(ofColor col);

@@ -12,18 +12,20 @@ using namespace std;
 
 Animator::Animator(void) {
     cout << "Animator created" << endl;
-    ledIndex = 0;
-    numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
-    ledBrightness = 250;
+    numLedsPerStrip = 64;
+    ledBrightness = 200;
+    numStrips = 8;
     isMapping = false;
     isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
-    numStrips = 3;
+    
+    ledIndex = 0;
     currentStripNum = 1;
     previousStripNum = currentStripNum;
     ledTimeDelta = 0.0;
     
     // TODO: assign pixels for the full setup (all the channels)iter
+    // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip, ofColor(0,0,0));
 }
 
@@ -31,8 +33,16 @@ Animator::~Animator(void) {
     cout << "Animator destroyed" << endl;
 }
 
-void Animator::setup() {
+void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
+    numLedsPerStrip = num;
+    vector <ofColor> pix;
+    pix.assign(numLedsPerStrip, ofColor(0,0,0));
+    pixels = pix;
+}
+
+void Animator::setNumStrips(int num) {
+    numStrips = num;
 }
 
 // Update the pixels for all the strips

@@ -40,7 +40,9 @@ void ofApp::setup(){
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
     // Animator settings
-    animator.numLedsPerStrip = 50;
+    //animator.numLedsPerStrip = 50;
+    animator.setNumLedsPerStrip(50);
+    animator.setAllLEDColours(ofColor(0, 0,0));
     
     // Tracking
     hasFoundFirstContour = false;
@@ -48,7 +50,12 @@ void ofApp::setup(){
     // Connect to the fcserver
     opcClient.setup(IP, 7890, 1, animator.numLedsPerStrip);
     opcClient.sendFirmwareConfigPacket();
-    animator.setAllLEDColours(ofColor(0, 0,0));
+    // Clear the LED strips
+    for (int i = 0; i < animator.numStrips; i++) {
+        opcClient.writeChannel(i, animator.pixels);
+    }
+    
+    
     
     // SVG
     svg.setViewbox(0, 0, 640, 480);
