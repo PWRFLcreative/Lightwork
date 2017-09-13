@@ -18,7 +18,6 @@ Animator::Animator(void) {
     numStrips = 8;
     isMapping_ = false;
     isTesting_ = false;
-    isLedOn_ = false; // Prevent sending multiple ON messages
     
     ledIndex = 0;
     currentStripNum = 1;
@@ -66,9 +65,6 @@ bool Animator::isMapping() {
     return isMapping_;
 }
 
-bool Animator::isLedOn() {
-    return isLedOn_;
-}
 void Animator::toggleTesting() {
     isTesting_ = !isTesting_;
 }
@@ -101,7 +97,7 @@ void Animator::chaseAnimationOn() {
     // Chase animation
     // Set the colors of all LEDs on the current strip
     
-    if (!isLedOn_) {
+    //if (!isLedOn_) {
         for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
             ofColor col;
             if (i == ledIndex) {
@@ -112,54 +108,28 @@ void Animator::chaseAnimationOn() {
             }
             pixels.at(i) = col;
         }
-    }
-    isLedOn_ = true;
-}
-
-void Animator::chaseAnimationOff()
-{
-    if (isLedOn_) {
-//        if (currentStripNum != previousStripNum) {
-//
-//            previousStripNum = currentStripNum;
-//        }
-        
-        ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
-        
-        ledIndex++;
-        if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
-            for (int i = 0; i <  numLedsPerStrip; i++) {
-                ofColor col;
-                col = ofColor(0, 0, 0);
-                pixels.at(i) = col;
-            }
-            
-            ledIndex = 0;
-            previousStripNum = currentStripNum;
-            currentStripNum++;
-        }
-        
-        // TODO: review this conditional
-        if (currentStripNum > numStrips) {
-            isMapping_ = false;
-        }
-        
-        isLedOn_ = false;
+    
+    ledIndex++;
+    if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
+        ledIndex = 0;
+        previousStripNum = currentStripNum;
+        currentStripNum++;
     }
     
+    // TODO: review this conditional
+    if (currentStripNum > numStrips) {
+        isMapping_ = false;
+    }
+    
+   // }
+    //isLedOn_ = true;
 }
-
 
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void Animator::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLedsPerStrip; i++) {
         pixels.at(i) = col;
     }
-    for (int i = 1; i <= numStrips; i++) {
-        //opcClient.writeChannel(i, pixels);
-    }
-    
 }
 
 //LED Pre-flight test

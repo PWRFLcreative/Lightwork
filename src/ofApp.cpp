@@ -86,10 +86,10 @@ void ofApp::update(){
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
-        if (!animator.isLedOn()) {
-            animator.chaseAnimationOn();
-            opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
-        }
+        //if (!animator.isLedOn()) {
+        animator.chaseAnimationOn();
+        opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
+        //}
         
         // Background subtraction
         background.setLearningTime(learningTime);
@@ -102,7 +102,7 @@ void ofApp::update(){
         contourFinder.findContours(thresholded);
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && animator.isLedOn() && !success) { // TODO: review isLedOn vs isMapping()
+        if (contourFinder.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
@@ -110,7 +110,7 @@ void ofApp::update(){
         }
         
         // We have more than 1 contour, select the brightest one.
-        else if (contourFinder.size() > 1 && animator.isLedOn() && !success){ // TODO: review isLedOn vs isMapping()
+        else if (contourFinder.size() > 1 && !success){ // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
@@ -157,7 +157,7 @@ void ofApp::update(){
         
         if(animator.isMapping() && success) {
             hasFoundFirstContour = true;
-            animator.chaseAnimationOff();
+            //animator.chaseAnimationOff();
             opcClient.autoWriteData(animator.getPixels());
         }
     }

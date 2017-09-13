@@ -32,7 +32,6 @@ public:
     
     bool isTesting();
     bool isMapping();
-    bool isLedOn();
     
     void toggleMapping();
     void toggleTesting();
@@ -41,7 +40,6 @@ public:
     
     // Animation methods
     void chaseAnimationOn();
-    void chaseAnimationOff();
     void setAllLEDColours(ofColor col);
     void test();
     
@@ -61,7 +59,6 @@ private:
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
     float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
-    bool                isLedOn_;                // Tracks LED state for the sequenctial animation
     
 
     void resetPixels(); // Reassign pixels to fit numLedsPerStrip * numStrips
