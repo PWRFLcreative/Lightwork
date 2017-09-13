@@ -133,7 +133,7 @@ void ofApp::update(){
                 success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            ofLogNotice() << "brightest index: " << ofToString(brightestIndex);
+            ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
@@ -141,7 +141,7 @@ void ofApp::update(){
         }
         
         // Deal with no contours found
-        else if (isMapping && !success && hasFoundFirstContour){
+        else if (!success && hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
@@ -152,7 +152,7 @@ void ofApp::update(){
             //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
-        if(isMapping && success) {
+        if(success) {
             hasFoundFirstContour = true;
             //animator.chaseAnimationOff();
             opcClient.autoWriteData(animator.getPixels());
@@ -199,6 +199,7 @@ void ofApp::keyPressed(int key){
             if (threshold < 0) threshold = 0;
             break;
         case 's':
+            centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
             opcClient.autoWriteData(animator.getPixels());
