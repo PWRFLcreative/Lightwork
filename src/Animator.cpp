@@ -16,9 +16,7 @@ Animator::Animator(void) {
     numLedsPerStrip = 64;
     ledBrightness = 200;
     numStrips = 8;
-    isMapping_ = false;
-    isTesting_ = false;
-    ledIndex = 0;
+    ledIndex = 0; // Internal counter
     mode = ANIMATION_MODE_CHASE;
     
     // TODO: assign pixels for the full setup (all the channels)iter
@@ -56,22 +54,6 @@ void Animator::setNumStrips(int num) {
 
 int Animator::getNumStrips() {
     return numStrips;
-}
-
-bool Animator::isTesting() {
-    return isTesting_;
-}
-
-bool Animator::isMapping() {
-    return isMapping_;
-}
-
-void Animator::toggleTesting() {
-    isTesting_ = !isTesting_;
-}
-
-void Animator::toggleMapping() {
-    isMapping_ = !isMapping_;
 }
 
 // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
@@ -119,7 +101,6 @@ void Animator::chase() {
     ledIndex++;
     if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
         ledIndex = 0;
-        isMapping_ = false;
     }
 }
 
@@ -132,6 +113,8 @@ void Animator::setAllLEDColours(ofColor col) {
 
 //LED Pre-flight test
 void Animator::test() {
+    setAllLEDColours(ofColor(0,0,255));
+    /*
     int start = ofGetFrameNum(); // needs global variables to work properly
     int currFrame = start;
     int diff = currFrame - start;
@@ -145,6 +128,6 @@ void Animator::test() {
     
     if (diff >= 300) {
         setAllLEDColours(ofColor(0, 0, 0));
-        isTesting_ = false;
     }
+     */
 }

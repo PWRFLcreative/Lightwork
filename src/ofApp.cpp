@@ -46,6 +46,7 @@ void ofApp::setup(){
     
     // Tracking
     hasFoundFirstContour = false;
+    isMapping = false;
     
     // Connect to the fcserver
     opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
@@ -70,15 +71,16 @@ void ofApp::update(){
         opcClient.tryConnecting();
     }
 
-	if (animator.isTesting()) {
+	if (animator.mode == ANIMATION_MODE_TEST) {
 		animator.update(); // TODO: turn off blob detection while testing
+        opcClient.autoWriteData(animator.getPixels());
 	}
 
 	cam.update();
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(cam.isFrameNew() && !animator.isTesting() && animator.isMapping() && (ofGetFrameNum()%3 == 0)) {
+    if(cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
@@ -139,7 +141,7 @@ void ofApp::update(){
         }
         
         // Deal with no contours found
-        else if (animator.isMapping() && !success && hasFoundFirstContour){
+        else if (isMapping && !success && hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
@@ -150,7 +152,7 @@ void ofApp::update(){
             //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
-        if(animator.isMapping() && success) {
+        if(isMapping && success) {
             hasFoundFirstContour = true;
             //animator.chaseAnimationOff();
             opcClient.autoWriteData(animator.getPixels());
@@ -197,7 +199,7 @@ void ofApp::keyPressed(int key){
             if (threshold < 0) threshold = 0;
             break;
         case 's':
-            animator.toggleMapping();
+            isMapping = !isMapping;
             break;
         case 'g':
             generateSVG(centroids);
@@ -206,7 +208,7 @@ void ofApp::keyPressed(int key){
             generateJSON(centroids);
             break;
 		case 't':
-            animator.toggleTesting();
+            animator.setMode(ANIMATION_MODE_TEST);
 			break;
         case 'f': // filter points
             centroids = removeDuplicatesFromPoints(centroids);
@@ -439,10 +441,10 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	cout << "onButtonEvent: " << e.target->getLabel() << endl;
 
 	if (e.target->is("TEST LEDS")) {
-        animator.toggleTesting();
+        animator.setMode(ANIMATION_MODE_TEST);
 	}
 	if (e.target->is("MAP LEDS")) {
-        animator.toggleMapping();
+        isMapping = !isMapping;
 	}
 	if (e.target->is("SAVE LAYOUT")) {
 		centroids = removeDuplicatesFromPoints(centroids);

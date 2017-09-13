@@ -25,7 +25,6 @@ public:
     Animator();  // Constructor
     ~Animator(); // Destructor
     
-    
     animation_mode_t mode;
     void setMode(animation_mode_t m);
     
@@ -35,12 +34,6 @@ public:
     
     int getNumLedsPerStrip();
     int getNumStrips();
-    
-    bool isTesting();
-    bool isMapping();
-    
-    void toggleMapping();
-    void toggleTesting();
     
     vector <ofColor> getPixels();
     
@@ -57,9 +50,7 @@ private:
     int                 ledIndex;               // Index of LED being mapped (lit and detected).
     int                 numLedsPerStrip;                // Number of LEDs per strip
     int                 numStrips;              // How many strips total
-    bool                isMapping_;              // Top-level conditional. Indicates if we are currently mapping the LEDs
-        // TODO: Should isMapping belong to ofApp?
-    bool				isTesting_;              // Used for LED test pattern toggle
+             // Used for LED test pattern toggle
     int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
