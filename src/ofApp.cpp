@@ -72,8 +72,8 @@ void ofApp::update(){
     }
 
 	if (animator.mode == ANIMATION_MODE_TEST) {
-		animator.update(); // TODO: turn off blob detection while testing
-        opcClient.autoWriteData(animator.getPixels());
+		animator.update(); // Update the pixel values
+        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
 	}
 
 	cam.update();
@@ -200,6 +200,8 @@ void ofApp::keyPressed(int key){
             break;
         case 's':
             isMapping = !isMapping;
+            animator.setMode(ANIMATION_MODE_CHASE);
+            opcClient.autoWriteData(animator.getPixels());
             break;
         case 'g':
             generateSVG(centroids);
@@ -209,6 +211,7 @@ void ofApp::keyPressed(int key){
             break;
 		case 't':
             animator.setMode(ANIMATION_MODE_TEST);
+            opcClient.autoWriteData(animator.getPixels());
 			break;
         case 'f': // filter points
             centroids = removeDuplicatesFromPoints(centroids);
@@ -442,6 +445,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 
 	if (e.target->is("TEST LEDS")) {
         animator.setMode(ANIMATION_MODE_TEST);
+        opcClient.autoWriteData(animator.getPixels());
 	}
 	if (e.target->is("MAP LEDS")) {
         isMapping = !isMapping;

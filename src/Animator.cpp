@@ -35,6 +35,9 @@ Animator::~Animator(void) {
 
 void Animator::setMode(animation_mode_t m) {
     mode = m;
+    ledIndex = 0; // TODO: resetInternalVariables() method?
+    resetPixels();
+    
 }
 
 void Animator::setNumLedsPerStrip(int num) {
