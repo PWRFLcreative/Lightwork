@@ -73,7 +73,7 @@ void Animator::toggleMapping() {
     isMapping_ = !isMapping_;
 }
 
-// Internal method to reassign pixels with a vector of the right length
+// Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
 void Animator::resetPixels() {
     vector <ofColor> pix;
     pix.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));

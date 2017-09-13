@@ -54,6 +54,7 @@ private:
     int                 previousStripNum;       // The previous strip being mapped. This is used to turn off last LED in
                                                 //previous strip after switching to the next strip
     bool                isMapping_;              // Top-level conditional. Indicates if we are currently mapping the LEDs
+        // TODO: Should isMapping belong to ofApp?
     bool				isTesting_;              // Used for LED test pattern toggle
     int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
                                                 // will be determined by camera frame brightness (to avoid flaring by
@@ -61,7 +62,7 @@ private:
     float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
     
 
-    void resetPixels(); // Reassign pixels to fit numLedsPerStrip * numStrips
+    void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
 
 };
 
