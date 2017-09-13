@@ -2,13 +2,17 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    // Set the log level
+	//Window size based on screen dimensions, centered
+	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
+	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
+	
+	// Set the log level
     ofSetLogLevel(OF_LOG_ERROR);
     ofLogToConsole();
 
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
-	ofBackground(0, 0, 0);
+	ofBackground(ofColor::black);
 	ofSetWindowTitle("LightWork");
     
 	//Video Devices
@@ -574,8 +578,10 @@ vector<string> ofApp::enumerateCams()
 void ofApp::buildUI()
 {
 	//GUI
-	//gui = new ofxDatGui(ofGetWidth()-290,40);
-	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_LEFT);
+	int multiplier = 1;
+	if (ofGetScreenWidth() >= 1440) { multiplier = 2; } // correct for high resolution displays
+	gui = new ofxDatGui(ofGetWidth()-285*multiplier,40*multiplier);
+	//gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	//gui->addHeader(":: drag me to reposition ::");
 
