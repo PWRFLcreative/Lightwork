@@ -3,9 +3,16 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	//Window size based on screen dimensions, centered
+	
 	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
 	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
 	
+	//Fbos
+	camFbo.allocate(1280, 720);
+	camFbo.begin();
+	ofClear(255, 255, 255);
+	camFbo.end();
+
 	// Set the log level
     ofSetLogLevel(OF_LOG_ERROR);
     ofLogToConsole();
@@ -39,6 +46,7 @@ void ofApp::setup(){
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
     thresholded.allocate(ofGetWindowWidth()/2, ofGetWindowHeight(), OF_IMAGE_COLOR);
+	thresholded.clear();
     
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
@@ -170,20 +178,28 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    cam.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
-    if(thresholded.isAllocated()) {
-        thresholded.draw(ofGetWindowWidth()/2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
-    }
-    
+	//Draw into Fbo to allow scaling regardless of camera resolution
+	camFbo.begin();
+	cam.draw(0,0);
+
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     ofSetColor(0, 255, 0);
-    contourFinder.draw(); // Draws the blob rect surrounding the contour
-    
+	contourFinder.draw(); // Draws the blob rect surrounding the contour
+	
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
-        ofDrawCircle(centroids[i].x, centroids[i].y, 3);
+		ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
+	camFbo.end();
+
+	ofSetColor(ofColor::white); //reset color, else it tints the camera
+
+	//Draw Fbo and Thresholding images to screen
+	camFbo.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	if (thresholded.isAllocated()) {
+		thresholded.draw(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	}
 
 }
 

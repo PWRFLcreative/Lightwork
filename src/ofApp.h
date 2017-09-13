@@ -70,6 +70,7 @@ class ofApp : public ofBaseApp{
         ofVideoGrabber cam;
 		void switchCamera(int num);
 		vector <string> enumerateCams();
+		ofFbo camFbo;
 		
     
         // Background subtraction
