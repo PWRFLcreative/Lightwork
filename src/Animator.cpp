@@ -21,7 +21,6 @@ Animator::Animator(void) {
     
     ledIndex = 0;
     currentStripNum = 1;
-    previousStripNum = currentStripNum;
     ledTimeDelta = 0.0;
     
     // TODO: assign pixels for the full setup (all the channels)iter
@@ -94,8 +93,6 @@ vector <ofColor> Animator::getPixels() {
 void Animator::chaseAnimationOn() {
     ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
     ledTimeDelta = ofGetElapsedTimef();
-    // Chase animation
-    // Set the colors of all LEDs on the current strip
     
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
         ofColor col;
@@ -111,12 +108,6 @@ void Animator::chaseAnimationOn() {
     ledIndex++;
     if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
         ledIndex = 0;
-        previousStripNum = currentStripNum;
-        currentStripNum++;
-    }
-    
-    // TODO: review this conditional
-    if (currentStripNum > numStrips) {
         isMapping_ = false;
     }
 }
