@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxCv.h"
-#include "ofxGui.h"
+//#include "ofxGui.h"
 #include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"

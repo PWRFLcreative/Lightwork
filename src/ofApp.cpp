@@ -56,7 +56,7 @@ void ofApp::setup(){
     
     // Connect to the fcserver
     opcClient.setup(IP, 7890, 1, numLedsPerStrip);
-    opcClient.sendFirmwareConfigPacket();
+    opcClient.setInterpolation(false);
     setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
@@ -188,18 +188,6 @@ void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
             centroids.clear();
-            break;
-        case '+':
-		case '=':
-            threshold ++;
-            oflogNotice() << "Threshold: " << threshold;
-            if (threshold > 255) threshold = 255;
-            break;
-        case '-':
-		case '_':
-            threshold --;
-			oflogNotice() << "Threshold: " << threshold;
-            if (threshold < 0) threshold = 0;
             break;
         case 's':
             isMapping = !isMapping;
@@ -399,8 +387,8 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
-	oflogNotice() << maxX;
-	oflogNotice() << maxY;
+	ofLogNotice() << maxX;
+	ofLogNotice() << maxY;
     
     ofxJSONElement json; // For output
     
@@ -586,7 +574,8 @@ vector<string> ofApp::enumerateCams()
 void ofApp::buildUI()
 {
 	//GUI
-	gui = new ofxDatGui(ofGetWidth()-290,40);
+	//gui = new ofxDatGui(ofGetWidth()-290,40);
+	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_LEFT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	//gui->addHeader(":: drag me to reposition ::");
 
@@ -621,7 +610,7 @@ void ofApp::buildUI()
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();
 
-	gui->addSlider("gui opacity", 0, 100, 30);
+	gui->addSlider("gui opacity", 0, 100, 50);
 	gui->addFRM();
 
 	gui->addFooter();
