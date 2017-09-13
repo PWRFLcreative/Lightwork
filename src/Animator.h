@@ -27,11 +27,25 @@ public:
     void setNumLedsPerStrip(int num);
     void setNumStrips(int num);
     
+    int getNumLedsPerStrip();
+    int getNumStrips();
+    
+    bool isTesting();
+    bool isMapping();
+    bool isLedOn();
+    
+    void toggleMapping();
+    void toggleTesting();
+    
+    vector <ofColor> getPixels();
+    
     // Animation methods
     void chaseAnimationOn();
     void chaseAnimationOff();
     void setAllLEDColours(ofColor col);
     void test();
+    
+private:
     
     vector <ofColor>    pixels;
     
@@ -41,15 +55,15 @@ public:
     int                 currentStripNum;        // Strip currently being mapped
     int                 previousStripNum;       // The previous strip being mapped. This is used to turn off last LED in
                                                 //previous strip after switching to the next strip
-    bool                isMapping;              // Top-level conditional. Indicates if we are currently mapping the LEDs
-    bool				isTesting;              // Used for LED test pattern toggle
+    bool                isMapping_;              // Top-level conditional. Indicates if we are currently mapping the LEDs
+    bool				isTesting_;              // Used for LED test pattern toggle
     int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
     float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
-    bool                isLedOn;                // Tracks LED state for the sequenctial animation
+    bool                isLedOn_;                // Tracks LED state for the sequenctial animation
     
-private:
+
     void resetPixels(); // Reassign pixels to fit numLedsPerStrip * numStrips
 
 };

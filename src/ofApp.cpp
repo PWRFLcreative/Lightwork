@@ -48,11 +48,11 @@ void ofApp::setup(){
     hasFoundFirstContour = false;
     
     // Connect to the fcserver
-    opcClient.setup(IP, 7890, 1, animator.numLedsPerStrip);
+    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
     opcClient.sendFirmwareConfigPacket();
     // Clear the LED strips
-    for (int i = 0; i < animator.numStrips; i++) {
-        opcClient.writeChannel(i, animator.pixels);
+    for (int i = 0; i < animator.getNumStrips(); i++) {
+        opcClient.writeChannel(i, animator.getPixels());
     }
     
     
@@ -74,7 +74,7 @@ void ofApp::update(){
         opcClient.tryConnecting();
     }
 
-	if (animator.isTesting) {
+	if (animator.isTesting()) {
 		animator.test(); // TODO: turn off blob detection while testing
 	}
 
@@ -82,13 +82,13 @@ void ofApp::update(){
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(cam.isFrameNew() && !animator.isTesting && animator.isMapping && (ofGetFrameNum()%3 == 0)) {
+    if(cam.isFrameNew() && !animator.isTesting() && animator.isMapping() && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
-        if (!animator.isLedOn) {
+        if (!animator.isLedOn()) {
             animator.chaseAnimationOn();
-            opcClient.writeChannel(animator.currentStripNum, animator.pixels);
+            opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
         }
         
         // Background subtraction
@@ -102,7 +102,7 @@ void ofApp::update(){
         contourFinder.findContours(thresholded);
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && animator.isLedOn && !success) {
+        if (contourFinder.size() == 1 && animator.isLedOn() && !success) { // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
@@ -110,7 +110,7 @@ void ofApp::update(){
         }
         
         // We have more than 1 contour, select the brightest one.
-        else if (contourFinder.size() > 1 && animator.isLedOn && !success){
+        else if (contourFinder.size() > 1 && animator.isLedOn() && !success){ // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
@@ -140,11 +140,11 @@ void ofApp::update(){
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
-            ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
+            //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
         // Deal with no contours found
-        else if (animator.isMapping && !success && hasFoundFirstContour){
+        else if (animator.isMapping() && !success && hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
@@ -152,13 +152,13 @@ void ofApp::update(){
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
             success = true;
-            ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
+            //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
-        if(animator.isMapping && success) {
+        if(animator.isMapping() && success) {
             hasFoundFirstContour = true;
             animator.chaseAnimationOff();
-            opcClient.writeChannel(animator.currentStripNum, animator.pixels);
+            opcClient.autoWriteData(animator.getPixels());
         }
     }
     ofSetColor(ofColor::white);
@@ -202,7 +202,7 @@ void ofApp::keyPressed(int key){
             if (threshold < 0) threshold = 0;
             break;
         case 's':
-            animator.isMapping = !animator.isMapping;
+            animator.toggleMapping();
             break;
         case 'g':
             generateSVG(centroids);
@@ -211,7 +211,7 @@ void ofApp::keyPressed(int key){
             generateJSON(centroids);
             break;
 		case 't':
-			animator.isTesting = !animator.isTesting;
+            animator.toggleTesting();
 			break;
         case 'f': // filter points
             centroids = removeDuplicatesFromPoints(centroids);
@@ -430,12 +430,12 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 	if (e.target->is("LEDS per Strip")) {
 		string temp = e.target->getText();
-		animator.numLedsPerStrip = ofToInt(temp);
+        animator.setNumLedsPerStrip(ofToInt(temp));
 	}
 
 	if (e.target->is("STRIPS")) {
 		string temp = e.target->getText();
-		animator.numStrips = ofToInt(temp);
+		animator.setNumStrips(ofToInt(temp));
 	}
 }
 
@@ -444,10 +444,10 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	cout << "onButtonEvent: " << e.target->getLabel() << endl;
 
 	if (e.target->is("TEST LEDS")) {
-		animator.isTesting = true;
+        animator.toggleTesting();
 	}
 	if (e.target->is("MAP LEDS")) {
-		animator.isMapping = true;
+        animator.toggleMapping();
 	}
 	if (e.target->is("SAVE LAYOUT")) {
 		centroids = removeDuplicatesFromPoints(centroids);
@@ -502,15 +502,15 @@ void ofApp::buildUI()
 
 	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
 	fcSettings->addTextInput("IP", IP);
-	fcSettings->addTextInput("STRIPS", ofToString(animator.numStrips));
-	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.numLedsPerStrip));
+	fcSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
+	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
 	fcSettings->setVisible(false);
 	fcSettings->addBreak();
 	
 	ofxDatGuiFolder* ppSettings = gui->addFolder("PixelPusher Settings", ofColor::white);
 	ppSettings->addTextInput("IP", IP);
-	ppSettings->addTextInput("STRIPS", ofToString(animator.numStrips));
-	ppSettings->addTextInput("LEDS per Strip", ofToString(animator.numLedsPerStrip));
+	ppSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
+	ppSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
 	ppSettings->setVisible(false);
 	ppSettings->addBreak();
 

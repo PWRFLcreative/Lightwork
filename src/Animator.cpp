@@ -10,14 +10,15 @@
 
 using namespace std;
 
+// Constructor
 Animator::Animator(void) {
     cout << "Animator created" << endl;
     numLedsPerStrip = 64;
     ledBrightness = 200;
     numStrips = 8;
-    isMapping = false;
-    isTesting = false;
-    isLedOn = false; // Prevent sending multiple ON messages
+    isMapping_ = false;
+    isTesting_ = false;
+    isLedOn_ = false; // Prevent sending multiple ON messages
     
     ledIndex = 0;
     currentStripNum = 1;
@@ -29,9 +30,14 @@ Animator::Animator(void) {
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
 }
 
+// Destructor
 Animator::~Animator(void) {
     cout << "Animator destroyed" << endl;
 }
+
+//////////////////////////////////////////////////////////////
+// Setters and getters
+//////////////////////////////////////////////////////////////
 
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
@@ -39,9 +45,36 @@ void Animator::setNumLedsPerStrip(int num) {
     resetPixels();
 }
 
+int Animator::getNumLedsPerStrip() {
+    return numLedsPerStrip;
+}
+
 void Animator::setNumStrips(int num) {
     numStrips = num;
     resetPixels();
+}
+
+int Animator::getNumStrips() {
+    return numStrips;
+}
+
+bool Animator::isTesting() {
+    return isTesting_;
+}
+
+bool Animator::isMapping() {
+    return isMapping_;
+}
+
+bool Animator::isLedOn() {
+    return isLedOn_;
+}
+void Animator::toggleTesting() {
+    isTesting_ = !isTesting_;
+}
+
+void Animator::toggleMapping() {
+    isMapping_ = !isMapping_;
 }
 
 // Internal method to reassign pixels with a vector of the right length
@@ -51,6 +84,15 @@ void Animator::resetPixels() {
     pixels = pix;
 }
 
+// Return pixels (to update OPC or PixelPusher)
+vector <ofColor> Animator::getPixels() {
+    return pixels;
+}
+
+//////////////////////////////////////////////////////////////
+// Animation Methods
+//////////////////////////////////////////////////////////////
+
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
 void Animator::chaseAnimationOn() {
@@ -59,8 +101,8 @@ void Animator::chaseAnimationOn() {
     // Chase animation
     // Set the colors of all LEDs on the current strip
     
-    if (!isLedOn) {
-        for (int i = 0; i <  numLedsPerStrip; i++) {
+    if (!isLedOn_) {
+        for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
             ofColor col;
             if (i == ledIndex) {
                 col = ofColor(ledBrightness, ledBrightness, ledBrightness);
@@ -71,22 +113,22 @@ void Animator::chaseAnimationOn() {
             pixels.at(i) = col;
         }
     }
-    isLedOn = true;
+    isLedOn_ = true;
 }
 
 void Animator::chaseAnimationOff()
 {
-    if (isLedOn) {
-        if (currentStripNum != previousStripNum) {
-
-            previousStripNum = currentStripNum;
-        }
+    if (isLedOn_) {
+//        if (currentStripNum != previousStripNum) {
+//
+//            previousStripNum = currentStripNum;
+//        }
         
         ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
         ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
         
         ledIndex++;
-        if (ledIndex == numLedsPerStrip) {
+        if (ledIndex == numLedsPerStrip+numLedsPerStrip*numStrips) {
             for (int i = 0; i <  numLedsPerStrip; i++) {
                 ofColor col;
                 col = ofColor(0, 0, 0);
@@ -100,10 +142,10 @@ void Animator::chaseAnimationOff()
         
         // TODO: review this conditional
         if (currentStripNum > numStrips) {
-            isMapping = false;
+            isMapping_ = false;
         }
         
-        isLedOn = false;
+        isLedOn_ = false;
     }
     
 }
@@ -135,7 +177,7 @@ void Animator::test() {
     
     if (diff >= 300) {
         setAllLEDColours(ofColor(0, 0, 0));
-        isTesting = false;
+        isTesting_ = false;
     }
     
 }
