@@ -26,7 +26,7 @@ Animator::Animator(void) {
     
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
-    pixels.assign(numLedsPerStrip, ofColor(0,0,0));
+    pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
 }
 
 Animator::~Animator(void) {
@@ -36,13 +36,19 @@ Animator::~Animator(void) {
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
     numLedsPerStrip = num;
-    vector <ofColor> pix;
-    pix.assign(numLedsPerStrip, ofColor(0,0,0));
-    pixels = pix;
+    resetPixels();
 }
 
 void Animator::setNumStrips(int num) {
     numStrips = num;
+    resetPixels();
+}
+
+// Internal method to reassign pixels with a vector of the right length
+void Animator::resetPixels() {
+    vector <ofColor> pix;
+    pix.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
+    pixels = pix;
 }
 
 // Update the pixels for all the strips

@@ -48,6 +48,9 @@ public:
                                                 // excessively bright LEDs).
     float               ledTimeDelta;           // Used to report the on-time for LEDs in the sequential animation
     bool                isLedOn;                // Tracks LED state for the sequenctial animation
+    
+private:
+    void resetPixels(); // Reassign pixels to fit numLedsPerStrip * numStrips
 
 };
 
