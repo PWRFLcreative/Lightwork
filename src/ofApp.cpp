@@ -18,7 +18,7 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.setDeviceID(1); // Default to external camera
-	cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
+	cam.setup(1280, 720);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
 	// GUI - OLD
@@ -48,7 +48,7 @@ void ofApp::setup(){
     isMapping = false;
 	isTesting = false;
     isLedOn = false; // Prevent sending multiple ON messages
-    numStrips = 8;
+    numStrips = 3;
     currentStripNum = 1;
     previousStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
@@ -64,7 +64,7 @@ void ofApp::setup(){
     setAllLEDColours(ofColor(0, 0,0));
     
     // SVG
-    svg.setViewbox(0, 0, 640, 480);
+    svg.setViewbox(0, 0, 1280, 720);
 
 	//GUI
 	buildUI();
@@ -170,9 +170,9 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    cam.draw(0, 0);
+    cam.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
     if(thresholded.isAllocated()) {
-        thresholded.draw(ofGetWindowWidth()/2, 0);
+        thresholded.draw(ofGetWindowWidth()/2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
     }
     
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
@@ -551,7 +551,7 @@ void ofApp::switchCamera(int num)
     ofLogNotice("Switching camera");
 	cam.close(); 
 	cam.setDeviceID(num);
-	cam.setup(640, 480);
+	cam.setup(1280, 720);
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
