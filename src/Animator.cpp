@@ -18,8 +18,8 @@ Animator::Animator(void) {
     numStrips = 8;
     isMapping_ = false;
     isTesting_ = false;
-    
     ledIndex = 0;
+    mode = ANIMATION_MODE_CHASE;
     
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
@@ -34,6 +34,10 @@ Animator::~Animator(void) {
 //////////////////////////////////////////////////////////////
 // Setters and getters
 //////////////////////////////////////////////////////////////
+
+void Animator::setMode(animation_mode_t m) {
+    mode = m;
+}
 
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
@@ -86,9 +90,21 @@ vector <ofColor> Animator::getPixels() {
 // Animation Methods
 //////////////////////////////////////////////////////////////
 
+void Animator::update() {
+    switch(mode) {
+        case ANIMATION_MODE_CHASE: {
+            chase();
+            break;
+        }
+        case ANIMATION_MODE_TEST: {
+            test();
+            break;
+        }
+    };
+}
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
-void Animator::chaseAnimationOn() {
+void Animator::chase() {
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
         ofColor col;
         if (i == ledIndex) {
@@ -131,5 +147,4 @@ void Animator::test() {
         setAllLEDColours(ofColor(0, 0, 0));
         isTesting_ = false;
     }
-    
 }

@@ -40,7 +40,7 @@ void ofApp::setup(){
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
     // Animator settings
-    //animator.numLedsPerStrip = 50;
+    animator.setMode(ANIMATION_MODE_CHASE);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
     
@@ -71,7 +71,7 @@ void ofApp::update(){
     }
 
 	if (animator.isTesting()) {
-		animator.test(); // TODO: turn off blob detection while testing
+		animator.update(); // TODO: turn off blob detection while testing
 	}
 
 	cam.update();
@@ -83,7 +83,7 @@ void ofApp::update(){
         
         // Light up a new LED for every frame
         //if (!animator.isLedOn()) {
-        animator.chaseAnimationOn();
+        animator.update();
         opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
         
         // Background subtraction

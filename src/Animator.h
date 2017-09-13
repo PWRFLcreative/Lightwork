@@ -17,11 +17,17 @@
 
 using namespace std;
 
+enum animation_mode_t {ANIMATION_MODE_CHASE, ANIMATION_MODE_TEST};
+
 class Animator {
     
 public:
     Animator();  // Constructor
     ~Animator(); // Destructor
+    
+    
+    animation_mode_t mode;
+    void setMode(animation_mode_t m);
     
     // Setters and getters
     void setNumLedsPerStrip(int num);
@@ -39,7 +45,8 @@ public:
     vector <ofColor> getPixels();
     
     // Animation methods
-    void chaseAnimationOn();
+    void update(); // Updates depending on animation_mode_t
+    void chase();
     void setAllLEDColours(ofColor col);
     void test();
     
