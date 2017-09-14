@@ -20,7 +20,7 @@ void ofApp::setup(){
 	// GUI - OLD
 	//gui.setup();
 	//resetBackground.set("Reset Background", false);
-	learningTime.set("Learning Time", 1.3, 0, 30);
+	learningTime.set("Learning Time", 4, 0, 30);
 	thresholdValue.set("Threshold Value", 50, 0, 255);
 
     // Contours
@@ -78,21 +78,21 @@ void ofApp::update(){
 
 	cam.update();
     
+    // Background subtraction
+    // Background subtraction
+    background.setLearningTime(learningTime);
+    background.setThresholdValue(thresholdValue);
+    background.update(cam, thresholded);
+    thresholded.update();
+    
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
     if(cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
-        //if (!animator.isLedOn()) {
         animator.update();
         opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
-        
-        // Background subtraction
-        background.setLearningTime(learningTime);
-        background.setThresholdValue(thresholdValue);
-        background.update(cam, thresholded);
-        thresholded.update();
         
         // Contour
         ofxCv::blur(thresholded, 10);
