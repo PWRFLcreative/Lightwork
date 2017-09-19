@@ -5,16 +5,28 @@
 void ofApp::setup(){
     // Set the log level
     ofSetLogLevel(OF_LOG_NOTICE);
+	//Window size based on screen dimensions, centered
+	
+	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
+	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
+	
+	//Fbos
+	camFbo.allocate(1280, 720);
+	camFbo.begin();
+	ofClear(255, 255, 255);
+	camFbo.end();
+
     ofLogToConsole();
+
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
-	ofBackground(0, 0, 0);
+	ofBackground(ofColor::black);
 	ofSetWindowTitle("LightWork");
     
 	//Video Devices
-    //enumerateCams();
+	cam.setVerbose(false);
     cam.setDeviceID(1); // Default to external camera
-	cam.setup(ofGetWindowWidth() / 2, ofGetWindowHeight());
+	cam.setup(1280, 720);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
 	// GUI - OLD
@@ -35,9 +47,12 @@ void ofApp::setup(){
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
     thresholded.allocate(ofGetWindowWidth()/2, ofGetWindowHeight(), OF_IMAGE_COLOR);
+	thresholded.clear();
     
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
+    // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
+    hasFoundFirstContour = false;
     
     // Animator settings
     animator.setMode(ANIMATION_MODE_CHASE);
@@ -50,12 +65,14 @@ void ofApp::setup(){
     
     // Connect to the fcserver
     opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
-    opcClient.sendFirmwareConfigPacket();
+    opcClient.setInterpolation(false);
+    
     // Clear the LED strips
-    opcClient.autoWriteData(animator.getPixels()); // TODO: create Clear() method
+    animator.setAllLEDColours(ofColor(0, 0,0));
+    opcClient.autoWriteData(animator.getPixels());
     
     // SVG
-    svg.setViewbox(0, 0, 640, 480);
+    svg.setViewbox(0, 0, 1280, 720);
 
 	//GUI
 	buildUI();
@@ -163,20 +180,28 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    cam.draw(0, 0);
-    if(thresholded.isAllocated()) {
-        thresholded.draw(ofGetWindowWidth()/2, 0);
-    }
-    
+	//Draw into Fbo to allow scaling regardless of camera resolution
+	camFbo.begin();
+	cam.draw(0,0);
+
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     ofSetColor(0, 255, 0);
-    contourFinder.draw(); // Draws the blob rect surrounding the contour
-    
+	contourFinder.draw(); // Draws the blob rect surrounding the contour
+	
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
-        ofDrawCircle(centroids[i].x, centroids[i].y, 3);
+		ofDrawCircle(centroids[i].x, centroids[i].y, 3);
     }
+	camFbo.end();
+
+	ofSetColor(ofColor::white); //reset color, else it tints the camera
+
+	//Draw Fbo and Thresholding images to screen
+	camFbo.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	if (thresholded.isAllocated()) {
+		thresholded.draw(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	}
 
 }
 
@@ -185,18 +210,6 @@ void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
             centroids.clear();
-            break;
-        case '+':
-		case '=':
-            threshold ++;
-            cout << "Threshold: " << threshold;
-            if (threshold > 255) threshold = 255;
-            break;
-        case '-':
-		case '_':
-            threshold --;
-            cout << "Threshold: " << threshold;
-            if (threshold < 0) threshold = 0;
             break;
         case 's':
             centroids.clear();
@@ -271,7 +284,13 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 void ofApp::generateSVG(vector <ofPoint> points) {
-    ofPath path;
+	if (points.size() == 0) {
+		//User is trying to save without anything to output - bail
+		ofLogError("No point data to save, run mapping first");
+		return;
+	}
+	
+	ofPath path;
     for (int i = 0; i < points.size(); i++) {
         // Avoid generating a moveTo AND lineTo for the first point
         // If we don't specify the first moveTo message then the first lineTo will also produce a moveTo point with the same coordinates
@@ -291,7 +310,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
 		return;
 	}
 
-	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout" + ofGetTimestampString() + ".svg", "Save your file");
+	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout.svg", "Save layout file");
 	if (saveFileResult.bSuccess) {
 		svg.save(saveFileResult.filePath);
         ofLogNotice("output") << "Saved SVG file.";
@@ -302,8 +321,8 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
-    cout << maxX;
-    cout << maxY;
+	ofLogNotice() << maxX;
+	ofLogNotice() << maxY;
     
     ofxJSONElement json; // For output
     
@@ -382,18 +401,17 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
 //Dropdown Handler
 void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 {
-	cout << "the option at index # " << e.child << " was selected " << endl;
-
 	if (e.target->is("Select Camera")) {
-		enumerateCams();
+		//enumerateCams();
 		gui->getDropdown("Select Camera")->update(); //TODO : Not working
 		gui->update();
 		switchCamera(e.child);
+		ofLogNotice() << "Camera " << e.child << " was selected";
 	}
 
 	if (e.target->is("Select Driver Type")) {
 		if (e.child == 0) {
-			cout << "Pixel Pusher was selected" << endl;
+			ofLogNotice() << "Pixel Pusher was selected";
 			gui->getFolder("PixelPusher Settings")->setVisible(true);
 			gui->getFolder("PixelPusher Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -402,7 +420,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 			gui->getFolder("Fadecandy Settings")->collapse();
 		}
 		else if (e.child == 1) {
-			cout << "Fadecandy/Octo was selected" << endl;
+			ofLogNotice() << "Fadecandy/Octo was selected";
 			gui->getFolder("Fadecandy Settings")->setVisible(true);
 			gui->getFolder("Fadecandy Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -416,13 +434,13 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 //GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
-		cout << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+		ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
 		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
-	cout << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText() << endl;
+	ofLogNotice() << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
@@ -442,7 +460,7 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	cout << "onButtonEvent: " << e.target->getLabel() << endl;
+	ofLogNotice() << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
         animator.setMode(ANIMATION_MODE_TEST);
@@ -464,7 +482,7 @@ void ofApp::switchCamera(int num)
     ofLogNotice("Switching camera");
 	cam.close(); 
 	cam.setDeviceID(num);
-	cam.setup(640, 480);
+	cam.setup(1280, 720);
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
@@ -478,7 +496,7 @@ vector<string> ofApp::enumerateCams()
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
 		int id = device.id;
-		cout << "Camera " << id << ": " <<  name << endl;
+		ofLogNotice() << "Camera " << id << ": " <<  name << endl;
 		//newStrings[i] = name;
 		deviceStrings.push_back(name);
 
@@ -491,7 +509,10 @@ vector<string> ofApp::enumerateCams()
 void ofApp::buildUI()
 {
 	//GUI
-	gui = new ofxDatGui(ofGetWidth()-290,40);
+	int multiplier = 1;
+	if (ofGetScreenWidth() >= 1440) { multiplier = 2; } // correct for high resolution displays
+	gui = new ofxDatGui(ofGetWidth()-285*multiplier,40*multiplier);
+	//gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	gui->addHeader(":: drag me to reposition ::");
 
@@ -526,7 +547,7 @@ void ofApp::buildUI()
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();
 
-	gui->addSlider("gui opacity", 0, 100, 30);
+	gui->addSlider("gui opacity", 0, 100, 50);
 	gui->addFRM();
 
 	gui->addFooter();
