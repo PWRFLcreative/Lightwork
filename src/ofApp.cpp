@@ -6,14 +6,8 @@ void ofApp::setup(){
     ofSetLogLevel(OF_LOG_NOTICE);
 	//Window size based on screen dimensions, centered
 	
-	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
+	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight())*0.9);
 	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
-	
-	//Fbos
-	camFbo.allocate(1280, 720);
-	camFbo.begin();
-	ofClear(255, 255, 255);
-	camFbo.end();
 
     ofLogToConsole();
 
@@ -24,10 +18,19 @@ void ofApp::setup(){
     
 	//Video Devices
 	cam.setVerbose(false);
-    cam.setDeviceID(1); // Default to external camera
-	cam.setup(1280, 720);
-	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+    cam.listDevices();
 
+    
+    cam.setDeviceID(1); // Default to external camera
+    cam.setup(640, 480);
+	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
+
+    //Fbos
+    camFbo.allocate(cam.getWidth(), cam.getHeight());
+    camFbo.begin();
+    ofClear(255, 255, 255);
+    camFbo.end();
+    
 	// GUI - OLD
 	//gui.setup();
 	//resetBackground.set("Reset Background", false);
@@ -45,7 +48,7 @@ void ofApp::setup(){
     contourFinder.getTracker().setSmoothingRate(1.0);
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
-    thresholded.allocate(ofGetWindowWidth()/2, ofGetWindowHeight(), OF_IMAGE_COLOR);
+    thresholded.allocate(cam.getWidth(), cam.getHeight(), OF_IMAGE_COLOR);
 	thresholded.clear();
     
     // LED
@@ -71,7 +74,7 @@ void ofApp::setup(){
     opcClient.autoWriteData(animator.getPixels());
     
     // SVG
-    svg.setViewbox(0, 0, 1280, 720);
+    svg.setViewbox(0, 0, cam.getWidth(), cam.getHeight());
 
 	//GUI
 	buildUI();
@@ -197,9 +200,9 @@ void ofApp::draw(){
 	ofSetColor(ofColor::white); //reset color, else it tints the camera
 
 	//Draw Fbo and Thresholding images to screen
-	camFbo.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	camFbo.draw(0, 0, cam.getWidth(), cam.getHeight());
 	if (thresholded.isAllocated()) {
-		thresholded.draw(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+        thresholded.draw(cam.getWidth(), 0, cam.getWidth(), cam.getHeight());
 	}
 
 }
