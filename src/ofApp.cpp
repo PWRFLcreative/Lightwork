@@ -1,7 +1,10 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup(){
+    // Set the log level
+    ofSetLogLevel(OF_LOG_NOTICE);
 	//Window size based on screen dimensions, centered
 	
 	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
@@ -13,8 +16,6 @@ void ofApp::setup(){
 	ofClear(255, 255, 255);
 	camFbo.end();
 
-	// Set the log level
-    ofSetLogLevel(OF_LOG_ERROR);
     ofLogToConsole();
 
     int framerate = 20; // Used to set oF and camera framerate
@@ -31,7 +32,7 @@ void ofApp::setup(){
 	// GUI - OLD
 	//gui.setup();
 	//resetBackground.set("Reset Background", false);
-	learningTime.set("Learning Time", 1.3, 0, 30);
+	learningTime.set("Learning Time", 4, 0, 30);
 	thresholdValue.set("Threshold Value", 50, 0, 255);
 
     // Contours
@@ -50,26 +51,25 @@ void ofApp::setup(){
     
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
-    ledIndex = 0;
-    numLedsPerStrip = 50; // TODO: Change name to ledsPerStrip or similar
-    ledBrightness = 250;
-    isMapping = false;
-	isTesting = false;
-    isLedOn = false; // Prevent sending multiple ON messages
-    numStrips = 3;
-    currentStripNum = 1;
-    previousStripNum = currentStripNum;
     // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
     hasFoundFirstContour = false;
-    ledTimeDelta = 0.0;
     
-    // Set up the color vector, with all LEDs set to off(black)
-    pixels.assign(numLedsPerStrip, ofColor(0,0,0));
+    // Animator settings
+    animator.setMode(ANIMATION_MODE_CHASE);
+    animator.setNumLedsPerStrip(50);
+    animator.setAllLEDColours(ofColor(0, 0,0));
+    
+    // Tracking
+    hasFoundFirstContour = false;
+    isMapping = false;
     
     // Connect to the fcserver
-    opcClient.setup(IP, 7890, 1, numLedsPerStrip);
+    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
     opcClient.setInterpolation(false);
-    setAllLEDColours(ofColor(0, 0,0));
+    
+    // Clear the LED strips
+    animator.setAllLEDColours(ofColor(0, 0,0));
+    opcClient.autoWriteData(animator.getPixels());
     
     // SVG
     svg.setViewbox(0, 0, 1280, 720);
@@ -88,34 +88,35 @@ void ofApp::update(){
         opcClient.tryConnecting();
     }
 
-	if (isTesting) {
-		test(); // TODO: turn off blob detection while testing
+	if (animator.mode == ANIMATION_MODE_TEST) {
+		animator.update(); // Update the pixel values
+        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
 	}
 
 	cam.update();
     
+    // Background subtraction
+    // Background subtraction
+    background.setLearningTime(learningTime);
+    background.setThresholdValue(thresholdValue);
+    background.update(cam, thresholded);
+    thresholded.update();
+    
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(cam.isFrameNew() && !isTesting && isMapping && (ofGetFrameNum()%3 == 0)) {
+    if(cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
-        if (!isLedOn) {
-            chaseAnimationOn();
-        }
-        
-        // Background subtraction
-        background.setLearningTime(learningTime);
-        background.setThresholdValue(thresholdValue);
-        background.update(cam, thresholded);
-        thresholded.update();
+        animator.update();
+        opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
         
         // Contour
         ofxCv::blur(thresholded, 10);
         contourFinder.findContours(thresholded);
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && isLedOn && !success) {
+        if (contourFinder.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
             centroids.push_back(center);
@@ -123,7 +124,7 @@ void ofApp::update(){
         }
         
         // We have more than 1 contour, select the brightest one.
-        else if (contourFinder.size() > 1 && isLedOn && !success){
+        else if (contourFinder.size() > 1 && !success){ // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
@@ -149,15 +150,15 @@ void ofApp::update(){
                 success = true;
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
-            ofLogNotice() << "brightest index: " << ofToString(brightestIndex);
+            ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
             ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
             centroids.push_back(center);
             hasFoundFirstContour = true;
-            ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
+            //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
         // Deal with no contours found
-        else if (isMapping && !success && hasFoundFirstContour){
+        else if (!success && hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
@@ -165,12 +166,13 @@ void ofApp::update(){
             fakePoint.set(0, 0);
             centroids.push_back(fakePoint);
             success = true;
-            ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << ofToString(ledIndex+(currentStripNum-1)*numLedsPerStrip);
+            //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         
-        if(isMapping && success) {
+        if(success) {
             hasFoundFirstContour = true;
-            chaseAnimationOff(); // TODO: this is redundant, see above else if
+            //animator.chaseAnimationOff();
+            opcClient.autoWriteData(animator.getPixels());
         }
     }
     ofSetColor(ofColor::white);
@@ -210,7 +212,10 @@ void ofApp::keyPressed(int key){
             centroids.clear();
             break;
         case 's':
+            centroids.clear();
             isMapping = !isMapping;
+            animator.setMode(ANIMATION_MODE_CHASE);
+            opcClient.autoWriteData(animator.getPixels());
             break;
         case 'g':
             generateSVG(centroids);
@@ -219,7 +224,8 @@ void ofApp::keyPressed(int key){
             generateJSON(centroids);
             break;
 		case 't':
-			isTesting = true;
+            animator.setMode(ANIMATION_MODE_TEST);
+            opcClient.autoWriteData(animator.getPixels());
 			break;
         case 'f': // filter points
             centroids = removeDuplicatesFromPoints(centroids);
@@ -282,102 +288,6 @@ void ofApp::exit(){
 	opcClient.close();
 }
 
-// Cycle through all LEDs, return false when done
-void ofApp::chaseAnimationOn()
-{
-    ofLogVerbose("LED") << "Animation ON: " << ofToString(ofGetElapsedTimef());
-    ledTimeDelta = ofGetElapsedTimef();
-    // Chase animation
-    // Set the colors of all LEDs on the current strip
-    
-    if (!isLedOn) {
-        for (int i = 0; i <  numLedsPerStrip; i++) {
-            ofColor col;
-            if (i == ledIndex) {
-                col = ofColor(ledBrightness, ledBrightness, ledBrightness);
-            }
-            else {
-                col = ofColor(0, 0, 0);
-            }
-            pixels.at(i) = col;
-        }
-    }
-
-    opcClient.writeChannel(currentStripNum, pixels);
-    
-    if (currentStripNum != previousStripNum) {
-        for (int i = 0; i <  numLedsPerStrip; i++) {
-            ofColor col;
-            
-            col = ofColor(0, 0, 0);
-            
-            pixels.at(i) = col;
-        }
-        opcClient.writeChannel(previousStripNum, pixels);
-        previousStripNum = currentStripNum;
-    }
-    isLedOn = true;
-}
-
-void ofApp::chaseAnimationOff()
-{
-    if (isLedOn) {
-        ledTimeDelta = ofGetElapsedTimef()-ledTimeDelta;
-        ofLogVerbose("LED") << "Animation OFF, duration: " << ofToString(ledTimeDelta);
-        
-        ledIndex++;
-        if (ledIndex == numLedsPerStrip) {
-            for (int i = 0; i <  numLedsPerStrip; i++) {
-                ofColor col;
-                col = ofColor(0, 0, 0);
-                pixels.at(i) = col;
-            }
-
-            ledIndex = 0;
-            previousStripNum = currentStripNum;
-            currentStripNum++;
-        }
-        
-        // TODO: review this conditional
-        if (currentStripNum > numStrips) {
-            isMapping = false;
-        }
-        
-        isLedOn = false;
-    }
-    
-}
-// Set all LEDs to the same colour (useful to turn them all on or off).
-void ofApp::setAllLEDColours(ofColor col) {
-    for (int i = 0; i <  numLedsPerStrip; i++) {
-        pixels.at(i) = col;
-    }
-    for (int i = 1; i <= numStrips; i++) {
-        opcClient.writeChannel(i, pixels);
-    }
-    
-}
-
-//LED Pre-flight test
-void ofApp::test() {
-	int start = ofGetFrameNum(); // needs global variables to work properly
-	int currFrame = start; 
-	int diff = currFrame - start;
-	if (diff <300){
-		if (diff < 100) { setAllLEDColours(ofColor(255, 0, 0)); }
-		else if (diff <200 && diff >100){ setAllLEDColours(ofColor(0, 255, 0)); }
-		else if (diff < 300 && diff >200) { setAllLEDColours(ofColor(0, 0, 255)); }	
-	}
-	currFrame = ofGetFrameNum();
-	diff = currFrame - start;
-
-	if (diff >= 300) {
-		setAllLEDColours(ofColor(0, 0, 0));
-		isTesting = false;
-	}
-
-}
-
 void ofApp::generateSVG(vector <ofPoint> points) {
 	if (points.size() == 0) {
 		//User is trying to save without anything to output - bail
@@ -399,13 +309,17 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
+	if (centroids.size() == 0) {
+		//User is trying to save without anything to output - bail
+		ofLogError("No point data to save, run mapping first");
+		return;
+	}
 
-	//
 	ofFileDialogResult saveFileResult = ofSystemSaveDialog("layout.svg", "Save layout file");
 	if (saveFileResult.bSuccess) {
 		svg.save(saveFileResult.filePath);
+        ofLogNotice("output") << "Saved SVG file.";
 	}
-    ofLogNotice("output") << "Saved SVG file.";
 }
 
 void ofApp::generateJSON(vector<ofPoint> points) {
@@ -541,12 +455,12 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 	if (e.target->is("LEDS per Strip")) {
 		string temp = e.target->getText();
-		numLedsPerStrip = ofToInt(temp);
+        animator.setNumLedsPerStrip(ofToInt(temp));
 	}
 
 	if (e.target->is("STRIPS")) {
 		string temp = e.target->getText();
-		numStrips = ofToInt(temp);
+		animator.setNumStrips(ofToInt(temp));
 	}
 }
 
@@ -555,10 +469,11 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	ofLogNotice() << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
-		isTesting = true;
+        animator.setMode(ANIMATION_MODE_TEST);
+        opcClient.autoWriteData(animator.getPixels());
 	}
 	if (e.target->is("MAP LEDS")) {
-		isMapping = true;
+        isMapping = !isMapping;
 	}
 	if (e.target->is("SAVE LAYOUT")) {
 		centroids = removeDuplicatesFromPoints(centroids);
@@ -605,7 +520,7 @@ void ofApp::buildUI()
 	gui = new ofxDatGui(ofGetWidth()-285*multiplier,40*multiplier);
 	//gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
-	//gui->addHeader(":: drag me to reposition ::");
+	gui->addHeader(":: drag me to reposition ::");
 
 	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();
@@ -620,16 +535,16 @@ void ofApp::buildUI()
 
 	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
 	fcSettings->addTextInput("IP", IP);
-	fcSettings->addTextInput("STRIPS", ofToString(numStrips));
-	fcSettings->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
-	fcSettings->addLabel(connection);
+
+	fcSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
+	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
 	fcSettings->setVisible(false);
 	fcSettings->addBreak();
 	
 	ofxDatGuiFolder* ppSettings = gui->addFolder("PixelPusher Settings", ofColor::white);
 	ppSettings->addTextInput("IP", IP);
-	ppSettings->addTextInput("STRIPS", ofToString(numStrips));
-	ppSettings->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
+	ppSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
+	ppSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
 	ppSettings->setVisible(false);
 	ppSettings->addBreak();
 
