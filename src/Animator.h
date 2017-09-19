@@ -15,9 +15,11 @@
 
 #endif /* Animator_h */
 
+#include "BinaryPattern.h"
+
 using namespace std;
 
-enum animation_mode_t {ANIMATION_MODE_CHASE, ANIMATION_MODE_TEST};
+enum animation_mode_t {ANIMATION_MODE_CHASE, ANIMATION_MODE_TEST, ANIMATION_MODE_BINARY};
 
 class Animator {
     
@@ -43,6 +45,7 @@ public:
     void chase();
     void setAllLEDColours(ofColor col);
     void test();
+    void binaryAnimation();
     
 private:
     
@@ -57,6 +60,8 @@ private:
     int                 testIndex;              // Used for the test() animation sequence
     
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
+    
+    BinaryPattern binaryPattern;
 
 };
 

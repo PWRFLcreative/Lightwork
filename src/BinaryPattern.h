@@ -12,7 +12,9 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-
+#include <iostream>
+#include <sstream>
+#include <bitset>
 
 #endif /* BinaryPattern_h */
 
@@ -23,7 +25,7 @@ class BinaryPattern {
     
 public:
     BinaryPattern(); // Constructor
-    //~BinaryPattern(); // Destructor
+    ~BinaryPattern(); // Destructor
     
     void generatePattern(int num);
     void advance(); // Advance the framecount and set the state accordingly
@@ -43,8 +45,4 @@ private:
     vector <int> convertStringToIntVector(string pattern);
 };
 
-// Constructor
-BinaryPattern::BinaryPattern(void) {
-    frameNum = 0;
-    state = START;
-}
+

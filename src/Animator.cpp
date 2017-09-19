@@ -24,6 +24,8 @@ Animator::Animator(void) {
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
+    
+    binaryPattern.generatePattern(13); // A single pattern, for testing
 }
 
 // Destructor
@@ -91,6 +93,9 @@ void Animator::update() {
             test();
             break;
         }
+        case ANIMATION_MODE_BINARY: {
+            binaryAnimation();
+        }
     };
 }
 // Update the pixels for all the strips
@@ -137,4 +142,30 @@ void Animator::test() {
     if (testIndex > 90) {
         testIndex = 0;
     }
+}
+
+void Animator::binaryAnimation() {
+//    cout << binaryPattern.state << endl;
+    // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
+    switch (binaryPattern.state){
+        case BinaryPattern::LOW: {
+            setAllLEDColours(ofColor(255, 0, 0));
+            break;
+        }
+        case BinaryPattern::HIGH: {
+            setAllLEDColours(ofColor(0, 0, 255));
+            break;
+        }
+        case BinaryPattern::START: {
+            setAllLEDColours(ofColor(0, 255, 0));
+            break;
+        }
+        case BinaryPattern::OFF: {
+            setAllLEDColours(ofColor(0, 0, 0));
+            break;
+        }
+    }
+    
+    binaryPattern.advance();
+    
 }

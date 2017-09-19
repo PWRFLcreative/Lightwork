@@ -57,7 +57,7 @@ void ofApp::setup(){
     hasFoundFirstContour = false;
     
     // Animator settings
-    animator.setMode(ANIMATION_MODE_CHASE);
+    animator.setMode(ANIMATION_MODE_BINARY);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
     animator.setLedBrightness(100);
@@ -97,6 +97,10 @@ void ofApp::update(){
         opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
 	}
 
+    if (animator.mode == ANIMATION_MODE_BINARY) { // Redundant, for  now...
+        animator.update();
+        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
+    }
 	cam.update();
     
     // Background subtraction

@@ -7,12 +7,18 @@
 //
 
 #include "BinaryPattern.h"
-#include <iostream>
-#include <sstream> 
-
-#include <bitset>
 
 using namespace std;
+
+// Constructor
+BinaryPattern::BinaryPattern(void) {
+    frameNum = 0;
+    state = START;
+}
+
+BinaryPattern::~BinaryPattern(void) {
+    
+}
 
 void BinaryPattern::generatePattern(int num) {
     // Generate a bitset with 10 bits. If the bit sequence is shorter it will append zeros to make the length 10.
@@ -50,9 +56,9 @@ void BinaryPattern::advance() {
     // TODO: review the ordering of state + frameNum assignment
     // Set the LED State to HIGH/LOW depending on the patternVector location
     state = static_cast<led_state_t>(patternVector[frameNum]);
-    cout << "\n";
-    cout << frameNum << "\n";
-    cout << state << "\n";
+//    cout << "\n";
+//    cout << frameNum << "\n";
+//    cout << state << "\n";
     
 }
 
