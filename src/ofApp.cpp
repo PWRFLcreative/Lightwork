@@ -60,6 +60,8 @@ void ofApp::setup(){
     animator.setMode(ANIMATION_MODE_CHASE);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
+    animator.setLedBrightness(100);
+    
     
     // Tracking
     hasFoundFirstContour = false;

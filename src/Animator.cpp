@@ -40,6 +40,10 @@ void Animator::setMode(animation_mode_t m) {
     
 }
 
+void Animator::setLedBrightness(int brightness) {
+    ledBrightness = brightness;
+}
+
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
     numLedsPerStrip = num;
