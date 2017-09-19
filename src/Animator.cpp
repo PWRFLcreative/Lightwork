@@ -19,6 +19,8 @@ Animator::Animator(void) {
     ledIndex = 0; // Internal counter
     mode = ANIMATION_MODE_CHASE;
     
+    testIndex = 0;
+    
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
@@ -120,21 +122,19 @@ void Animator::setAllLEDColours(ofColor col) {
 
 //LED Pre-flight test
 void Animator::test() {
-    setAllLEDColours(ofColor(0,0,255));
-    /*
-    int start = ofGetFrameNum(); // needs global variables to work properly
-    int currFrame = start;
-    int diff = currFrame - start;
-    if (diff <300){
-        if (diff < 100) { setAllLEDColours(ofColor(255, 0, 0)); }
-        else if (diff <200 && diff >100){ setAllLEDColours(ofColor(0, 255, 0)); }
-        else if (diff < 300 && diff >200) { setAllLEDColours(ofColor(0, 0, 255)); }
-    }
-    currFrame = ofGetFrameNum();
-    diff = currFrame - start;
+    testIndex++;
     
-    if (diff >= 300) {
-        setAllLEDColours(ofColor(0, 0, 0));
+    if (testIndex < 30) {
+        setAllLEDColours(ofColor(255, 0, 0));
     }
-     */
+    else if (testIndex > 30 && testIndex < 60) {
+        setAllLEDColours(ofColor(0, 255, 0));
+    }
+    else if (testIndex > 60 && testIndex < 90) {
+        setAllLEDColours(ofColor(0, 0, 255));
+    }
+    
+    if (testIndex > 90) {
+        testIndex = 0;
+    }
 }

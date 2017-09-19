@@ -54,6 +54,7 @@ private:
     int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
+    int                 testIndex;              // Used for the test() animation sequence
     
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
 
