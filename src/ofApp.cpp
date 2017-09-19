@@ -277,6 +277,11 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
+void ofApp::exit(){
+	// Close Connection
+	opcClient.close();
+}
+
 // Cycle through all LEDs, return false when done
 void ofApp::chaseAnimationOn()
 {
@@ -530,6 +535,7 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
+		opcClient.close();
 		opcClient.setup(IP, 7890);
 	}
 
@@ -608,10 +614,15 @@ void ofApp::buildUI()
 	gui->addDropdown("Select Driver Type", opts);
 	gui->addBreak();
 
+	string connection;
+	if (opcClient.isConnected()) { connection = "connected"; }
+	else { connection = "disconnected"; }
+
 	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
 	fcSettings->addTextInput("IP", IP);
 	fcSettings->addTextInput("STRIPS", ofToString(numStrips));
 	fcSettings->addTextInput("LEDS per Strip", ofToString(numLedsPerStrip));
+	fcSettings->addLabel(connection);
 	fcSettings->setVisible(false);
 	fcSettings->addBreak();
 	
@@ -622,7 +633,7 @@ void ofApp::buildUI()
 	ppSettings->setVisible(false);
 	ppSettings->addBreak();
 
-	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::white);
+	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
 	mapSettings->addSlider(learningTime);
 	mapSettings->addSlider(thresholdValue);
 	mapSettings->addButton("Test LEDS");
