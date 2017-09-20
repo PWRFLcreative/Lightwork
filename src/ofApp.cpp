@@ -2,15 +2,25 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    // Set the log level
+    //Set the log level
     ofSetLogLevel(OF_LOG_NOTICE);
+
+	camWidth = 640;
+	camHeight = 480;
+	camAspect = (float)camWidth / (float)camHeight;
+	int guiMultiply = 1;
+
+	//Check for hi resolution display
+	if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+		guiMultiply = 2;
+	}
+
 	//Window size based on screen dimensions, centered
-	
-	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight()/2)*0.9);
+	ofSetWindowShape((int)ofGetScreenHeight()/2*camAspect +(205*guiMultiply), (int)ofGetScreenHeight()*0.9);
 	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
 	
 	//Fbos
-	camFbo.allocate(1280, 720);
+	camFbo.allocate(camWidth, camHeight);
 	camFbo.begin();
 	ofClear(255, 255, 255);
 	camFbo.end();
@@ -25,12 +35,9 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.setDeviceID(1); // Default to external camera
-	cam.setup(1280, 720);
+	cam.setup(camWidth, camHeight);
 	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
 
-	// GUI - OLD
-	//gui.setup();
-	//resetBackground.set("Reset Background", false);
 	learningTime.set("Learning Time", 4, 0, 30);
 	thresholdValue.set("Threshold Value", 50, 0, 255);
 
@@ -45,7 +52,7 @@ void ofApp::setup(){
     contourFinder.getTracker().setSmoothingRate(1.0);
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
-    thresholded.allocate(ofGetWindowWidth()/2, ofGetWindowHeight(), OF_IMAGE_COLOR);
+    thresholded.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
 	thresholded.clear();
     
     // LED
@@ -71,10 +78,10 @@ void ofApp::setup(){
     opcClient.autoWriteData(animator.getPixels());
     
     // SVG
-    svg.setViewbox(0, 0, 1280, 720);
+    svg.setViewbox(0, 0, camWidth, camHeight);
 
 	//GUI
-	buildUI();
+	buildUI(guiMultiply);
 }
 
 //--------------------------------------------------------------
@@ -197,9 +204,9 @@ void ofApp::draw(){
 	ofSetColor(ofColor::white); //reset color, else it tints the camera
 
 	//Draw Fbo and Thresholding images to screen
-	camFbo.draw(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+	camFbo.draw(0, 0, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
 	if (thresholded.isAllocated()) {
-		thresholded.draw(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight());
+		thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
 	}
 
 }
@@ -269,6 +276,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
+	ofBackground(0, 0, 0);
+	/*buildUI();*/
 
 }
 
@@ -408,14 +417,22 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 	if (e.target->is("Select Camera")) {
 		//enumerateCams();
 		gui->getDropdown("Select Camera")->update(); //TODO : Not working
-		gui->update();
-		switchCamera(e.child);
+		//gui->update();
+		switchCamera(e.child, camWidth, camHeight);
 		ofLogNotice() << "Camera " << e.child << " was selected";
+		guiBottom->getLabel("Message Area")->setLabel((gui->getDropdown("Select Camera")->getChildAt(e.child)->getLabel())+" selected");
+		int guiMultiply = 1;
+		if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+			guiMultiply = 2;
+		}
+		ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
+		gui->update();
 	}
 
 	if (e.target->is("Select Driver Type")) {
 		if (e.child == 0) {
 			ofLogNotice() << "Pixel Pusher was selected";
+			guiBottom->getLabel("Message Area")->setLabel("Pixel Pusher selected");
 			gui->getFolder("PixelPusher Settings")->setVisible(true);
 			gui->getFolder("PixelPusher Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -425,6 +442,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 		}
 		else if (e.child == 1) {
 			ofLogNotice() << "Fadecandy/Octo was selected";
+			guiBottom->getLabel("Message Area")->setLabel("Fadecandy/Octo selected");
 			gui->getFolder("Fadecandy Settings")->setVisible(true);
 			gui->getFolder("Fadecandy Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -439,7 +457,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
 		ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
-		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
+		//if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
@@ -482,12 +500,12 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 }
 
 //Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
-void ofApp::switchCamera(int num)
+void ofApp::switchCamera(int num, int w, int h)
 {
     ofLogNotice("Switching camera");
 	cam.close(); 
 	cam.setDeviceID(num);
-	cam.setup(1280, 720);
+	cam.setup(w, h);
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
@@ -511,15 +529,13 @@ vector<string> ofApp::enumerateCams()
 	return deviceStrings;
 }
 
-void ofApp::buildUI()
+void ofApp::buildUI(int mult)
 {
 	//GUI
-	int multiplier = 1;
-	if (ofGetScreenWidth() >= 1440) { multiplier = 2; } // correct for high resolution displays
-	gui = new ofxDatGui(ofGetWidth()-285*multiplier,40*multiplier);
-	//gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
+	gui = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, 40*mult);
+	guiBottom = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()-(65*mult));
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
-	gui->addHeader(":: drag me to reposition ::");
+	//gui->addHeader(":: drag me to reposition ::");
 
 	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();
@@ -557,11 +573,15 @@ void ofApp::buildUI()
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();
 
-	gui->addSlider("gui opacity", 0, 100, 50);
-	gui->addFRM();
+	//Program Status GUI
+	//guiBottom->addSlider("gui opacity", 0, 100, 50);
+	guiBottom->addLabel("Message Area");
+	guiBottom->addFRM()->setAnchor(ofxDatGuiAnchor::BOTTOM_RIGHT);
+	//guiBottom->onSliderEvent(this, &ofApp::onSliderEvent);
+	//guiBottom->
 
-	gui->addFooter();
-	gui->setOpacity(gui->getSlider("gui opacity")->getScale());
+	//gui->addFooter();
+	//gui->setOpacity(gui->getSlider("gui opacity")->getScale());
 
 	// once the gui has been assembled, register callbacks to listen for component specific events //
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);

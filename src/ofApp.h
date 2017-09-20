@@ -10,6 +10,9 @@
 #include "ofVideoGrabber.h"
 #include "Animator.h"
 
+#define RETINA_MIN_WIDTH 2560
+#define RETINA_MIN_HEIGHT 1600
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -52,19 +55,22 @@ class ofApp : public ofBaseApp{
         bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     
         // Input
+		int camWidth;
+		int camHeight;
+		float camAspect;
         ofVideoGrabber cam;
-		void switchCamera(int num);
+		void switchCamera(int num, int w, int h);
 		vector <string> enumerateCams();
 		ofFbo camFbo;
 		
-    
         // Background subtraction
         ofxCv::RunningBackground background;        // Background subtraction class with running average
         ofImage thresholded;                        // Binary threshold image
     
         // GUI
-		void buildUI();
+		void buildUI(int mult);
 		ofxDatGui* gui;
+		ofxDatGui* guiBottom;
         bool resetBackground;
         ofParameter<float> learningTime;
         ofParameter<float> thresholdValue;
