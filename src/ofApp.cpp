@@ -40,7 +40,7 @@ void ofApp::setup(){
     contourFinder.setMaxAreaRadius(100);
     contourFinder.setThreshold(15);
     // wait for half a frame before forgetting something (15)
-    contourFinder.getTracker().setPersistence(1);
+    contourFinder.getTracker().setPersistence(6); // TODO: make an interface for this. Should be 1 for sequential tracking
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
     contourFinder.getTracker().setSmoothingRate(1.0);
