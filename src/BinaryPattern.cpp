@@ -35,10 +35,17 @@ void BinaryPattern::generatePattern(int num) {
         if (i == 0) {
             s.insert(i, "2"); // state == START
         }
+//        else if (i == 1) {
+//            s.insert(i, "3");
+//        }
         else if (i%2 == 0) {
             s.insert(i, "3"); // state == OFF
         }
     }
+    // Insert OFF after START
+    s.insert(1, "3");
+    // Insert trailing OFF
+    s.append("3");
     
     // Store bitstrings in pattern string
     pattern = s;
