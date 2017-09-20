@@ -25,7 +25,7 @@ Animator::Animator(void) {
     // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
     
-    binaryPattern.generatePattern(13); // A single pattern, for testing
+    binaryPattern.generatePattern(842); // A single pattern, for testing
 }
 
 // Destructor

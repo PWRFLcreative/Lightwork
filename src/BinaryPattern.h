@@ -32,7 +32,7 @@ public:
     
     string pattern; // Stores a single binary pattern
     vector <int> patternVector; // Stores binary pattern as vector of ints
-    const int patternLength = 10;
+    const int patternLength = 21; // 10 bit pattern with a START at the end and an OFF after each one
     
     //std::vector <std::string> patterns; // For Storing Binary Patterns
     

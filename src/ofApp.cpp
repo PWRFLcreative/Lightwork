@@ -11,7 +11,7 @@ void ofApp::setup(){
 
     ofLogToConsole();
 
-    int framerate = 20; // Used to set oF and camera framerate
+    int framerate = 2; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(ofColor::black);
 	ofSetWindowTitle("LightWork");
