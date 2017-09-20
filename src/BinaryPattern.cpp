@@ -75,35 +75,13 @@ vector <int> BinaryPattern::convertStringToIntVector(string pattern) {
 }
 
 void BinaryPattern::advance() {
-    
-    
     // TODO: review the ordering of state + frameNum assignment
     // Set the LED State to HIGH/LOW depending on the patternVector location
     state = static_cast<led_state_t>(patternVector[frameNum]);
-    if (state == LOW) {
-        cout << "LOW" << endl;
-    }
-    else if (state == HIGH) {
-        cout << "HIGH" << endl;
-    }
-    else if (state == START) {
-        cout << "START" << endl;
-    }
-    else if (state == OFF) {
-        cout << "OFF" << endl;
-    }
-    else {
-        cout << state << endl;
-    }
-//    cout << state << endl;
-//    cout << "\n";
-//    cout << frameNum << "\n";
-    
     frameNum = frameNum+1;
     if (frameNum >= patternLength) {
         frameNum = 0;
     }
-    
 }
 
 

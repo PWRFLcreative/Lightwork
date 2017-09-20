@@ -58,7 +58,7 @@ private:
                                                 // will be determined by camera frame brightness (to avoid flaring by
                                                 // excessively bright LEDs).
     int                 testIndex;              // Used for the test() animation sequence
-    
+    int                 frameCount;             // Internal framecounter
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
     
     BinaryPattern binaryPattern;

@@ -11,7 +11,7 @@ void ofApp::setup(){
 
     ofLogToConsole();
 
-    int framerate = 2; // Used to set oF and camera framerate
+    int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
 	ofBackground(ofColor::black);
 	ofSetWindowTitle("LightWork");
@@ -19,9 +19,7 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.listDevices();
-
-    
-    cam.setDeviceID(1); // Default to external camera
+    cam.setDeviceID(1); // Default to external camera (falls back on built in cam if external is not available)
     cam.setup(640, 480);
 	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
 

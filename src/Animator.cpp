@@ -20,6 +20,7 @@ Animator::Animator(void) {
     mode = ANIMATION_MODE_CHASE;
     
     testIndex = 0;
+    frameCount = 0;
     
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
@@ -40,6 +41,8 @@ Animator::~Animator(void) {
 void Animator::setMode(animation_mode_t m) {
     mode = m;
     ledIndex = 0; // TODO: resetInternalVariables() method?
+    testIndex = 0;
+    frameCount = 0;
     resetPixels();
     
 }
@@ -97,6 +100,8 @@ void Animator::update() {
             binaryAnimation();
         }
     };
+    // Advance the internal counter
+    frameCount++;
 }
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
@@ -147,25 +152,36 @@ void Animator::test() {
 void Animator::binaryAnimation() {
 //    cout << binaryPattern.state << endl;
     // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
-    switch (binaryPattern.state){
-        case BinaryPattern::LOW: {
-            setAllLEDColours(ofColor(255, 0, 0));
-            break;
+    
+    // Slow down the animation, set new state every 3 frames
+    if (frameCount % 3 == 0) {
+        switch (binaryPattern.state){
+            case BinaryPattern::LOW: {
+//                setAllLEDColours(ofColor(255, 0, 0));
+                pixels.at(0) = ofColor(255, 0, 0);
+                break;
+            }
+            case BinaryPattern::HIGH: {
+//                setAllLEDColours(ofColor(0, 0, 255));
+                pixels.at(0) = ofColor(0, 0, 255);
+                break;
+            }
+            case BinaryPattern::START: {
+//                setAllLEDColours(ofColor(0, 255, 0));
+                pixels.at(0) = ofColor(0, 255, 0);
+                break;
+            }
+            case BinaryPattern::OFF: {
+//                setAllLEDColours(ofColor(0, 0, 0));
+                pixels.at(0) = ofColor(0, 0, 0);
+                break;
+            }
         }
-        case BinaryPattern::HIGH: {
-            setAllLEDColours(ofColor(0, 0, 255));
-            break;
-        }
-        case BinaryPattern::START: {
-            setAllLEDColours(ofColor(0, 255, 0));
-            break;
-        }
-        case BinaryPattern::OFF: {
-            setAllLEDColours(ofColor(0, 0, 0));
-            break;
-        }
+        
+        binaryPattern.advance();
     }
     
-    binaryPattern.advance();
+    
+    
     
 }
