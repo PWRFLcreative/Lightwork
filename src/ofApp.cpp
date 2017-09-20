@@ -40,7 +40,7 @@ void ofApp::setup(){
     contourFinder.setMaxAreaRadius(100);
     contourFinder.setThreshold(15);
     // wait for half a frame before forgetting something (15)
-    contourFinder.getTracker().setPersistence(6); // TODO: make an interface for this. Should be 1 for sequential tracking
+    contourFinder.getTracker().setPersistence(24); // TODO: make an interface for this. Should be 1 for sequential tracking
     // an object can move up to 32 pixels per frame
     contourFinder.getTracker().setMaximumDistance(32);
     contourFinder.getTracker().setSmoothingRate(1.0);
@@ -58,7 +58,7 @@ void ofApp::setup(){
     animator.setMode(ANIMATION_MODE_BINARY);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
-    animator.setLedBrightness(100);
+    animator.setLedBrightness(50);
     
     
     // Tracking
@@ -138,7 +138,7 @@ void ofApp::update(){
             avgG = g/pixels.getWidth()*pixels.getHeight();
             avgB = b/pixels.getWidth()*pixels.getHeight();
             
-            cout << "Average RGB: " << avgR << ", " << avgG << ", " << avgB << endl;
+            cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
 
         }
         // Profit
