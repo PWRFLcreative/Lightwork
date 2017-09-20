@@ -502,10 +502,15 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 //Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
 void ofApp::switchCamera(int num, int w, int h)
 {
-    ofLogNotice("Switching camera");
-	cam.close(); 
+	ofLogNotice("Switching camera");
+	cam.close();
+
+	//ofLogNotice() << cam.isInitialized();
+	while (!cam.isInitialized()) {
 	cam.setDeviceID(num);
 	cam.setup(w, h);
+}
+
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
