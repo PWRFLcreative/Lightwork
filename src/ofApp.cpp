@@ -114,7 +114,33 @@ void ofApp::update(){
         contourFinder.findContours(thresholded);
         
         // Get colour from original frame in contour areas
-        
+        for (int i = 0; i < contourFinder.size(); i++) {
+            cv::Rect rect = contourFinder.getBoundingRect(i);
+            ofImage img;
+            img = cam.getPixels();
+            img.crop(rect.x, rect.y, rect.width, rect.height);
+            ofPixels pixels = img.getPixels();
+            // Pixel format is RGB
+            // cout << "pixel format" << pixels.getPixelFormat() << endl;
+//            cout << "area: " << rect.area() << "pixels.size: " << pixels.size() << endl;
+            unsigned char r, g, b;
+            
+            for (int i = 0; i < pixels.getWidth(); i++) {
+                for (int j = 0; j < pixels.getHeight(); j++) {
+                    ofColor col = pixels.getColor(i, j);
+                    r += col.r;
+                    g += col.g;
+                    b += col.b;
+                }
+            }
+            int avgR, avgG, avgB = 0;
+            avgR = r/pixels.getWidth()*pixels.getHeight();
+            avgG = g/pixels.getWidth()*pixels.getHeight();
+            avgB = b/pixels.getWidth()*pixels.getHeight();
+            
+            cout << "Average RGB: " << avgR << ", " << avgG << ", " << avgB << endl;
+
+        }
         // Profit
     }
     
