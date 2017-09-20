@@ -19,7 +19,7 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.listDevices();
-    cam.setDeviceID(1); // Default to external camera (falls back on built in cam if external is not available)
+    cam.setDeviceID(0); // Default to external camera (falls back on built in cam if external is not available)
     cam.setup(640, 480);
 	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
 
@@ -90,15 +90,6 @@ void ofApp::update(){
         opcClient.tryConnecting();
     }
 
-	if (animator.mode == ANIMATION_MODE_TEST) {
-		animator.update(); // Update the pixel values
-        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
-	}
-
-    if (animator.mode == ANIMATION_MODE_BINARY) { // Redundant, for  now...
-        animator.update();
-        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
-    }
 	cam.update();
     
     // Background subtraction
@@ -106,7 +97,26 @@ void ofApp::update(){
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
     background.update(cam, thresholded);
+    
     thresholded.update();
+    
+    if (animator.mode == ANIMATION_MODE_TEST) {
+        animator.update(); // Update the pixel values
+        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
+    }
+    
+    if (animator.mode == ANIMATION_MODE_BINARY) { // Redundant, for  now...
+        // Update LEDs
+        animator.update();
+        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
+        
+        // Get contours
+        contourFinder.findContours(thresholded);
+        
+        // Get colour from original frame in contour areas
+        
+        // Profit
+    }
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
@@ -118,7 +128,7 @@ void ofApp::update(){
         opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
         
         // Contour
-        ofxCv::blur(thresholded, 10);
+        ofxCv::blur(thresholded, 10); // TODO: do we need this?
         contourFinder.findContours(thresholded);
         
         // We have 1 contour
@@ -162,7 +172,6 @@ void ofApp::update(){
             hasFoundFirstContour = true;
             //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
-        
         // Deal with no contours found
         else if (!success && hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
@@ -194,7 +203,13 @@ void ofApp::draw(){
     
     ofSetColor(0, 255, 0);
 	contourFinder.draw(); // Draws the blob rect surrounding the contour
-	
+    for (int i = 0; i < contourFinder.size(); i++) {
+        int label = contourFinder.getLabel(i);
+        ofDrawBitmapString(ofToString(label), contourFinder.getCenter(i).x+10, contourFinder.getCenter(i).y);
+        
+    }
+    
+    
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
 		ofDrawCircle(centroids[i].x, centroids[i].y, 3);
