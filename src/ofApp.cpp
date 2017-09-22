@@ -3,114 +3,116 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     //Set the log level
-    ofSetLogLevel(OF_LOG_NOTICE);
+ofSetLogLevel(OF_LOG_NOTICE);
 
-	camWidth = 640;
-	camHeight = 480;
-	camAspect = (float)camWidth / (float)camHeight;
-	int guiMultiply = 1;
+camWidth = 640;
+camHeight = 480;
+camAspect = (float)camWidth / (float)camHeight;
+int guiMultiply = 1;
 
-	//Check for hi resolution display
-	if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
-		guiMultiply = 2;
-	}
+//Check for hi resolution display
+if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+	guiMultiply = 2;
+}
 
-	//Window size based on screen dimensions, centered
-	ofSetWindowShape((int)ofGetScreenHeight()/2*camAspect +(205*guiMultiply), (int)ofGetScreenHeight()*0.9);
-	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
-	
-	//Fbos
-	camFbo.allocate(camWidth, camHeight);
-	camFbo.begin();
-	ofClear(255, 255, 255);
-	camFbo.end();
+//Window size based on screen dimensions, centered
+ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (205 * guiMultiply), (int)ofGetScreenHeight()*0.9);
+ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
 
-    ofLogToConsole();
+//Fbos
+camFbo.allocate(camWidth, camHeight);
+camFbo.begin();
+ofClear(255, 255, 255);
+camFbo.end();
 
-    int framerate = 20; // Used to set oF and camera framerate
-    ofSetFrameRate(framerate);
-	ofBackground(ofColor::black);
-	ofSetWindowTitle("LightWork");
-    
-	//Video Devices
-	cam.setVerbose(false);
-    cam.setDeviceID(1); // Default to external camera
-	cam.setup(camWidth, camHeight);
-	cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+ofLogToConsole();
 
-	learningTime.set("Learning Time", 4, 0, 30);
-	thresholdValue.set("Threshold Value", 50, 0, 255);
+int framerate = 20; // Used to set oF and camera framerate
+ofSetFrameRate(framerate);
+ofBackground(ofColor::black);
+ofSetWindowTitle("LightWork");
 
-    // Contours
-    contourFinder.setMinAreaRadius(1);
-    contourFinder.setMaxAreaRadius(100);
-    contourFinder.setThreshold(15);
-    // wait for half a frame before forgetting something (15)
-    contourFinder.getTracker().setPersistence(1);
-    // an object can move up to 32 pixels per frame
-    contourFinder.getTracker().setMaximumDistance(32);
-    contourFinder.getTracker().setSmoothingRate(1.0);
-    
-    // Allocate the thresholded view so that it draws on launch (before calibration starts).
-    thresholded.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
-	thresholded.clear();
-    
-    // LED
-	IP = "192.168.1.104"; //Default IP for Fadecandy
-    // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
-    hasFoundFirstContour = false;
-    
-    // Animator settings
-    animator.setMode(ANIMATION_MODE_CHASE);
-    animator.setNumLedsPerStrip(50);
-    animator.setAllLEDColours(ofColor(0, 0,0));
-    
-    // Tracking
-    hasFoundFirstContour = false;
-    isMapping = false;
-    
-    // Connect to the fcserver
-    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
-    opcClient.setInterpolation(false);
-    
-    // Clear the LED strips
-    animator.setAllLEDColours(ofColor(0, 0,0));
-    opcClient.autoWriteData(animator.getPixels());
-    
-    // SVG
-    svg.setViewbox(0, 0, camWidth, camHeight);
+//Video Devices
+cam.setVerbose(false);
+cam.setDeviceID(0); // Default to external camera
+cam.setPixelFormat(OF_PIXELS_RGB);
+cam.setup(camWidth, camHeight);
+cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
+camPtr = &cam;
 
-	//GUI
-	buildUI(guiMultiply);
+learningTime.set("Learning Time", 4, 0, 30);
+thresholdValue.set("Threshold Value", 50, 0, 255);
+
+// Contours
+contourFinder.setMinAreaRadius(1);
+contourFinder.setMaxAreaRadius(100);
+contourFinder.setThreshold(15);
+// wait for half a frame before forgetting something (15)
+contourFinder.getTracker().setPersistence(1);
+// an object can move up to 32 pixels per frame
+contourFinder.getTracker().setMaximumDistance(32);
+contourFinder.getTracker().setSmoothingRate(1.0);
+
+// Allocate the thresholded view so that it draws on launch (before calibration starts).
+thresholded.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
+thresholded.clear();
+
+// LED
+IP = "192.168.1.104"; //Default IP for Fadecandy
+// Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
+hasFoundFirstContour = false;
+
+// Animator settings
+animator.setMode(ANIMATION_MODE_CHASE);
+animator.setNumLedsPerStrip(50);
+animator.setAllLEDColours(ofColor(0, 0, 0));
+
+// Tracking
+hasFoundFirstContour = false;
+isMapping = false;
+
+// Connect to the fcserver
+opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
+opcClient.setInterpolation(false);
+
+// Clear the LED strips
+animator.setAllLEDColours(ofColor(0, 0, 0));
+opcClient.autoWriteData(animator.getPixels());
+
+// SVG
+svg.setViewbox(0, 0, camWidth, camHeight);
+
+//GUI
+buildUI(guiMultiply);
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-    opcClient.update();
-    
-    // If the client is not connected do not try and send information
-    if (!opcClient.isConnected()) {
-        // Will continue to try connecting to the OPC Pixel Server
-        opcClient.tryConnecting();
-    }
+void ofApp::update() {
+	opcClient.update();
+
+	// If the client is not connected do not try and send information
+	if (!opcClient.isConnected()) {
+		// Will continue to try connecting to the OPC Pixel Server
+		opcClient.tryConnecting();
+	}
 
 	if (animator.mode == ANIMATION_MODE_TEST) {
 		animator.update(); // Update the pixel values
-        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
+		opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
 	}
 
-	cam.update();
-    
+	camPtr->update();
+
     // Background subtraction
     // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
-    background.update(cam, thresholded);
+    background.update(*camPtr, thresholded);
     thresholded.update();
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
+    if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
@@ -188,7 +190,7 @@ void ofApp::update(){
 void ofApp::draw(){
 	//Draw into Fbo to allow scaling regardless of camera resolution
 	camFbo.begin();
-	cam.draw(0,0);
+	camPtr->draw(0,0);
 
     ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
@@ -415,9 +417,10 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
 void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 {
 	if (e.target->is("Select Camera")) {
-		//enumerateCams();
-		gui->getDropdown("Select Camera")->update(); //TODO : Not working
-		//gui->update();
+		vector<string> devices = enumerateCams();
+		
+		//gui->getDropdown("Select Camera")->; 
+
 		switchCamera(e.child, camWidth, camHeight);
 		ofLogNotice() << "Camera " << e.child << " was selected";
 		guiBottom->getLabel("Message Area")->setLabel((gui->getDropdown("Select Camera")->getChildAt(e.child)->getLabel())+" selected");
@@ -502,21 +505,35 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 //Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
 void ofApp::switchCamera(int num, int w, int h)
 {
-	ofLogNotice("Switching camera");
-	cam.close();
-
-	//ofLogNotice() << cam.isInitialized();
-	while (!cam.isInitialized()) {
-	cam.setDeviceID(num);
-	cam.setup(w, h);
-}
+	//ofLogNotice("Switching camera");
+	if(cam.isInitialized()){
+		cam.close();
+		//ofLogNotice() << cam.isInitialized();
+		cam2.setDeviceID(num);
+		cam2.setPixelFormat(OF_PIXELS_RGB);
+		cam2.setup(w, h);
+		camPtr = &cam2;
+	}	
+	
+	else if (cam2.isInitialized()) {
+		cam2.close();
+		cam.setDeviceID(num);
+		cam.setPixelFormat(OF_PIXELS_RGB);
+		cam.setup(w, h);
+		camPtr = &cam;
+	}
 
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
 {
 	vector <ofVideoDevice> devices;
-	devices = cam.listDevices();
+	if (cam.isInitialized()) {
+		devices = cam.listDevices();
+	}
+	else if (cam2.isInitialized()) {
+		devices = cam2.listDevices();
+	}
 	vector<string> deviceStrings;
 
 	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
@@ -525,13 +542,10 @@ vector<string> ofApp::enumerateCams()
 		string name = device.deviceName;
 		int id = device.id;
 		ofLogNotice() << "Camera " << id << ": " <<  name << endl;
-		//newStrings[i] = name;
 		deviceStrings.push_back(name);
 
 	}
-	
-	//deviceStrings = new vector<string>(newStrings);
-	return deviceStrings;
+		return deviceStrings;
 }
 
 void ofApp::buildUI(int mult)
