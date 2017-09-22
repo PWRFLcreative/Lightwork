@@ -33,12 +33,14 @@ ofBackground(ofColor::black);
 ofSetWindowTitle("LightWork");
 
 //Video Devices
-cam.setVerbose(false);
-cam.setDeviceID(0); // Default to external camera
-cam.setPixelFormat(OF_PIXELS_RGB);
-cam.setup(camWidth, camHeight);
-cam.setDesiredFrameRate(30); // This gets overridden by ofSetFrameRate
-camPtr = &cam;
+devices = cams[0].listDevices(); 
+for (int i=0; i < devices.size(); i++) {
+	cams[i].setVerbose(false);
+	cams[i].setDeviceID(i); // Default to external camera
+	cams[i].setPixelFormat(OF_PIXELS_RGB);
+	cams[i].setup(camWidth, camHeight);
+}
+camPtr = &cams[0];
 
 learningTime.set("Learning Time", 4, 0, 30);
 thresholdValue.set("Threshold Value", 50, 0, 255);
@@ -422,7 +424,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 		//gui->getDropdown("Select Camera")->; 
 
 		switchCamera(e.child, camWidth, camHeight);
-		ofLogNotice() << "Camera " << e.child << " was selected";
+		//ofLogNotice() << "Camera " << e.child << " was selected";
 		guiBottom->getLabel("Message Area")->setLabel((gui->getDropdown("Select Camera")->getChildAt(e.child)->getLabel())+" selected");
 		int guiMultiply = 1;
 		if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
@@ -506,34 +508,31 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 void ofApp::switchCamera(int num, int w, int h)
 {
 	//ofLogNotice("Switching camera");
-	if(cam.isInitialized()){
-		cam.close();
-		//ofLogNotice() << cam.isInitialized();
-		cam2.setDeviceID(num);
-		cam2.setPixelFormat(OF_PIXELS_RGB);
-		cam2.setup(w, h);
-		camPtr = &cam2;
-	}	
-	
-	else if (cam2.isInitialized()) {
-		cam2.close();
-		cam.setDeviceID(num);
-		cam.setPixelFormat(OF_PIXELS_RGB);
-		cam.setup(w, h);
-		camPtr = &cam;
-	}
+	//if(cam.isInitialized()){
+	//	cam.close();
+	//	//ofLogNotice() << cam.isInitialized();
+	//	cam2.setDeviceID(num);
+	//	cam2.setPixelFormat(OF_PIXELS_RGB);
+	//	cam2.setup(w, h);
+	//	camPtr = &cam2;
+	//}	
+	//
+	//else if (cam2.isInitialized()) {
+	//	cam2.close();
+	//	cam.setDeviceID(num);
+	//	cam.setPixelFormat(OF_PIXELS_RGB);
+	//	cam.setup(w, h);
+	//	camPtr = &cam;
+	//}
+
+	camPtr = &cams[num];
 
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
 {
-	vector <ofVideoDevice> devices;
-	if (cam.isInitialized()) {
-		devices = cam.listDevices();
-	}
-	else if (cam2.isInitialized()) {
-		devices = cam2.listDevices();
-	}
+	devices.clear();
+	devices = cams[0].listDevices();
 	vector<string> deviceStrings;
 
 	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
@@ -541,7 +540,7 @@ vector<string> ofApp::enumerateCams()
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
 		int id = device.id;
-		ofLogNotice() << "Camera " << id << ": " <<  name << endl;
+		//ofLogNotice() << "Camera " << id << ": " <<  name << endl;
 		deviceStrings.push_back(name);
 
 	}

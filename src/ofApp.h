@@ -58,8 +58,8 @@ class ofApp : public ofBaseApp{
 		int camWidth;
 		int camHeight;
 		float camAspect;
-        ofVideoGrabber cam;
-		ofVideoGrabber cam2;
+		vector <ofVideoDevice> devices;
+        ofVideoGrabber cams[8];
 		ofVideoGrabber* camPtr;
 		void switchCamera(int num, int w, int h);
 		vector <string> enumerateCams();
