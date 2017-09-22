@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-    ofSetLogLevel(OF_LOG_NOTICE);
+    ofSetLogLevel("binary", OF_LOG_VERBOSE);
 	//Window size based on screen dimensions, centered
 	
 	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight())*0.9);
@@ -19,7 +19,7 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.listDevices();
-    cam.setDeviceID(0); // Default to external camera (falls back on built in cam if external is not available)
+    cam.setDeviceID(2); // Default to external camera (falls back on built in cam if external is not available)
     cam.setup(640, 480);
 	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
 
@@ -105,7 +105,7 @@ void ofApp::update(){
         opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
     }
     
-    if (animator.mode == ANIMATION_MODE_BINARY) { // Redundant, for  now...
+    if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
         // Update LEDs
         animator.update();
         opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
@@ -123,22 +123,49 @@ void ofApp::update(){
             // Pixel format is RGB
             // cout << "pixel format" << pixels.getPixelFormat() << endl;
 //            cout << "area: " << rect.area() << "pixels.size: " << pixels.size() << endl;
-            unsigned char r, g, b;
-            
+            float r = 0;
+            float g = 0;
+            float b = 0;
+            float brightness = 0;
             for (int i = 0; i < pixels.getWidth(); i++) {
                 for (int j = 0; j < pixels.getHeight(); j++) {
-                    ofColor col = pixels.getColor(i, j);
+                    ofFloatColor col = pixels.getColor(i, j);
                     r += col.r;
                     g += col.g;
                     b += col.b;
+                    brightness = col.getBrightness();
+//                    cout << brightness << endl;
+//                    cout << col.r << endl;
                 }
             }
-            int avgR, avgG, avgB = 0;
-            avgR = r/pixels.getWidth()*pixels.getHeight();
-            avgG = g/pixels.getWidth()*pixels.getHeight();
-            avgB = b/pixels.getWidth()*pixels.getHeight();
+            float avgR, avgG, avgB = 0;
+            int numPixels = pixels.getWidth()*pixels.getHeight();
+            avgR = r/numPixels;
+            avgG = g/numPixels;
+            avgB = b/numPixels;
             
-            cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
+//            cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
+            
+            // If brightness is above threshold, get the brightest colour
+            // Analysis suggests the threshold is around 0.4, I'll use 0.45
+            float brightnessThreshold = 0.45;
+            if (brightness >= brightnessThreshold) {
+//                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
+                vector<float> colours;
+                colours.push_back(avgR);
+                colours.push_back(avgG);
+                colours.push_back(avgB);
+                auto max = *max_element(colours.begin(), colours.end());
+                int dist = distance(colours.begin(), max_element(colours.begin(), colours.end()));
+                cout << dist << endl;
+            }
+            else {
+                cout << "BLACK" << endl;
+//                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
+            }
+            
+            int maxIndex = 0;
+            
 
         }
         // Profit
@@ -146,7 +173,7 @@ void ofApp::update(){
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
+    if(animator.mode == ANIMATION_MODE_CHASE && cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
         
         // Light up a new LED for every frame
@@ -262,6 +289,12 @@ void ofApp::keyPressed(int key){
             centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
+            opcClient.autoWriteData(animator.getPixels());
+            break;
+        case 'b':
+            centroids.clear();
+            isMapping = !isMapping;
+            animator.setMode(ANIMATION_MODE_BINARY);
             opcClient.autoWriteData(animator.getPixels());
             break;
         case 'g':

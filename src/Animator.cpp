@@ -154,7 +154,7 @@ void Animator::binaryAnimation() {
     // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
     
     // Slow down the animation, set new state every 3 frames
-    if (frameCount % 12 == 0) {
+    if (frameCount % 3 == 0) {
         switch (binaryPattern.state){
             case BinaryPattern::LOW: {
 //                setAllLEDColours(ofColor(255, 0, 0));
