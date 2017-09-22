@@ -338,8 +338,8 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
-	ofLogNotice() << maxX;
-	ofLogNotice() << maxY;
+	//ofLogNotice() << maxX;
+	//ofLogNotice() << maxY;
     
     ofxJSONElement json; // For output
     
