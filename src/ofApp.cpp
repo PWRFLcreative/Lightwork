@@ -148,6 +148,8 @@ void ofApp::update(){
             
             // If brightness is above threshold, get the brightest colour
             // Analysis suggests the threshold is around 0.4, I'll use 0.45
+            // TODO: Automatically detect threshold value (depends on lighting conditions, background material colour etc.)
+            string detectedColor = "";
             float brightnessThreshold = 0.45;
             if (brightness >= brightnessThreshold) {
 //                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
@@ -155,14 +157,32 @@ void ofApp::update(){
                 colours.push_back(avgR);
                 colours.push_back(avgG);
                 colours.push_back(avgB);
-                auto max = *max_element(colours.begin(), colours.end());
+                
+                // Get the index of the brightest average colour
                 int dist = distance(colours.begin(), max_element(colours.begin(), colours.end()));
-                cout << dist << endl;
+//                cout << dist << endl;
+                
+                switch (dist) {
+                    case 0:
+                        detectedColor = "RED";
+                        break;
+                    case 1:
+                        detectedColor = "GREEN";
+                        break;
+                    case 2:
+                        detectedColor = "BLUE";
+                        break;
+                    default:
+                        ofLogError("binary") << "Brightest colour is not a known colour!" << endl;
+                }
+                
             }
             else {
-                cout << "BLACK" << endl;
+                detectedColor = "BLACK";
+//                cout << "BLACK" << endl;
 //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
             }
+            cout << detectedColor << endl;
             
             int maxIndex = 0;
             
