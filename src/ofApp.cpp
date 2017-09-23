@@ -2,21 +2,20 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    //Set the log level
-ofSetLogLevel(OF_LOG_NOTICE);
+ofSetLogLevel(OF_LOG_NOTICE); //Set the log level
 
 camWidth = 640;
 camHeight = 480;
 camAspect = (float)camWidth / (float)camHeight;
-int guiMultiply = 1;
 
 //Check for hi resolution display
+int guiMultiply = 1;
 if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
 	guiMultiply = 2;
 }
 
 //Window size based on screen dimensions, centered
-ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (205 * guiMultiply), (int)ofGetScreenHeight()*0.9);
+ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
 ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
 
 //Fbos
@@ -61,6 +60,7 @@ thresholded.clear();
 
 // LED
 IP = "192.168.1.104"; //Default IP for Fadecandy
+
 // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
 hasFoundFirstContour = false;
 
@@ -105,7 +105,6 @@ void ofApp::update() {
 
 	camPtr->update();
 
-    // Background subtraction
     // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
@@ -420,10 +419,8 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 {
 	if (e.target->is("Select Camera")) {
 		vector<string> devices = enumerateCams();
-		
-		//gui->getDropdown("Select Camera")->; 
-
 		switchCamera(e.child, camWidth, camHeight);
+		//TODO - figure out how to repopulate the list
 		//ofLogNotice() << "Camera " << e.child << " was selected";
 		guiBottom->getLabel("Message Area")->setLabel((gui->getDropdown("Select Camera")->getChildAt(e.child)->getLabel())+" selected");
 		int guiMultiply = 1;
@@ -550,8 +547,10 @@ vector<string> ofApp::enumerateCams()
 void ofApp::buildUI(int mult)
 {
 	//GUI
-	gui = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, 40*mult);
-	guiBottom = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()-(65*mult));
+	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
+	//gui = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, 40*mult);
+	//guiBottom = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()-(65*mult));
+	guiBottom = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	//gui->addHeader(":: drag me to reposition ::");
 
