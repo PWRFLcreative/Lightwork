@@ -36,14 +36,7 @@ void ofApp::setup(){
 	thresholdValue.set("Threshold Value", 50, 0, 255);
 
     // Contours
-    contourFinder.setMinAreaRadius(1);
-    contourFinder.setMaxAreaRadius(100);
-    contourFinder.setThreshold(15);
-    // wait for half a frame before forgetting something (15)
-    contourFinder.getTracker().setPersistence(24); // TODO: make an interface for this. Should be 1 for sequential tracking
-    // an object can move up to 32 pixels per frame
-    contourFinder.getTracker().setMaximumDistance(32);
-    contourFinder.getTracker().setSmoothingRate(1.0);
+    
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
     thresholded.allocate(cam.getWidth(), cam.getHeight(), OF_IMAGE_COLOR);
@@ -110,11 +103,11 @@ void ofApp::update(){
         opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
         
         // Get contours
-        contourFinder.findContours(thresholded);
+        tracker.findContours(thresholded);
         
         // Get colour from original frame in contour areas
-        for (int i = 0; i < contourFinder.size(); i++) {
-            cv::Rect rect = contourFinder.getBoundingRect(i);
+        for (int i = 0; i < tracker.size(); i++) {
+            cv::Rect rect = tracker.getBoundingRect(i);
             ofImage img;
             img = cam.getPixels();
             img.crop(rect.x, rect.y, rect.width, rect.height);
@@ -199,24 +192,24 @@ void ofApp::update(){
         
         // Contour
         ofxCv::blur(thresholded, 10); // TODO: do we need this?
-        contourFinder.findContours(thresholded);
+        tracker.findContours(thresholded);
         
         // We have 1 contour
-        if (contourFinder.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
+        if (tracker.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
             ofLogVerbose("tracking") << "Detected one contour, as expected.";
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
-            centroids.push_back(center);
+            ofPoint center = ofxCv::toOf(tracker.getCenter(0));
+            tracker.centroids.push_back(center);
             success = true;
         }
         
         // We have more than 1 contour, select the brightest one.
-        else if (contourFinder.size() > 1 && !success){ // TODO: review isLedOn vs isMapping()
-            ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
+        else if (tracker.size() > 1 && !success){ // TODO: review isLedOn vs isMapping()
+            ofLogVerbose("tracking") << "num contours: " << ofToString(tracker.size());
             int brightestIndex = 0;
             int previousBrightness = 0;
-            for(int i = 0; i < contourFinder.size(); i++) {
+            for(int i = 0; i < tracker.size(); i++) {
                 int brightness = 0;
-                cv::Rect rect = contourFinder.getBoundingRect(i);
+                cv::Rect rect = tracker.getBoundingRect(i);
                 //ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
                 ofImage img;
                 img = thresholded;
@@ -237,8 +230,8 @@ void ofApp::update(){
                 //ofLogNotice("Brightness: " + ofToString(brightness));
             }
             ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
-            centroids.push_back(center);
+            ofPoint center = ofxCv::toOf(tracker.getCenter(brightestIndex));
+            tracker.centroids.push_back(center);
             hasFoundFirstContour = true;
             //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
@@ -249,7 +242,7 @@ void ofApp::update(){
             // No point detected, create fake point
             ofPoint fakePoint;
             fakePoint.set(0, 0);
-            centroids.push_back(fakePoint);
+            tracker.centroids.push_back(fakePoint);
             success = true;
             //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
@@ -269,19 +262,18 @@ void ofApp::draw(){
 	camFbo.begin();
 	cam.draw(0,0);
 
-    ofxCv::RectTracker& tracker = contourFinder.getTracker();
     
     ofSetColor(0, 255, 0);
-	contourFinder.draw(); // Draws the blob rect surrounding the contour
-    for (int i = 0; i < contourFinder.size(); i++) {
-        int label = contourFinder.getLabel(i);
-        ofDrawBitmapString(ofToString(label), contourFinder.getCenter(i).x+10, contourFinder.getCenter(i).y);
+	tracker.draw(); // Draws the blob rect surrounding the contour
+    for (int i = 0; i < tracker.size(); i++) {
+        int label = tracker.getLabel(i);
+        ofDrawBitmapString(ofToString(label), tracker.getCenter(i).x+10, tracker.getCenter(i).y);
         
     }
     
     // Draw the detected contour center points
-    for (int i = 0; i < centroids.size(); i++) {
-		ofDrawCircle(centroids[i].x, centroids[i].y, 3);
+    for (int i = 0; i < tracker.centroids.size(); i++) {
+		ofDrawCircle(tracker.centroids[i].x, tracker.centroids[i].y, 3);
     }
 	camFbo.end();
 
@@ -299,32 +291,32 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
-            centroids.clear();
+            tracker.centroids.clear();
             break;
         case 's':
-            centroids.clear();
+            tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
             opcClient.autoWriteData(animator.getPixels());
             break;
         case 'b':
-            centroids.clear();
+            tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_BINARY);
             opcClient.autoWriteData(animator.getPixels());
             break;
         case 'g':
-            generateSVG(centroids);
+            generateSVG(tracker.centroids);
             break;
         case 'j':
-            generateJSON(centroids);
+            generateJSON(tracker.centroids);
             break;
 		case 't':
             animator.setMode(ANIMATION_MODE_TEST);
             opcClient.autoWriteData(animator.getPixels());
 			break;
         case 'f': // filter points
-            centroids = removeDuplicatesFromPoints(centroids);
+            tracker.centroids = removeDuplicatesFromPoints(tracker.centroids);
     }
 
 }
@@ -405,7 +397,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-	if (centroids.size() == 0) {
+	if (tracker.centroids.size() == 0) {
 		//User is trying to save without anything to output - bail
 		ofLogError("No point data to save, run mapping first");
 		return;
@@ -572,8 +564,8 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
         isMapping = !isMapping;
 	}
 	if (e.target->is("SAVE LAYOUT")) {
-		centroids = removeDuplicatesFromPoints(centroids);
-		generateSVG(centroids);
+		tracker.centroids = removeDuplicatesFromPoints(tracker.centroids);
+		generateSVG(tracker.centroids);
 	}
 
 }

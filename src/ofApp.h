@@ -9,6 +9,7 @@
 #include "ofxDatGui.h"
 #include "ofVideoGrabber.h"
 #include "Animator.h"
+#include "Tracker.h"
 
 class ofApp : public ofBaseApp{
 
@@ -71,9 +72,7 @@ class ofApp : public ofBaseApp{
 		string IP;
     
         // Contours
-        float                   threshold;          // Brightness threshold for contour detection
-        ofxCv::ContourFinder    contourFinder;      // Finds contours in the background subtraction binary image
-        vector <ofPoint>        centroids;          // Stores the contour area centers.
+        Tracker                 tracker;
         bool                    isMapping;
     
         // SVG
