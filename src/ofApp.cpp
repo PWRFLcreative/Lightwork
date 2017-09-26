@@ -46,8 +46,10 @@ void ofApp::setup(){
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
     // Connect to the fcserver
-    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
+    int ledsPerStrip = 50; // TODO: Hook this up with GUI, needed to set both OPC and Animator
+    opcClient.setup(IP, 7890, 1);
     opcClient.setInterpolation(false);
+    opcClient.setLedsPerStrip(50);
     
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
