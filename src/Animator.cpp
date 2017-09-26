@@ -37,6 +37,9 @@ Animator::~Animator(void) {
 //////////////////////////////////////////////////////////////
 // Setters and getters
 //////////////////////////////////////////////////////////////
+void Animator::setLedInterface(ofxOPC *interface) {
+    opcClient = interface;
+}
 
 void Animator::setMode(animation_mode_t m) {
     mode = m;
@@ -49,6 +52,7 @@ void Animator::setMode(animation_mode_t m) {
 
 void Animator::setLedBrightness(int brightness) {
     ledBrightness = brightness;
+    opcClient->autoWriteData(getPixels());
 }
 
 void Animator::setNumLedsPerStrip(int num) {
@@ -180,8 +184,6 @@ void Animator::binaryAnimation() {
         
         binaryPattern.advance();
     }
-    
-    
     
     
 }

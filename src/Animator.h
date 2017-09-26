@@ -12,10 +12,11 @@
 
 #include <stdio.h>
 #include "ofMain.h"
-
+#include "ofxOPC.h"
 #endif /* Animator_h */
 
 #include "BinaryPattern.h"
+
 
 using namespace std;
 
@@ -26,6 +27,10 @@ class Animator {
 public:
     Animator();  // Constructor
     ~Animator(); // Destructor
+    
+    // Pointer to client
+    ofxOPC              *opcClient; // TODO: Replace this witha in Interface class encapsulating different types of LED interfaces
+    void setLedInterface(ofxOPC *interface);
     
     animation_mode_t mode;
     void setMode(animation_mode_t m);

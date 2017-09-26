@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxCv.h"
 //#include "ofxGui.h"
-#include "ofxOPC.h"
+//#include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
 #include "ofxDatGui.h"
@@ -46,8 +46,8 @@ class ofApp : public ofBaseApp{
 		void onMatrixEvent(ofxDatGuiMatrixEvent e);
 		
     
-        // OPC
-        ofxOPC              opcClient;
+        // OPC, Animator
+        ofxOPC              opcClient; // 
         Animator            animator;
     
         // Input

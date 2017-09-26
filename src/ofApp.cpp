@@ -45,24 +45,26 @@ void ofApp::setup(){
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
     
+    // Connect to the fcserver
+    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
+    opcClient.setInterpolation(false);
     
     // Animator settings
+    animator.setLedInterface(&opcClient);
     animator.setMode(ANIMATION_MODE_BINARY);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
-    animator.setLedBrightness(50);
+    animator.setLedBrightness(150);
     
     
     // Mapping
     isMapping = false;
     
-    // Connect to the fcserver
-    opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
-    opcClient.setInterpolation(false);
+    
     
     // Clear the LED strips
     animator.setAllLEDColours(ofColor(0, 0,0));
-    opcClient.autoWriteData(animator.getPixels());
+    
     
     // SVG
     svg.setViewbox(0, 0, cam.getWidth(), cam.getHeight());
@@ -193,7 +195,7 @@ void ofApp::update(){
         tracker.findContours(thresholded);
         
         // We have 1 contour
-        if (tracker.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
+        if (tracker.size() == 1 && !success) {
             ofLogVerbose("tracking") << "Detected one contour, as expected.";
             ofPoint center = ofxCv::toOf(tracker.getCenter(0));
             tracker.centroids.push_back(center);
@@ -248,7 +250,7 @@ void ofApp::update(){
         if(success) {
             tracker.hasFoundFirstContour = true;
             //animator.chaseAnimationOff();
-            opcClient.autoWriteData(animator.getPixels());
+//            opcClient.autoWriteData(animator.getPixels());
         }
     }
     ofSetColor(ofColor::white);
