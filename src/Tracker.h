@@ -23,6 +23,7 @@ public:
     float                   threshold;          // Brightness threshold for contour detection
 //    ofxCv::ContourFinder    contourFinder;      // Finds contours in the background subtraction binary image
     vector <ofPoint>        centroids;          // Stores the contour area centers.
+    bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     
 private:
     

@@ -18,6 +18,9 @@ Tracker::Tracker() {
     // an object can move up to 32 pixels per frame
     getTracker().setMaximumDistance(32);
     getTracker().setSmoothingRate(1.0);
+    
+    hasFoundFirstContour = false;
+    
 }
 
 Tracker::~Tracker() {

@@ -49,8 +49,6 @@ class ofApp : public ofBaseApp{
         // OPC
         ofxOPC              opcClient;
         Animator            animator;
-
-        bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     
         // Input
         ofVideoGrabber cam;
@@ -73,7 +71,8 @@ class ofApp : public ofBaseApp{
     
         // Contours
         Tracker                 tracker;
-        bool                    isMapping;
+    
+        bool                    isMapping; // Main program-state variable
     
         // SVG
         ofxEditableSVG svg;

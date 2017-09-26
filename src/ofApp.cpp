@@ -44,8 +44,7 @@ void ofApp::setup(){
     
     // LED
 	IP = "192.168.1.104"; //Default IP for Fadecandy
-    // Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
-    hasFoundFirstContour = false;
+    
     
     // Animator settings
     animator.setMode(ANIMATION_MODE_BINARY);
@@ -54,8 +53,7 @@ void ofApp::setup(){
     animator.setLedBrightness(50);
     
     
-    // Tracking
-    hasFoundFirstContour = false;
+    // Mapping
     isMapping = false;
     
     // Connect to the fcserver
@@ -232,11 +230,11 @@ void ofApp::update(){
             ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
             ofPoint center = ofxCv::toOf(tracker.getCenter(brightestIndex));
             tracker.centroids.push_back(center);
-            hasFoundFirstContour = true;
+            tracker.hasFoundFirstContour = true;
             //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
         }
         // Deal with no contours found
-        else if (!success && hasFoundFirstContour){
+        else if (!success && tracker.hasFoundFirstContour){
             ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
             
             // No point detected, create fake point
@@ -248,7 +246,7 @@ void ofApp::update(){
         }
         
         if(success) {
-            hasFoundFirstContour = true;
+            tracker.hasFoundFirstContour = true;
             //animator.chaseAnimationOff();
             opcClient.autoWriteData(animator.getPixels());
         }
