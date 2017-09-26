@@ -58,6 +58,7 @@ void Animator::setLedBrightness(int brightness) {
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
     numLedsPerStrip = num;
+    opcClient->setLedsPerStrip(num);
     resetPixels();
 }
 
