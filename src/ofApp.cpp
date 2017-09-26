@@ -93,7 +93,6 @@ void ofApp::update(){
 	cam.update();
     
     // Background subtraction
-    // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
     background.update(cam, thresholded);
@@ -121,8 +120,6 @@ void ofApp::update(){
             img.crop(rect.x, rect.y, rect.width, rect.height);
             ofPixels pixels = img.getPixels();
             // Pixel format is RGB
-            // cout << "pixel format" << pixels.getPixelFormat() << endl;
-//            cout << "area: " << rect.area() << "pixels.size: " << pixels.size() << endl;
             float r = 0;
             float g = 0;
             float b = 0;
@@ -281,7 +278,6 @@ void ofApp::draw(){
         ofDrawBitmapString(ofToString(label), contourFinder.getCenter(i).x+10, contourFinder.getCenter(i).y);
         
     }
-    
     
     // Draw the detected contour center points
     for (int i = 0; i < centroids.size(); i++) {
