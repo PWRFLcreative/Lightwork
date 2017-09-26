@@ -106,6 +106,10 @@ void Animator::update() {
     };
     // Advance the internal counter
     frameCount++;
+    
+    // Update pixels on external interface
+    opcClient->autoWriteData(getPixels()); // Send pixel values to OPC
+
 }
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
@@ -184,6 +188,4 @@ void Animator::binaryAnimation() {
         
         binaryPattern.advance();
     }
-    
-    
 }

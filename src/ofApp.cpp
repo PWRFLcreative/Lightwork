@@ -50,21 +50,17 @@ void ofApp::setup(){
     opcClient.setInterpolation(false);
     
     // Animator settings
-    animator.setLedInterface(&opcClient);
-    animator.setMode(ANIMATION_MODE_BINARY);
+    animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
+    animator.setMode(ANIMATION_MODE_CHASE);
     animator.setNumLedsPerStrip(50);
     animator.setAllLEDColours(ofColor(0, 0,0));
     animator.setLedBrightness(150);
     
-    
     // Mapping
     isMapping = false;
     
-    
-    
     // Clear the LED strips
     animator.setAllLEDColours(ofColor(0, 0,0));
-    
     
     // SVG
     svg.setViewbox(0, 0, cam.getWidth(), cam.getHeight());
@@ -94,13 +90,11 @@ void ofApp::update(){
     
     if (animator.mode == ANIMATION_MODE_TEST) {
         animator.update(); // Update the pixel values
-        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
     }
     
     if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
         // Update LEDs
         animator.update();
-        opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
         
         // Get contours
         tracker.findContours(thresholded);
@@ -297,13 +291,13 @@ void ofApp::keyPressed(int key){
             tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
-            opcClient.autoWriteData(animator.getPixels());
+            animator.update();
             break;
         case 'b':
             tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_BINARY);
-            opcClient.autoWriteData(animator.getPixels());
+            animator.update();
             break;
         case 'g':
             generateSVG(tracker.centroids);
@@ -313,7 +307,7 @@ void ofApp::keyPressed(int key){
             break;
 		case 't':
             animator.setMode(ANIMATION_MODE_TEST);
-            opcClient.autoWriteData(animator.getPixels());
+            animator.update();
 			break;
         case 'f': // filter points
             tracker.centroids = removeDuplicatesFromPoints(tracker.centroids);
@@ -558,7 +552,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 
 	if (e.target->is("TEST LEDS")) {
         animator.setMode(ANIMATION_MODE_TEST);
-        opcClient.autoWriteData(animator.getPixels());
+//        opcClient.autoWriteData(animator.getPixels());
 	}
 	if (e.target->is("MAP LEDS")) {
         isMapping = !isMapping;
