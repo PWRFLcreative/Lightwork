@@ -92,11 +92,11 @@ buildUI(guiMultiply);
 void ofApp::update() {
 	opcClient.update();
 
-	// If the client is not connected do not try and send information
-	if (!opcClient.isConnected()) {
-		// Will continue to try connecting to the OPC Pixel Server
-		opcClient.tryConnecting();
-	}
+	//// If the client is not connected do not try to send information
+	//if (!opcClient.isConnected()) {
+	//	// Will continue to try connecting to the OPC Pixel Server
+	//	opcClient.tryConnecting();
+	//}
 
 	if (animator.mode == ANIMATION_MODE_TEST) {
 		animator.update(); // Update the pixel values
@@ -468,8 +468,14 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
-		opcClient.close();
-		opcClient.setup(IP, 7890);
+		if (opcClient.isConnected()) {
+			opcClient.close();
+			if (!opcClient.isConnected()) { gui->getLabel("Connection Status")->setLabel("Disconnected"); }
+		}
+		if (!opcClient.isConnected()) {
+			opcClient.setup(IP, 7890);
+			if (opcClient.isConnected()) { gui->getLabel("Connection Status")->setLabel("Connected"); }
+		}
 	}
 
 	if (e.target->is("LEDS per Strip")) {
@@ -548,8 +554,6 @@ void ofApp::buildUI(int mult)
 {
 	//GUI
 	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
-	//gui = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, 40*mult);
-	//guiBottom = new ofxDatGui((ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()-(65*mult));
 	guiBottom = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
 	//gui->addHeader(":: drag me to reposition ::");
@@ -561,15 +565,22 @@ void ofApp::buildUI(int mult)
 	gui->addDropdown("Select Driver Type", opts);
 	gui->addBreak();
 
-	string connection;
-	if (opcClient.isConnected()) { connection = "connected"; }
-	else { connection = "disconnected"; }
-
 	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
 	fcSettings->addTextInput("IP", IP);
 
 	fcSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
 	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
+	string connection;
+	if (opcClient.isConnected()) {
+		connection = "connected";
+		fcSettings->addLabel("Connection Status");
+		gui->getLabel("Connection Status")->setLabel(connection);
+	}
+	else {
+		connection = "disconnected";
+		fcSettings->addLabel("Connection Status");
+		gui->getLabel("Connection Status")->setLabel(connection);
+	}
 	fcSettings->setVisible(false);
 	fcSettings->addBreak();
 	
@@ -579,6 +590,9 @@ void ofApp::buildUI(int mult)
 	ppSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
 	ppSettings->setVisible(false);
 	ppSettings->addBreak();
+
+
+	
 
 	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
 	mapSettings->addSlider(learningTime);
