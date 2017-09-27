@@ -37,8 +37,8 @@ public:
     
     //std::vector <std::string> patterns; // For Storing Binary Patterns
     
-    enum led_state_t {LOW, HIGH, START, OFF}; // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
-    led_state_t state;
+    enum pattern_state_t {LOW, HIGH, START, OFF}; // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
+    pattern_state_t state;
 
     int frameNum;
     

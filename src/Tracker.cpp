@@ -9,7 +9,7 @@
 #include "Tracker.h"
 
 Tracker::Tracker() {
-    
+    bPat.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
 }
 
 Tracker::~Tracker() {
