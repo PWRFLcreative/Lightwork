@@ -20,10 +20,20 @@ public:
     Tracker();
     ~Tracker();
     
+    // Background subtraction
+    ofxCv::RunningBackground        background;        // Background subtraction class with running average
+    ofImage                         thresholded;       // Binary threshold image
+    
     float                   threshold;          // Brightness threshold for contour detection
-//    ofxCv::ContourFinder    contourFinder;      // Finds contours in the background subtraction binary image
     vector <ofPoint>        centroids;          // Stores the contour area centers.
-    bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
+    bool                    hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
+    float learningTime;
+    float thresholdValue; // Redundant? Was ofParameter...
+    ofVideoGrabber          *cam;
+    
+    void setup(ofVideoGrabber *camera);
+    void update();
+    void findSequential();
     
 private:
     

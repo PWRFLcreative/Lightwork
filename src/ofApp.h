@@ -55,24 +55,18 @@ class ofApp : public ofBaseApp{
 		void switchCamera(int num);
 		vector <string> enumerateCams();
 		ofFbo camFbo;
-		
-    
-        // Background subtraction
-        ofxCv::RunningBackground background;        // Background subtraction class with running average
-        ofImage thresholded;                        // Binary threshold image
     
         // GUI
 		void buildUI();
 		ofxDatGui* gui;
-        bool resetBackground;
         ofParameter<float> learningTime;
         ofParameter<float> thresholdValue;
 		string IP;
     
         // Contours
-        Tracker                 tracker;
+        Tracker                         tracker;
     
-        bool                    isMapping; // Main program-state variable
+        bool                            isMapping;         // Main program-state variable
     
         // SVG
         ofxEditableSVG svg;
