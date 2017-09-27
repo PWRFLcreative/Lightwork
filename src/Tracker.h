@@ -14,8 +14,10 @@
 
 #endif /* Tracker_h */
 
+enum tracker_mode_t {TRACKER_MODE_CHASE, TRACKER_MODE_BINARY};
 
 class Tracker : public ofxCv::ContourFinder {
+    
 public:
     Tracker();
     ~Tracker();
@@ -32,7 +34,11 @@ public:
     ofVideoGrabber          *cam;
     
     void setup(ofVideoGrabber *camera);
+    void setMode(tracker_mode_t m);
+    tracker_mode_t mode;
+    
     void update();
+    void findBinary();
     void findSequential();
     
 private:

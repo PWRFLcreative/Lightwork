@@ -59,8 +59,6 @@ class ofApp : public ofBaseApp{
         // GUI
 		void buildUI();
 		ofxDatGui* gui;
-        ofParameter<float> learningTime;
-        ofParameter<float> thresholdValue;
 		string IP;
     
         // Contours

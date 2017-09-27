@@ -30,6 +30,7 @@ void ofApp::setup(){
     camFbo.end();
     
     tracker.setup(&cam);
+    tracker.setMode(TRACKER_MODE_CHASE);
     
 	// GUI - OLD
 	//gui.setup();

@@ -19,7 +19,7 @@ Tracker::~Tracker() {
 
 void Tracker::setup(ofVideoGrabber *camera) {
     cam = camera;
-    
+    mode = TRACKER_MODE_CHASE; // TODO review
     setMinAreaRadius(1);
     setMaxAreaRadius(100);
     setThreshold(15);
@@ -40,15 +40,32 @@ void Tracker::setup(ofVideoGrabber *camera) {
     background.setThresholdValue(thresholdValue);
 }
 
+void Tracker::setMode(tracker_mode_t m) {
+    mode = m;
+}
+
 void Tracker::update() {
     
     // Binary pattern detection
     background.update(*cam, thresholded);
     
-    thresholded.update();
+    
     // Get contours
     findContours(thresholded);
+    // Contour
+    ofxCv::blur(thresholded, 10); // TODO: do we need this?
+    findContours(thresholded);
+    thresholded.update();
     
+    if (mode == TRACKER_MODE_BINARY) {
+        findBinary();
+    }
+    else if (mode == TRACKER_MODE_CHASE) {
+        findSequential();
+    }
+}
+
+void Tracker::findBinary() {
     // Get colour from original frame in contour areas
     for (int i = 0; i < size(); i++) {
         cv::Rect rect = getBoundingRect(i);
@@ -124,12 +141,8 @@ void Tracker::update() {
     }
     // Profit
 }
-
 void Tracker::findSequential() {
-    bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
-    // Contour
-    ofxCv::blur(thresholded, 10); // TODO: do we need this?
-    findContours(thresholded);
+    bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas
     
     // We have 1 contour
     if (size() == 1 && !success) {
