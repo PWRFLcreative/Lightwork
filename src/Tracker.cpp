@@ -38,15 +38,14 @@ void Tracker::setup(ofVideoGrabber *camera) {
     // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
-    background.update(*cam, thresholded);
-    
-    thresholded.update();
 }
 
 void Tracker::update() {
     
     // Binary pattern detection
+    background.update(*cam, thresholded);
     
+    thresholded.update();
     // Get contours
     findContours(thresholded);
     

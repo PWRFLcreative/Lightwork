@@ -34,8 +34,8 @@ void ofApp::setup(){
 	// GUI - OLD
 	//gui.setup();
 
-	learningTime.set("Learning Time", 4, 0, 30);
-	thresholdValue.set("Threshold Value", 50, 0, 255);
+	tracker.learningTime.set("Learning Time", 4, 0, 30);
+	tracker.thresholdValue.set("Threshold Value", 50, 0, 255);
 
     // Contours
     
@@ -89,8 +89,7 @@ void ofApp::update(){
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
     if(animator.mode == ANIMATION_MODE_CHASE && cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
-        
-        
+
         // Light up a new LED for every frame
         animator.update();
         tracker.findSequential();
@@ -371,13 +370,13 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 //GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
-		ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+		ofLogVerbose("gui") << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
 		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
-	ofLogNotice() << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
+	ofLogNotice("gui") << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
@@ -398,7 +397,7 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	ofLogNotice() << "onButtonEvent: " << e.target->getLabel();
+	ofLogNotice("gui") << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
         animator.setMode(ANIMATION_MODE_TEST);
@@ -417,7 +416,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 //Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
 void ofApp::switchCamera(int num)
 {
-    ofLogNotice("Switching camera");
+    ofLogNotice("gui") << "Switching camera";
 	cam.close(); 
 	cam.setDeviceID(num);
 	cam.setup(1280, 720);
@@ -481,8 +480,8 @@ void ofApp::buildUI()
 	ppSettings->addBreak();
 
 	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
-	mapSettings->addSlider(learningTime);
-	mapSettings->addSlider(thresholdValue);
+	mapSettings->addSlider(tracker.learningTime);
+	mapSettings->addSlider(tracker.thresholdValue);
 	mapSettings->addButton("Test LEDS");
 	mapSettings->addButton("Map LEDS");
 	mapSettings->addButton("Save Layout");
