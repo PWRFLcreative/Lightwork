@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 #include "ofxCv.h"
+#include "BinaryPattern.h"
 
-#endif /* Tracker_h */
 
 enum tracker_mode_t {TRACKER_MODE_CHASE, TRACKER_MODE_BINARY};
 
@@ -41,7 +41,12 @@ public:
     void findBinary();
     void findSequential();
     
+    BinaryPattern pattern;
+    
+    
 private:
     
     
 };
+
+#endif /* Tracker_h */

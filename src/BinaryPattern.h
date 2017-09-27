@@ -16,7 +16,7 @@
 #include <sstream>
 #include <bitset>
 
-#endif /* BinaryPattern_h */
+
 
 using namespace std;
 
@@ -46,4 +46,4 @@ private:
     vector <int> convertStringToIntVector(string pattern);
 };
 
-
+#endif /* BinaryPattern_h */

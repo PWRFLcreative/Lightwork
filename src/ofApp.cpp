@@ -84,25 +84,19 @@ void ofApp::update(){
         // Update LEDs
         animator.update();
         tracker.update();
-        
     }
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
     
     if(animator.mode == ANIMATION_MODE_CHASE && cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
-
-        // Light up a new LED for every frame
-        tracker.update();
         // Make sure you call animator.update() once when you activate CHASE mode
         // We check if the tracker has found the first contour before processing with the animation
         // This makes sure we don't miss the first LED
         if (tracker.hasFoundFirstContour) {
             animator.update();
         }
-        
-        
-        
+        tracker.update();
     }
     ofSetColor(ofColor::white);
 }
