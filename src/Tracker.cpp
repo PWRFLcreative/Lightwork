@@ -35,9 +35,7 @@ void Tracker::setup(ofVideoGrabber *camera) {
     thresholded.allocate(cam->getWidth(), cam->getHeight(), OF_IMAGE_COLOR);
     thresholded.clear();
     
-    // Background subtraction
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(thresholdValue);
+    
 }
 
 void Tracker::setMode(tracker_mode_t m) {
@@ -47,12 +45,13 @@ void Tracker::setMode(tracker_mode_t m) {
 void Tracker::update() {
     
     // Binary pattern detection
+    // Background subtraction
+    background.setLearningTime(learningTime);
+    background.setThresholdValue(thresholdValue);
     background.update(*cam, thresholded);
     
     
     // Get contours
-    findContours(thresholded);
-    // Contour
     ofxCv::blur(thresholded, 10); // TODO: do we need this?
     findContours(thresholded);
     thresholded.update();

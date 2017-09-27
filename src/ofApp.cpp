@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // Set the log level
-    ofSetLogLevel("binary", OF_LOG_VERBOSE);
+    ofSetLogLevel("tracking", OF_LOG_VERBOSE);
 	//Window size based on screen dimensions, centered
 	
 	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight())*0.9);
@@ -93,7 +93,7 @@ void ofApp::update(){
 
         // Light up a new LED for every frame
         animator.update();
-        tracker.findSequential();
+        tracker.update();
         
     }
     ofSetColor(ofColor::white);
@@ -138,12 +138,14 @@ void ofApp::keyPressed(int key){
             tracker.centroids.clear();
             break;
         case 's':
+            tracker.setMode(TRACKER_MODE_CHASE);
             tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
             animator.update();
             break;
         case 'b':
+            tracker.setMode(TRACKER_MODE_BINARY);
             tracker.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_BINARY);
