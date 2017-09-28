@@ -66,7 +66,8 @@ void Tracker::update() {
 
 void Tracker::findBinary() {
     // Get colour from original frame in contour areas
-    for (int i = 0; i < size(); i++) {
+    
+    for (int i = 0; i < this->size(); i++) {
         cv::Rect rect = getBoundingRect(i);
         ofImage img;
         img = cam->getPixels();

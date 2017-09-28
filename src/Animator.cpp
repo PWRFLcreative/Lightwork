@@ -167,22 +167,22 @@ void Animator::binaryAnimation() {
         switch (binaryPattern.state){ // 0
             case BinaryPattern::LOW: {
 //                setAllLEDColours(ofColor(255, 0, 0));
-                pixels.at(0) = ofColor(255, 0, 0);
+                pixels.at(0) = ofColor(255, 0, 0); // RED
                 break;
             }
             case BinaryPattern::HIGH: { // 1
 //                setAllLEDColours(ofColor(0, 0, 255));
-                pixels.at(0) = ofColor(0, 0, 255);
+                pixels.at(0) = ofColor(0, 0, 255); // BLUE
                 break;
             }
             case BinaryPattern::START: { // 2
 //                setAllLEDColours(ofColor(0, 255, 0));
-                pixels.at(0) = ofColor(0, 255, 0);
+                pixels.at(0) = ofColor(0, 255, 0); // GREEN
                 break;
             }
             case BinaryPattern::OFF: { // 3
 //                setAllLEDColours(ofColor(0, 0, 0));
-                pixels.at(0) = ofColor(0, 0, 0);
+                pixels.at(0) = ofColor(0, 0, 0); // BLACK
                 break;
             }
         }
