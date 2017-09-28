@@ -7,6 +7,7 @@
 //
 
 #include "BinaryPattern.h"
+#include "ofLog.h"
 
 using namespace std;
 
@@ -102,6 +103,7 @@ void BinaryPattern::advance() {
 // Write bit at index, this is so the tracker can update the detected pattern, bit-by-bit
 
 void BinaryPattern::updateBitAtIndex(int bit, int index) {
+//    ofLogNotice("binary") << "writing bit: " << bit << " at index: " << index << endl;
     binaryPatternVector.at(index) = bit;
     binaryPatternString = convertIntVectorToString(binaryPatternVector);
 }

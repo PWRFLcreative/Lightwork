@@ -24,7 +24,7 @@ void Tracker::setup(ofVideoGrabber *camera) {
     setMaxAreaRadius(100);
     setThreshold(15);
     // wait for half a frame before forgetting something (15)
-    getTracker().setPersistence(24); // TODO: make an interface for this. Should be 1 for sequential tracking
+    getTracker().setPersistence(100); // TODO: make an interface for this. Should be 1 for sequential tracking
     // an object can move up to 32 pixels per frame
     getTracker().setMaximumDistance(32);
     getTracker().setSmoothingRate(1.0);
@@ -76,14 +76,12 @@ void Tracker::findBinary() {
         float r = 0;
         float g = 0;
         float b = 0;
-        float brightness = 0;
         for (int i = 0; i < pixels.getWidth(); i++) {
             for (int j = 0; j < pixels.getHeight(); j++) {
                 ofFloatColor col = pixels.getColor(i, j);
                 r += col.r;
                 g += col.g;
                 b += col.b;
-                brightness = col.getBrightness();
             }
         }
         float avgR, avgG, avgB = 0;
@@ -91,7 +89,9 @@ void Tracker::findBinary() {
         avgR = r/numPixels;
         avgG = g/numPixels;
         avgB = b/numPixels;
-        
+        ofFloatColor avgColor = ofFloatColor(avgR, avgG, avgB);
+        float brightness = avgColor.getBrightness();
+        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
         // If brightness is above threshold, get the brightest colour
         // Analysis suggests the threshold is around 0.4, I'll use 0.45
         // TODO: Automatically detect threshold value (depends on lighting conditions, background material colour etc.)
@@ -122,7 +122,7 @@ void Tracker::findBinary() {
                     break;
                 case 1:
                     detectedColor = "GREEN";
-                    cout << "START SIGNAL DETECTED" << endl;
+//                    cout << "START SIGNAL DETECTED" << endl;
                     index = 0;
                     detectedState = 2;
                     break;
@@ -140,17 +140,15 @@ void Tracker::findBinary() {
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
+//        cout << "detectedState: " << detectedState << endl;
+//        cout << "previousState: " << previousState << endl;
         if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
-            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
+//            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
             detectedPattern.updateBitAtIndex(detectedState, index);
             index++;
-            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
+//            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
         }
         previousState = detectedState;
-        
-        
-        int maxIndex = 0;
-        
         
     }
     // Profit
