@@ -81,9 +81,14 @@ void ofApp::update(){
     }
     
     if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
-        // Update LEDs
+        // Update LEDs and Tracker
         animator.update();
         tracker.update();
+        
+        // Pattern matching
+        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
+            ofLogNotice("Match FOUND!!!");
+        }
     }
     
     // New camera frame: Turn on a new LED and detect the location.

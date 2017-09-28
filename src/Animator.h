@@ -52,6 +52,8 @@ public:
     void test();
     void binaryAnimation();
     
+    BinaryPattern binaryPattern;
+    
 private:
     
     vector <ofColor>    pixels;
@@ -66,7 +68,6 @@ private:
     int                 frameCount;             // Internal framecounter
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
     
-    BinaryPattern binaryPattern;
 
 };
 
