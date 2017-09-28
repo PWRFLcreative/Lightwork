@@ -41,7 +41,9 @@ public:
     void findBinary();
     void findSequential();
     
-    BinaryPattern bPat;
+    BinaryPattern                   bPat;
+    int                             index;
+    int                             previousState;
     
     
 private:

@@ -19,7 +19,7 @@ void ofApp::setup(){
 	//Video Devices
 	cam.setVerbose(false);
     cam.listDevices();
-    cam.setDeviceID(2); // Default to external camera (falls back on built in cam if external is not available)
+    cam.setDeviceID(1); // Default to external camera (falls back on built in cam if external is not available)
     cam.setup(640, 480);
 	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
 

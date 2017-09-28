@@ -20,24 +20,20 @@ BinaryPattern::~BinaryPattern(void) {
     
 }
 
+// Generate Binary patterns for animation sequence and pattern-matching
 void BinaryPattern::generatePattern(int num) {
     // Generate a bitset with 10 bits. If the bit sequence is shorter it will append zeros to make the length 10.
     
     // TODO: replace bitset< 10 > with bitset< patternLength > 
     std::string s = std::bitset< 10 >( num ).to_string(); // string conversion
-    
-    
-    
+    binaryPatternString = s;
     // Insert START and OFF signals
     // Example: [START, OFF, HIGH, OFF, LOW, OFF, LOW, OFF, HIGH, OFF, etc].
-    cout << s << endl;
+//    cout << s << endl;
     for (int i = 0; i<s.size()+1; i++) { // +1 for a trailing OFF message
         if (i == 0) {
             s.insert(i, "2"); // state == START
         }
-//        else if (i == 1) {
-//            s.insert(i, "3");
-//        }
         else if (i%2 == 0) {
             s.insert(i, "3"); // state == OFF
         }
@@ -48,11 +44,10 @@ void BinaryPattern::generatePattern(int num) {
     s.append("3");
     
     // Store bitstrings in pattern string
-    pattern = s;
-    
-    cout << s << endl;
+    animationPatternString = s;
+
     // Convert to int vector and store internally
-    patternVector = convertStringToIntVector(pattern);
+    animationPatternVector = convertStringToIntVector(animationPatternString);
     
 };
 
@@ -74,14 +69,39 @@ vector <int> BinaryPattern::convertStringToIntVector(string pattern) {
     return ints;
 }
 
+string BinaryPattern::convertIntVectorToString(vector <int> vec) {
+    
+    std::ostringstream oss;
+    
+    if (!vec.empty())
+    {
+        // Convert all but the last element to avoid a trailing ","
+        std::copy(vec.begin(), vec.end()-1,
+                  std::ostream_iterator<int>(oss, ""));
+        
+        // Now add the last element with no delimiter
+        oss << vec.back();
+    }
+    
+    return oss.str();
+}
+
+// Set the current 'state', read it from the patternVector
 void BinaryPattern::advance() {
     // TODO: review the ordering of state + frameNum assignment
     // Set the LED State to HIGH/LOW depending on the patternVector location
-    state = static_cast<pattern_state_t>(patternVector[frameNum]);
+    state = static_cast<pattern_state_t>(animationPatternVector[frameNum]);
     frameNum = frameNum+1;
-    if (frameNum >= patternLength) {
+    if (frameNum >= animationPatternLength) {
         frameNum = 0;
     }
+}
+
+// Write bit at index, this is so the tracker can update the detected pattern, bit-by-bit
+
+void BinaryPattern::updateBitAtIndex(int bit, int index) {
+    animationPatternVector.at(index) = bit;
+    animationPatternString = convertIntVectorToString(animationPatternVector);
 }
 
 

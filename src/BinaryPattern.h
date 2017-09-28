@@ -16,6 +16,9 @@
 #include <sstream>
 #include <bitset>
 
+#include <algorithm>
+#include <iterator>
+
 
 
 using namespace std;
@@ -29,21 +32,27 @@ public:
     
     void generatePattern(int num);
     void advance(); // Advance the framecount and set the state accordingly
+    void updateBitAtIndex(int bit, int index);
     
-    string pattern; // Stores a single binary pattern
-    vector <int> patternVector; // Stores binary pattern as vector of ints
-    const int patternLength = 22; // 10 bit pattern with a START at the end and an OFF after each one
+    string binaryPatternString; // Stores the actual binary pattern, use this for pattern matching.
+    
+    string animationPatternString; // Stores a single binary pattern with START and OFF signals inserted (4 states)
+    vector <int> animationPatternVector; // Stores binary pattern as vector of ints
+    const int animationPatternLength = 22; // 10 bit pattern with a START at the end and an OFF after each one
     // TODO: get rid of patternLength, use pattern.size() instead
     
     //std::vector <std::string> patterns; // For Storing Binary Patterns
     
-    enum pattern_state_t {LOW, HIGH, START, OFF}; // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
+    // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
+    enum pattern_state_t {LOW, HIGH, START, OFF};
     pattern_state_t state;
 
     int frameNum;
     
 private:
     vector <int> convertStringToIntVector(string pattern);
+    string convertIntVectorToString(vector <int> pattern);
+    
 };
 
 #endif /* BinaryPattern_h */

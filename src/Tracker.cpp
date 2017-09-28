@@ -10,6 +10,7 @@
 
 Tracker::Tracker() {
     bPat.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
+    index = 0; // Index to write to detected pattern
 }
 
 Tracker::~Tracker() {
@@ -83,8 +84,6 @@ void Tracker::findBinary() {
                 g += col.g;
                 b += col.b;
                 brightness = col.getBrightness();
-                //                    cout << brightness << endl;
-                //                    cout << col.r << endl;
             }
         }
         float avgR, avgG, avgB = 0;
@@ -92,8 +91,6 @@ void Tracker::findBinary() {
         avgR = r/numPixels;
         avgG = g/numPixels;
         avgB = b/numPixels;
-        
-        //            cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
         
         // If brightness is above threshold, get the brightest colour
         // Analysis suggests the threshold is around 0.4, I'll use 0.45
@@ -109,21 +106,40 @@ void Tracker::findBinary() {
             
             // Get the index of the brightest average colour
             int dist = distance(colours.begin(), max_element(colours.begin(), colours.end()));
-            //                cout << dist << endl;
-            
+            //              cout << dist << endl;
+            int detectedState;
+            // LED binary states:
+            // LOW(0) -> RED,
+            // HIGH(1) -> BLUE
+            // START(2) -> GREEN,
+            // OFF(3) -> (off)
             switch (dist) {
                 case 0:
                     detectedColor = "RED";
+                    detectedState = 0;
                     break;
                 case 1:
                     detectedColor = "GREEN";
+                    index = 0;
+                    detectedState = 2;
                     break;
                 case 2:
                     detectedColor = "BLUE";
+                    detectedState = 1;
                     break;
                 default:
                     ofLogError("binary") << "Brightest colour is not a known colour!" << endl;
             }
+        
+            if (previousState != detectedState) {
+                bPat.updateBitAtIndex(detectedState, index);
+                index++;
+                if (index > 10) {
+                    index = 0;
+                }
+                //cout << bPat.patternString << endl;
+            }
+            previousState = dist;
             
         }
         else {
@@ -131,7 +147,8 @@ void Tracker::findBinary() {
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
-        cout << detectedColor << endl;
+        ofLogNotice("tracker") << "binaryPatternString: " << bPat.binaryPatternString << endl;
+        ofLogNotice("tracker") << "patternString      : " << bPat.patternString << endl;
         
         int maxIndex = 0;
         
@@ -197,8 +214,7 @@ void Tracker::findSequential() {
     
     if(success) {
         hasFoundFirstContour = true;
-        //animator.chaseAnimationOff();
-        //            opcClient.autoWriteData(animator.getPixels());
+
     }
     
 }

@@ -164,23 +164,23 @@ void Animator::binaryAnimation() {
     
     // Slow down the animation, set new state every 3 frames
     if (frameCount % 3 == 0) {
-        switch (binaryPattern.state){
+        switch (binaryPattern.state){ // 0
             case BinaryPattern::LOW: {
 //                setAllLEDColours(ofColor(255, 0, 0));
                 pixels.at(0) = ofColor(255, 0, 0);
                 break;
             }
-            case BinaryPattern::HIGH: {
+            case BinaryPattern::HIGH: { // 1
 //                setAllLEDColours(ofColor(0, 0, 255));
                 pixels.at(0) = ofColor(0, 0, 255);
                 break;
             }
-            case BinaryPattern::START: {
+            case BinaryPattern::START: { // 2
 //                setAllLEDColours(ofColor(0, 255, 0));
                 pixels.at(0) = ofColor(0, 255, 0);
                 break;
             }
-            case BinaryPattern::OFF: {
+            case BinaryPattern::OFF: { // 3
 //                setAllLEDColours(ofColor(0, 0, 0));
                 pixels.at(0) = ofColor(0, 0, 0);
                 break;
