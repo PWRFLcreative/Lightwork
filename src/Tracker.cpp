@@ -66,6 +66,7 @@ void Tracker::update() {
 
 void Tracker::findBinary() {
     // Get colour from original frame in contour areas
+    if (this->size() <= 0) { cout << "no contour at this moment!" << endl; }
     
     for (int i = 0; i < this->size(); i++) {
         cv::Rect rect = getBoundingRect(i);
@@ -92,14 +93,16 @@ void Tracker::findBinary() {
         avgB = b/numPixels;
         ofFloatColor avgColor = ofFloatColor(avgR, avgG, avgB);
         float brightness = avgColor.getBrightness();
-        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
+        cout << "brightness: " << brightness << endl;
+//        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
+        
         // If brightness is above threshold, get the brightest colour
         // Analysis suggests the threshold is around 0.4, I'll use 0.45
         // TODO: Automatically detect threshold value (depends on lighting conditions, background material colour etc.)
         string detectedColor = "";
         int detectedState;
         int dist;
-        float brightnessThreshold = 0.45;
+        float brightnessThreshold = 0.65;
         if (brightness >= brightnessThreshold) {
             //                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
             vector<float> colours;
@@ -141,13 +144,14 @@ void Tracker::findBinary() {
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
-//        cout << "detectedState: " << detectedState << endl;
+        cout << "detectedState: " << detectedState << endl;
+        cout << "detectedColor: " << detectedColor << endl;
 //        cout << "previousState: " << previousState << endl;
         if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
-//            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
+            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
             detectedPattern.updateBitAtIndex(detectedState, index);
             index++;
-//            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
+            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
         }
         previousState = detectedState;
         
