@@ -9,7 +9,13 @@
 #include "Tracker.h"
 
 Tracker::Tracker() {
-    detectedPattern.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
+    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
+    for (int i = 0; i < 150; i++) { // TODO: make this dynamic!
+        detectedPatterns.push_back(BinaryPattern());
+        detectedPatterns[i].generatePattern(0);
+    }
+    
+    //detectedPattern.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
     index = 0; // Index to write to detected pattern
 }
 
@@ -149,9 +155,9 @@ void Tracker::findBinary() {
 //        cout << "previousState: " << previousState << endl;
         if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
             cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
-            detectedPattern.updateBitAtIndex(detectedState, index);
+            detectedPatterns[i].updateBitAtIndex(detectedState, index);
             index++;
-            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
+            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPatterns[i].binaryPatternString << endl;
         }
         previousState = detectedState;
         

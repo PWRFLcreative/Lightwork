@@ -41,7 +41,7 @@ public:
     void findBinary();
     void findSequential();
     
-    BinaryPattern                   detectedPattern;
+    vector <BinaryPattern>          detectedPatterns;
     int                             index;
     int                             previousState;
     

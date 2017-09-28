@@ -181,7 +181,7 @@ void Animator::binaryAnimation() {
     if (frameCount % 1 == 0) {
         for (int i = 0; i < pixels.size(); i++) {
             
-            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;
+//            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;
                 switch (binaryPatterns[i].state){ // 0
                     case BinaryPattern::LOW: {
                         pixels.at(i) = ofColor(ledBrightness, 0, 0); // RED
