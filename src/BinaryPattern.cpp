@@ -23,13 +23,15 @@ BinaryPattern::~BinaryPattern(void) {
 // Generate Binary patterns for animation sequence and pattern-matching
 void BinaryPattern::generatePattern(int num) {
     // Generate a bitset with 10 bits. If the bit sequence is shorter it will append zeros to make the length 10.
-    
-    // TODO: replace bitset< 10 > with bitset< patternLength > 
+    // TODO: replace bitset< 10 > with bitset< patternLength >
     std::string s = std::bitset< 10 >( num ).to_string(); // string conversion
+    
+    // store the unmodified binary pattern as a string and int vector
     binaryPatternString = s;
+    binaryPatternVector = convertStringToIntVector(binaryPatternString);
+    
     // Insert START and OFF signals
     // Example: [START, OFF, HIGH, OFF, LOW, OFF, LOW, OFF, HIGH, OFF, etc].
-//    cout << s << endl;
     for (int i = 0; i<s.size()+1; i++) { // +1 for a trailing OFF message
         if (i == 0) {
             s.insert(i, "2"); // state == START
@@ -54,8 +56,8 @@ void BinaryPattern::generatePattern(int num) {
 vector <int> BinaryPattern::convertStringToIntVector(string pattern) {
     // Convert binary string to vector of ints
     // TODO: Deal with 2s and 3s
-    cout << "convertStringToIntVector" << endl;
-    cout << "Pattern string: " << pattern << endl;
+//    cout << "convertStringToIntVector" << endl;
+//    cout << "Pattern string: " << pattern << endl;
     
     std::vector<int> ints;
     
@@ -100,8 +102,8 @@ void BinaryPattern::advance() {
 // Write bit at index, this is so the tracker can update the detected pattern, bit-by-bit
 
 void BinaryPattern::updateBitAtIndex(int bit, int index) {
-    animationPatternVector.at(index) = bit;
-    animationPatternString = convertIntVectorToString(animationPatternVector);
+    binaryPatternVector.at(index) = bit;
+    binaryPatternString = convertIntVectorToString(binaryPatternVector);
 }
 
 

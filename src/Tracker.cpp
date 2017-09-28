@@ -9,7 +9,7 @@
 #include "Tracker.h"
 
 Tracker::Tracker() {
-    bPat.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
+    detectedPattern.generatePattern(0); // Populates bPat.pattern and bPat.patternVector with zeros
     index = 0; // Index to write to detected pattern
 }
 
@@ -132,14 +132,14 @@ void Tracker::findBinary() {
             }
         
             if (previousState != detectedState) {
-                bPat.updateBitAtIndex(detectedState, index);
+                detectedPattern.updateBitAtIndex(detectedState, index);
                 index++;
-                if (index > 10) {
+                if (index >= 10) {
                     index = 0;
                 }
                 //cout << bPat.patternString << endl;
             }
-            previousState = dist;
+            previousState = detectedState;
             
         }
         else {
@@ -147,8 +147,7 @@ void Tracker::findBinary() {
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
-        ofLogNotice("tracker") << "binaryPatternString: " << bPat.binaryPatternString << endl;
-        ofLogNotice("tracker") << "animationPatternString      : " << bPat.animationPatternString << endl;
+        ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
         
         int maxIndex = 0;
         

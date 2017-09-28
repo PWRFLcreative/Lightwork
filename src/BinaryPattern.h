@@ -35,6 +35,7 @@ public:
     void updateBitAtIndex(int bit, int index);
     
     string binaryPatternString; // Stores the actual binary pattern, use this for pattern matching.
+    vector <int> binaryPatternVector; // Stores the actual binary pattern as a vector
     
     string animationPatternString; // Stores a single binary pattern with START and OFF signals inserted (4 states)
     vector <int> animationPatternVector; // Stores binary pattern as vector of ints
