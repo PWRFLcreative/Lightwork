@@ -52,7 +52,7 @@ void Tracker::update() {
     
     
     // Get contours
-    ofxCv::blur(thresholded, 10); // TODO: do we need this?
+    ofxCv::blur(thresholded, 5); // TODO: do we need this?
     findContours(thresholded);
     thresholded.update();
     
@@ -102,7 +102,7 @@ void Tracker::findBinary() {
         string detectedColor = "";
         int detectedState;
         int dist;
-        float brightnessThreshold = 0.65;
+        float brightnessThreshold = 0.75;
         if (brightness >= brightnessThreshold) {
             //                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
             vector<float> colours;

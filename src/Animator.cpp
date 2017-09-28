@@ -25,8 +25,15 @@ Animator::Animator(void) {
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
+//    binaryPatterns.assign(numLedsPerStrip*numStrips, BinaryPattern());
     
-    binaryPattern.generatePattern(842); // A single pattern, for testing
+    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
+    for (int i = 0; i < pixels.size(); i++) {
+        binaryPatterns.push_back(BinaryPattern());
+        binaryPatterns[i].generatePattern(i+bPatOffset);
+    }
+    
+//    binaryPattern.generatePattern(842); // A single pattern, for testing
 }
 
 // Destructor
@@ -80,6 +87,14 @@ void Animator::resetPixels() {
     vector <ofColor> pix;
     pix.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
     pixels = pix;
+    
+    // TODO: Review this
+    binaryPatterns.clear();
+    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
+    for (int i = 0; i < pixels.size(); i++) {
+        binaryPatterns.push_back(BinaryPattern());
+        binaryPatterns[i].generatePattern(i+bPatOffset);
+    }
 }
 
 // Return pixels (to update OPC or PixelPusher)
@@ -163,30 +178,31 @@ void Animator::binaryAnimation() {
     // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
     
     // Slow down the animation, set new state every 3 frames
-    if (frameCount % 3 == 0) {
-        switch (binaryPattern.state){ // 0
-            case BinaryPattern::LOW: {
-//                setAllLEDColours(ofColor(255, 0, 0));
-                pixels.at(0) = ofColor(255, 0, 0); // RED
-                break;
-            }
-            case BinaryPattern::HIGH: { // 1
-//                setAllLEDColours(ofColor(0, 0, 255));
-                pixels.at(0) = ofColor(0, 0, 255); // BLUE
-                break;
-            }
-            case BinaryPattern::START: { // 2
-//                setAllLEDColours(ofColor(0, 255, 0));
-                pixels.at(0) = ofColor(0, 255, 0); // GREEN
-                break;
-            }
-            case BinaryPattern::OFF: { // 3
-//                setAllLEDColours(ofColor(0, 0, 0));
-                pixels.at(0) = ofColor(0, 0, 0); // BLACK
-                break;
-            }
+    if (frameCount % 1 == 0) {
+        for (int i = 0; i < pixels.size(); i++) {
+            
+            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;
+                switch (binaryPatterns[i].state){ // 0
+                    case BinaryPattern::LOW: {
+                        pixels.at(i) = ofColor(ledBrightness, 0, 0); // RED
+                        break;
+                    }
+                    case BinaryPattern::HIGH: { // 1
+                        pixels.at(i) = ofColor(0, 0, ledBrightness); // BLUE
+                        break;
+                    }
+                    case BinaryPattern::START: { // 2
+                        pixels.at(i) = ofColor(0, ledBrightness, 0); // GREEN
+                        break;
+                    }
+                    case BinaryPattern::OFF: { // 3
+                        pixels.at(i) = ofColor(0, 0, 0); // BLACK
+                        break;
+                    }
+                }
+                
+                binaryPatterns[i].advance();
         }
-        
-        binaryPattern.advance();
     }
+    
 }

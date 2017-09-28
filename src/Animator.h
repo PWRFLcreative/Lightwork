@@ -52,7 +52,7 @@ public:
     void test();
     void binaryAnimation();
     
-    BinaryPattern binaryPattern;
+    vector <BinaryPattern> binaryPatterns; // TODO make this dynamic
     
 private:
     

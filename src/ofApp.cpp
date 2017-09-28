@@ -51,6 +51,7 @@ void ofApp::setup(){
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
     animator.setNumLedsPerStrip(50); // This also updates numLedsPerStrip in the OPC Client
+//    animator.setNumStrips(3); // TODO: this breaks the last strip!
     animator.setLedBrightness(150);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
     
@@ -86,9 +87,9 @@ void ofApp::update(){
         tracker.update();
         
         // Pattern matching
-        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
-            ofLogNotice("Match FOUND!!!");
-        }
+//        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
+//            ofLogNotice("Match FOUND!!!");
+//        }
     }
     
     // New camera frame: Turn on a new LED and detect the location.
