@@ -148,7 +148,7 @@ void Tracker::findBinary() {
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
         ofLogNotice("tracker") << "binaryPatternString: " << bPat.binaryPatternString << endl;
-        ofLogNotice("tracker") << "patternString      : " << bPat.patternString << endl;
+        ofLogNotice("tracker") << "animationPatternString      : " << bPat.animationPatternString << endl;
         
         int maxIndex = 0;
         
