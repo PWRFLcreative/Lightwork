@@ -96,6 +96,8 @@ void Tracker::findBinary() {
         // Analysis suggests the threshold is around 0.4, I'll use 0.45
         // TODO: Automatically detect threshold value (depends on lighting conditions, background material colour etc.)
         string detectedColor = "";
+        int detectedState;
+        int dist;
         float brightnessThreshold = 0.45;
         if (brightness >= brightnessThreshold) {
             //                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
@@ -105,9 +107,9 @@ void Tracker::findBinary() {
             colours.push_back(avgB);
             
             // Get the index of the brightest average colour
-            int dist = distance(colours.begin(), max_element(colours.begin(), colours.end()));
+            dist = distance(colours.begin(), max_element(colours.begin(), colours.end()));
             //              cout << dist << endl;
-            int detectedState;
+            
             // LED binary states:
             // LOW(0) -> RED,
             // HIGH(1) -> BLUE
@@ -120,6 +122,7 @@ void Tracker::findBinary() {
                     break;
                 case 1:
                     detectedColor = "GREEN";
+                    cout << "START SIGNAL DETECTED" << endl;
                     index = 0;
                     detectedState = 2;
                     break;
@@ -130,24 +133,21 @@ void Tracker::findBinary() {
                 default:
                     ofLogError("binary") << "Brightest colour is not a known colour!" << endl;
             }
-        
-            if (previousState != detectedState) {
-                detectedPattern.updateBitAtIndex(detectedState, index);
-                index++;
-                if (index >= 10) {
-                    index = 0;
-                }
-                //cout << bPat.patternString << endl;
-            }
-            previousState = detectedState;
-            
         }
         else {
             detectedColor = "BLACK";
+            detectedState = 3;
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
-        ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
+        if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
+            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
+            detectedPattern.updateBitAtIndex(detectedState, index);
+            index++;
+            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPattern.binaryPatternString << endl;
+        }
+        previousState = detectedState;
+        
         
         int maxIndex = 0;
         
