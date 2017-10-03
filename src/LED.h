@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string>
 #include "ofMain.h"
+#include "BinaryPattern.h"
 
 using namespace std;
 
@@ -25,17 +26,13 @@ class LED {
     
     ofColor color; // Current LED color
     int address; // LED Address
-    string binaryPatternString;
-    int x;
-    int y;
+    BinaryPattern binaryPattern;
+    ofPoint coord;
     
     void setColor(ofColor col);
     void setAddress(int addr);
-    void setBinaryPattern(string pat);
-    void setCoord(int xLoc, int yLoc);
-    
-    
-    
+    void setBinaryPattern(BinaryPattern pat);
+    void setCoord(ofPoint coordinates);
     
     private:
     

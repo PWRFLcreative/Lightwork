@@ -91,6 +91,7 @@ void ofApp::update(){
         
 //        cout << "animator.binaryPatterns.size()" << animator.binaryPatterns.size() << endl;
 //        cout << "tracker.detectedPatterns.size()" << tracker.detectedPatterns.size() << endl;
+        /*
         for (int p=0; p < animator.binaryPatterns.size(); p++)
         {
             for (int t = 0; t < tracker.detectedPatterns.size(); t++)
@@ -108,6 +109,8 @@ void ofApp::update(){
 //                }
             }
         }
+         */
+        
         // Pattern matching
 //        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
 //            ofLogNotice("Match FOUND!!!");

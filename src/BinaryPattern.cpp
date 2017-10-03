@@ -12,12 +12,12 @@
 using namespace std;
 
 // Constructor
-BinaryPattern::BinaryPattern(void) {
+BinaryPattern::BinaryPattern() {
     frameNum = 0;
     state = START;
 }
 
-BinaryPattern::~BinaryPattern(void) {
+BinaryPattern::~BinaryPattern() {
     
 }
 

@@ -39,7 +39,7 @@ public:
     
     string animationPatternString; // Stores a single binary pattern with START and OFF signals inserted (4 states)
     vector <int> animationPatternVector; // Stores binary pattern as vector of ints
-    const int animationPatternLength = 22; // 10 bit pattern with a START at the end and an OFF after each one
+    int animationPatternLength = 22; // 10 bit pattern with a START at the end and an OFF after each one
     // TODO: get rid of patternLength, use pattern.size() instead
     
     //std::vector <std::string> patterns; // For Storing Binary Patterns

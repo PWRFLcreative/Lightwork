@@ -25,12 +25,20 @@ Animator::Animator(void) {
     // TODO: assign pixels for the full setup (all the channels)iter
     // TODO: Make pixels private and declare a getter
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
-//    binaryPatterns.assign(numLedsPerStrip*numStrips, BinaryPattern());
-    
+
     int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
+//    BinaryPattern bPat = BinaryPattern();
     for (int i = 0; i < pixels.size(); i++) {
-        binaryPatterns.push_back(BinaryPattern());
-        binaryPatterns[i].generatePattern(i+bPatOffset);
+//        binaryPatterns.push_back(BinaryPattern());
+//        binaryPatterns[i].generatePattern(i+bPatOffset);
+        
+        
+        leds.push_back(LED());
+        leds[i].setAddress(0);
+        leds[i].setColor(ofColor(0, 0, 0));
+        leds[i].setCoord(ofPoint(0, 0));
+//        bPat.generatePattern(i+bPatOffset);
+//        leds[i].setBinaryPattern(bPat);
     }
     
 //    binaryPattern.generatePattern(842); // A single pattern, for testing
@@ -88,12 +96,12 @@ void Animator::resetPixels() {
     pixels = pix;
     
     // TODO: Review this
-    binaryPatterns.clear();
-    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
-    for (int i = 0; i < pixels.size(); i++) {
-        binaryPatterns.push_back(BinaryPattern());
-        binaryPatterns[i].generatePattern(i+bPatOffset);
-    }
+//    binaryPatterns.clear();
+//    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
+//    for (int i = 0; i < pixels.size(); i++) {
+//        binaryPatterns.push_back(BinaryPattern());
+//        binaryPatterns[i].generatePattern(i+bPatOffset);
+//    }
     
     // Update OPC client
     opcClient->setLedsPerStrip(numLedsPerStrip);
@@ -185,6 +193,7 @@ void Animator::binaryAnimation() {
         for (int i = 0; i < pixels.size(); i++) {
             
 //            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;
+            /*
                 switch (binaryPatterns[i].state){ // 0
                     case BinaryPattern::LOW: {
                         pixels.at(i) = ofColor(ledBrightness, 0, 0); // RED
@@ -203,8 +212,8 @@ void Animator::binaryAnimation() {
                         break;
                     }
                 }
-                
-                binaryPatterns[i].advance();
+                */
+//                binaryPatterns[i].advance();
         }
     }
     

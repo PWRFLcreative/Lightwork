@@ -12,9 +12,8 @@
 LED::LED() {
     color = ofColor(0, 0, 0);
     address = 0;
-    binaryPatternString = "0000000000";
-    x = 0;
-    y = 0;
+    coord = ofPoint(0, 0);
+//    binaryPattern = BinaryPattern();
 }
 
 LED::~LED() {
@@ -29,11 +28,10 @@ void LED::setAddress(int addr) {
     address = addr;
 }
 
-void LED::setBinaryPattern(string pat) {
-    binaryPatternString = pat;
+void LED::setBinaryPattern(BinaryPattern pat) {
+    binaryPattern = pat;
 }
 
-void LED::setCoord(int xLoc, int yLoc) {
-    x = xLoc;
-    y = yLoc;
+void LED::setCoord(ofPoint coordinates) {
+    coord = coordinates;
 }

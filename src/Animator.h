@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include "ofMain.h"
 #include "ofxOPC.h"
+#include "LED.h"
+
 #endif /* Animator_h */
 
 #include "BinaryPattern.h"
@@ -52,7 +54,9 @@ public:
     void test();
     void binaryAnimation();
     
-    vector <BinaryPattern> binaryPatterns; // TODO make this dynamic
+//    vector <BinaryPattern>  binaryPatterns; // TODO make this dynamic
+    
+    vector <LED>            leds;
     
 private:
     
