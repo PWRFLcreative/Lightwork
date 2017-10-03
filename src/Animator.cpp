@@ -14,8 +14,8 @@ using namespace std;
 Animator::Animator(void) {
     cout << "Animator created" << endl;
     numLedsPerStrip = 64;
-    ledBrightness = 200;
-    numStrips = 8;
+    ledBrightness = 255;
+    numStrips = 2;
     ledIndex = 0; // Internal counter
     mode = ANIMATION_MODE_CHASE;
     
@@ -27,7 +27,7 @@ Animator::Animator(void) {
     pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
 //    binaryPatterns.assign(numLedsPerStrip*numStrips, BinaryPattern());
     
-    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
+    int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
     for (int i = 0; i < pixels.size(); i++) {
         binaryPatterns.push_back(BinaryPattern());
         binaryPatterns[i].generatePattern(i+bPatOffset);
@@ -65,7 +65,6 @@ void Animator::setLedBrightness(int brightness) {
 void Animator::setNumLedsPerStrip(int num) {
     ofLogNotice("Setting up Animator");
     numLedsPerStrip = num;
-    opcClient->setLedsPerStrip(num);
     resetPixels();
 }
 
@@ -95,6 +94,10 @@ void Animator::resetPixels() {
         binaryPatterns.push_back(BinaryPattern());
         binaryPatterns[i].generatePattern(i+bPatOffset);
     }
+    
+    // Update OPC client
+    opcClient->setLedsPerStrip(numLedsPerStrip);
+    
 }
 
 // Return pixels (to update OPC or PixelPusher)
@@ -178,7 +181,7 @@ void Animator::binaryAnimation() {
     // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
     
     // Slow down the animation, set new state every 3 frames
-    if (frameCount % 1 == 0) {
+    if (frameCount % 5 == 0) {
         for (int i = 0; i < pixels.size(); i++) {
             
 //            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;

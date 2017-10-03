@@ -37,7 +37,10 @@ void ofApp::setup(){
 
 	tracker.learningTime.set("Learning Time", 4, 0, 30);
 	tracker.thresholdValue.set("Threshold Value", 50, 0, 255);
-
+    cout << "tracker detected patterns (pre detection)" << endl;
+    for (int i = 0; i < tracker.detectedPatterns.size(); i++) {
+        cout << tracker.detectedPatterns[i].binaryPatternString << endl;
+    }
     // Contours
     
     // LED
@@ -50,9 +53,9 @@ void ofApp::setup(){
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
-    animator.setNumLedsPerStrip(50); // This also updates numLedsPerStrip in the OPC Client
-//    animator.setNumStrips(3); // TODO: this breaks the last strip!
-    animator.setLedBrightness(150);
+    animator.setNumLedsPerStrip(3); // This also updates numLedsPerStrip in the OPC Client
+    animator.setNumStrips(2); // TODO: Fix setNumStrips, it gets set to n-1
+    animator.setLedBrightness(255);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
     
     // Mapping
@@ -86,14 +89,16 @@ void ofApp::update(){
         animator.update();
         tracker.update();
         
-        for (int j=0; j < animator.binaryPatterns.size(); j++)
+//        cout << "animator.binaryPatterns.size()" << animator.binaryPatterns.size() << endl;
+//        cout << "tracker.detectedPatterns.size()" << tracker.detectedPatterns.size() << endl;
+        for (int p=0; p < animator.binaryPatterns.size(); p++)
         {
-            for (int i = 0; i < tracker.detectedPatterns.size(); i++)
+            for (int t = 0; t < tracker.detectedPatterns.size(); t++)
             {
                 
-                size_t found = animator.binaryPatterns[i].binaryPatternString.find(tracker.detectedPatterns[j].binaryPatternString);
+                size_t found = animator.binaryPatterns[p].binaryPatternString.find(tracker.detectedPatterns[t].binaryPatternString);
                 if(found != string::npos) {
-                    cout << "WE HAVE A MATCH!" << endl;
+                    cout << "WE HAVE A MATCH for LED number: " << p << " - " << animator.binaryPatterns[p].binaryPatternString << " matches " << tracker.detectedPatterns[t].binaryPatternString << " Tracker label: " << tracker.getLabel(t) << endl;
                 }
                 
 //                if (tracker.detectedPatterns[i].binaryPatternString == animator.binaryPatterns[j].binaryPatternString)

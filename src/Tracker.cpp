@@ -9,7 +9,6 @@
 #include "Tracker.h"
 
 Tracker::Tracker() {
-    int bPatOffset = 13; // Offset to get more meaningful patterns (and avoid 000000000);
     for (int i = 0; i < 150; i++) { // TODO: make this dynamic!
         detectedPatterns.push_back(BinaryPattern());
         detectedPatterns[i].generatePattern(0);
@@ -40,8 +39,7 @@ void Tracker::setup(ofVideoGrabber *camera) {
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
     thresholded.allocate(cam->getWidth(), cam->getHeight(), OF_IMAGE_COLOR);
     thresholded.clear();
-    
-    
+
 }
 
 void Tracker::setMode(tracker_mode_t m) {
@@ -99,7 +97,7 @@ void Tracker::findBinary() {
         avgB = b/numPixels;
         ofFloatColor avgColor = ofFloatColor(avgR, avgG, avgB);
         float brightness = avgColor.getBrightness();
-        cout << "brightness: " << brightness << endl;
+//        cout << "brightness: " << brightness << endl;
 //        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
         
         // If brightness is above threshold, get the brightest colour
@@ -150,14 +148,14 @@ void Tracker::findBinary() {
             //                cout << "BLACK" << endl;
             //                ofLogVerbose("binary") << "Below Threshold, no need to check for brightnest color" << endl;
         }
-        cout << "detectedState: " << detectedState << endl;
-        cout << "detectedColor: " << detectedColor << endl;
+//        cout << "detectedState: " << detectedState << endl;
+//        cout << "detectedColor: " << detectedColor << endl;
 //        cout << "previousState: " << previousState << endl;
         if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
-            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
+//            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
             detectedPatterns[i].updateBitAtIndex(detectedState, index);
             index++;
-            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPatterns[i].binaryPatternString << endl;
+//            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPatterns[i].binaryPatternString << endl;
         }
         previousState = detectedState;
         
