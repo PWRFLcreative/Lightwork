@@ -54,7 +54,7 @@ void ofApp::setup(){
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
     animator.setNumLedsPerStrip(3); // This also updates numLedsPerStrip in the OPC Client
-    animator.setNumStrips(2); // TODO: Fix setNumStrips, it gets set to n-1
+    animator.setNumStrips(1); // TODO: Fix setNumStrips, it gets set to n-1
     animator.setLedBrightness(255);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
     
@@ -89,20 +89,34 @@ void ofApp::update(){
         animator.update();
         tracker.update();
         
-//        cout << "animator.binaryPatterns.size()" << animator.binaryPatterns.size() << endl;
-//        cout << "tracker.detectedPatterns.size()" << tracker.detectedPatterns.size() << endl;
+        vector <string> knownPatterns;
+        vector <string> detectedPatterns;
+        
+        //cout << "known patterns:" << endl;
+        for (int i = 0; i < animator.leds.size(); i++) {
+            knownPatterns.push_back(animator.leds[i].binaryPattern.binaryPatternString);
+            //cout << animator.leds[i].binaryPattern.binaryPatternString << endl;
+        }
+        cout << "detected patterns: " << endl;
+        for (int i = 0; i < tracker.detectedPatterns.size(); i++) {
+            if (tracker.detectedPatterns[i].binaryPatternString != "0000000000") {
+                cout << tracker.detectedPatterns[i].binaryPatternString << endl;
+            }
+            
+        }
+        
         /*
-        for (int p=0; p < animator.binaryPatterns.size(); p++)
+        for (int p=0; p < animator.leds.size(); p++)
         {
             for (int t = 0; t < tracker.detectedPatterns.size(); t++)
             {
                 
-                size_t found = animator.binaryPatterns[p].binaryPatternString.find(tracker.detectedPatterns[t].binaryPatternString);
+                size_t found = animator.leds[p].binaryPattern.binaryPatternString.find(tracker.detectedPatterns[t].binaryPatternString);
                 if(found != string::npos) {
-                    cout << "WE HAVE A MATCH for LED number: " << p << " - " << animator.binaryPatterns[p].binaryPatternString << " matches " << tracker.detectedPatterns[t].binaryPatternString << " Tracker label: " << tracker.getLabel(t) << endl;
+                    cout << "WE HAVE A MATCH for LED number: " << animator.leds[p].address << " - " << animator.leds[p].binaryPattern.binaryPatternString << " matches " << tracker.detectedPatterns[t].binaryPatternString << " Tracker label: " << tracker.getLabel(t) << endl;
                 }
                 
-//                if (tracker.detectedPatterns[i].binaryPatternString == animator.binaryPatterns[j].binaryPatternString)
+//                if (tracker.detectedPatterns[t].binaryPatternString == animator.leds[p].binaryPattern.binaryPatternString)
 //                {
 //                    //inputlist[i] ="*";
 //                    cout << "WE HAVE A MATCH!" << endl;
@@ -110,6 +124,7 @@ void ofApp::update(){
             }
         }
          */
+        
         
         // Pattern matching
 //        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
@@ -143,8 +158,9 @@ void ofApp::draw(){
 	tracker.draw(); // Draws the blob rect surrounding the contour
     for (int i = 0; i < tracker.size(); i++) {
         int label = tracker.getLabel(i);
+        string pat = tracker.detectedPatterns[i].binaryPatternString;
         ofDrawBitmapString(ofToString(label), tracker.getCenter(i).x+10, tracker.getCenter(i).y);
-        
+        ofDrawBitmapString(pat, tracker.getCenter(i).x+50, tracker.getCenter(i).y);
     }
     
     // Draw the detected contour center points

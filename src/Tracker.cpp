@@ -71,7 +71,9 @@ void Tracker::update() {
 void Tracker::findBinary() {
     // Get colour from original frame in contour areas
     if (this->size() <= 0) { cout << "no contour at this moment!" << endl; }
-    
+//    else {
+//        cout << "findBinary size(): " << this->size() << endl;
+//    }
     for (int i = 0; i < this->size(); i++) {
         cv::Rect rect = getBoundingRect(i);
         ofImage img;
@@ -106,7 +108,7 @@ void Tracker::findBinary() {
         string detectedColor = "";
         int detectedState;
         int dist;
-        float brightnessThreshold = 0.75;
+        float brightnessThreshold = 0.65;
         if (brightness >= brightnessThreshold) {
             //                ofLogVerbose("binary") << "Above threshold, check for brightest color" << endl;
             vector<float> colours;
@@ -198,7 +200,7 @@ void Tracker::findSequential() {
             }
             previousBrightness = brightness;
             success = true;
-            //ofLogNotice("Brightness: " + ofToString(brightness));
+            ofLogNotice("Brightness: " + ofToString(brightness));
         }
         ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
         ofPoint center = ofxCv::toOf(getCenter(brightestIndex));
