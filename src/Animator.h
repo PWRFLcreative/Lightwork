@@ -60,7 +60,7 @@ public:
     
 private:
     
-    vector <ofColor>    pixels;
+//    vector <ofColor>    pixels;
     
     int                 ledIndex;               // Index of LED being mapped (lit and detected).
     int                 numLedsPerStrip;                // Number of LEDs per strip
@@ -72,6 +72,7 @@ private:
     int                 frameCount;             // Internal framecounter
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
     
+    void populateLeds(); // Create the leds vector
 
 };
 

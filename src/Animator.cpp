@@ -21,32 +21,25 @@ Animator::Animator(void) {
     
     testIndex = 0;
     frameCount = 0;
-    
-    // TODO: assign pixels for the full setup (all the channels)iter
-    // TODO: Make pixels private and declare a getter
-    pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
 
     int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
 //    BinaryPattern bPat = BinaryPattern();
-    for (int i = 0; i < pixels.size(); i++) {
-//        binaryPatterns.push_back(BinaryPattern());
-//        binaryPatterns[i].generatePattern(i+bPatOffset);
-        
-        
-        leds.push_back(LED());
-        leds[i].setAddress(0);
-        leds[i].setColor(ofColor(0, 0, 0));
-        leds[i].setCoord(ofPoint(0, 0));
-//        bPat.generatePattern(i+bPatOffset);
-//        leds[i].setBinaryPattern(bPat);
-    }
+    populateLeds();
     
-//    binaryPattern.generatePattern(842); // A single pattern, for testing
 }
 
 // Destructor
 Animator::~Animator(void) {
     cout << "Animator destroyed" << endl;
+}
+
+void Animator::populateLeds() {
+    int numLeds = numLedsPerStrip*numStrips;
+    for (int i = 0; i < numLeds; i++) {
+        leds.push_back(LED());
+        leds[i].setAddress(i);
+        leds[i].binaryPattern.generatePattern(i); // Generate a unique binary pattern for each LED
+    }
 }
 
 //////////////////////////////////////////////////////////////
@@ -91,9 +84,10 @@ int Animator::getNumStrips() {
 
 // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
 void Animator::resetPixels() {
-    vector <ofColor> pix;
-    pix.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
-    pixels = pix;
+    
+    leds.clear();
+    
+    populateLeds();
     
     // TODO: Review this
 //    binaryPatterns.clear();
@@ -110,6 +104,10 @@ void Animator::resetPixels() {
 
 // Return pixels (to update OPC or PixelPusher)
 vector <ofColor> Animator::getPixels() {
+    vector <ofColor> pixels;
+    for (int i = 0; i<leds.size(); i++) {
+        pixels.push_back(leds[i].color);
+    }
     return pixels;
 }
 
@@ -135,7 +133,7 @@ void Animator::update() {
     frameCount++;
     
     // Update pixels on external interface
-    opcClient->autoWriteData(getPixels()); // Send pixel values to OPC
+    opcClient->autoWriteData(this->getPixels()); // Send pixel values to OPC
 
 }
 // Update the pixels for all the strips
@@ -149,7 +147,7 @@ void Animator::chase() {
         else {
             col = ofColor(0, 0, 0);
         }
-        pixels.at(i) = col;
+        leds.at(i).color = col;
     }
     
     ledIndex++;
@@ -161,7 +159,7 @@ void Animator::chase() {
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void Animator::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
-        pixels.at(i) = col;
+        leds.at(i).color = col;
     }
 }
 
@@ -190,30 +188,30 @@ void Animator::binaryAnimation() {
     
     // Slow down the animation, set new state every 3 frames
     if (frameCount % 5 == 0) {
-        for (int i = 0; i < pixels.size(); i++) {
+        for (int i = 0; i < leds.size(); i++) {
             
 //            cout << "patterns: " << i << " " << binaryPatterns[i].binaryPatternString << endl;
-            /*
-                switch (binaryPatterns[i].state){ // 0
+            
+                switch (leds[i].binaryPattern.state){ // 0
                     case BinaryPattern::LOW: {
-                        pixels.at(i) = ofColor(ledBrightness, 0, 0); // RED
+                        leds.at(i).color = ofColor(ledBrightness, 0, 0); // RED
                         break;
                     }
                     case BinaryPattern::HIGH: { // 1
-                        pixels.at(i) = ofColor(0, 0, ledBrightness); // BLUE
+                        leds.at(i).color = ofColor(0, 0, ledBrightness); // BLUE
                         break;
                     }
                     case BinaryPattern::START: { // 2
-                        pixels.at(i) = ofColor(0, ledBrightness, 0); // GREEN
+                        leds.at(i).color = ofColor(0, ledBrightness, 0); // GREEN
                         break;
                     }
                     case BinaryPattern::OFF: { // 3
-                        pixels.at(i) = ofColor(0, 0, 0); // BLACK
+                        leds.at(i).color = ofColor(0, 0, 0); // BLACK
                         break;
                     }
                 }
-                */
-//                binaryPatterns[i].advance();
+            
+            leds[i].binaryPattern.advance();
         }
     }
     
