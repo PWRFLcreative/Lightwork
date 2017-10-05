@@ -22,7 +22,8 @@
 
 using namespace std;
 
-enum animation_mode_t {ANIMATION_MODE_CHASE, ANIMATION_MODE_TEST, ANIMATION_MODE_BINARY};
+enum animation_mode_t {ANIMATION_MODE_CHASE, ANIMATION_MODE_TEST, ANIMATION_MODE_BINARY, ANIMATION_MODE_OFF
+};
 
 class Animator {
     

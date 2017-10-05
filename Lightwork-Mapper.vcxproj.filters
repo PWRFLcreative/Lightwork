@@ -160,6 +160,15 @@
     <ClCompile Include="src\Animator.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\BinaryPattern.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Detector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LED.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -1080,6 +1089,15 @@
       <Filter>addons\ofxGui\src</Filter>
     </ClInclude>
     <ClInclude Include="src\Animator.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BinaryPattern.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Detector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LED.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
