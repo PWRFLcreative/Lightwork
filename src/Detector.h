@@ -31,9 +31,9 @@ public:
     bool                    hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     ofParameter<float>      learningTime;
     ofParameter<float>      thresholdValue; // Redundant? Was ofParameter...
-    ofVideoGrabber          cam;
+    ofVideoGrabber          *cam;
     
-    void setup(ofVideoGrabber camera);
+    void setup(ofVideoGrabber *camera);
     void setMode(detector_mode_t m);
     detector_mode_t mode;
     
