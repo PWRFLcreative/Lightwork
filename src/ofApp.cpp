@@ -4,52 +4,56 @@
 void ofApp::setup(){
     // Set the log level
     ofSetLogLevel("tracking", OF_LOG_VERBOSE);
-	//Window size based on screen dimensions, centered
-	
-	ofSetWindowShape((int)ofGetScreenWidth()*0.9, ((int)ofGetScreenHeight())*0.9);
-	ofSetWindowPosition((ofGetScreenWidth()/2)-ofGetWindowWidth()/2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
-
     ofLogToConsole();
-
+    
+    // Set initial camera dimensions
+    camWidth = 640;
+    camHeight = 480;
+    camAspect = (float)camWidth / (float)camHeight;
+    
+    //Check for hi resolution display
+    int guiMultiply = 1;
+    if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+        guiMultiply = 2;
+    }
+    
+    //Window size based on screen dimensions, centered
+    ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
+    ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
+    
     int framerate = 20; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
-	ofBackground(ofColor::black);
-	ofSetWindowTitle("LightWork");
+    ofBackground(ofColor::black);
+    ofSetWindowTitle("LightWork");
     
-	//Video Devices
-	cam.setVerbose(false);
-    cam.listDevices();
-    cam.setDeviceID(1); // Default to external camera (falls back on built in cam if external is not available)
-    cam.setup(640, 480);
-	cam.setDesiredFrameRate(framerate); // This gets overridden by ofSetFrameRate
-
+    // Mapping
+    isMapping = false;
+    
     //Fbos
-    camFbo.allocate(cam.getWidth(), cam.getHeight());
+    camFbo.allocate(camWidth, camHeight);
     camFbo.begin();
     ofClear(255, 255, 255);
     camFbo.end();
-    
-    detector.setup(&cam);
-    detector.setMode(DETECTOR_MODE_CHASE);
-    
-	// GUI - OLD
-	//gui.setup();
 
-	detector.learningTime.set("Learning Time", 4, 0, 30);
-	detector.thresholdValue.set("Threshold Value", 50, 0, 255);
-    cout << "tracker detected patterns (pre detection)" << endl;
-    for (int i = 0; i < detector.detectedPatterns.size(); i++) {
-        cout << detector.detectedPatterns[i].binaryPatternString << endl;
+    //Video Devices
+    devices = cams[0].listDevices(); 
+    for (int i=0; i < devices.size(); i++) {
+        cams[i].setVerbose(false);
+        cams[i].setDeviceID(i); // Default to external camera
+        cams[i].setPixelFormat(OF_PIXELS_RGB);
+        cams[i].setup(camWidth, camHeight);
     }
-    // Contours
+    camPtr = &cams[0];
     
-    // LED
-	IP = "192.168.1.104"; //Default IP for Fadecandy
-    
+    // Tracking
+    isMapping = false;
+
     // Connect to the fcserver
+    IP = "192.168.1.104"; //Default IP for Fadecandy
     opcClient.setup(IP, 7890, 1);
+    opcClient.setLedsPerStrip(50); //TODO: Use GUI Variable
     opcClient.setInterpolation(false);
-    
+
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
@@ -57,35 +61,43 @@ void ofApp::setup(){
     animator.setNumStrips(1); // TODO: Fix setNumStrips, it gets set to n-1
     animator.setLedBrightness(155);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
-    
-    // Mapping
-    isMapping = false;
+
+    detector.setup(*camPtr);
+    detector.setMode(DETECTOR_MODE_CHASE);
+    detector.learningTime.set("Learning Time", 4, 0, 30);
+    detector.thresholdValue.set("Threshold Value", 50, 0, 255);
+    cout << "tracker detected patterns (pre detection)" << endl;
+    for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+        cout << detector.detectedPatterns[i].binaryPatternString << endl;
+    }
     
     // SVG
-    svg.setViewbox(0, 0, cam.getWidth(), cam.getHeight());
+    svg.setViewbox(0, 0, camWidth, camHeight);
 
-	//GUI
-	buildUI();
+    //GUI
+    buildUI(guiMultiply);
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-    opcClient.update();
-    
-    // If the client is not connected do not try and send information
-    if (!opcClient.isConnected()) {
-        // Will continue to try connecting to the OPC Pixel Server
-        opcClient.tryConnecting();
-    }
+void ofApp::update() {
+	opcClient.update();
 
-	cam.update();
+	// If the client is not connected do not try to send information
+	if (!opcClient.isConnected()) {
+		// Will continue to try connecting to the OPC Pixel Server
+		opcClient.tryConnecting();
+	}
+
+	camPtr->update();
     
     if (animator.mode == ANIMATION_MODE_TEST) {
         animator.update(); // Update the pixel values
+        detector.update();
     }
     
     if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
         // Update LEDs and Tracker
+
         animator.update();
         detector.update();
         
@@ -135,7 +147,7 @@ void ofApp::update(){
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
     
-    if(animator.mode == ANIMATION_MODE_CHASE && cam.isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
+    if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Make sure you call animator.update() once when you activate CHASE mode
         // We check if the tracker has found the first contour before processing with the animation
         // This makes sure we don't miss the first LED
@@ -151,7 +163,7 @@ void ofApp::update(){
 void ofApp::draw(){
 	//Draw into Fbo to allow scaling regardless of camera resolution
 	camFbo.begin();
-	cam.draw(0,0);
+	camPtr->draw(0,0);
 
     ofSetColor(0, 255, 0);
 	detector.draw(); // Draws the blob rect surrounding the contour
@@ -171,10 +183,12 @@ void ofApp::draw(){
 	ofSetColor(ofColor::white); //reset color, else it tints the camera
 
 	//Draw Fbo and Thresholding images to screen
-	camFbo.draw(0, 0, cam.getWidth(), cam.getHeight());
+
+	camFbo.draw(0, 0, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
 	if (detector.thresholded.isAllocated()) {
-        // TODO: Tracker.draw()
-        detector.thresholded.draw(cam.getWidth(), 0, cam.getWidth(), cam.getHeight());
+		detector.thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
+//        detector.thresholded.draw(0, 0, 640, 480);
+
 	}
 
 }
@@ -252,6 +266,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
+	ofBackground(0, 0, 0);
+	/*buildUI();*/
 
 }
 
@@ -308,8 +324,8 @@ void ofApp::generateJSON(vector<ofPoint> points) {
     int maxX = ofToInt(svg.info.width);
     int maxY = ofToInt(svg.info.height);
     ofLogNotice("output") << "maxX, maxY: " << maxX << ", " << maxY;
-	ofLogNotice() << maxX;
-	ofLogNotice() << maxY;
+	//ofLogNotice() << maxX;
+	//ofLogNotice() << maxY;
     
     ofxJSONElement json; // For output
     
@@ -389,16 +405,23 @@ vector <ofPoint> ofApp::removeDuplicatesFromPoints(vector <ofPoint> points) {
 void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 {
 	if (e.target->is("Select Camera")) {
-		//enumerateCams();
-		gui->getDropdown("Select Camera")->update(); //TODO : Not working
+		vector<string> devices = enumerateCams();
+		switchCamera(e.child, camWidth, camHeight);
+		//TODO - figure out how to repopulate the list
+		//ofLogNotice() << "Camera " << e.child << " was selected";
+		guiBottom->getLabel("Message Area")->setLabel((gui->getDropdown("Select Camera")->getChildAt(e.child)->getLabel())+" selected");
+		int guiMultiply = 1;
+		if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+			guiMultiply = 2;
+		}
+		ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
 		gui->update();
-		switchCamera(e.child);
-		ofLogNotice() << "Camera " << e.child << " was selected";
 	}
 
 	if (e.target->is("Select Driver Type")) {
 		if (e.child == 0) {
 			ofLogNotice() << "Pixel Pusher was selected";
+			guiBottom->getLabel("Message Area")->setLabel("Pixel Pusher selected");
 			gui->getFolder("PixelPusher Settings")->setVisible(true);
 			gui->getFolder("PixelPusher Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -408,6 +431,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 		}
 		else if (e.child == 1) {
 			ofLogNotice() << "Fadecandy/Octo was selected";
+			guiBottom->getLabel("Message Area")->setLabel("Fadecandy/Octo selected");
 			gui->getFolder("Fadecandy Settings")->setVisible(true);
 			gui->getFolder("Fadecandy Settings")->expand();
 			gui->getFolder("Mapping Settings")->setVisible(true);
@@ -421,8 +445,11 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 //GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
-		ofLogVerbose("gui") << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
-		if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
+	//while (!ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)) {
+	ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+	////if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
+	//}
+
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
@@ -431,8 +458,14 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
-		opcClient.close();
-		opcClient.setup(IP, 7890);
+		if (opcClient.isConnected()) {
+			opcClient.close();
+			if (!opcClient.isConnected()) { gui->getLabel("Connection Status", "Fadecandy Settings")->setLabel("Disconnected"); }
+		}
+		if (!opcClient.isConnected()) {
+			opcClient.setup(IP, 7890);
+			if (opcClient.isConnected()) { gui->getLabel("Connection Status", "Fadecandy Settings")->setLabel("Connected"); }
+		}
 	}
 
 	if (e.target->is("LEDS per Strip")) {
@@ -465,18 +498,34 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 }
 
 //Used to change acctive camera during runtime. Necessary to close old camera first before initializing the new one.
-void ofApp::switchCamera(int num)
+void ofApp::switchCamera(int num, int w, int h)
 {
-    ofLogNotice("gui") << "Switching camera";
-	cam.close(); 
-	cam.setDeviceID(num);
-	cam.setup(1280, 720);
+	//ofLogNotice("Switching camera");
+	//if(cam.isInitialized()){
+	//	cam.close();
+	//	//ofLogNotice() << cam.isInitialized();
+	//	cam2.setDeviceID(num);
+	//	cam2.setPixelFormat(OF_PIXELS_RGB);
+	//	cam2.setup(w, h);
+	//	camPtr = &cam2;
+	//}	
+	//
+	//else if (cam2.isInitialized()) {
+	//	cam2.close();
+	//	cam.setDeviceID(num);
+	//	cam.setPixelFormat(OF_PIXELS_RGB);
+	//	cam.setup(w, h);
+	//	camPtr = &cam;
+	//}
+
+	camPtr = &cams[num];
+
 }
 //Returns a vector containing all the attached cameras
 vector<string> ofApp::enumerateCams()
 {
-	vector <ofVideoDevice> devices;
-	devices = cam.listDevices();
+	devices.clear();
+	devices = cams[0].listDevices();
 	vector<string> deviceStrings;
 
 	for (std::vector<ofVideoDevice>::iterator it = devices.begin(); it != devices.end(); ++it) {
@@ -484,25 +533,20 @@ vector<string> ofApp::enumerateCams()
 		ofVideoDevice device = *it;
 		string name = device.deviceName;
 		int id = device.id;
-		ofLogNotice() << "Camera " << id << ": " <<  name << endl;
-		//newStrings[i] = name;
+		//ofLogNotice() << "Camera " << id << ": " <<  name << endl;
 		deviceStrings.push_back(name);
 
 	}
-	
-	//deviceStrings = new vector<string>(newStrings);
-	return deviceStrings;
+		return deviceStrings;
 }
 
-void ofApp::buildUI()
+void ofApp::buildUI(int mult)
 {
 	//GUI
-	int multiplier = 1;
-	if (ofGetScreenWidth() >= 1440) { multiplier = 2; } // correct for high resolution displays
-	gui = new ofxDatGui(ofGetWidth()-285*multiplier,40*multiplier);
-	//gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
+	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
+	guiBottom = new ofxDatGui(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	//gui->setTheme(new ofxDatGuiThemeSmoke());
-	gui->addHeader(":: drag me to reposition ::");
+	//gui->addHeader(":: drag me to reposition ::");
 
 	gui->addDropdown("Select Camera", enumerateCams());
 	gui->addBreak();
@@ -511,15 +555,23 @@ void ofApp::buildUI()
 	gui->addDropdown("Select Driver Type", opts);
 	gui->addBreak();
 
-	string connection;
-	if (opcClient.isConnected()) { connection = "connected"; }
-	else { connection = "disconnected"; }
-
 	ofxDatGuiFolder* fcSettings = gui->addFolder("Fadecandy Settings", ofColor::white);
 	fcSettings->addTextInput("IP", IP);
 
 	fcSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
 	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
+	
+	string connection;
+	if (opcClient.isConnected()) {
+		connection = "connected";
+		fcSettings->addLabel("Connection Status");
+		gui->getLabel("Connection Status")->setLabel(connection);
+	}
+	else {
+		connection = "disconnected";
+		fcSettings->addLabel("Connection Status");
+		gui->getLabel("Connection Status")->setLabel(connection);
+	}
 	fcSettings->setVisible(false);
 	fcSettings->addBreak();
 	
@@ -530,6 +582,9 @@ void ofApp::buildUI()
 	ppSettings->setVisible(false);
 	ppSettings->addBreak();
 
+
+	
+
 	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
 	mapSettings->addSlider(detector.learningTime);
 	mapSettings->addSlider(detector.thresholdValue);
@@ -539,11 +594,15 @@ void ofApp::buildUI()
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();
 
-	gui->addSlider("gui opacity", 0, 100, 50);
-	gui->addFRM();
+	//Program Status GUI
+	//guiBottom->addSlider("gui opacity", 0, 100, 50);
+	guiBottom->addLabel("Message Area");
+	guiBottom->addFRM()->setAnchor(ofxDatGuiAnchor::BOTTOM_RIGHT);
+	//guiBottom->onSliderEvent(this, &ofApp::onSliderEvent);
+	//guiBottom->
 
-	gui->addFooter();
-	gui->setOpacity(gui->getSlider("gui opacity")->getScale());
+	//gui->addFooter();
+	//gui->setOpacity(gui->getSlider("gui opacity")->getScale());
 
 	// once the gui has been assembled, register callbacks to listen for component specific events //
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);

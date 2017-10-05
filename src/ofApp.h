@@ -11,6 +11,9 @@
 #include "Animator.h"
 #include "Detector.h"
 
+#define RETINA_MIN_WIDTH 2560
+#define RETINA_MIN_HEIGHT 1600
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -51,14 +54,21 @@ class ofApp : public ofBaseApp{
         Animator            animator;
     
         // Input
-        ofVideoGrabber cam;
-		void switchCamera(int num);
+		int camWidth;
+		int camHeight;
+		float camAspect;
+		vector <ofVideoDevice> devices;
+        ofVideoGrabber cams[8];
+		ofVideoGrabber* camPtr;
+		void switchCamera(int num, int w, int h);
 		vector <string> enumerateCams();
 		ofFbo camFbo;
+
     
         // GUI
-		void buildUI();
+		void buildUI(int mult);
 		ofxDatGui* gui;
+        ofxDatGui* guiBottom;
 		string IP;
     
         // Contours

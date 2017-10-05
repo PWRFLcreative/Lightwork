@@ -22,7 +22,7 @@ Detector::~Detector() {
     
 }
 
-void Detector::setup(ofVideoGrabber *camera) {
+void Detector::setup(ofVideoGrabber camera) {
     cam = camera;
     mode = DETECTOR_MODE_CHASE; // TODO review
     setMinAreaRadius(1);
@@ -37,7 +37,7 @@ void Detector::setup(ofVideoGrabber *camera) {
     hasFoundFirstContour = false;
     
     // Allocate the thresholded view so that it draws on launch (before calibration starts).
-    thresholded.allocate(cam->getWidth(), cam->getHeight(), OF_IMAGE_COLOR);
+    thresholded.allocate(cam.getWidth(), cam.getHeight(), OF_IMAGE_COLOR);
     thresholded.clear();
 
 }
@@ -52,7 +52,7 @@ void Detector::update() {
     // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
-    background.update(*cam, thresholded);
+    background.update(cam, thresholded);
 
     // Get contours
     ofxCv::blur(thresholded, 5); // TODO: do we need this?
@@ -79,7 +79,7 @@ void Detector::findBinary() {
 //        ofLogNotice("tracker") << "analyzing tracker at index: " << i << " with label: " << getLabel(i);
         cv::Rect rect = getBoundingRect(i);
         ofImage img;
-        img = cam->getPixels();
+        img = cam.getPixels();
         img.crop(rect.x, rect.y, rect.width, rect.height);
         ofPixels pixels = img.getPixels();
         // Pixel format is RGB
