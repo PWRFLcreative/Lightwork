@@ -26,8 +26,8 @@ camFbo.end();
 
 ofLogToConsole();
 
-int framerate = 20; // Used to set oF and camera framerate
-ofSetFrameRate(framerate);
+//int framerate = 20; // Used to set oF and camera framerate
+//ofSetFrameRate(framerate);
 ofBackground(ofColor::black);
 ofSetWindowTitle("LightWork");
 
@@ -458,8 +458,11 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 //GUI event handlers
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
-		ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
-		//if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
+	//while (!ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)) {
+	//ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+	////if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
+	//}
+
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
@@ -470,11 +473,11 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 		IP= e.target->getText();
 		if (opcClient.isConnected()) {
 			opcClient.close();
-			if (!opcClient.isConnected()) { gui->getLabel("Connection Status")->setLabel("Disconnected"); }
+			if (!opcClient.isConnected()) { gui->getLabel("Connection Status", "Fadecandy Settings")->setLabel("Disconnected"); }
 		}
 		if (!opcClient.isConnected()) {
 			opcClient.setup(IP, 7890);
-			if (opcClient.isConnected()) { gui->getLabel("Connection Status")->setLabel("Connected"); }
+			if (opcClient.isConnected()) { gui->getLabel("Connection Status", "Fadecandy Settings")->setLabel("Connected"); }
 		}
 	}
 
@@ -570,6 +573,7 @@ void ofApp::buildUI(int mult)
 
 	fcSettings->addTextInput("STRIPS", ofToString(animator.getNumStrips()));
 	fcSettings->addTextInput("LEDS per Strip", ofToString(animator.getNumLedsPerStrip()));
+	
 	string connection;
 	if (opcClient.isConnected()) {
 		connection = "connected";
