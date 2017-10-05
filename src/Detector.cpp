@@ -71,7 +71,7 @@ void Detector::findBinary() {
     // Get colour from original frame in contour areas
     if (this->size() <= 0) { cout << "no contour at this moment!" << endl; }
     else {
-        cout << "findBinary size(): " << this->size() << endl;
+//        cout << "findBinary size(): " << this->size() << endl;
     }
     // Iterate though all active trackers
     // The size may vary, and the index does not necessarily line up with tracker label (id)
@@ -101,7 +101,7 @@ void Detector::findBinary() {
         avgB = b/numPixels;
         ofFloatColor avgColor = ofFloatColor(avgR, avgG, avgB);
         float brightness = avgColor.getBrightness();
-        cout << "label: " << getLabel(i) <<" brightness: " << brightness << endl;
+//        cout << "label: " << getLabel(i) <<" brightness: " << brightness << endl;
 //        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
         
         // If brightness is above threshold, get the brightest colour

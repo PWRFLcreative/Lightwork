@@ -97,10 +97,10 @@ void ofApp::update(){
             knownPatterns.push_back(animator.leds[i].binaryPattern.binaryPatternString);
             //cout << animator.leds[i].binaryPattern.binaryPatternString << endl;
         }
-        cout << "detected patterns: " << endl;
+//        cout << "detected patterns: " << endl;
         for (int i = 0; i < detector.detectedPatterns.size(); i++) {
             if (detector.detectedPatterns[i].binaryPatternString != "0000000000") {
-                cout << detector.detectedPatterns[i].binaryPatternString << endl;
+//                cout << detector.detectedPatterns[i].binaryPatternString << endl;
             }
             
         }
