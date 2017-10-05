@@ -2,189 +2,167 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-ofSetLogLevel(OF_LOG_NOTICE); //Set the log level
+    // Set the log level
+    ofSetLogLevel("tracking", OF_LOG_VERBOSE);
+    ofLogToConsole();
+    
+    // Set initial camera dimensions
+    camWidth = 640;
+    camHeight = 480;
+    camAspect = (float)camWidth / (float)camHeight;
+    
+    //Check for hi resolution display
+    int guiMultiply = 1;
+    if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
+        guiMultiply = 2;
+    }
+    
+    //Window size based on screen dimensions, centered
+    ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
+    ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
+    
+    int framerate = 30; // Used to set oF and camera framerate
+    ofSetFrameRate(framerate);
+    ofBackground(ofColor::black);
+    ofSetWindowTitle("LightWork");
+    
+    // Mapping
+    isMapping = false;
+    
+    //Fbos
+    camFbo.allocate(camWidth, camHeight);
+    camFbo.begin();
+    ofClear(255, 255, 255);
+    camFbo.end();
 
-camWidth = 640;
-camHeight = 480;
-camAspect = (float)camWidth / (float)camHeight;
+    //Video Devices
+    devices = cams[0].listDevices(); 
+    for (int i=0; i < devices.size(); i++) {
+        cams[i].setVerbose(false);
+        cams[i].setDeviceID(i); // Default to external camera
+        cams[i].setPixelFormat(OF_PIXELS_RGB);
+        cams[i].setup(camWidth, camHeight);
+    }
+    camPtr = &cams[1];
+    
+    // Tracking
+    isMapping = false;
 
-//Check for hi resolution display
-int guiMultiply = 1;
-if (ofGetScreenWidth() >= RETINA_MIN_WIDTH) {
-	guiMultiply = 2;
-}
+    // Connect to the fcserver
+    IP = "192.168.1.104"; //Default IP for Fadecandy
+    opcClient.setup(IP, 7890, 1);
+    opcClient.setLedsPerStrip(50); //TODO: Use GUI Variable
+    opcClient.setInterpolation(false);
 
-//Window size based on screen dimensions, centered
-ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
-ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
+    // Animator settings
+    animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
+    animator.setMode(ANIMATION_MODE_CHASE);
+    animator.setNumLedsPerStrip(64); // This also updates numLedsPerStrip in the OPC Client
+    animator.setNumStrips(8); // TODO: Fix setNumStrips, it gets set to n-1
+    animator.setLedBrightness(155);
+    animator.setFrameSkip(5);
+    animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
 
-//Fbos
-camFbo.allocate(camWidth, camHeight);
-camFbo.begin();
-ofClear(255, 255, 255);
-camFbo.end();
+    detector.setup(*camPtr);
+    detector.setMode(DETECTOR_MODE_OFF);
+    detector.learningTime.set("Learning Time", 4, 0, 30);
+    detector.thresholdValue.set("Threshold Value", 50, 0, 255);
+    cout << "tracker detected patterns (pre detection)" << endl;
+    //for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+    //    cout << detector.detectedPatterns[i].binaryPatternString << endl;
+    //}
+    
+    // SVG
+    svg.setViewbox(0, 0, camWidth, camHeight);
 
-ofLogToConsole();
-
-//int framerate = 20; // Used to set oF and camera framerate
-//ofSetFrameRate(framerate);
-ofBackground(ofColor::black);
-ofSetWindowTitle("LightWork");
-
-//Video Devices
-devices = cams[0].listDevices(); 
-for (int i=0; i < devices.size(); i++) {
-	cams[i].setVerbose(false);
-	cams[i].setDeviceID(i); // Default to external camera
-	cams[i].setPixelFormat(OF_PIXELS_RGB);
-	cams[i].setup(camWidth, camHeight);
-}
-camPtr = &cams[0];
-
-learningTime.set("Learning Time", 4, 0, 30);
-thresholdValue.set("Threshold Value", 50, 0, 255);
-
-// Contours
-contourFinder.setMinAreaRadius(1);
-contourFinder.setMaxAreaRadius(100);
-contourFinder.setThreshold(15);
-// wait for half a frame before forgetting something (15)
-contourFinder.getTracker().setPersistence(1);
-// an object can move up to 32 pixels per frame
-contourFinder.getTracker().setMaximumDistance(32);
-contourFinder.getTracker().setSmoothingRate(1.0);
-
-// Allocate the thresholded view so that it draws on launch (before calibration starts).
-thresholded.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
-thresholded.clear();
-
-// LED
-IP = "192.168.1.104"; //Default IP for Fadecandy
-
-// Handle 'skipped' LEDs. This covers LEDs that are not visible (and shouldn't be, because reasons... something something hardware... hacky... somthing...)
-hasFoundFirstContour = false;
-
-// Animator settings
-animator.setMode(ANIMATION_MODE_CHASE);
-animator.setNumLedsPerStrip(50);
-animator.setAllLEDColours(ofColor(0, 0, 0));
-
-// Tracking
-hasFoundFirstContour = false;
-isMapping = false;
-
-// Connect to the fcserver
-opcClient.setup(IP, 7890, 1);
-opcClient.setLedsPerStrip(50); //TODO: Use GUI Variable
-opcClient.setInterpolation(false);
-
-// Clear the LED strips
-animator.setAllLEDColours(ofColor(0, 0, 0));
-opcClient.autoWriteData(animator.getPixels());
-
-// SVG
-svg.setViewbox(0, 0, camWidth, camHeight);
-
-//GUI
-buildUI(guiMultiply);
+    //GUI
+    buildUI(guiMultiply);
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	opcClient.update();
 
-	//// If the client is not connected do not try to send information
-	//if (!opcClient.isConnected()) {
-	//	// Will continue to try connecting to the OPC Pixel Server
-	//	opcClient.tryConnecting();
-	//}
-
-	if (animator.mode == ANIMATION_MODE_TEST) {
-		animator.update(); // Update the pixel values
-		opcClient.autoWriteData(animator.getPixels()); // Send pixel values to OPC
+	// If the client is not connected do not try to send information
+	if (!opcClient.isConnected()) {
+		// Will continue to try connecting to the OPC Pixel Server
+		opcClient.tryConnecting();
 	}
 
 	camPtr->update();
+    
+    if (animator.mode == ANIMATION_MODE_TEST) {
+        animator.update(); // Update the pixel values
+        detector.update();
+    }
+    
+    else if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
+        // Update LEDs and Tracker
 
-    // Background subtraction
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(thresholdValue);
-    background.update(*camPtr, thresholded);
-    thresholded.update();
+        animator.update();
+        detector.update();
+        
+        vector <string> knownPatterns;
+        vector <string> detectedPatterns;
+        
+        //cout << "known patterns:" << endl;
+        for (int i = 0; i < animator.leds.size(); i++) {
+            knownPatterns.push_back(animator.leds[i].binaryPattern.binaryPatternString);
+            //cout << animator.leds[i].binaryPattern.binaryPatternString << endl;
+        }
+//        cout << "detected patterns: " << endl;
+        for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+            if (detector.detectedPatterns[i].binaryPatternString != "0000000000") {
+//                cout << detector.detectedPatterns[i].binaryPatternString << endl;
+            }
+            
+        }
+        
+        /*
+        for (int p=0; p < animator.leds.size(); p++)
+        {
+            for (int t = 0; t < tracker.detectedPatterns.size(); t++)
+            {
+                
+                size_t found = animator.leds[p].binaryPattern.binaryPatternString.find(tracker.detectedPatterns[t].binaryPatternString);
+                if(found != string::npos) {
+                    cout << "WE HAVE A MATCH for LED number: " << animator.leds[p].address << " - " << animator.leds[p].binaryPattern.binaryPatternString << " matches " << tracker.detectedPatterns[t].binaryPatternString << " Tracker label: " << tracker.getLabel(t) << endl;
+                }
+                
+//                if (tracker.detectedPatterns[t].binaryPatternString == animator.leds[p].binaryPattern.binaryPatternString)
+//                {
+//                    //inputlist[i] ="*";
+//                    cout << "WE HAVE A MATCH!" << endl;
+//                }
+            }
+        }
+         */
+        
+        
+        // Pattern matching
+//        if (tracker.detectedPattern.binaryPatternString == animator.binaryPattern.binaryPatternString) {
+//            ofLogNotice("Match FOUND!!!");
+//        }
+    }
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
-        bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas)
-        
-        // Light up a new LED for every frame
-        animator.update();
-        opcClient.autoWriteData(animator.getPixels()); // TODO: review write calls (see below)
-        
-        // Contour
-        ofxCv::blur(thresholded, 10);
-        contourFinder.findContours(thresholded);
-        
-        // We have 1 contour
-        if (contourFinder.size() == 1 && !success) { // TODO: review isLedOn vs isMapping()
-            ofLogVerbose("tracking") << "Detected one contour, as expected.";
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(0));
-            centroids.push_back(center);
-            success = true;
+
+    else if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%5 == 0)) {
+        // Make sure you call animator.update() once when you activate CHASE mode
+        // We check if the tracker has found the first contour before processing with the animation
+        // This makes sure we don't miss the first LED
+        if (detector.hasFoundFirstContour) {
+            animator.update();
         }
-        
-        // We have more than 1 contour, select the brightest one.
-        else if (contourFinder.size() > 1 && !success){ // TODO: review isLedOn vs isMapping()
-            ofLogVerbose("tracking") << "num contours: " << ofToString(contourFinder.size());
-            int brightestIndex = 0;
-            int previousBrightness = 0;
-            for(int i = 0; i < contourFinder.size(); i++) {
-                int brightness = 0;
-                cv::Rect rect = contourFinder.getBoundingRect(i);
-                //ofLogNotice("x:" + ofToString(rect.x)+" y:"+ ofToString(rect.y)+" w:" + ofToString(rect.width) + " h:"+ ofToString(rect.height));
-                ofImage img;
-                img = thresholded;
-                img.crop(rect.x, rect.y, rect.width, rect.height);
-                ofPixels pixels = img.getPixels();
-                
-                for (int i = 0; i< pixels.size(); i++) {
-                    brightness += pixels[i];
-                }
-                brightness /= pixels.size();
-                
-                // Check if the brightness is greater than the previous contour brightness
-                if (brightness > previousBrightness) {
-                    brightestIndex = i;
-                }
-                previousBrightness = brightness;
-                success = true;
-                //ofLogNotice("Brightness: " + ofToString(brightness));
-            }
-            ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
-            ofPoint center = ofxCv::toOf(contourFinder.getCenter(brightestIndex));
-            centroids.push_back(center);
-            hasFoundFirstContour = true;
-            //ofLogVerbose("tracking") << "added point, ignored additional points. FrameCount: " << ofToString(ofGetFrameNum())+ " ledIndex: " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
-        }
-        
-        // Deal with no contours found
-        else if (!success && hasFoundFirstContour){
-            ofLogVerbose("tracking") << "NO CONTOUR FOUND!!!";
-            
-            // No point detected, create fake point
-            ofPoint fakePoint;
-            fakePoint.set(0, 0);
-            centroids.push_back(fakePoint);
-            success = true;
-            //ofLogVerbose("tracking") << "CREATING FAKE POINT                     at frame: " << ofToString(ofGetFrameNum()) << " ledIndex " << animator.ledIndex+(animator.currentStripNum-1)*animator.numLedsPerStrip;
-        }
-        
-        if(success) {
-            hasFoundFirstContour = true;
-            //animator.chaseAnimationOff();
-            opcClient.autoWriteData(animator.getPixels());
-        }
+        detector.update();
     }
+    
+    // Only update the view, don't do any detection
+    if (!isMapping) {
+        detector.updateViewOnly();
+    }
+    
     ofSetColor(ofColor::white);
 }
 
@@ -194,24 +172,34 @@ void ofApp::draw(){
 	camFbo.begin();
 	camPtr->draw(0,0);
 
-    ofxCv::RectTracker& tracker = contourFinder.getTracker();
-    
     ofSetColor(0, 255, 0);
-	contourFinder.draw(); // Draws the blob rect surrounding the contour
-	
+	detector.draw(); // Draws the blob rect surrounding the contour+
+    // Prevent crash when we have more trackers than detectedPatterns, until detectedPatterns is dynamic
+    // TODO: make detectedPatterns dynamic
+    if (detector.size() < detector.detectedPatterns.size()) {
+        for (int i = 0; i < detector.size(); i++) {
+            int label = detector.getLabel(i);
+            string pat = detector.detectedPatterns[i].binaryPatternString;
+            ofDrawBitmapString(ofToString(label), detector.getCenter(i).x+10, detector.getCenter(i).y);
+            ofDrawBitmapString(pat, detector.getCenter(i).x+50, detector.getCenter(i).y);
+        }
+    }
+    
+    
     // Draw the detected contour center points
-    for (int i = 0; i < centroids.size(); i++) {
-		ofDrawCircle(centroids[i].x, centroids[i].y, 3);
+    for (int i = 0; i < detector.centroids.size(); i++) {
+		ofDrawCircle(detector.centroids[i].x, detector.centroids[i].y, 3);
     }
 	camFbo.end();
 
 	ofSetColor(ofColor::white); //reset color, else it tints the camera
 
 	//Draw Fbo and Thresholding images to screen
+
 	camFbo.draw(0, 0, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
-	if (thresholded.isAllocated()) {
-		thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
-	}
+	//if (detector.thresholded.isAllocated()) {
+		detector.thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
+//	}
 
 }
 
@@ -219,26 +207,39 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
-            centroids.clear();
+            detector.centroids.clear();
             break;
         case 's':
-            centroids.clear();
+            detector.setMode(DETECTOR_MODE_CHASE);
+            detector.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
-            opcClient.autoWriteData(animator.getPixels());
+            animator.setFrameSkip(3);
+            animator.update();
+            break;
+        case 'b':
+            detector.setMode(DETECTOR_MODE_BINARY);
+            detector.centroids.clear();
+            isMapping = !isMapping;
+            animator.setMode(ANIMATION_MODE_BINARY);
+            animator.setFrameSkip(5);
+            animator.update();
             break;
         case 'g':
-            generateSVG(centroids);
+            generateSVG(detector.centroids);
             break;
         case 'j':
-            generateJSON(centroids);
+            generateJSON(detector.centroids);
             break;
 		case 't':
-            animator.setMode(ANIMATION_MODE_TEST);
-            opcClient.autoWriteData(animator.getPixels());
+            detector.setMode(DETECTOR_MODE_OFF);
+            isMapping = false;
+			if (animator.mode == ANIMATION_MODE_TEST) { animator.setMode(ANIMATION_MODE_OFF); }
+			else { animator.setMode(ANIMATION_MODE_TEST); }
+            animator.update();
 			break;
         case 'f': // filter points
-            centroids = removeDuplicatesFromPoints(centroids);
+            detector.centroids = removeDuplicatesFromPoints(detector.centroids);
     }
 
 }
@@ -321,7 +322,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-	if (centroids.size() == 0) {
+	if (detector.centroids.size() == 0) {
 		//User is trying to save without anything to output - bail
 		ofLogError("No point data to save, run mapping first");
 		return;
@@ -460,7 +461,7 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e)
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 {
 	//while (!ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)) {
-	//ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
+	ofLogNotice() << "onSliderEvent: " << e.target->getLabel() << " "; e.target->printValue(); //TODO: stop from spamming output
 	////if (e.target->is("gui opacity")) gui->setOpacity(e.scale);
 	//}
 
@@ -468,7 +469,7 @@ void ofApp::onSliderEvent(ofxDatGuiSliderEvent e)
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
-	ofLogNotice() << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
+	ofLogNotice("gui") << "onTextInputEvent: " << e.target->getLabel() << " " << e.target->getText();
 
 	if (e.target->is("IP")) {
 		IP= e.target->getText();
@@ -495,18 +496,38 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	ofLogNotice() << "onButtonEvent: " << e.target->getLabel();
+	ofLogNotice("gui") << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
-        animator.setMode(ANIMATION_MODE_TEST);
-        opcClient.autoWriteData(animator.getPixels());
+		if (animator.mode == ANIMATION_MODE_TEST) { 
+			animator.setMode(ANIMATION_MODE_OFF); 
+			animator.update();
+		}
+		else { 
+			animator.setMode(ANIMATION_MODE_TEST); 
+			animator.update();
+		}
+//        opcClient.autoWriteData(animator.getPixels());
 	}
 	if (e.target->is("MAP LEDS")) {
+        detector.setMode(DETECTOR_MODE_CHASE);
+        
         isMapping = !isMapping;
+        animator.setMode(ANIMATION_MODE_CHASE);
+        animator.setFrameSkip(3);
+        if (!isMapping) {
+            detector.centroids.clear();
+            animator.setAllLEDColours(ofColor(0,0,0));
+        }
+        else {
+            animator.update();
+        }
+        
+
 	}
 	if (e.target->is("SAVE LAYOUT")) {
-		centroids = removeDuplicatesFromPoints(centroids);
-		generateSVG(centroids);
+		detector.centroids = removeDuplicatesFromPoints(detector.centroids);
+		generateSVG(detector.centroids);
 	}
 
 }
@@ -533,6 +554,7 @@ void ofApp::switchCamera(int num, int w, int h)
 	//}
 
 	camPtr = &cams[num];
+    detector.setup(*camPtr);
 
 }
 //Returns a vector containing all the attached cameras
@@ -600,11 +622,10 @@ void ofApp::buildUI(int mult)
 	
 
 	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
-	mapSettings->addSlider(learningTime);
-	mapSettings->addSlider(thresholdValue);
+	mapSettings->addSlider(detector.learningTime);
+	mapSettings->addSlider(detector.thresholdValue);
 	mapSettings->addButton("Test LEDS");
 	mapSettings->addButton("Map LEDS");
-	//gui->addButton(resetBackground);
 	mapSettings->addButton("Save Layout");
 	mapSettings->setVisible(false);
 	mapSettings->addBreak();

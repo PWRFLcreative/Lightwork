@@ -14,14 +14,16 @@ using namespace std;
 Animator::Animator(void) {
     cout << "Animator created" << endl;
     numLedsPerStrip = 64;
-    ledBrightness = 200;
+    ledBrightness = 255;
     numStrips = 8;
     ledIndex = 0; // Internal counter
     mode = ANIMATION_MODE_CHASE;
     
-    // TODO: assign pixels for the full setup (all the channels)iter
-    // TODO: Make pixels private and declare a getter
-    pixels.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
+    testIndex = 0;
+    frameCount = 0;
+    frameSkip = 3;
+
+    populateLeds();
 }
 
 // Destructor
@@ -32,17 +34,31 @@ Animator::~Animator(void) {
 //////////////////////////////////////////////////////////////
 // Setters and getters
 //////////////////////////////////////////////////////////////
+void Animator::setLedInterface(ofxOPC *interface) {
+    opcClient = interface;
+}
 
 void Animator::setMode(animation_mode_t m) {
     mode = m;
     ledIndex = 0; // TODO: resetInternalVariables() method?
+    testIndex = 0;
+    frameCount = 0;
     resetPixels();
-    
+}
+
+void Animator::setLedBrightness(int brightness) {
+    ledBrightness = brightness;
+    opcClient->autoWriteData(getPixels());
 }
 
 void Animator::setNumLedsPerStrip(int num) {
-    ofLogNotice("Setting up Animator");
+    ofLogNotice("animator") << "setNumLedsPerStrip(): " << num;
     numLedsPerStrip = num;
+    
+    // Update OPC client
+    opcClient->setLedsPerStrip(numLedsPerStrip);
+    
+    // Reset LEDs vector
     resetPixels();
 }
 
@@ -51,6 +67,7 @@ int Animator::getNumLedsPerStrip() {
 }
 
 void Animator::setNumStrips(int num) {
+    ofLogNotice("animator") << "setNumStrips(): " << num;
     numStrips = num;
     resetPixels();
 }
@@ -59,33 +76,78 @@ int Animator::getNumStrips() {
     return numStrips;
 }
 
+void Animator::setFrameSkip(int num) {
+    frameSkip = num;
+}
+
+int Animator::getFrameSkip() {
+    return frameSkip;
+}
+
 // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
 void Animator::resetPixels() {
-    vector <ofColor> pix;
-    pix.assign(numLedsPerStrip*numStrips, ofColor(0,0,0));
-    pixels = pix;
+    populateLeds();
 }
 
 // Return pixels (to update OPC or PixelPusher)
 vector <ofColor> Animator::getPixels() {
+    vector <ofColor> pixels;
+    for (int i = 0; i<leds.size(); i++) {
+        pixels.push_back(leds[i].color);
+    }
     return pixels;
 }
+
+// Reset the LED vector
+void Animator::populateLeds() {
+    
+    int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
+    int numLeds = numLedsPerStrip*numStrips;
+    ofLogNotice("animator") << "populateLeds() -> numLeds: " << numLeds;
+    
+    leds.clear();
+    for (int i = 0; i < numLeds; i++) {
+        leds.push_back(LED());
+        leds[i].setAddress(i);
+        leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
+    }
+    ofLogNotice("animator") << "known patterns: ";
+    //for (int i = 0; i < leds.size(); i++) {
+    //    //ofLogNotice("animator") << leds[i].binaryPattern.binaryPatternString;
+    //}
+}
+
 
 //////////////////////////////////////////////////////////////
 // Animation Methods
 //////////////////////////////////////////////////////////////
 
 void Animator::update() {
-    switch(mode) {
-        case ANIMATION_MODE_CHASE: {
-            chase();
-            break;
-        }
-        case ANIMATION_MODE_TEST: {
-            test();
-            break;
-        }
-    };
+     //if (frameCount % frameSkip == 0) {
+        switch(mode) {
+            case ANIMATION_MODE_CHASE: {
+                chase();
+                break;
+            }
+            case ANIMATION_MODE_TEST: {
+                test();
+                break;
+            }
+            case ANIMATION_MODE_BINARY: {
+                binaryAnimation();
+            }
+
+			case ANIMATION_MODE_OFF: {
+				setAllLEDColours(ofColor(0, 0, 0));
+			}
+        };
+    // }
+    // Advance the internal counter
+    frameCount++;
+    
+    // Update pixels on external interface
+    opcClient->autoWriteData(this->getPixels()); // Send pixel values to OPC
+
 }
 // Update the pixels for all the strips
 // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
@@ -98,7 +160,7 @@ void Animator::chase() {
         else {
             col = ofColor(0, 0, 0);
         }
-        pixels.at(i) = col;
+        leds.at(i).color = col;
     }
     
     ledIndex++;
@@ -110,27 +172,58 @@ void Animator::chase() {
 // Set all LEDs to the same colour (useful to turn them all on or off).
 void Animator::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
-        pixels.at(i) = col;
+        leds.at(i).color = col;
     }
+    opcClient->autoWriteData(this->getPixels()); // TODO: Review this
 }
 
 //LED Pre-flight test
 void Animator::test() {
-    setAllLEDColours(ofColor(0,0,255));
-    /*
-    int start = ofGetFrameNum(); // needs global variables to work properly
-    int currFrame = start;
-    int diff = currFrame - start;
-    if (diff <300){
-        if (diff < 100) { setAllLEDColours(ofColor(255, 0, 0)); }
-        else if (diff <200 && diff >100){ setAllLEDColours(ofColor(0, 255, 0)); }
-        else if (diff < 300 && diff >200) { setAllLEDColours(ofColor(0, 0, 255)); }
-    }
-    currFrame = ofGetFrameNum();
-    diff = currFrame - start;
+    testIndex++;
     
-    if (diff >= 300) {
-        setAllLEDColours(ofColor(0, 0, 0));
+    if (testIndex < 30) {
+        setAllLEDColours(ofColor(255, 0, 0));
     }
-     */
+    else if (testIndex > 30 && testIndex < 60) {
+        setAllLEDColours(ofColor(0, 255, 0));
+    }
+    else if (testIndex > 60 && testIndex < 90) {
+        setAllLEDColours(ofColor(0, 0, 255));
+    }
+    
+    if (testIndex > 90) {
+        testIndex = 0;
+
+    }
+}
+
+void Animator::binaryAnimation() {
+    // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
+    
+    // Slow down the animation, set new state every 3 frames
+   
+//        cout << leds.size() << endl;
+    for (int i = 0; i < leds.size(); i++) {
+            switch (leds[i].binaryPattern.state){ // 0
+                case BinaryPattern::LOW: {
+                    leds.at(i).color = ofColor(ledBrightness, 0, 0); // RED
+                    break;
+                }
+                case BinaryPattern::HIGH: { // 1
+                    leds.at(i).color = ofColor(0, 0, ledBrightness); // BLUE
+                    break;
+                }
+                case BinaryPattern::START: { // 2
+                    leds.at(i).color = ofColor(0, ledBrightness, 0); // GREEN
+                    break;
+                }
+                case BinaryPattern::OFF: { // 3
+                    leds.at(i).color = ofColor(0, 0, 0); // BLACK
+                    break;
+                }
+            }
+        
+        leds[i].binaryPattern.advance();
+    }
+    
 }

@@ -3,12 +3,13 @@
 #include "ofMain.h"
 #include "ofxCv.h"
 //#include "ofxGui.h"
-#include "ofxOPC.h"
+//#include "ofxOPC.h"
 #include "ofxEditableSvg.h"
 #include "ofxJSON.h"
 #include "ofxDatGui.h"
 #include "ofVideoGrabber.h"
 #include "Animator.h"
+#include "Detector.h"
 
 #define RETINA_MIN_WIDTH 2560
 #define RETINA_MIN_HEIGHT 1600
@@ -48,11 +49,9 @@ class ofApp : public ofBaseApp{
 		void onMatrixEvent(ofxDatGuiMatrixEvent e);
 		
     
-        // OPC
-        ofxOPC              opcClient;
+        // OPC, Animator
+        ofxOPC              opcClient; // 
         Animator            animator;
-
-        bool                hasFoundFirstContour;   // Avoid registering 'fake' points before the first detection
     
         // Input
 		int camWidth;
@@ -64,25 +63,18 @@ class ofApp : public ofBaseApp{
 		void switchCamera(int num, int w, int h);
 		vector <string> enumerateCams();
 		ofFbo camFbo;
-		
-        // Background subtraction
-        ofxCv::RunningBackground background;        // Background subtraction class with running average
-        ofImage thresholded;                        // Binary threshold image
+
     
         // GUI
 		void buildUI(int mult);
 		ofxDatGui* gui;
-		ofxDatGui* guiBottom;
-        bool resetBackground;
-        ofParameter<float> learningTime;
-        ofParameter<float> thresholdValue;
+        ofxDatGui* guiBottom;
 		string IP;
     
         // Contours
-        float                   threshold;          // Brightness threshold for contour detection
-        ofxCv::ContourFinder    contourFinder;      // Finds contours in the background subtraction binary image
-        vector <ofPoint>        centroids;          // Stores the contour area centers.
-        bool                    isMapping;
+        Detector                         detector;
+    
+        bool                            isMapping;         // Main program-state variable
     
         // SVG
         ofxEditableSVG svg;
