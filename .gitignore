@@ -84,3 +84,7 @@ bin/
 build/
 !data/
 
+# XCode
+*.xcodeproj/
+DerivedData/
+
