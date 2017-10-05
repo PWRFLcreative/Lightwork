@@ -14,7 +14,7 @@
 #include "BinaryPattern.h"
 
 
-enum detector_mode_t {DETECTOR_MODE_CHASE, DETECTOR_MODE_BINARY};
+enum detector_mode_t {DETECTOR_MODE_CHASE, DETECTOR_MODE_BINARY, DETECTOR_MODE_OFF};
 
 class Detector : public ofxCv::ContourFinder {
     

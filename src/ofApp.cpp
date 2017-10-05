@@ -64,7 +64,7 @@ void ofApp::setup(){
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
 
     detector.setup(*camPtr);
-    detector.setMode(DETECTOR_MODE_CHASE);
+    detector.setMode(DETECTOR_MODE_OFF);
     detector.learningTime.set("Learning Time", 4, 0, 30);
     detector.thresholdValue.set("Threshold Value", 50, 0, 255);
     cout << "tracker detected patterns (pre detection)" << endl;
@@ -233,6 +233,7 @@ void ofApp::keyPressed(int key){
             break;
 		case 't':
             animator.setMode(ANIMATION_MODE_TEST);
+            detector.setMode(DETECTOR_MODE_OFF);
             animator.update();
 			break;
         case 'f': // filter points

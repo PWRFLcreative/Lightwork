@@ -24,7 +24,7 @@ Detector::~Detector() {
 
 void Detector::setup(ofVideoGrabber camera) {
     cam = camera;
-    mode = DETECTOR_MODE_CHASE; // TODO review
+    mode = DETECTOR_MODE_OFF; // TODO review
     setMinAreaRadius(1);
     setMaxAreaRadius(100);
     setThreshold(15);
@@ -67,7 +67,9 @@ void Detector::updateViewOnly() {
     
     // Get contours
     ofxCv::blur(thresholded, 5); // TODO: do we need this?
-    findContours(thresholded);
+    if (mode != DETECTOR_MODE_OFF) {
+        findContours(thresholded);
+    }
     thresholded.update();
 }
 
