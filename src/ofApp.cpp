@@ -74,7 +74,8 @@ hasFoundFirstContour = false;
 isMapping = false;
 
 // Connect to the fcserver
-opcClient.setup(IP, 7890, 1, animator.getNumLedsPerStrip());
+opcClient.setup(IP, 7890, 1);
+opcClient.setLedsPerStrip(50); //TODO: Use GUI Variable
 opcClient.setInterpolation(false);
 
 // Clear the LED strips
