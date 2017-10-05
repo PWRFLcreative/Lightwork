@@ -123,7 +123,7 @@ void Animator::populateLeds() {
 //////////////////////////////////////////////////////////////
 
 void Animator::update() {
-     if (frameCount % frameSkip == 0) {
+     //if (frameCount % frameSkip == 0) {
         switch(mode) {
             case ANIMATION_MODE_CHASE: {
                 chase();
@@ -137,7 +137,7 @@ void Animator::update() {
                 binaryAnimation();
             }
         };
-     }
+    // }
     // Advance the internal counter
     frameCount++;
     

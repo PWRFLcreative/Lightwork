@@ -148,7 +148,7 @@ void ofApp::update() {
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
 
-    else if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
+    else if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%5 == 0)) {
         // Make sure you call animator.update() once when you activate CHASE mode
         // We check if the tracker has found the first contour before processing with the animation
         // This makes sure we don't miss the first LED
@@ -159,7 +159,7 @@ void ofApp::update() {
     }
     
     // Only update the view, don't do any detection
-    if (!isMapping) {
+    if (!isMapping && detector.thresholded.isAllocated()) {
         detector.updateViewOnly();
     }
 
