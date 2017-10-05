@@ -57,8 +57,8 @@ void ofApp::setup(){
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
-    animator.setNumLedsPerStrip(50); // This also updates numLedsPerStrip in the OPC Client
-    animator.setNumStrips(2); // TODO: Fix setNumStrips, it gets set to n-1
+    animator.setNumLedsPerStrip(64); // This also updates numLedsPerStrip in the OPC Client
+    animator.setNumStrips(8); // TODO: Fix setNumStrips, it gets set to n-1
     animator.setLedBrightness(155);
     animator.setFrameSkip(5);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
