@@ -159,10 +159,10 @@ void ofApp::update() {
     }
     
     // Only update the view, don't do any detection
-    if (!isMapping && detector.thresholded.isAllocated()) {
+    if (!isMapping) {
         detector.updateViewOnly();
     }
-
+    
     ofSetColor(ofColor::white);
 }
 
@@ -173,13 +173,18 @@ void ofApp::draw(){
 	camPtr->draw(0,0);
 
     ofSetColor(0, 255, 0);
-	detector.draw(); // Draws the blob rect surrounding the contour
-    for (int i = 0; i < detector.size(); i++) {
-        int label = detector.getLabel(i);
-        string pat = detector.detectedPatterns[i].binaryPatternString;
-        ofDrawBitmapString(ofToString(label), detector.getCenter(i).x+10, detector.getCenter(i).y);
-        ofDrawBitmapString(pat, detector.getCenter(i).x+50, detector.getCenter(i).y);
+	detector.draw(); // Draws the blob rect surrounding the contour+
+    // Prevent crash when we have more trackers than detectedPatterns, until detectedPatterns is dynamic
+    // TODO: make detectedPatterns dynamic
+    if (detector.size() < detector.detectedPatterns.size()) {
+        for (int i = 0; i < detector.size(); i++) {
+            int label = detector.getLabel(i);
+            string pat = detector.detectedPatterns[i].binaryPatternString;
+            ofDrawBitmapString(ofToString(label), detector.getCenter(i).x+10, detector.getCenter(i).y);
+            ofDrawBitmapString(pat, detector.getCenter(i).x+50, detector.getCenter(i).y);
+        }
     }
+    
     
     // Draw the detected contour center points
     for (int i = 0; i < detector.centroids.size(); i++) {
@@ -192,12 +197,9 @@ void ofApp::draw(){
 	//Draw Fbo and Thresholding images to screen
 
 	camFbo.draw(0, 0, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
-	if (detector.thresholded.isAllocated()) {
-        
+	//if (detector.thresholded.isAllocated()) {
 		detector.thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
-//        detector.thresholded.draw(0, 0, 640, 480);
-
-	}
+//	}
 
 }
 
