@@ -48,16 +48,7 @@ void Detector::setMode(detector_mode_t m) {
 
 void Detector::update() {
     
-    // Binary pattern detection
-    // Background subtraction
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(thresholdValue);
-    background.update(cam, thresholded);
-
-    // Get contours
-    ofxCv::blur(thresholded, 5); // TODO: do we need this?
-    findContours(thresholded);
-    thresholded.update();
+    updateViewOnly();
     
     if (mode == DETECTOR_MODE_BINARY) {
         findBinary();
@@ -65,6 +56,19 @@ void Detector::update() {
     else if (mode == DETECTOR_MODE_CHASE) {
         findSequential();
     }
+}
+
+void Detector::updateViewOnly() {
+    // Binary pattern detection
+    // Background subtraction
+    background.setLearningTime(learningTime);
+    background.setThresholdValue(thresholdValue);
+    background.update(cam, thresholded);
+    
+    // Get contours
+    ofxCv::blur(thresholded, 5); // TODO: do we need this?
+    findContours(thresholded);
+    thresholded.update();
 }
 
 void Detector::findBinary() {

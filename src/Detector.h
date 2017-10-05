@@ -38,6 +38,7 @@ public:
     detector_mode_t mode;
     
     void update();
+    void updateViewOnly();
     void findBinary();
     void findSequential();
     

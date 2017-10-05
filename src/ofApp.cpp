@@ -96,7 +96,7 @@ void ofApp::update() {
         detector.update();
     }
     
-    if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
+    else if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
         // Update LEDs and Tracker
 
         animator.update();
@@ -147,8 +147,8 @@ void ofApp::update() {
     
     // New camera frame: Turn on a new LED and detect the location.
     // We are getting every third camera frame (to give the LEDs time to light up and the camera to pick it up).
-    
-    if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
+
+    else if(camPtr->isFrameNew() && (animator.mode == ANIMATION_MODE_CHASE) && isMapping && (ofGetFrameNum()%3 == 0)) {
         // Make sure you call animator.update() once when you activate CHASE mode
         // We check if the tracker has found the first contour before processing with the animation
         // This makes sure we don't miss the first LED
@@ -157,6 +157,12 @@ void ofApp::update() {
         }
         detector.update();
     }
+    
+    // Only update the view, don't do any detection
+    if (!isMapping) {
+        detector.updateViewOnly();
+    }
+
     ofSetColor(ofColor::white);
 }
 
@@ -187,6 +193,7 @@ void ofApp::draw(){
 
 	camFbo.draw(0, 0, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
 	if (detector.thresholded.isAllocated()) {
+        
 		detector.thresholded.draw(0, ofGetWindowHeight() / 2, (ofGetWindowHeight() / 2)*camAspect, ofGetWindowHeight()/2);
 //        detector.thresholded.draw(0, 0, 640, 480);
 
