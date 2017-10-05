@@ -206,7 +206,7 @@ void Detector::findSequential() {
             }
             previousBrightness = brightness;
             success = true;
-            ofLogNotice("Brightness: " + ofToString(brightness));
+            //ofLogNotice("Brightness: " + ofToString(brightness));
         }
         ofLogNotice("tracking") << "brightest index: " << ofToString(brightestIndex);
         ofPoint center = ofxCv::toOf(getCenter(brightestIndex));
