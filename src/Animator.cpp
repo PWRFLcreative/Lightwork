@@ -21,6 +21,7 @@ Animator::Animator(void) {
     
     testIndex = 0;
     frameCount = 0;
+    frameSkip = 3;
 
     populateLeds();
 }
@@ -75,6 +76,14 @@ int Animator::getNumStrips() {
     return numStrips;
 }
 
+void Animator::setFrameSkip(int num) {
+    frameSkip = num;
+}
+
+int Animator::getFrameSkip() {
+    return frameSkip;
+}
+
 // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
 void Animator::resetPixels() {
     populateLeds();
@@ -114,19 +123,21 @@ void Animator::populateLeds() {
 //////////////////////////////////////////////////////////////
 
 void Animator::update() {
-    switch(mode) {
-        case ANIMATION_MODE_CHASE: {
-            chase();
-            break;
-        }
-        case ANIMATION_MODE_TEST: {
-            test();
-            break;
-        }
-        case ANIMATION_MODE_BINARY: {
-            binaryAnimation();
-        }
-    };
+     if (frameCount % frameSkip == 0) {
+        switch(mode) {
+            case ANIMATION_MODE_CHASE: {
+                chase();
+                break;
+            }
+            case ANIMATION_MODE_TEST: {
+                test();
+                break;
+            }
+            case ANIMATION_MODE_BINARY: {
+                binaryAnimation();
+            }
+        };
+     }
     // Advance the internal counter
     frameCount++;
     
@@ -184,29 +195,29 @@ void Animator::binaryAnimation() {
     // LED binary state. START -> GREEN, HIGH -> BLUE, LOW -> RED, OFF -> (off)
     
     // Slow down the animation, set new state every 3 frames
-    if (frameCount % 5 == 0) {
+   
 //        cout << leds.size() << endl;
-        for (int i = 0; i < leds.size(); i++) {
-                switch (leds[i].binaryPattern.state){ // 0
-                    case BinaryPattern::LOW: {
-                        leds.at(i).color = ofColor(ledBrightness, 0, 0); // RED
-                        break;
-                    }
-                    case BinaryPattern::HIGH: { // 1
-                        leds.at(i).color = ofColor(0, 0, ledBrightness); // BLUE
-                        break;
-                    }
-                    case BinaryPattern::START: { // 2
-                        leds.at(i).color = ofColor(0, ledBrightness, 0); // GREEN
-                        break;
-                    }
-                    case BinaryPattern::OFF: { // 3
-                        leds.at(i).color = ofColor(0, 0, 0); // BLACK
-                        break;
-                    }
+    for (int i = 0; i < leds.size(); i++) {
+            switch (leds[i].binaryPattern.state){ // 0
+                case BinaryPattern::LOW: {
+                    leds.at(i).color = ofColor(ledBrightness, 0, 0); // RED
+                    break;
                 }
-            
-            leds[i].binaryPattern.advance();
-        }
+                case BinaryPattern::HIGH: { // 1
+                    leds.at(i).color = ofColor(0, 0, ledBrightness); // BLUE
+                    break;
+                }
+                case BinaryPattern::START: { // 2
+                    leds.at(i).color = ofColor(0, ledBrightness, 0); // GREEN
+                    break;
+                }
+                case BinaryPattern::OFF: { // 3
+                    leds.at(i).color = ofColor(0, 0, 0); // BLACK
+                    break;
+                }
+            }
+        
+        leds[i].binaryPattern.advance();
     }
+    
 }

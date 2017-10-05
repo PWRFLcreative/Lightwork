@@ -41,9 +41,12 @@ public:
     // Setters and getters
     void setNumLedsPerStrip(int num);
     void setNumStrips(int num);
+    void setFrameSkip(int num);
     
     int getNumLedsPerStrip();
     int getNumStrips();
+    int getFrameSkip();
+    
     
     vector <ofColor> getPixels();
     
@@ -70,6 +73,7 @@ private:
                                                 // excessively bright LEDs).
     int                 testIndex;              // Used for the test() animation sequence
     int                 frameCount;             // Internal framecounter
+    int                 frameSkip;              // How many frames to skip between updates
     void resetPixels(); // Reassign pixels vector to fit numLedsPerStrip * numStrips
     
     void populateLeds(); // Create the leds vector

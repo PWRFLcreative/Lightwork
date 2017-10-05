@@ -21,7 +21,7 @@ void ofApp::setup(){
     ofSetWindowShape((int)ofGetScreenHeight() / 2 * camAspect + (200 * guiMultiply), (int)ofGetScreenHeight()*0.9);
     ofSetWindowPosition((ofGetScreenWidth() / 2) - ofGetWindowWidth() / 2, ((int)ofGetScreenHeight() / 2) - ofGetWindowHeight() / 2);
     
-    int framerate = 20; // Used to set oF and camera framerate
+    int framerate = 30; // Used to set oF and camera framerate
     ofSetFrameRate(framerate);
     ofBackground(ofColor::black);
     ofSetWindowTitle("LightWork");
@@ -43,7 +43,7 @@ void ofApp::setup(){
         cams[i].setPixelFormat(OF_PIXELS_RGB);
         cams[i].setup(camWidth, camHeight);
     }
-    camPtr = &cams[0];
+    camPtr = &cams[1];
     
     // Tracking
     isMapping = false;
@@ -57,9 +57,10 @@ void ofApp::setup(){
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
-    animator.setNumLedsPerStrip(8); // This also updates numLedsPerStrip in the OPC Client
-    animator.setNumStrips(1); // TODO: Fix setNumStrips, it gets set to n-1
+    animator.setNumLedsPerStrip(50); // This also updates numLedsPerStrip in the OPC Client
+    animator.setNumStrips(2); // TODO: Fix setNumStrips, it gets set to n-1
     animator.setLedBrightness(155);
+    animator.setFrameSkip(5);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
 
     detector.setup(*camPtr);
@@ -204,6 +205,7 @@ void ofApp::keyPressed(int key){
             detector.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
+            animator.setFrameSkip(3);
             animator.update();
             break;
         case 'b':
@@ -211,6 +213,7 @@ void ofApp::keyPressed(int key){
             detector.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_BINARY);
+            animator.setFrameSkip(5);
             animator.update();
             break;
         case 'g':
