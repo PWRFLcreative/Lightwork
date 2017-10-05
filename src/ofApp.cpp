@@ -62,7 +62,7 @@ void ofApp::setup(){
     animator.setLedBrightness(155);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
 
-    detector.setup(&cams[0]);
+    detector.setup(*camPtr);
     detector.setMode(DETECTOR_MODE_CHASE);
     detector.learningTime.set("Learning Time", 4, 0, 30);
     detector.thresholdValue.set("Threshold Value", 50, 0, 255);
@@ -519,6 +519,7 @@ void ofApp::switchCamera(int num, int w, int h)
 	//}
 
 	camPtr = &cams[num];
+    detector.setup(*camPtr);
 
 }
 //Returns a vector containing all the attached cameras
