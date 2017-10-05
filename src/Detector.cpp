@@ -73,6 +73,8 @@ void Detector::findBinary() {
     else {
         cout << "findBinary size(): " << this->size() << endl;
     }
+    // Iterate though all active trackers
+    // The size may vary, and the index does not necessarily line up with tracker label (id)
     for (int i = 0; i < this->size(); i++) {
 //        ofLogNotice("tracker") << "analyzing tracker at index: " << i << " with label: " << getLabel(i);
         cv::Rect rect = getBoundingRect(i);
