@@ -29,17 +29,17 @@ void ofApp::setup(){
     ofClear(255, 255, 255);
     camFbo.end();
     
-    tracker.setup(&cam);
-    tracker.setMode(TRACKER_MODE_CHASE);
+    detector.setup(&cam);
+    detector.setMode(DETECTOR_MODE_CHASE);
     
 	// GUI - OLD
 	//gui.setup();
 
-	tracker.learningTime.set("Learning Time", 4, 0, 30);
-	tracker.thresholdValue.set("Threshold Value", 50, 0, 255);
+	detector.learningTime.set("Learning Time", 4, 0, 30);
+	detector.thresholdValue.set("Threshold Value", 50, 0, 255);
     cout << "tracker detected patterns (pre detection)" << endl;
-    for (int i = 0; i < tracker.detectedPatterns.size(); i++) {
-        cout << tracker.detectedPatterns[i].binaryPatternString << endl;
+    for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+        cout << detector.detectedPatterns[i].binaryPatternString << endl;
     }
     // Contours
     
@@ -53,9 +53,9 @@ void ofApp::setup(){
     // Animator settings
     animator.setLedInterface(&opcClient); // Setting a POINTER to the interface, so the Animator class can update pixels internally
     animator.setMode(ANIMATION_MODE_CHASE);
-    animator.setNumLedsPerStrip(3); // This also updates numLedsPerStrip in the OPC Client
+    animator.setNumLedsPerStrip(8); // This also updates numLedsPerStrip in the OPC Client
     animator.setNumStrips(1); // TODO: Fix setNumStrips, it gets set to n-1
-    animator.setLedBrightness(255);
+    animator.setLedBrightness(155);
     animator.setAllLEDColours(ofColor(0, 0,0)); // Clear the LED strips
     
     // Mapping
@@ -87,7 +87,7 @@ void ofApp::update(){
     if (animator.mode == ANIMATION_MODE_BINARY && isMapping) { // Redundant, for  now...
         // Update LEDs and Tracker
         animator.update();
-        tracker.update();
+        detector.update();
         
         vector <string> knownPatterns;
         vector <string> detectedPatterns;
@@ -98,9 +98,9 @@ void ofApp::update(){
             //cout << animator.leds[i].binaryPattern.binaryPatternString << endl;
         }
         cout << "detected patterns: " << endl;
-        for (int i = 0; i < tracker.detectedPatterns.size(); i++) {
-            if (tracker.detectedPatterns[i].binaryPatternString != "0000000000") {
-                cout << tracker.detectedPatterns[i].binaryPatternString << endl;
+        for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+            if (detector.detectedPatterns[i].binaryPatternString != "0000000000") {
+                cout << detector.detectedPatterns[i].binaryPatternString << endl;
             }
             
         }
@@ -139,10 +139,10 @@ void ofApp::update(){
         // Make sure you call animator.update() once when you activate CHASE mode
         // We check if the tracker has found the first contour before processing with the animation
         // This makes sure we don't miss the first LED
-        if (tracker.hasFoundFirstContour) {
+        if (detector.hasFoundFirstContour) {
             animator.update();
         }
-        tracker.update();
+        detector.update();
     }
     ofSetColor(ofColor::white);
 }
@@ -153,19 +153,18 @@ void ofApp::draw(){
 	camFbo.begin();
 	cam.draw(0,0);
 
-    
     ofSetColor(0, 255, 0);
-	tracker.draw(); // Draws the blob rect surrounding the contour
-    for (int i = 0; i < tracker.size(); i++) {
-        int label = tracker.getLabel(i);
-        string pat = tracker.detectedPatterns[i].binaryPatternString;
-        ofDrawBitmapString(ofToString(label), tracker.getCenter(i).x+10, tracker.getCenter(i).y);
-        ofDrawBitmapString(pat, tracker.getCenter(i).x+50, tracker.getCenter(i).y);
+	detector.draw(); // Draws the blob rect surrounding the contour
+    for (int i = 0; i < detector.size(); i++) {
+        int label = detector.getLabel(i);
+        string pat = detector.detectedPatterns[i].binaryPatternString;
+        ofDrawBitmapString(ofToString(label), detector.getCenter(i).x+10, detector.getCenter(i).y);
+        ofDrawBitmapString(pat, detector.getCenter(i).x+50, detector.getCenter(i).y);
     }
     
     // Draw the detected contour center points
-    for (int i = 0; i < tracker.centroids.size(); i++) {
-		ofDrawCircle(tracker.centroids[i].x, tracker.centroids[i].y, 3);
+    for (int i = 0; i < detector.centroids.size(); i++) {
+		ofDrawCircle(detector.centroids[i].x, detector.centroids[i].y, 3);
     }
 	camFbo.end();
 
@@ -173,9 +172,9 @@ void ofApp::draw(){
 
 	//Draw Fbo and Thresholding images to screen
 	camFbo.draw(0, 0, cam.getWidth(), cam.getHeight());
-	if (tracker.thresholded.isAllocated()) {
+	if (detector.thresholded.isAllocated()) {
         // TODO: Tracker.draw()
-        tracker.thresholded.draw(cam.getWidth(), 0, cam.getWidth(), cam.getHeight());
+        detector.thresholded.draw(cam.getWidth(), 0, cam.getWidth(), cam.getHeight());
 	}
 
 }
@@ -184,34 +183,34 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
-            tracker.centroids.clear();
+            detector.centroids.clear();
             break;
         case 's':
-            tracker.setMode(TRACKER_MODE_CHASE);
-            tracker.centroids.clear();
+            detector.setMode(DETECTOR_MODE_CHASE);
+            detector.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_CHASE);
             animator.update();
             break;
         case 'b':
-            tracker.setMode(TRACKER_MODE_BINARY);
-            tracker.centroids.clear();
+            detector.setMode(DETECTOR_MODE_BINARY);
+            detector.centroids.clear();
             isMapping = !isMapping;
             animator.setMode(ANIMATION_MODE_BINARY);
             animator.update();
             break;
         case 'g':
-            generateSVG(tracker.centroids);
+            generateSVG(detector.centroids);
             break;
         case 'j':
-            generateJSON(tracker.centroids);
+            generateJSON(detector.centroids);
             break;
 		case 't':
             animator.setMode(ANIMATION_MODE_TEST);
             animator.update();
 			break;
         case 'f': // filter points
-            tracker.centroids = removeDuplicatesFromPoints(tracker.centroids);
+            detector.centroids = removeDuplicatesFromPoints(detector.centroids);
     }
 
 }
@@ -292,7 +291,7 @@ void ofApp::generateSVG(vector <ofPoint> points) {
     }
     svg.addPath(path);
     path.draw();
-	if (tracker.centroids.size() == 0) {
+	if (detector.centroids.size() == 0) {
 		//User is trying to save without anything to output - bail
 		ofLogError("No point data to save, run mapping first");
 		return;
@@ -459,8 +458,8 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
         isMapping = !isMapping;
 	}
 	if (e.target->is("SAVE LAYOUT")) {
-		tracker.centroids = removeDuplicatesFromPoints(tracker.centroids);
-		generateSVG(tracker.centroids);
+		detector.centroids = removeDuplicatesFromPoints(detector.centroids);
+		generateSVG(detector.centroids);
 	}
 
 }
@@ -532,8 +531,8 @@ void ofApp::buildUI()
 	ppSettings->addBreak();
 
 	ofxDatGuiFolder* mapSettings = gui->addFolder("Mapping Settings", ofColor::dimGrey);
-	mapSettings->addSlider(tracker.learningTime);
-	mapSettings->addSlider(tracker.thresholdValue);
+	mapSettings->addSlider(detector.learningTime);
+	mapSettings->addSlider(detector.thresholdValue);
 	mapSettings->addButton("Test LEDS");
 	mapSettings->addButton("Map LEDS");
 	mapSettings->addButton("Save Layout");

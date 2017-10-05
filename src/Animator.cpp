@@ -102,6 +102,10 @@ void Animator::populateLeds() {
         leds[i].setAddress(i);
         leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
     }
+    ofLogNotice("animator") << "known patterns: ";
+    for (int i = 0; i < leds.size(); i++) {
+        ofLogNotice("animator") << leds[i].binaryPattern.binaryPatternString;
+    }
 }
 
 

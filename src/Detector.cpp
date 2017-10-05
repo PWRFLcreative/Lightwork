@@ -6,9 +6,9 @@
 //
 //
 
-#include "Tracker.h"
+#include "Detector.h"
 
-Tracker::Tracker() {
+Detector::Detector() {
     for (int i = 0; i < 150; i++) { // TODO: make this dynamic!
         detectedPatterns.push_back(BinaryPattern());
         detectedPatterns[i].generatePattern(0);
@@ -18,13 +18,13 @@ Tracker::Tracker() {
     index = 0; // Index to write to detected pattern
 }
 
-Tracker::~Tracker() {
+Detector::~Detector() {
     
 }
 
-void Tracker::setup(ofVideoGrabber *camera) {
+void Detector::setup(ofVideoGrabber *camera) {
     cam = camera;
-    mode = TRACKER_MODE_CHASE; // TODO review
+    mode = DETECTOR_MODE_CHASE; // TODO review
     setMinAreaRadius(1);
     setMaxAreaRadius(100);
     setThreshold(15);
@@ -42,39 +42,39 @@ void Tracker::setup(ofVideoGrabber *camera) {
 
 }
 
-void Tracker::setMode(tracker_mode_t m) {
+void Detector::setMode(detector_mode_t m) {
     mode = m;
 }
 
-void Tracker::update() {
+void Detector::update() {
     
     // Binary pattern detection
     // Background subtraction
     background.setLearningTime(learningTime);
     background.setThresholdValue(thresholdValue);
     background.update(*cam, thresholded);
-    
-    
+
     // Get contours
     ofxCv::blur(thresholded, 5); // TODO: do we need this?
     findContours(thresholded);
     thresholded.update();
     
-    if (mode == TRACKER_MODE_BINARY) {
+    if (mode == DETECTOR_MODE_BINARY) {
         findBinary();
     }
-    else if (mode == TRACKER_MODE_CHASE) {
+    else if (mode == DETECTOR_MODE_CHASE) {
         findSequential();
     }
 }
 
-void Tracker::findBinary() {
+void Detector::findBinary() {
     // Get colour from original frame in contour areas
     if (this->size() <= 0) { cout << "no contour at this moment!" << endl; }
-//    else {
-//        cout << "findBinary size(): " << this->size() << endl;
-//    }
+    else {
+        cout << "findBinary size(): " << this->size() << endl;
+    }
     for (int i = 0; i < this->size(); i++) {
+//        ofLogNotice("tracker") << "analyzing tracker at index: " << i << " with label: " << getLabel(i);
         cv::Rect rect = getBoundingRect(i);
         ofImage img;
         img = cam->getPixels();
@@ -99,7 +99,7 @@ void Tracker::findBinary() {
         avgB = b/numPixels;
         ofFloatColor avgColor = ofFloatColor(avgR, avgG, avgB);
         float brightness = avgColor.getBrightness();
-//        cout << "brightness: " << brightness << endl;
+        cout << "label: " << getLabel(i) <<" brightness: " << brightness << endl;
 //        cout << "[" << avgR << ", " << avgG << ", " << avgB << "]," << endl;
         
         // If brightness is above threshold, get the brightest colour
@@ -156,7 +156,7 @@ void Tracker::findBinary() {
         if (previousState != detectedState && index < 10 && detectedState != 2 && detectedState != 3) {
 //            cout << "Transition detected from: " << previousState << " to " << detectedState << endl;
             detectedPatterns[i].updateBitAtIndex(detectedState, index);
-            index++;
+            index++; // TODO: This can not be a shared counter, each tracker should have this
 //            ofLogNotice("tracker") << "detected pattern: binaryPatternString: " << detectedPatterns[i].binaryPatternString << endl;
         }
         previousState = detectedState;
@@ -164,7 +164,7 @@ void Tracker::findBinary() {
     }
     // Profit
 }
-void Tracker::findSequential() {
+void Detector::findSequential() {
     bool success = false; // Indicate if we successfully mapped an LED on this frame (visible or off-canvas
     
     // We have 1 contour

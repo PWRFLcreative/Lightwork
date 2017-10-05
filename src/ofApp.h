@@ -9,7 +9,7 @@
 #include "ofxDatGui.h"
 #include "ofVideoGrabber.h"
 #include "Animator.h"
-#include "Tracker.h"
+#include "Detector.h"
 
 class ofApp : public ofBaseApp{
 
@@ -62,7 +62,7 @@ class ofApp : public ofBaseApp{
 		string IP;
     
         // Contours
-        Tracker                         tracker;
+        Detector                         detector;
     
         bool                            isMapping;         // Main program-state variable
     

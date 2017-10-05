@@ -14,13 +14,13 @@
 #include "BinaryPattern.h"
 
 
-enum tracker_mode_t {TRACKER_MODE_CHASE, TRACKER_MODE_BINARY};
+enum detector_mode_t {DETECTOR_MODE_CHASE, DETECTOR_MODE_BINARY};
 
-class Tracker : public ofxCv::ContourFinder {
+class Detector : public ofxCv::ContourFinder {
     
 public:
-    Tracker();
-    ~Tracker();
+    Detector();
+    ~Detector();
     
     // Background subtraction
     ofxCv::RunningBackground        background;        // Background subtraction class with running average
@@ -34,8 +34,8 @@ public:
     ofVideoGrabber          *cam;
     
     void setup(ofVideoGrabber *camera);
-    void setMode(tracker_mode_t m);
-    tracker_mode_t mode;
+    void setMode(detector_mode_t m);
+    detector_mode_t mode;
     
     void update();
     void findBinary();
