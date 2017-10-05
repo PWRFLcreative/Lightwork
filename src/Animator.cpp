@@ -112,9 +112,9 @@ void Animator::populateLeds() {
         leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
     }
     ofLogNotice("animator") << "known patterns: ";
-    for (int i = 0; i < leds.size(); i++) {
-        ofLogNotice("animator") << leds[i].binaryPattern.binaryPatternString;
-    }
+    //for (int i = 0; i < leds.size(); i++) {
+    //    //ofLogNotice("animator") << leds[i].binaryPattern.binaryPatternString;
+    //}
 }
 
 
@@ -136,6 +136,10 @@ void Animator::update() {
             case ANIMATION_MODE_BINARY: {
                 binaryAnimation();
             }
+
+			case ANIMATION_MODE_OFF: {
+				setAllLEDColours(ofColor(0, 0, 0));
+			}
         };
     // }
     // Advance the internal counter
@@ -170,6 +174,7 @@ void Animator::setAllLEDColours(ofColor col) {
     for (int i = 0; i <  numLedsPerStrip*numStrips; i++) {
         leds.at(i).color = col;
     }
+    opcClient->autoWriteData(this->getPixels()); // TODO: Review this
 }
 
 //LED Pre-flight test
@@ -188,6 +193,7 @@ void Animator::test() {
     
     if (testIndex > 90) {
         testIndex = 0;
+
     }
 }
 

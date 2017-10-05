@@ -68,9 +68,9 @@ void ofApp::setup(){
     detector.learningTime.set("Learning Time", 4, 0, 30);
     detector.thresholdValue.set("Threshold Value", 50, 0, 255);
     cout << "tracker detected patterns (pre detection)" << endl;
-    for (int i = 0; i < detector.detectedPatterns.size(); i++) {
-        cout << detector.detectedPatterns[i].binaryPatternString << endl;
-    }
+    //for (int i = 0; i < detector.detectedPatterns.size(); i++) {
+    //    cout << detector.detectedPatterns[i].binaryPatternString << endl;
+    //}
     
     // SVG
     svg.setViewbox(0, 0, camWidth, camHeight);
@@ -232,8 +232,10 @@ void ofApp::keyPressed(int key){
             generateJSON(detector.centroids);
             break;
 		case 't':
-            animator.setMode(ANIMATION_MODE_TEST);
             detector.setMode(DETECTOR_MODE_OFF);
+            isMapping = false;
+			if (animator.mode == ANIMATION_MODE_TEST) { animator.setMode(ANIMATION_MODE_OFF); }
+			else { animator.setMode(ANIMATION_MODE_TEST); }
             animator.update();
 			break;
         case 'f': // filter points
@@ -497,11 +499,31 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	ofLogNotice("gui") << "onButtonEvent: " << e.target->getLabel();
 
 	if (e.target->is("TEST LEDS")) {
-        animator.setMode(ANIMATION_MODE_TEST);
+		if (animator.mode == ANIMATION_MODE_TEST) { 
+			animator.setMode(ANIMATION_MODE_OFF); 
+			animator.update();
+		}
+		else { 
+			animator.setMode(ANIMATION_MODE_TEST); 
+			animator.update();
+		}
 //        opcClient.autoWriteData(animator.getPixels());
 	}
 	if (e.target->is("MAP LEDS")) {
+        detector.setMode(DETECTOR_MODE_CHASE);
+        
         isMapping = !isMapping;
+        animator.setMode(ANIMATION_MODE_CHASE);
+        animator.setFrameSkip(3);
+        if (!isMapping) {
+            detector.centroids.clear();
+            animator.setAllLEDColours(ofColor(0,0,0));
+        }
+        else {
+            animator.update();
+        }
+        
+
 	}
 	if (e.target->is("SAVE LAYOUT")) {
 		detector.centroids = removeDuplicatesFromPoints(detector.centroids);
