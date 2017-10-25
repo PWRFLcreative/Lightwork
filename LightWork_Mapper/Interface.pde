@@ -189,8 +189,6 @@ public class Interface {
             break;
           }
         }
-
-        
       }
 
       if (opc.isConnected()) {
@@ -207,6 +205,7 @@ public class Interface {
         registry = new DeviceRegistry();
         testObserver = new TestObserver();
       }
+
       registry.addObserver(testObserver);
       registry.setAntiLog(true);
 
@@ -237,8 +236,9 @@ public class Interface {
     }
     if (mode==device.PIXELPUSHER) {
       //registry.stopPushing() ;  //TODO: Need to disconnect devices as well
-      registry = null;
-      testObserver = null;
+      registry.deleteObserver(testObserver);
+      //registry = null;
+      //testObserver = null;
     }
     if (mode==device.ARTNET) {
     }
