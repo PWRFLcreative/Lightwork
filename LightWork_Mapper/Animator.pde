@@ -1,4 +1,4 @@
-// //<>// //<>//
+// //<>// //<>// //<>// //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -103,9 +103,10 @@ public class Animator {
         test();
         break;
       }
-      //case BINARY: {
-      //    binaryAnimation();
-      //}
+      case BINARY: {
+          //binaryAnimation();
+          break;
+      }
 
     case OFF: 
       {
@@ -114,7 +115,7 @@ public class Animator {
 
     // Advance the internal counter
     frameCounter++;
-    
+
     //send pixel data over network
     if (mode!=animationMode.OFF) {
       network.update(this.getPixels());
@@ -127,9 +128,10 @@ public class Animator {
       rect(i*5, (height)-5, 5, 5);
     }
   }
+  
   // Update the pixels for all the strips
   // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
-  void chase() { //<>//
+  void chase() {
     for (int i = 0; i <  leds.size(); i++) {
       color col;
       if (i == ledIndex) {
@@ -137,12 +139,12 @@ public class Animator {
       } else {
         col = color(0, 0, 0);
       }
-      leds.get(i).setColor(col); //<>//
+      leds.get(i).setColor(col);
     }
 
     if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
-    
-    //loop
+
+    // Loop around
     if (ledIndex >= leds.size()) {
       ledIndex = 0;
     }

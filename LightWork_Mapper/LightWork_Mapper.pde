@@ -40,21 +40,19 @@ void setup()
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
 
-
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
     cam = new Capture(this, camWidth, camHeight, 30);
-  } 
-  if (cameras.length == 0) {
+  } else if (cameras.length == 0) {
     println("There are no cameras available for capture.");
     exit();
   } else {
     println("Available cameras:");
     printArray(cameras);
-
     cam = new Capture(this, camWidth, camHeight, 30);
     cam.start();
   }
+  
   opencv = new OpenCV(this, camWidth, camHeight);
   opencv.threshold(10);
   // Gray channel
@@ -75,7 +73,6 @@ void setup()
 
 void draw()
 {
-
   // Display the camera input and processed binary image
   if (cam.available()) {
     cam.read();
@@ -93,7 +90,9 @@ void draw()
     image(opencv.getSnapshot(), 0, camHeight);
   }
 
-  if (isMapping)sequentialMapping();
+  if (isMapping) {
+    sequentialMapping();
+  }
   animator.update();
 
   if (coords.size()>0) {
@@ -160,14 +159,9 @@ void keyPressed() {
 }
 
 void sequentialMapping() {
-
-
-
   for (Contour contour : opencv.findContours()) {
     noFill();
     stroke(255, 0, 0);
-    //strokeWeight(3);
-
     contour.draw();
     coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
   }

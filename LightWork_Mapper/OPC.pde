@@ -273,8 +273,8 @@ public class OPC implements Runnable
   // Change the number of pixels in our output packet.
   // This is normally not needed; the output packet is automatically sized
   // by draw() and by setPixel().
-  void setPixelCount(int numPixels)
-  {
+  void setPixelCount(int numPixels) {
+    println("setPixelCount: " + numPixels);
     int numBytes = 3 * numPixels;
     int packetLen = 4 + numBytes;
     if (packetData == null || packetData.length != packetLen) {

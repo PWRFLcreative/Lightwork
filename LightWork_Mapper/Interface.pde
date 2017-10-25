@@ -108,7 +108,9 @@ public class Interface {
 
     //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
 
-    if (leds.size()>0)leds.clear();
+    if (leds.size()>0) {
+      leds.clear();
+    }
 
     for (int i = 0; i < numLeds; i++) {
       LED temp= new LED();
@@ -175,16 +177,28 @@ public class Interface {
     if (mode == device.FADECANDY) {
       if (opc== null) {
         opc = new OPC(parent, IP, port);
-        delayThread(3000);
-        opc.setPixelCount(numLeds);
+        //delayThread(3000);
+        int startTime = millis();
+        while (!opc.isConnected) {
+          println("waiting...");
+          int currentTime = millis(); 
+          int deltaTime = currentTime - startTime;
+          if (deltaTime > 5000) {
+            println("connection failed, check your connections..."); 
+            isConnected = false; 
+            break;
+          }
+        }
+
+        
       }
 
       if (opc.isConnected()) {
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
+        opc.setPixelCount(numLeds);
       }
       populateLeds();
-
     }
 
     if (mode == device.PIXELPUSHER ) {
@@ -193,9 +207,9 @@ public class Interface {
         registry = new DeviceRegistry();
         testObserver = new TestObserver();
       }
-        registry.addObserver(testObserver);
-        registry.setAntiLog(true);
-      
+      registry.addObserver(testObserver);
+      registry.setAntiLog(true);
+
 
       delayThread(3000);
 
@@ -225,7 +239,6 @@ public class Interface {
       //registry.stopPushing() ;  //TODO: Need to disconnect devices as well
       registry = null;
       testObserver = null;
-      
     }
     if (mode==device.ARTNET) {
     }
