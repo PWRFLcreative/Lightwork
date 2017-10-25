@@ -1,4 +1,4 @@
-// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -177,7 +177,6 @@ public class Interface {
     if (mode == device.FADECANDY) {
       if (opc== null) {
         opc = new OPC(parent, IP, port);
-        //delayThread(3000);
         int startTime = millis();
         while (!opc.isConnected) {
           println("waiting...");
@@ -208,9 +207,6 @@ public class Interface {
 
       registry.addObserver(testObserver);
       registry.setAntiLog(true);
-
-
-      delayThread(3000);
 
       if (testObserver.hasStrips) {
         isConnected =true;

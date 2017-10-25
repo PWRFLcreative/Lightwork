@@ -1,4 +1,4 @@
-//  //<>//
+//  //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -15,6 +15,7 @@ Capture cam;
 OpenCV opencv;
 Animator animator;
 Interface network; 
+BinaryPattern pattern; 
 
 boolean isMapping=false;
 
@@ -32,13 +33,13 @@ String savePath = "layout.svg";
 
 ArrayList <LED>     leds;
 
-void setup()
-{
+void setup() {
   size(640, 960);
+
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
-  leds =new ArrayList<LED>();
+  leds = new ArrayList<LED>();
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
@@ -63,16 +64,18 @@ void setup()
 
   network = new Interface();
 
-  animator =new Animator(); //ledsPerstrip, strips, brightness
+  animator = new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(20);
   animator.setFrameSkip(10);
   animator.setAllLEDColours(off); // Clear the LED strips
 
+  pattern = new BinaryPattern();
+  pattern.generatePattern(150);
+  
   background(0);
 }
 
-void draw()
-{
+void draw() {
   // Display the camera input and processed binary image
   if (cam.available()) {
     cam.read();
@@ -185,7 +188,6 @@ void saveSVG(ArrayList <PVector> points) {
 }
 
 //Closes connections
-void stop()
-{
+void stop() {
   super.stop();
 }

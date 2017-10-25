@@ -8,10 +8,10 @@
 //
 //////////////////////////////////////////////////////////////
 
-public  class LED {
+public class LED {
   color c; // Current LED color
   int address; // LED Address
-  //BinaryPattern binaryPattern;
+  BinaryPattern binaryPattern;
   PVector coord;
 
 
@@ -19,7 +19,7 @@ public  class LED {
     c = color(0, 0, 0);
     address = 0;
     coord= new PVector(0, 0);
-    //    binaryPattern = BinaryPattern();
+    binaryPattern = new BinaryPattern();
   }
 
   void setColor(color col) {
@@ -28,6 +28,8 @@ public  class LED {
 
   void setAddress(int addr) {
     address = addr;
+    int bPatternOffset = 150; // TODO: review, make accessible...
+    binaryPattern.generatePattern(address+bPatternOffset);
   }
 
   //void LEDsetBinaryPattern(BinaryPattern pat) {
