@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -104,7 +104,7 @@ public class Animator {
         break;
       }
       case BINARY: {
-          //binaryAnimation();
+          binaryAnimation();
           break;
       }
 
@@ -172,5 +172,9 @@ public class Animator {
     if (testIndex > 90) {
       testIndex = 0;
     }
+  }
+  
+  void binaryAnimation() {
+     
   }
 }

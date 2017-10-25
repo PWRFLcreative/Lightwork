@@ -11,14 +11,15 @@
 public class LED {
   color c; // Current LED color
   int address; // LED Address
+  int bPatternOffset; // Offset the Binary Pattern Seed to avoid 0000000000
   BinaryPattern binaryPattern;
   PVector coord;
-
 
   LED() {
     c = color(0, 0, 0);
     address = 0;
     coord= new PVector(0, 0);
+    bPatternOffset = 150; 
     binaryPattern = new BinaryPattern();
   }
 
@@ -28,7 +29,6 @@ public class LED {
 
   void setAddress(int addr) {
     address = addr;
-    int bPatternOffset = 150; // TODO: review, make accessible...
     binaryPattern.generatePattern(address+bPatternOffset);
   }
 

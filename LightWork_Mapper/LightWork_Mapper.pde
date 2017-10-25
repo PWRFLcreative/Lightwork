@@ -31,7 +31,7 @@ int ledBrightness = 50;
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
 
-ArrayList <LED>     leds;
+
 
 void setup() {
   size(640, 960);
@@ -39,7 +39,7 @@ void setup() {
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
-  leds = new ArrayList<LED>();
+  
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");

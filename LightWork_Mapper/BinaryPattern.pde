@@ -37,23 +37,30 @@ public class BinaryPattern {
     //generatePattern(0);
     previousState = 0;
     detectedState = 0;
-    
+
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
     animationPatternVector = new int[animationPatternLength];
-    animationPatternString = ""; 
-    
+    animationPatternString = "";
   }
 
   // Generate Binary patterns for animation sequence and pattern-matching
   void generatePattern(int num) {
+
     // Convert int to String of fixed length
     String s = Integer.toBinaryString(num); 
     // TODO: string format, use numBits instead of hardcoded 10
     s = String.format("%10s", s).replace(" ", "0"); // Insert leading zeros to maintain pattern length
-    println(s);
     binaryPatternString = s;
-    
+
+
+    // Convert Binary String to Vector of Ints
+    for (int i = 0; i < binaryPatternVector.length; i++) {
+      char c = binaryPatternString.charAt(i);
+      int x = Character.getNumericValue(c);
+      binaryPatternVector[i] = x;
+    }
+
 
     /*
 

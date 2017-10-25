@@ -23,6 +23,8 @@ enum device {
   FADECANDY, PIXELPUSHER, ARTNET, NULL
 };
 
+ArrayList <LED>     leds;
+
 public class Interface {
 
   device              mode;
@@ -49,6 +51,7 @@ public class Interface {
 
   Interface() {
     mode = device.NULL;
+    leds = new ArrayList<LED>();
     populateLeds();
     println("Interface created");
   }
@@ -105,9 +108,6 @@ public class Interface {
 
   // Reset the LED vector
   void populateLeds() {
-
-    //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
-
     if (leds.size()>0) {
       leds.clear();
     }
@@ -116,7 +116,6 @@ public class Interface {
       LED temp= new LED();
       leds.add(temp);
       leds.get(i).setAddress(i);
-      //leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
     }
   }
 
@@ -195,7 +194,6 @@ public class Interface {
         isConnected =true;
         opc.setPixelCount(numLeds);
       }
-      populateLeds();
     }
 
     if (mode == device.PIXELPUSHER ) {
@@ -219,9 +217,9 @@ public class Interface {
         ledsPerStrip = pp.getPixelsPerStrip();
       }
 
-      registry.setLogging(false);
-      populateLeds();
+      registry.setLogging(false); 
     }
+    populateLeds();
   }
 
   //Close existing connections
