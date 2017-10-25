@@ -13,7 +13,7 @@ void setup() {
   background(0);
 
   //initialize scraper
-  scrape = new Scraper("layout.svg"); 
+  scrape = new Scraper("binaryMagic.svg"); 
   scrape.init();
   scrape.normCoords();
 
@@ -27,7 +27,7 @@ void setup() {
 
 void draw() {
   background(0);
-  
+
   // Test animation
   //noFill();
   //strokeWeight(25);
@@ -36,18 +36,31 @@ void draw() {
   //  ellipse(width/2, height/2, i*100*sin(frameCount*0.02), i*100*sin(frameCount*0.02));
   //}
   // End test animation
-  
-  
+
+
   //rect(0,0,50,50); //test margin bounds
   scrape.display();
 
   //simple chase animation
   noStroke();
-  fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
+  //fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
+  fill(255, frameCount%255, 145, 232);
   if (pos<=width)pos+=5;
   else pos=0;
   rect(pos, 0, 100, height);
-  ellipse(mouseX, mouseY, 30, 30);
   
+  fill(frameCount%255, 23, 145, 232);
+  if (pos<=height)pos+=5;
+  else pos=0;
+  rect(0, pos, width, 100);
+  //ellipse(mouseX, mouseY, 30, 30);
 
+
+  //for (int i = 0; i < mouseX; i++) {
+  //  stroke(i, mouseX, mouseY);
+  //  line(i, 0, i, height); 
+  //}
+  noStroke();
+  fill(100, 100, 100);
+  ellipse(mouseX, mouseY, 30, 30);
 }
