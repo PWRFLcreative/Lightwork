@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>//
+//  //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -25,7 +25,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFilePath = "data/binaryRecording.mp4";
+String movieFilePath = "binaryRecording.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -47,7 +47,7 @@ void setup()
 {
   size(640, 960);
   frameRate(FPS);
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -68,7 +68,9 @@ void setup()
     cam.start();
   }
   videoExport = new VideoExport(this, movieFilePath, cam);
-
+  
+  movie = new Movie(this, "binaryRecording.mp4"); // TODO: Make dynamic (use loadMovieFile method)
+  movie.loop();
   opencv = new OpenCV(this, camWidth, camHeight);
   opencv.threshold(10);
   // Gray channel
@@ -105,7 +107,7 @@ void draw()
     opencv.blur(2);
     image(opencv.getSnapshot(), 0, camHeight);
   } else if (videoMode == VideoMode.FILE) {
-    
+    image(movie, 0, 0, camWidth, camHeight);
   }
 
   if (isMapping) {
@@ -174,8 +176,8 @@ void keyPressed() {
       println("VideoMode: CAMERA");
     } else if (videoMode == VideoMode.CAMERA) {
       videoMode = VideoMode.FILE;
-      loadMovieFile(movieFilePath);
-      println("VideoMode: FILE");
+      boolean success = loadMovieFile(movieFilePath);
+      println("VideoMode: FILE " + success);
     }
   }
 
@@ -226,9 +228,15 @@ void binaryMapping() {
 boolean loadMovieFile(String path) {
   File f = new File(path);
   if (f.exists()) {
-    movie = new Movie(this, path);
+    movie = new Movie(this, "binaryRecording.mp4");
+    movie.loop();
   }
   return f.exists();
+}
+
+// Movie reading callback
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void saveSVG(ArrayList <PVector> points) {
