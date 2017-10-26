@@ -10,13 +10,22 @@
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
+import com.hamoid.*; // Video recording
 
 Capture cam;
+Movie movie;
 OpenCV opencv;
 Animator animator;
 Interface network; 
 
 boolean isMapping=false;
+
+enum  VideoMode {
+  CAMERA, FILE, OFF
+};
+
+VideoMode videoMode; 
+String movieFilePath = "data/binaryRecording.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -25,16 +34,20 @@ int camWidth =640;
 int camHeight =480;
 float camAspect = (float)camWidth / (float)camHeight;
 
-int ledBrightness = 50;
-
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
 
 ArrayList <LED>     leds;
 
+int FPS = 30; 
+VideoExport videoExport;
+boolean isRecording = false;
+
 void setup()
 {
   size(640, 960);
+  frameRate(FPS);
+  videoMode = VideoMode.CAMERA; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -42,7 +55,7 @@ void setup()
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
-    cam = new Capture(this, camWidth, camHeight, 30);
+    cam = new Capture(this, camWidth, camHeight, FPS);
   } else if (cameras.length == 0) {
     println("There are no cameras available for capture.");
     exit();
@@ -51,10 +64,11 @@ void setup()
     printArray(cameras);
     //cam = new Capture(this, camWidth, camHeight, 30);
     //cam = new Capture(this, cameras[0]);
-    cam = new Capture(this, camWidth, camHeight, cameras[0]);
+    cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
     cam.start();
   }
-  
+  videoExport = new VideoExport(this, movieFilePath, cam);
+
   opencv = new OpenCV(this, camWidth, camHeight);
   opencv.threshold(10);
   // Gray channel
@@ -66,7 +80,7 @@ void setup()
   network = new Interface();
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(20);
+  animator.setLedBrightness(150);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
 
@@ -76,7 +90,7 @@ void setup()
 void draw()
 {
   // Display the camera input and processed binary image
-  if (cam.available()) {
+  if (cam.available() && videoMode == VideoMode.CAMERA) {
     cam.read();
     image(cam, 0, 0, camWidth, camHeight);
 
@@ -90,10 +104,12 @@ void draw()
     opencv.erode();
     opencv.blur(2);
     image(opencv.getSnapshot(), 0, camHeight);
+  } else if (videoMode == VideoMode.FILE) {
   }
 
   if (isMapping) {
-    sequentialMapping();
+    //sequentialMapping();
+    binaryMapping();
   }
   animator.update();
 
@@ -103,6 +119,10 @@ void draw()
       stroke(255, 0, 0);
       ellipse(p.x, p.y, 10, 10);
     }
+  }
+
+  if (isRecording) {
+    videoExport.saveFrame();
   }
 }
 
@@ -131,14 +151,29 @@ void keyPressed() {
       println("Animator off");
     }
   }
-  
+
   if (key == 'b') {
     if (animator.getMode()!=animationMode.BINARY) {
+      videoExport.startMovie();
+      isRecording = true;
       animator.setMode(animationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
+      isRecording = false;
+      videoExport.endMovie();
       animator.setMode(animationMode.OFF);
       println("Animator off");
+    }
+  }
+
+  if (key == 'v') {
+    // Toggle Video Input Mode
+    if (videoMode == VideoMode.FILE) {
+      videoMode = VideoMode.CAMERA;
+      println("VideoMode: CAMERA");
+    } else if (videoMode == VideoMode.CAMERA) {
+      videoMode = VideoMode.FILE;
+      println("VideoMode: FILE");
     }
   }
 
@@ -177,6 +212,21 @@ void sequentialMapping() {
     contour.draw();
     coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
   }
+}
+
+void binaryMapping() {
+  for (Contour contour : opencv.findContours()) {
+    contour.draw();
+  }
+}
+
+// Load file, return success value
+boolean loadMovieFile(String path) {
+  File f = new File(path);
+  if (f.exists()) {
+    movie = new Movie(this, path);
+  }
+  return f.exists();
 }
 
 void saveSVG(ArrayList <PVector> points) {

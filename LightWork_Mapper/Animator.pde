@@ -185,7 +185,7 @@ public class Animator {
         leds.get(i).setColor(color(0, 0, 0));
         break;
       case 1:
-        leds.get(i).setColor(color(255, 255, 255));
+        leds.get(i).setColor(color(ledBrightness, ledBrightness, ledBrightness));
         break;
       }
     }
