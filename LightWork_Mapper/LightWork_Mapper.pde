@@ -1,4 +1,4 @@
-//  //<>// //<>//
+//  //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -49,7 +49,9 @@ void setup()
   } else {
     println("Available cameras:");
     printArray(cameras);
-    cam = new Capture(this, camWidth, camHeight, 30);
+    //cam = new Capture(this, camWidth, camHeight, 30);
+    //cam = new Capture(this, cameras[0]);
+    cam = new Capture(this, camWidth, camHeight, cameras[0]);
     cam.start();
   }
   
@@ -65,7 +67,7 @@ void setup()
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(20);
-  animator.setFrameSkip(10);
+  animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
 
   background(0);

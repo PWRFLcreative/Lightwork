@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>// //<>// //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -91,7 +91,7 @@ public class Animator {
   //////////////////////////////////////////////////////////////
 
   void update() {
-    //if (frameCount % frameSkip == 0) { //<>//
+    //if (frameCount % frameSkip == 0) { //<>// //<>//
     switch(mode) {
     case CHASE: 
       {
@@ -153,7 +153,7 @@ public class Animator {
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {
-    for (int i = 0; i <  leds.size(); i++) { //<>//
+    for (int i = 0; i <  leds.size(); i++) { //<>// //<>//
       leds.get(i).setColor(col);
     }
   }
@@ -176,17 +176,20 @@ public class Animator {
   }
 
   void binaryAnimation() {
-    for (int i = 0; i <  leds.size(); i++) {
+    if (frameCount%frameSkip==0) {
+      for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).binaryPattern.advance();
       
       switch(leds.get(i).binaryPattern.state) {
       case 0:
-        leds.get(i).setColor(color(255, 0, 0));
+        leds.get(i).setColor(color(0, 0, 0));
         break;
       case 1:
-        leds.get(i).setColor(color(0, 255, 0));
+        leds.get(i).setColor(color(255, 255, 255));
         break;
       }
     }
+    }
+    
   }
 }
