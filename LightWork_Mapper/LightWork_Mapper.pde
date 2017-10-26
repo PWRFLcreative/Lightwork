@@ -25,7 +25,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFilePath = "binaryRecording.mp4";
+String movieFileName = "binaryRecording.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -42,6 +42,9 @@ ArrayList <LED>     leds;
 int FPS = 30; 
 VideoExport videoExport;
 boolean isRecording = false;
+
+PImage videoInput; 
+PImage cvOutput;
 
 void setup()
 {
@@ -67,8 +70,8 @@ void setup()
     cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
     cam.start();
   }
-  videoExport = new VideoExport(this, movieFilePath, cam);
-  
+  videoExport = new VideoExport(this, "data/"+movieFileName, cam);
+
   movie = new Movie(this, "binaryRecording.mp4"); // TODO: Make dynamic (use loadMovieFile method)
   movie.loop();
   opencv = new OpenCV(this, camWidth, camHeight);
@@ -82,7 +85,7 @@ void setup()
   network = new Interface();
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(150);
+  animator.setLedBrightness(100);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
 
@@ -92,23 +95,28 @@ void setup()
 void draw()
 {
   // Display the camera input and processed binary image
+
   if (cam.available() && videoMode == VideoMode.CAMERA) {
     cam.read();
-    image(cam, 0, 0, camWidth, camHeight);
-
-    opencv.loadImage(cam);
-    opencv.updateBackground();
-
-    opencv.equalizeHistogram();
-
-    //these help close holes in the binary image
-    opencv.dilate();
-    opencv.erode();
-    opencv.blur(2);
-    image(opencv.getSnapshot(), 0, camHeight);
+    //image(cam, 0, 0, camWidth, camHeight);
+    videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
-    image(movie, 0, 0, camWidth, camHeight);
+    videoInput = movie;
+    //image(videoInput, 0, 0, camWidth, camHeight);
   }
+  
+  // Draw Input Video/Camera
+  image(videoInput, 0, 0, camWidth, camHeight);
+  
+  opencv.loadImage(videoInput);
+  opencv.updateBackground();
+  opencv.equalizeHistogram();
+
+  //these help close holes in the binary image
+  opencv.dilate();
+  opencv.erode();
+  opencv.blur(2);
+  image(opencv.getSnapshot(), 0, camHeight);
 
   if (isMapping) {
     //sequentialMapping();
@@ -176,7 +184,7 @@ void keyPressed() {
       println("VideoMode: CAMERA");
     } else if (videoMode == VideoMode.CAMERA) {
       videoMode = VideoMode.FILE;
-      boolean success = loadMovieFile(movieFilePath);
+      boolean success = loadMovieFile(movieFileName);
       println("VideoMode: FILE " + success);
     }
   }
