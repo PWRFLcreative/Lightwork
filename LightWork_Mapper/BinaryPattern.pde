@@ -56,7 +56,6 @@ public class BinaryPattern {
     s = String.format("%10s", s).replace(" ", "0"); // Insert leading zeros to maintain pattern length
     binaryPatternString = s;
 
-
     // Convert Binary String to Vector of Ints
     for (int i = 0; i < binaryPatternVector.length; i++) {
       char c = binaryPatternString.charAt(i);

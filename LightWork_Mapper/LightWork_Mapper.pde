@@ -105,6 +105,7 @@ void draw()
     opencv.blur(2);
     image(opencv.getSnapshot(), 0, camHeight);
   } else if (videoMode == VideoMode.FILE) {
+    
   }
 
   if (isMapping) {
@@ -173,6 +174,7 @@ void keyPressed() {
       println("VideoMode: CAMERA");
     } else if (videoMode == VideoMode.CAMERA) {
       videoMode = VideoMode.FILE;
+      loadMovieFile(movieFilePath);
       println("VideoMode: FILE");
     }
   }
