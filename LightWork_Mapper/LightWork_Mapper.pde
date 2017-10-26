@@ -15,7 +15,6 @@ Capture cam;
 OpenCV opencv;
 Animator animator;
 Interface network; 
-BinaryPattern pattern; 
 
 boolean isMapping=false;
 
@@ -31,15 +30,15 @@ int ledBrightness = 50;
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
 
+ArrayList <LED>     leds;
 
-
-void setup() {
+void setup()
+{
   size(640, 960);
-
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
-  
+  leds =new ArrayList<LED>();
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
@@ -64,18 +63,16 @@ void setup() {
 
   network = new Interface();
 
-  animator = new Animator(); //ledsPerstrip, strips, brightness
+  animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(20);
   animator.setFrameSkip(10);
   animator.setAllLEDColours(off); // Clear the LED strips
 
-  pattern = new BinaryPattern();
-  pattern.generatePattern(150);
-  
   background(0);
 }
 
-void draw() {
+void draw()
+{
   // Display the camera input and processed binary image
   if (cam.available()) {
     cam.read();
@@ -96,7 +93,6 @@ void draw() {
   if (isMapping) {
     sequentialMapping();
   }
-  
   animator.update();
 
   if (coords.size()>0) {
@@ -115,33 +111,35 @@ void keyPressed() {
 
   if (key == 'm') {
     isMapping=!isMapping;
-    if (animator.getMode()!=animationMode_t.CHASE) {
-      animator.setMode(animationMode_t.CHASE);
+    if (animator.getMode()!=animationMode.CHASE) {
+      animator.setMode(animationMode.CHASE);
       println("Chase mode");
     } else {
-      animator.setMode(animationMode_t.OFF);
+      animator.setMode(animationMode.OFF);
       println("Animator off");
     }
   }
 
   if (key == 't') {
-    if (animator.getMode()!=animationMode_t.TEST) {
-      animator.setMode(animationMode_t.TEST);
+    if (animator.getMode()!=animationMode.TEST) {
+      animator.setMode(animationMode.TEST);
       println("Test mode");
     } else {
-      animator.setMode(animationMode_t.OFF);
+      animator.setMode(animationMode.OFF);
       println("Animator off");
     }
   }
+  
   if (key == 'b') {
-     if (animator.getMode()!=animationMode_t.BINARY) {
-      animator.setMode(animationMode_t.BINARY);
-      println("Binary mode");
+    if (animator.getMode()!=animationMode.BINARY) {
+      animator.setMode(animationMode.BINARY);
+      println("Binary mode (monochrome)");
     } else {
-      animator.setMode(animationMode_t.OFF);
+      animator.setMode(animationMode.OFF);
       println("Animator off");
     }
   }
+
   // Test connecting to OPC server
   if (key == 'o') {
     network.shutdown();
@@ -168,7 +166,6 @@ void keyPressed() {
       animator.update();
     }
   }
-  
 }
 
 void sequentialMapping() {
@@ -198,6 +195,7 @@ void saveSVG(ArrayList <PVector> points) {
 }
 
 //Closes connections
-void stop() {
+void stop()
+{
   super.stop();
 }

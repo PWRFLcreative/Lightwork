@@ -4,27 +4,30 @@
  @ PWRFL / Lightwork
  */
 
-// Pattern detection
-int previousState;
-int detectedState;
-int animationPatternLength; // 6 bit pattern with a START at the end and an OFF after each one
-int bitIndex;
-int numBits;
 
-String binaryPatternString; 
-int[]  binaryPatternVector;
-String animationPatternString;
-int[]  animationPatternVector;
-
-//enum pattern_state_t {
-//  LOW, HIGH, START, OFF
-//};
-
-//pattern_state_t state;
-
-int frameNum;
 
 public class BinaryPattern {
+
+  // Pattern detection
+  int previousState;
+  int detectedState;
+  int animationPatternLength; // 6 bit pattern with a START at the end and an OFF after each one
+  int bitIndex;
+  int numBits;
+  int state; // Current bit state, used by animator
+
+  String binaryPatternString; 
+  int[]  binaryPatternVector;
+  String animationPatternString;
+  int[]  animationPatternVector;
+
+  //enum pattern_state_t {
+  //  LOW, HIGH, START, OFF
+  //};
+
+  //pattern_state_t state;
+
+  int frameNum;
 
   // Constructor
 
@@ -88,33 +91,11 @@ public class BinaryPattern {
      */
   }
 
-  // Set the current 'state', read it from the patternVector
   void advance() {
-    // TODO: review the ordering of state + frameNum assignment
-    // Set the LED State to HIGH/LOW depending on the patternVector location
-
-    //state = animationPatternVector[frameNum]; 
-    // TODO: use animationPatternVector
-    //switch(binaryPatternVector[frameNum]) {
-    //case 0:
-    //  state = pattern_state_t.LOW;
-    //  break;
-    //case 1: 
-    //  state = pattern_state_t.HIGH;
-    //  break;
-    //}
-
-
+    state = binaryPatternVector[frameNum];
     frameNum = frameNum+1;
     if (frameNum >= animationPatternLength) {
       frameNum = 0;
     }
-  }
-  
-  int getState() {
-    int state = binaryPatternVector[frameNum];
-
-    advance();
-    return state;
   }
 }
