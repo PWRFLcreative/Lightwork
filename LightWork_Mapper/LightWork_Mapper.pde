@@ -96,6 +96,7 @@ void draw() {
   if (isMapping) {
     sequentialMapping();
   }
+  
   animator.update();
 
   if (coords.size()>0) {
@@ -114,25 +115,33 @@ void keyPressed() {
 
   if (key == 'm') {
     isMapping=!isMapping;
-    if (animator.getMode()!=animationMode.CHASE) {
-      animator.setMode(animationMode.CHASE);
+    if (animator.getMode()!=animationMode_t.CHASE) {
+      animator.setMode(animationMode_t.CHASE);
       println("Chase mode");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(animationMode_t.OFF);
       println("Animator off");
     }
   }
 
   if (key == 't') {
-    if (animator.getMode()!=animationMode.TEST) {
-      animator.setMode(animationMode.TEST);
+    if (animator.getMode()!=animationMode_t.TEST) {
+      animator.setMode(animationMode_t.TEST);
       println("Test mode");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(animationMode_t.OFF);
       println("Animator off");
     }
   }
-
+  if (key == 'b') {
+     if (animator.getMode()!=animationMode_t.BINARY) {
+      animator.setMode(animationMode_t.BINARY);
+      println("Binary mode");
+    } else {
+      animator.setMode(animationMode_t.OFF);
+      println("Animator off");
+    }
+  }
   // Test connecting to OPC server
   if (key == 'o') {
     network.shutdown();
@@ -159,6 +168,7 @@ void keyPressed() {
       animator.update();
     }
   }
+  
 }
 
 void sequentialMapping() {

@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////
 
 
-enum animationMode {
+enum animationMode_t {
   CHASE, TEST, BINARY, OFF
 };
 
@@ -27,12 +27,12 @@ public class Animator {
   int                 frameCounter;           // Internal framecounter
   int                 frameSkip;              // How many frames to skip between updates
 
-  animationMode       mode;
+  animationMode_t       aMode;
 
   Animator() {
     println("Animator created");
     ledIndex = 0; // Internal counter
-    mode = animationMode.OFF;
+    aMode = animationMode_t.OFF;
 
     testIndex = 0;
     frameCount = 0;
@@ -44,17 +44,17 @@ public class Animator {
   //////////////////////////////////////////////////////////////
 
 
-  void setMode(animationMode m) {
+  void setMode(animationMode_t m) {
     setAllLEDColours(off);
-    mode = m;
+    aMode = m;
     ledIndex = 0; // TODO: resetInternalVariables() method?
     testIndex = 0;
     frameCounter = 0;
     resetPixels();
   }
 
-  animationMode getMode() {
-    return mode;
+  animationMode_t getMode() {
+    return aMode;
   }
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
@@ -91,36 +91,36 @@ public class Animator {
   //////////////////////////////////////////////////////////////
 
   void update() {
+    binaryAnimation(); //<>//
+    network.update(this.getPixels());
+    /*
     //if (frameCount % frameSkip == 0) {
-    switch(mode) {
+    switch(aMode) {
     case CHASE: 
-      {
+        println("case is CHASE");
         chase();
-        break;
-      }
+      
     case TEST: 
-      {
+        println("case is TEST");
         test();
-        break;
-      }
-      case BINARY: {
-          binaryAnimation();
-          break;
-      }
-
+      
+    case BINARY: 
+        
+        println("case is BINARY");
     case OFF: 
-      {
-      }
+        println("case is OFF");
     };
-
+  */
     // Advance the internal counter
     frameCounter++;
 
     //send pixel data over network
-    if (mode!=animationMode.OFF) {
-      network.update(this.getPixels());
+    print("I don't get it! ");
+    println(aMode);
+    if (aMode!=animationMode_t.OFF) {
+      println("updating pixels");
     }
-
+    
     // draw LED color array to screen -
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
@@ -128,7 +128,7 @@ public class Animator {
       rect(i*5, (height)-5, 5, 5);
     }
   }
-  
+
   // Update the pixels for all the strips
   // This method does not return the pixels, it's up to the users to send animator.pixels to the driver (FadeCandy, PixelPusher).
   void chase() {
@@ -152,7 +152,8 @@ public class Animator {
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {
-    for (int i = 0; i <  leds.size(); i++) {
+    println("SETTING ALL LED COLOURS RIGHT NOW - DEAL WITH IT");
+    for (int i = 0; i <  leds.size(); i++) { //<>//
       leds.get(i).setColor(col);
     }
   }
@@ -173,8 +174,19 @@ public class Animator {
       testIndex = 0;
     }
   }
-  
+
   void binaryAnimation() {
-     
+    if (frameCount%30 == 0) {
+      for (int i = 0; i < leds.size(); i++) {
+        int ledState = leds.get(i).binaryPattern.getState();
+        switch(ledState) {
+        case 0:
+          leds.get(i).setColor(off);
+        case 1:
+          leds.get(i).setColor(on);
+        }
+      }
+    }
   }
+  
 }

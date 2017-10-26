@@ -16,11 +16,11 @@ int[]  binaryPatternVector;
 String animationPatternString;
 int[]  animationPatternVector;
 
-enum pattern_state_t {
-  LOW, HIGH, START, OFF
-};
+//enum pattern_state_t {
+//  LOW, HIGH, START, OFF
+//};
 
-pattern_state_t state;
+//pattern_state_t state;
 
 int frameNum;
 
@@ -30,10 +30,10 @@ public class BinaryPattern {
 
   BinaryPattern() {
     numBits = 10; 
-    animationPatternLength = 22;
+    animationPatternLength = 10;
     frameNum = 0; // Used for animation
     bitIndex = 0; // Used by the detector to write bits 
-    state = pattern_state_t.START;
+    //state = pattern_state_t.START;
     //generatePattern(0);
     previousState = 0;
     detectedState = 0;
@@ -61,6 +61,7 @@ public class BinaryPattern {
       binaryPatternVector[i] = x;
     }
 
+    // Convert Binary Pattern to Animation Sequence
 
     /*
 
@@ -85,5 +86,35 @@ public class BinaryPattern {
      // Convert to int vector and store internally
      animationPatternVector = convertStringToIntVector(animationPatternString);
      */
-  };
+  }
+
+  // Set the current 'state', read it from the patternVector
+  void advance() {
+    // TODO: review the ordering of state + frameNum assignment
+    // Set the LED State to HIGH/LOW depending on the patternVector location
+
+    //state = animationPatternVector[frameNum]; 
+    // TODO: use animationPatternVector
+    //switch(binaryPatternVector[frameNum]) {
+    //case 0:
+    //  state = pattern_state_t.LOW;
+    //  break;
+    //case 1: 
+    //  state = pattern_state_t.HIGH;
+    //  break;
+    //}
+
+
+    frameNum = frameNum+1;
+    if (frameNum >= animationPatternLength) {
+      frameNum = 0;
+    }
+  }
+  
+  int getState() {
+    int state = binaryPatternVector[frameNum];
+
+    advance();
+    return state;
+  }
 }
