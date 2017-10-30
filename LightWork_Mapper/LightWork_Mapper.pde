@@ -12,6 +12,9 @@ import processing.video.*;
 import gab.opencv.*;
 import com.hamoid.*; // Video recording
 
+import java.awt.Rectangle;
+
+
 Capture cam;
 Movie movie;
 OpenCV opencv;
@@ -46,6 +49,15 @@ boolean isRecording = false;
 PImage videoInput; 
 PImage cvOutput;
 
+ArrayList<Contour> contours;
+// List of detected contours parsed as blobs (every frame)
+ArrayList<Contour> newBlobContours;
+// List of my blob objects (persistent)
+ArrayList<Blob> blobList;
+// Number of blobs detected over all time. Used to set IDs.
+int blobCount = 0;
+int blobSizeThreshold = 3;
+
 void setup()
 {
   size(640, 960);
@@ -57,6 +69,9 @@ void setup()
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
 
+  // Blobs list
+  blobList = new ArrayList<Blob>();
+  
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
     cam = new Capture(this, camWidth, camHeight, FPS);
@@ -75,13 +90,17 @@ void setup()
 
   movie = new Movie(this, "binaryRecording.mp4"); // TODO: Make dynamic (use loadMovieFile method)
   movie.loop();
+  
+  // OpenCV Setup
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(30);
+  opencv.threshold(100);
   // Gray channel
   opencv.gray();
   opencv.contrast(1.35);
-  opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
-  //opencv.startBackgroundSubtraction(50, 30, 1.0);
+  opencv.dilate();
+  opencv.erode();
+  opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  
 
   network = new Interface();
 
@@ -89,6 +108,7 @@ void setup()
   animator.setLedBrightness(100);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
+  animator.setMode(animationMode.BINARY);
 
   // Make sure there's always something in videoInput
   videoInput = createImage(camWidth, camHeight, RGB);;
@@ -101,11 +121,9 @@ void draw()
 
   if (cam.available() && videoMode == VideoMode.CAMERA) {
     cam.read();
-    //image(cam, 0, 0, camWidth, camHeight);
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
-    //image(videoInput, 0, 0, camWidth, camHeight);
   }
 
   image(videoInput, 0, 0, camWidth, camHeight);
@@ -120,11 +138,16 @@ void draw()
   opencv.erode();
   opencv.blur(2);
   image(opencv.getSnapshot(), 0, camHeight);
-
+  
   if (isMapping) {
     //sequentialMapping();
     binaryMapping();
   }
+  
+  detectBlobs();
+  //displayBlobs(); //<>//
+  displayContoursBoundingBoxes();
+  
   animator.update();
 
   if (coords.size()>0) {
@@ -147,13 +170,14 @@ void keyPressed() {
 
   if (key == 'm') {
     isMapping=!isMapping;
-    if (animator.getMode()!=animationMode.CHASE) {
-      animator.setMode(animationMode.CHASE);
-      println("Chase mode");
-    } else {
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
+    // Commented out because it breaks BinaryMapping
+    //if (animator.getMode()!=animationMode.CHASE) {
+    //  animator.setMode(animationMode.CHASE);
+    //  println("Chase mode");
+    //} else {
+    //  animator.setMode(animationMode.OFF);
+    //  println("Animator off");
+    //}
   }
 
   if (key == 't') {
@@ -230,10 +254,164 @@ void sequentialMapping() {
 }
 
 void binaryMapping() {
+  fill(0, 255, 0);
   for (Contour contour : opencv.findContours()) {
-    contour.draw();
+    Rectangle box = contour.getBoundingBox();
   }
 }
+
+void detectBlobs() {
+  
+  // Contours detected in this frame
+  // Passing 'true' sorts them by descending area.
+  contours = opencv.findContours(true, true); //<>//
+  
+  newBlobContours = getBlobsFromContours(contours);
+  
+  //println(contours.length);
+  
+  // Check if the detected blobs already exist are new or some has disappeared. 
+  
+  // SCENARIO 1 
+  // blobList is empty
+  if (blobList.isEmpty()) {
+    // Just make a Blob object for every face Rectangle //<>//
+    for (int i = 0; i < newBlobContours.size(); i++) {
+      println("+++ New blob detected with ID: " + blobCount);
+      blobList.add(new Blob(this, blobCount, newBlobContours.get(i)));
+      blobCount++;
+    }
+  
+  // SCENARIO 2 
+  // We have fewer Blob objects than face Rectangles found from OpenCV in this frame
+  } else if (blobList.size() <= newBlobContours.size()) {
+    boolean[] used = new boolean[newBlobContours.size()]; //<>//
+    // Match existing Blob objects with a Rectangle
+    for (Blob b : blobList) {
+       // Find the new blob newBlobContours.get(index) that is closest to blob b
+       // set used[index] to true so that it can't be used twice
+       float record = 50000;
+       int index = -1;
+       for (int i = 0; i < newBlobContours.size(); i++) {
+         float d = dist(newBlobContours.get(i).getBoundingBox().x, newBlobContours.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
+         //float d = dist(blobs[i].x, blobs[i].y, b.r.x, b.r.y);
+         if (d < record && !used[i]) {
+           record = d;
+           index = i;
+         } 
+       }
+       // Update Blob object location
+       used[index] = true;
+       b.update(newBlobContours.get(index));
+    }
+    // Add any unused blobs
+    for (int i = 0; i < newBlobContours.size(); i++) {
+      if (!used[i]) {
+        println("+++ New blob detected with ID: " + blobCount);
+        blobList.add(new Blob(this, blobCount, newBlobContours.get(i)));
+        //blobList.add(new Blob(blobCount, blobs[i].x, blobs[i].y, blobs[i].width, blobs[i].height));
+        blobCount++;
+      }
+    }
+  
+  // SCENARIO 3 
+  // We have more Blob objects than blob Rectangles found from OpenCV in this frame
+  } else {
+    // All Blob objects start out as available //<>//
+    for (Blob b : blobList) {
+      b.available = true;
+    } 
+    // Match Rectangle with a Blob object
+    for (int i = 0; i < newBlobContours.size(); i++) {
+      // Find blob object closest to the newBlobContours.get(i) Contour
+      // set available to false
+       float record = 50000;
+       int index = -1;
+       for (int j = 0; j < blobList.size(); j++) {
+         Blob b = blobList.get(j);
+         float d = dist(newBlobContours.get(i).getBoundingBox().x, newBlobContours.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
+         //float d = dist(blobs[i].x, blobs[i].y, b.r.x, b.r.y);
+         if (d < record && b.available) {
+           record = d;
+           index = j;
+         } 
+       }
+       // Update Blob object location
+       Blob b = blobList.get(index);
+       b.available = false;
+       b.update(newBlobContours.get(i));
+    } 
+    // Start to kill any left over Blob objects
+    for (Blob b : blobList) {
+      if (b.available) {
+        b.countDown();
+        if (b.dead()) {
+          b.delete = true;
+        } 
+      }
+    } 
+  }
+  
+  // Delete any blob that should be deleted
+  for (int i = blobList.size()-1; i >= 0; i--) {
+    Blob b = blobList.get(i);
+    if (b.delete) {
+      blobList.remove(i);
+    } 
+  }
+}
+
+ArrayList<Contour> getBlobsFromContours(ArrayList<Contour> newContours) {
+  
+  ArrayList<Contour> newBlobs = new ArrayList<Contour>();
+  
+  // Which of these contours are blobs?
+  for (int i=0; i<newContours.size(); i++) {
+    
+    Contour contour = newContours.get(i);
+    Rectangle r = contour.getBoundingBox();
+    
+    if (//(contour.area() > 0.9 * src.width * src.height) ||
+        (r.width < blobSizeThreshold || r.height < blobSizeThreshold))
+      continue;
+    
+    newBlobs.add(contour);
+  }
+  
+  return newBlobs;
+}
+
+void displayBlobs() {
+  
+  for (Blob b : blobList) {
+    strokeWeight(1);
+    b.display();
+  }
+}
+
+void displayContoursBoundingBoxes() {
+  
+  for (int i=0; i<contours.size(); i++) {
+    
+    Contour contour = contours.get(i);
+    Rectangle r = contour.getBoundingBox();
+    
+    if (//(contour.area() > 0.9 * src.width * src.height) ||
+        (r.width < blobSizeThreshold || r.height < blobSizeThreshold))
+      continue;
+    
+    stroke(255, 0, 0);
+    fill(255, 0, 0, 150);
+    strokeWeight(2);
+    rect(r.x, r.y, r.width, r.height);
+  }
+}
+
+
+
+
+
+
 
 // Load file, return success value
 boolean loadMovieFile(String path) {

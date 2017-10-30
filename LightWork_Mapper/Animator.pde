@@ -153,7 +153,7 @@ public class Animator {
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {
-    for (int i = 0; i <  leds.size(); i++) { //<>// //<>//
+    for (int i = 0; i <  leds.size(); i++) { //<>//
       leds.get(i).setColor(col);
     }
   }

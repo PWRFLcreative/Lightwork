@@ -9,7 +9,7 @@ int pos;
 float margin =50;
 
 void setup() {
-  size(640, 480, JAVA2D); //wtf
+  size(640, 480, JAVA2D); // wtf
   background(0);
 
   //initialize scraper
