@@ -50,7 +50,8 @@ void setup()
 {
   size(640, 960);
   frameRate(FPS);
-  videoMode = VideoMode.FILE; 
+
+  videoMode = VideoMode.CAMERA; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -75,7 +76,7 @@ void setup()
   movie = new Movie(this, "binaryRecording.mp4"); // TODO: Make dynamic (use loadMovieFile method)
   movie.loop();
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(10);
+  opencv.threshold(30);
   // Gray channel
   opencv.gray();
   opencv.contrast(1.35);
@@ -89,6 +90,8 @@ void setup()
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
 
+  // Make sure there's always something in videoInput
+  videoInput = createImage(camWidth, camHeight, RGB);;
   background(0);
 }
 
@@ -104,10 +107,10 @@ void draw()
     videoInput = movie;
     //image(videoInput, 0, 0, camWidth, camHeight);
   }
-  
-  // Draw Input Video/Camera
+
   image(videoInput, 0, 0, camWidth, camHeight);
-  
+
+
   opencv.loadImage(videoInput);
   opencv.updateBackground();
   opencv.equalizeHistogram();
