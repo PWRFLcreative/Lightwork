@@ -5,16 +5,18 @@
 //  Created by Leo Stefansson and Tim Rolls 
 //
 //  This sketch uses computer vision to automatically generate mapping for LEDs.
-//  Currently, Fadecandy is supported.
+//  Currently, Fadecandy and PixelPusher are supported.
 
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
 import com.hamoid.*; // Video recording
 
+
 Capture cam;
 Movie movie;
 OpenCV opencv;
+ControlP5 cp5;
 Animator animator;
 Interface network; 
 
@@ -33,6 +35,8 @@ color off = color(0, 0, 0);
 int camWidth =640;
 int camHeight =480;
 float camAspect = (float)camWidth / (float)camHeight;
+PGraphics camFBO;
+PGraphics cvFBO;
 
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
@@ -45,9 +49,26 @@ boolean isRecording = false;
 
 void setup()
 {
-  size(640, 960);
+  size(640, 480, P2D);
+  //surface.setSize((camWidth)+uiWidth, camHeight*2);
   frameRate(FPS);
   videoMode = VideoMode.CAMERA; 
+
+  //Check for hi resolution display
+  int guiMultiply = 1;
+  if (displayWidth >= 2560) {
+    guiMultiply = 2;
+  }
+
+  //Window size based on screen dimensions, centered
+  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+
+  cp5 = new ControlP5(this);
+  buildUI(guiMultiply);
+
+  camFBO = createGraphics(camWidth, camHeight, P2D);
+  cvFBO = createGraphics(camWidth, camHeight, P2D);
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -83,29 +104,46 @@ void setup()
   animator.setLedBrightness(150);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
-
-  background(0);
 }
 
 void draw()
 {
+
   // Display the camera input and processed binary image
   if (cam.available() && videoMode == VideoMode.CAMERA) {
+    //UI is drawn on canvas background, update to clear last frame's UI changes
+    background(0);
+
     cam.read();
-    image(cam, 0, 0, camWidth, camHeight);
+    camFBO.beginDraw();
+    camFBO.image(cam, 0, 0, camWidth, camHeight);
+    camFBO.endDraw();
+
+    image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
     opencv.loadImage(cam);
     opencv.updateBackground();
-
     opencv.equalizeHistogram();
 
     //these help close holes in the binary image
     opencv.dilate();
     opencv.erode();
     opencv.blur(2);
-    image(opencv.getSnapshot(), 0, camHeight);
+
+    cvFBO.beginDraw();
+    cvFBO.image(opencv.getSnapshot(), 0, 0);
+
+    if (coords.size()>0) {
+      for (PVector p : coords) {
+        cvFBO.noFill();
+        cvFBO.stroke(255, 0, 0);
+        cvFBO.ellipse(p.x, p.y, 10, 10);
+      }
+    }
+    cvFBO.endDraw();
+
+    image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
   } else if (videoMode == VideoMode.FILE) {
-    
   }
 
   if (isMapping) {
@@ -114,13 +152,6 @@ void draw()
   }
   animator.update();
 
-  if (coords.size()>0) {
-    for (PVector p : coords) {
-      noFill();
-      stroke(255, 0, 0);
-      ellipse(p.x, p.y, 10, 10);
-    }
-  }
 
   if (isRecording) {
     videoExport.saveFrame();
