@@ -103,6 +103,18 @@ public class Interface {
     return isConnected;
   }
 
+  //Set number of strips and pixels based on pusher config - only pulling for one right now.
+  void fetchPPConfig() {
+    if (mode == device.PIXELPUSHER && isConnected()) {
+      List<PixelPusher> pps = registry.getPushers();
+      for (PixelPusher pp : pps) {
+        IP = pp.getIp().toString();
+        numStrips = pp.getNumberOfStrips();
+        ledsPerStrip = pp.getPixelsPerStrip();
+      }
+    }
+  }
+
   // Reset the LED vector
   void populateLeds() {
 
@@ -177,12 +189,11 @@ public class Interface {
     if (mode == device.FADECANDY) {
       if (opc== null) {
         opc = new OPC(parent, IP, port);
-        //delayThread(3000);
         int startTime = millis();
         while (!opc.isConnected) {
-          println("waiting...");
           int currentTime = millis(); 
           int deltaTime = currentTime - startTime;
+          if(deltaTime%1000==0)println("waiting...");
           if (deltaTime > 5000) {
             println("connection failed, check your connections..."); 
             isConnected = false; 
@@ -208,19 +219,24 @@ public class Interface {
 
       registry.addObserver(testObserver);
       registry.setAntiLog(true);
+      registry.setLogging(false);
 
+      int startTime = millis();
+      while (!testObserver.hasStrips) {
+        int currentTime = millis(); 
+        int deltaTime = currentTime - startTime;
+        if(deltaTime%1000==0)println("waiting...");
+        if (deltaTime > 5000) {
+          println("connection failed, check your connections..."); 
+          isConnected = false; 
+          break;
+        }
+      }
 
-      delayThread(3000);
+      fetchPPConfig();
 
       if (testObserver.hasStrips) {
         isConnected =true;
-      }
-
-      //Set number of strips and pixels based on pusher config - only pulling for one right now.
-      List<PixelPusher> pps = registry.getPushers();
-      for (PixelPusher pp : pps) {
-        numStrips = pp.getNumberOfStrips();
-        ledsPerStrip = pp.getPixelsPerStrip();
       }
 
       registry.setLogging(false);
@@ -235,10 +251,8 @@ public class Interface {
       opc = null;
     }
     if (mode==device.PIXELPUSHER) {
-      //registry.stopPushing() ;  //TODO: Need to disconnect devices as well
+      registry.stopPushing() ;  //TODO: Need to disconnect devices as well
       registry.deleteObserver(testObserver);
-      //registry = null;
-      //testObserver = null;
     }
     if (mode==device.ARTNET) {
     }

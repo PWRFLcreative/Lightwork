@@ -17,6 +17,7 @@ Capture cam;
 Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
+ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
@@ -64,9 +65,6 @@ void setup()
   surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  cp5 = new ControlP5(this);
-  buildUI(guiMultiply);
-
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
 
@@ -104,6 +102,10 @@ void setup()
   animator.setLedBrightness(150);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
+
+  cp5 = new ControlP5(this);
+  topPanel = new ControlP5(this);
+  buildUI(guiMultiply);
 }
 
 void draw()
