@@ -42,11 +42,11 @@ void draw() {
   scrape.display();
 
   //simple chase animation
-  noStroke();
+  //noStroke();
   fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
-  if (pos<=width)pos+=5;
-  else pos=0;
-  rect(pos, 0, 100, height);
+  //if (pos<=width)pos+=5;
+  //else pos=0;
+  //rect(pos, 0, 100, height);
   ellipse(mouseX, mouseY, 30, 30);
   
 

@@ -51,11 +51,11 @@ PImage cvOutput;
 
 ArrayList<Contour> contours;
 // List of detected contours parsed as blobs (every frame)
-ArrayList<Contour> newBlobContours;
+ArrayList<Contour> newBlobs;
 // List of my blob objects (persistent)
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
-int blobCount = 0;
+int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 int blobSizeThreshold = 3;
 
 void setup()
@@ -63,7 +63,7 @@ void setup()
   size(640, 960);
   frameRate(FPS);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -103,12 +103,16 @@ void setup()
   
 
   network = new Interface();
-
+  network.setNumStrips(1);
+  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
+  
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(100);
+  animator.setLedBrightness(50);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
-  animator.setMode(animationMode.BINARY);
+  animator.setMode(animationMode.OFF);
+  animator.update();
+  
 
   // Make sure there's always something in videoInput
   videoInput = createImage(camWidth, camHeight, RGB);;
@@ -141,12 +145,13 @@ void draw()
   
   if (isMapping) {
     //sequentialMapping();
-    binaryMapping();
+    
   }
+  binaryMapping();
   
-  detectBlobs();
-  //displayBlobs(); //<>//
-  displayContoursBoundingBoxes();
+  //detectBlobs();
+  displayBlobs(); //<>//
+  //displayContoursBoundingBoxes();
   
   animator.update();
 
@@ -254,10 +259,32 @@ void sequentialMapping() {
 }
 
 void binaryMapping() {
-  fill(0, 255, 0);
-  for (Contour contour : opencv.findContours()) {
-    Rectangle box = contour.getBoundingBox();
+  contours = opencv.findContours();
+  newBlobs = getBlobsFromContours(contours); // Stores all blobs found in this frame
+  
+  // Register all the new blobs if the blobList is empty
+  if (blobList.isEmpty()) {
+    for (int i = 0; i < newBlobs.size(); i++) {
+      println("+++ New blob detected with ID: " + blobCount);
+      int id = blobCount; 
+      blobList.add(new Blob(this, id, newBlobs.get(i)));
+      blobCount++;
+    }
   }
+  
+  // Check if newBlobs are actually new...
+  else {
+      for (Blob blob : blobList) {
+        println(blob.id);
+      }
+      for (Contour c : newBlobs) {
+        Rectangle box = c.getBoundingBox();
+        box.getLocation();
+        
+      }
+  }
+  
+  
 }
 
 void detectBlobs() {
@@ -266,7 +293,7 @@ void detectBlobs() {
   // Passing 'true' sorts them by descending area.
   contours = opencv.findContours(true, true); //<>//
   
-  newBlobContours = getBlobsFromContours(contours);
+  newBlobs = getBlobsFromContours(contours);
   
   //println(contours.length);
   
@@ -276,25 +303,27 @@ void detectBlobs() {
   // blobList is empty
   if (blobList.isEmpty()) {
     // Just make a Blob object for every face Rectangle //<>//
-    for (int i = 0; i < newBlobContours.size(); i++) {
+    for (int i = 0; i < newBlobs.size(); i++) {
       println("+++ New blob detected with ID: " + blobCount);
-      blobList.add(new Blob(this, blobCount, newBlobContours.get(i)));
+      blobList.add(new Blob(this, blobCount, newBlobs.get(i)));
       blobCount++;
     }
   
   // SCENARIO 2 
   // We have fewer Blob objects than face Rectangles found from OpenCV in this frame
-  } else if (blobList.size() <= newBlobContours.size()) {
-    boolean[] used = new boolean[newBlobContours.size()]; //<>//
+  } else if (blobList.size() <= newBlobs.size()) {
+    boolean[] used = new boolean[newBlobs.size()]; //<>//
     // Match existing Blob objects with a Rectangle
     for (Blob b : blobList) {
        // Find the new blob newBlobContours.get(index) that is closest to blob b
        // set used[index] to true so that it can't be used twice
-       float record = 50000;
+       //float record = 50000;
+       float record = 2000;
        int index = -1;
-       for (int i = 0; i < newBlobContours.size(); i++) {
-         float d = dist(newBlobContours.get(i).getBoundingBox().x, newBlobContours.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
+       for (int i = 0; i < newBlobs.size(); i++) {
+         float d = dist(newBlobs.get(i).getBoundingBox().x, newBlobs.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
          //float d = dist(blobs[i].x, blobs[i].y, b.r.x, b.r.y);
+         println(d);
          if (d < record && !used[i]) {
            record = d;
            index = i;
@@ -302,13 +331,13 @@ void detectBlobs() {
        }
        // Update Blob object location
        used[index] = true;
-       b.update(newBlobContours.get(index));
+       b.update(newBlobs.get(index));
     }
     // Add any unused blobs
-    for (int i = 0; i < newBlobContours.size(); i++) {
+    for (int i = 0; i < newBlobs.size(); i++) {
       if (!used[i]) {
         println("+++ New blob detected with ID: " + blobCount);
-        blobList.add(new Blob(this, blobCount, newBlobContours.get(i)));
+        blobList.add(new Blob(this, blobCount, newBlobs.get(i)));
         //blobList.add(new Blob(blobCount, blobs[i].x, blobs[i].y, blobs[i].width, blobs[i].height));
         blobCount++;
       }
@@ -322,15 +351,16 @@ void detectBlobs() {
       b.available = true;
     } 
     // Match Rectangle with a Blob object
-    for (int i = 0; i < newBlobContours.size(); i++) {
+    for (int i = 0; i < newBlobs.size(); i++) {
       // Find blob object closest to the newBlobContours.get(i) Contour
       // set available to false
        float record = 50000;
        int index = -1;
        for (int j = 0; j < blobList.size(); j++) {
          Blob b = blobList.get(j);
-         float d = dist(newBlobContours.get(i).getBoundingBox().x, newBlobContours.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
+         float d = dist(newBlobs.get(i).getBoundingBox().x, newBlobs.get(i).getBoundingBox().y, b.getBoundingBox().x, b.getBoundingBox().y);
          //float d = dist(blobs[i].x, blobs[i].y, b.r.x, b.r.y);
+         float minimumDistance = 3;
          if (d < record && b.available) {
            record = d;
            index = j;
@@ -339,8 +369,9 @@ void detectBlobs() {
        // Update Blob object location
        Blob b = blobList.get(index);
        b.available = false;
-       b.update(newBlobContours.get(i));
-    } 
+       b.update(newBlobs.get(i));
+    }
+    
     // Start to kill any left over Blob objects
     for (Blob b : blobList) {
       if (b.available) {
@@ -363,7 +394,7 @@ void detectBlobs() {
 
 ArrayList<Contour> getBlobsFromContours(ArrayList<Contour> newContours) {
   
-  ArrayList<Contour> newBlobs = new ArrayList<Contour>();
+  ArrayList<Contour> blobs = new ArrayList<Contour>();
   
   // Which of these contours are blobs?
   for (int i=0; i<newContours.size(); i++) {
@@ -375,10 +406,10 @@ ArrayList<Contour> getBlobsFromContours(ArrayList<Contour> newContours) {
         (r.width < blobSizeThreshold || r.height < blobSizeThreshold))
       continue;
     
-    newBlobs.add(contour);
+    blobs.add(contour);
   }
   
-  return newBlobs;
+  return blobs;
 }
 
 void displayBlobs() {
