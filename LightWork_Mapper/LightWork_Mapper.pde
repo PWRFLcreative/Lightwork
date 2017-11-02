@@ -296,7 +296,6 @@ void binaryMapping() {
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
   else {
-    println("Detected " + newBlobs.size() + " new blobs.");
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 5; 
     // Store new, qualified blobs found in this frame
@@ -307,7 +306,6 @@ void binaryMapping() {
       float x = (float)c.getBoundingBox().getCenterX();
       float y = (float)c.getBoundingBox().getCenterY();
       p.set(x, y);
-      print("this is p: " + p);
 
       // Get existing blob coordinates 
       ArrayList<PVector> coords = new ArrayList<PVector>();
@@ -321,23 +319,32 @@ void binaryMapping() {
 
       // Check coordinate distance
       boolean isTooClose = false; // Turns true if p.dist
-
       for (PVector coord : coords) {
         float distance = p.dist(coord);
-
         if (distance <= distanceThreshold) {
           isTooClose = true;
           break;
         }
       }
+      
+      // If none of the existing blobs are too close, add this one to the blob list
       if (!isTooClose) {
         Blob b = new Blob(this, blobCount, c);
         blobCount++;
         blobList.add(b);
       }
-      // If the distance is too low, continue (don't add blob)
     }
   }
+  
+  // Update the blob age
+  for (int i = 0; i < blobList.size(); i++) {
+    Blob b = blobList.get(i);
+    b.countDown();
+    if (b.dead()) {
+     blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
+    }
+  }
+  
 }
 
 // Filter out contours that are too small or too big
