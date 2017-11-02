@@ -298,30 +298,44 @@ void binaryMapping() {
   else {
     println("Detected " + newBlobs.size() + " new blobs.");
     // New blobs must be further away to qualify as new blobs
-    float distanceThreshold = 3; 
+    float distanceThreshold = 5; 
     // Store new, qualified blobs found in this frame
 
     PVector p = new PVector();
     for (Contour c : newBlobs) {
       // Get the center coordinate for the new blob
-      p.x = (float)c.getBoundingBox().getCenterX();
-      p.y = (float)c.getBoundingBox().getCenterY();
+      float x = (float)c.getBoundingBox().getCenterX();
+      float y = (float)c.getBoundingBox().getCenterY();
+      p.set(x, y);
+      print("this is p: " + p);
 
-      Blob b = new Blob(this, blobCount, c);
-      blobCount++;
-      blobList.add(b);
+      // Get existing blob coordinates 
+      ArrayList<PVector> coords = new ArrayList<PVector>();
       for (Blob blob : blobList) {
         // Get existing blob coord
         PVector p2 = new PVector();
         p2.x = (float)blob.contour.getBoundingBox().getCenterX();
         p2.y = (float)blob.contour.getBoundingBox().getCenterY();
+        coords.add(p2);
+      }
 
-        float distance = p.dist(p2);
-        // If the distance is too low, continue (don't add blob)
+      // Check coordinate distance
+      boolean isTooClose = false; // Turns true if p.dist
+
+      for (PVector coord : coords) {
+        float distance = p.dist(coord);
+
         if (distance <= distanceThreshold) {
-          continue;
+          isTooClose = true;
+          break;
         }
       }
+      if (!isTooClose) {
+        Blob b = new Blob(this, blobCount, c);
+        blobCount++;
+        blobList.add(b);
+      }
+      // If the distance is too low, continue (don't add blob)
     }
   }
 }
