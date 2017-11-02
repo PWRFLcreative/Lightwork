@@ -23,12 +23,13 @@ Interface network;
 
 boolean isMapping=false;
 
+
 enum  VideoMode {
   CAMERA, FILE, OFF
 };
 
 VideoMode videoMode; 
-String movieFileName = "binaryRecording.mp4";
+String movieFileName = "sequentialRecording.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -57,14 +58,14 @@ ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 int minBlobSize = 3;
-int maxBlobSize = 30;
+int maxBlobSize = 10;
 
 void setup()
 {
   size(640, 960);
   frameRate(FPS);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
@@ -89,13 +90,16 @@ void setup()
   }
   videoExport = new VideoExport(this, "data/"+movieFileName, cam);
 
-  movie = new Movie(this, "binaryRecording.mp4"); // TODO: Make dynamic (use loadMovieFile method)
-  movie.loop();
+  if (videoMode == VideoMode.FILE) {
+    movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
+    movie.loop();
+  }
+
 
   // OpenCV Setup
   opencv = new OpenCV(this, camWidth, camHeight);
   opencv.threshold(100);
-  
+
   // Gray channel
   opencv.gray();
   opencv.contrast(1.35);
@@ -147,8 +151,9 @@ void draw()
 
   if (isMapping) {
     //sequentialMapping();
+    binaryMapping();
   }
-  binaryMapping();
+
 
   //detectBlobs();
   displayBlobs();
@@ -177,13 +182,13 @@ void keyPressed() {
   if (key == 'm') {
     isMapping=!isMapping;
     // Commented out because it breaks BinaryMapping
-    //if (animator.getMode()!=animationMode.CHASE) {
-    //  animator.setMode(animationMode.CHASE);
-    //  println("Chase mode");
-    //} else {
-    //  animator.setMode(animationMode.OFF);
-    //  println("Animator off");
-    //}
+    if (animator.getMode()!=animationMode.CHASE) {
+      animator.setMode(animationMode.CHASE);
+      println("Chase mode");
+    } else {
+      animator.setMode(animationMode.OFF);
+      println("Animator off");
+    }
   }
 
   if (key == 't') {
@@ -198,13 +203,13 @@ void keyPressed() {
 
   if (key == 'b') {
     if (animator.getMode()!=animationMode.BINARY) {
-      videoExport.startMovie();
+      //videoExport.startMovie();
       isRecording = true;
       animator.setMode(animationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
       isRecording = false;
-      videoExport.endMovie();
+      //videoExport.endMovie();
       animator.setMode(animationMode.OFF);
       println("Animator off");
     }
@@ -219,6 +224,16 @@ void keyPressed() {
       videoMode = VideoMode.FILE;
       boolean success = loadMovieFile(movieFileName);
       println("VideoMode: FILE " + success);
+    }
+  }
+  // Toggle Movie Recording
+  if (key == 'r') {
+    if (!isRecording) {
+      isRecording = true;
+      videoExport.startMovie();
+    } else {
+      isRecording = false;
+      videoExport.endMovie();
     }
   }
 
@@ -269,6 +284,7 @@ void binaryMapping() {
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
   if (blobList.isEmpty()) {
+    println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
     for (int i = 0; i < newBlobs.size(); i++) {
       println("+++ New blob detected with ID: " + blobCount);
       int id = blobCount; 
@@ -280,18 +296,20 @@ void binaryMapping() {
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
   else {
+    println("Detected " + newBlobs.size() + " new blobs.");
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 3; 
     // Store new, qualified blobs found in this frame
-    // We make a temporary arraylist so we don't modify the arraylist we're currently iterating over
-    ArrayList<Blob> qualifiedBlobs = new ArrayList<Blob>(); 
 
+    PVector p = new PVector();
     for (Contour c : newBlobs) {
       // Get the center coordinate for the new blob
-      PVector p = new PVector();
       p.x = (float)c.getBoundingBox().getCenterX();
       p.y = (float)c.getBoundingBox().getCenterY();
 
+      Blob b = new Blob(this, blobCount, c);
+      blobCount++;
+      blobList.add(b);
       for (Blob blob : blobList) {
         // Get existing blob coord
         PVector p2 = new PVector();
@@ -302,16 +320,8 @@ void binaryMapping() {
         // If the distance is too low, continue (don't add blob)
         if (distance <= distanceThreshold) {
           continue;
-        } else {
-          Blob newBlob = new Blob(this, blobCount, c);
-          qualifiedBlobs.add(newBlob);
-          blobCount++;
         }
       }
-    }
-    // Add the qualified new blobs to the blob list
-    for (Blob blob : qualifiedBlobs) {
-      blobList.add(blob);
     }
   }
 }
