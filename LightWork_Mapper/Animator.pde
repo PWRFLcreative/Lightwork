@@ -35,7 +35,7 @@ public class Animator {
     mode = animationMode.OFF;
 
     testIndex = 0;
-    frameCount = 0;
+    frameCounter = 0;
     frameSkip = 3;
   }
 
@@ -176,7 +176,7 @@ public class Animator {
   }
 
   void binaryAnimation() {
-    if (frameCount%frameSkip==0) {
+    if (frameCounter%frameSkip==0) {
       for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).binaryPattern.advance();
       
