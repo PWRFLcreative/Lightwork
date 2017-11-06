@@ -168,18 +168,24 @@ void keyPressed() {
   }
 
   if (key == 'm') {
-    isMapping=!isMapping;
-    if (animator.getMode()!=animationMode.CHASE) {
+    if (network.isConnected()==false) {
+      println("please connect to a device before mapping");
+    }
+    else if (animator.getMode()!=animationMode.CHASE) {
+      isMapping=!isMapping;
       animator.setMode(animationMode.CHASE);
       println("Chase mode");
     } else {
+      isMapping=!isMapping;
       animator.setMode(animationMode.OFF);
       println("Animator off");
     }
   }
 
   if (key == 't') {
-    if (animator.getMode()!=animationMode.TEST) {
+    if (network.isConnected()==false) {
+      println("please connect to a device before testing");
+    } else if (animator.getMode()!=animationMode.TEST) {
       animator.setMode(animationMode.TEST);
       println("Test mode");
     } else {

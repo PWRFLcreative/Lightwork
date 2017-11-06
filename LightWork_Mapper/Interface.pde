@@ -69,7 +69,6 @@ public class Interface {
   void setNumLedsPerStrip(int num) {
     ledsPerStrip = num;
     numLeds = ledsPerStrip*numStrips;
-
   }
 
   int getNumLedsPerStrip() {
@@ -133,18 +132,20 @@ public class Interface {
   //////////////////////////////////////////////////////////////
 
   void update(color[] colors) {
+
     switch(mode) {
     case FADECANDY: 
       {
-        if (opc.isConnected()) {
+        //check if opc object exists and is connected before writing data
+        if (opc!=null&&opc.isConnected()) {
           opc.autoWriteData(colors);
         }
         break;
       }
     case PIXELPUSHER: 
       {
-
-        if (testObserver.hasStrips) {
+        //check if network observer exists and has discovered strips before writing data
+        if (testObserver!=null&&testObserver.hasStrips) {
           registry.startPushing();
 
           //iterate through PP strip objects to set LED colors
@@ -176,6 +177,7 @@ public class Interface {
   }
 
 
+
   //open connection to controller
   void connect(PApplet parent) {
     //if (isConnected) {
@@ -189,7 +191,7 @@ public class Interface {
         while (!opc.isConnected) {
           int currentTime = millis(); 
           int deltaTime = currentTime - startTime;
-          if(deltaTime%1000==0)println("waiting...");
+          if (deltaTime%1000==0)println("waiting...");
           if (deltaTime > 5000) {
             println("connection failed, check your connections..."); 
             isConnected = false; 
@@ -221,7 +223,7 @@ public class Interface {
       while (!testObserver.hasStrips) {
         int currentTime = millis(); 
         int deltaTime = currentTime - startTime;
-        if(deltaTime%1000==0)println("waiting...");
+        if (deltaTime%1000==0)println("waiting...");
         if (deltaTime > 5000) {
           println("connection failed, check your connections..."); 
           isConnected = false; 
@@ -242,11 +244,11 @@ public class Interface {
 
   //Close existing connections
   void shutdown() {
-    if (mode == device.FADECANDY) {
+    if (mode == device.FADECANDY && opc!=null) {
       //opc.dispose();
       opc = null;
     }
-    if (mode==device.PIXELPUSHER) {
+    if (mode==device.PIXELPUSHER && registry !=null) {
       registry.stopPushing() ;  //TODO: Need to disconnect devices as well
       registry.deleteObserver(testObserver);
     }

@@ -118,7 +118,7 @@ public class Animator {
     frameCounter++;
 
     //send pixel data over network
-    if (mode!=animationMode.OFF) {
+    if (mode!=animationMode.OFF && network.isConnected) {
       network.update(this.getPixels());
     }
 
