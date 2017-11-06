@@ -188,9 +188,8 @@ void draw()
     cvFBO.endDraw();
 
     image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
-  } else if (videoMode == VideoMode.FILE) {
-  }
 
+  if(videoMode == VideoMode.CAMERA)
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
