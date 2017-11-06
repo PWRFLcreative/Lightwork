@@ -1,4 +1,4 @@
-//
+// //<>// //<>//
 //  UI.pde
 //  Lightwork-Mapper
 //
@@ -93,8 +93,36 @@ void buildUI(int mult) {
 
   cp5.addButton("connect")
     .setPosition(0, 650)
+    .setSize(buttonWidth, buttonHeight)
     .setSize(buttonWidth/2, buttonHeight*2)
     ;
+
+  cp5.addSlider("cvContrast")
+    .setBroadcast(false)
+    .setPosition(0, 850)
+    .setSize(buttonWidth, buttonHeight)
+    .setRange(0, 5)
+    .setValue(cvContrast)
+    .setBroadcast(true)
+    
+    ;
+
+  ////set labels to bottom
+  cp5.getController("cvContrast").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+  cp5.getController("cvContrast").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+
+  cp5.addSlider("cvThreshold")
+    .setBroadcast(false)
+    .setPosition(0, 950)
+    .setSize(buttonWidth, buttonHeight)
+    .setRange(0, 100)
+    .setValue(cvThreshold)
+    .setBroadcast(true)
+    ;
+
+  //set labels to bottom
+  cp5.getController("cvThreshold").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+  cp5.getController("cvThreshold").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
 
   cp5.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
@@ -105,7 +133,9 @@ void buildUI(int mult) {
 //////////////////////////////////////////////////////////////
 
 void camera(int n) {
-  String label = cp5.get(ScrollableList.class, "camera").getItem(n).get("name").toString();
+  Map m = topPanel.get(ScrollableList.class, "camera").getItem(n);
+  //println(m);
+  String label=m.get("name").toString();
   //println(label);
   switchCamera(label);
 }
@@ -150,18 +180,33 @@ public void connect() {
   } else {
     println("Please select a driver type from the dropdown before attempting to connect");
   }
-  
-  if (network.getMode()==device.PIXELPUSHER){
+
+  if (network.getMode()==device.PIXELPUSHER) {
     network.fetchPPConfig();
-    cp5.get(Textfield.class,"ip").setValue(network.getIP());
-    cp5.get(Textfield.class,"leds_per_strip").setValue(str(network.getNumLedsPerStrip()));
-    cp5.get(Textfield.class,"strips").setValue(str(network.getNumStrips()));
+    cp5.get(Textfield.class, "ip").setValue(network.getIP());
+    cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip()));
+    cp5.get(Textfield.class, "strips").setValue(str(network.getNumStrips()));
   }
 }
 
 public void refresh() {
-  cp5.get(ScrollableList.class, "camera").setItems(enumerateCams());
+  String[] cameras = enumerateCams();
+  topPanel.get(ScrollableList.class, "camera").setItems(cameras);
 }
+
+
+public void cvThreshold(int value) {
+ cvThreshold = value;
+  //opencv.threshold(cvThreshold);
+  //println("set Open CV threshold to "+cvThreshold);
+}
+
+public void cvContrast(float value) {
+  cvContrast =value;
+  //opencv.contrast(cvContrast);
+  //println("set Open CV contrast to "+cvContrast);
+}
+
 
 //////////////////////////////////////////////////////////////
 // Camera Switching
@@ -182,7 +227,7 @@ String[] enumerateCams() {
   Set<String> set = new HashSet<String>();
   Collections.addAll(set, list);
   String[] cameras = set.toArray(new String[0]);
-
+    
   return cameras;
 }
 

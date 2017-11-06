@@ -39,6 +39,9 @@ float camAspect = (float)camWidth / (float)camHeight;
 PGraphics camFBO;
 PGraphics cvFBO;
 
+int cvThreshold = 10;
+float cvContrast = 1.35;
+
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
 
@@ -51,19 +54,8 @@ boolean isRecording = false;
 void setup()
 {
   size(640, 480, P2D);
-  //surface.setSize((camWidth)+uiWidth, camHeight*2);
   frameRate(FPS);
   videoMode = VideoMode.CAMERA; 
-
-  //Check for hi resolution display
-  int guiMultiply = 1;
-  if (displayWidth >= 2560) {
-    guiMultiply = 2;
-  }
-
-  //Window size based on screen dimensions, centered
-  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
-  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -79,8 +71,8 @@ void setup()
     println("There are no cameras available for capture.");
     exit();
   } else {
-    println("Available cameras:");
-    printArray(cameras);
+    //println("Available cameras:");
+    //printArray(cameras);
     //cam = new Capture(this, camWidth, camHeight, 30);
     //cam = new Capture(this, cameras[0]);
     cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
@@ -89,10 +81,8 @@ void setup()
   videoExport = new VideoExport(this, movieFilePath, cam);
 
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(10);
   // Gray channel
   opencv.gray();
-  opencv.contrast(1.35);
   opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
   //opencv.startBackgroundSubtraction(50, 30, 1.0);
 
@@ -102,6 +92,16 @@ void setup()
   animator.setLedBrightness(150);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
+
+  //Check for hi resolution display
+  int guiMultiply = 1;
+  if (displayWidth >= 2560) {
+    guiMultiply = 2;
+  }
+
+  //Window size based on screen dimensions, centered
+  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
   cp5 = new ControlP5(this);
   topPanel = new ControlP5(this);
@@ -114,7 +114,7 @@ void draw()
   // Display the camera input and processed binary image
   if (cam.available() && videoMode == VideoMode.CAMERA) {
     //UI is drawn on canvas background, update to clear last frame's UI changes
-    background(0);
+    background(#111111);
 
     cam.read();
     camFBO.beginDraw();
@@ -124,6 +124,9 @@ void draw()
     image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
     opencv.loadImage(cam);
+    opencv.threshold(cvThreshold);
+    opencv.contrast(cvContrast);
+
     opencv.updateBackground();
     opencv.equalizeHistogram();
 
@@ -153,7 +156,6 @@ void draw()
     binaryMapping();
   }
   animator.update();
-
 
   if (isRecording) {
     videoExport.saveFrame();
@@ -284,5 +286,7 @@ void saveSVG(ArrayList <PVector> points) {
 //Closes connections
 void stop()
 {
+  cam =null;
+
   super.stop();
 }

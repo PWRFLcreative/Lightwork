@@ -67,14 +67,9 @@ public class Interface {
   }
 
   void setNumLedsPerStrip(int num) {
-    //ofLogNotice("animator") << "setNumLedsPerStrip(): " << num;
     ledsPerStrip = num;
+    numLeds = ledsPerStrip*numStrips;
 
-    // Update OPC client
-    //opcClient->setLedsPerStrip(numLedsPerStrip);
-
-    // Reset LEDs vector
-    //resetPixels();
   }
 
   int getNumLedsPerStrip() {
@@ -84,6 +79,7 @@ public class Interface {
   void setNumStrips(int num) {
     //ofLogNotice("animator") << "setNumStrips(): " << num;
     numStrips = num;
+    numLeds = ledsPerStrip*numStrips;
     //resetPixels();
   }
 
