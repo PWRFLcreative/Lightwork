@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>//
+//  //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -11,7 +11,7 @@ import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
 import com.hamoid.*; // Video recording
-
+import java.awt.Rectangle;
 
 Capture cam;
 Movie movie;
@@ -21,14 +21,14 @@ ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
-boolean isMapping=false;
+boolean isMapping = true; // TODO: Switch back to false
 
 enum  VideoMode {
   CAMERA, FILE, OFF
 };
 
 VideoMode videoMode; 
-String movieFilePath = "data/binaryRecording.mp4";
+String movieFileName = "partialBinary.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -39,7 +39,7 @@ float camAspect = (float)camWidth / (float)camHeight;
 PGraphics camFBO;
 PGraphics cvFBO;
 
-int cvThreshold = 10;
+int cvThreshold = 100;
 float cvContrast = 1.35;
 
 ArrayList <PVector>     coords;
@@ -51,11 +51,25 @@ int FPS = 30;
 VideoExport videoExport;
 boolean isRecording = false;
 
+PImage videoInput; 
+PImage cvOutput;
+
+ArrayList<Contour> contours;
+// List of detected contours parsed as blobs (every frame)
+ArrayList<Contour> newBlobs;
+// List of my blob objects (persistent)
+ArrayList<Blob> blobList;
+// Number of blobs detected over all time. Used to set IDs.
+int blobCount = 0; // Use this to assign new (unique) ID's to blobs
+int minBlobSize = 5;
+int maxBlobSize = 10;
+
 void setup()
 {
   size(640, 480, P2D);
   frameRate(FPS);
-  videoMode = VideoMode.CAMERA; 
+
+  videoMode = VideoMode.FILE; 
 
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -63,6 +77,9 @@ void setup()
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
+
+  // Blobs list
+  blobList = new ArrayList<Blob>();
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
@@ -78,18 +95,35 @@ void setup()
     cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
     cam.start();
   }
-  videoExport = new VideoExport(this, movieFilePath, cam);
+  videoExport = new VideoExport(this, "data/"+movieFileName, cam);
 
+  if (videoMode == VideoMode.FILE) {
+    movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
+    movie.loop();
+  }
+
+
+  // OpenCV Setup
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
-  //opencv.startBackgroundSubtraction(50, 30, 1.0);
+  opencv.threshold(cvThreshold);
+
+  // Gray channel
+  opencv.gray();
+  opencv.contrast(cvContrast);
+  opencv.dilate();
+  opencv.erode();
+  opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
   network = new Interface();
+  network.setNumStrips(1);
+  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(150);
+  animator.setLedBrightness(100);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
+  animator.setMode(animationMode.OFF);
+  animator.update();
 
   //Check for hi resolution display
   int guiMultiply = 1;
@@ -104,12 +138,18 @@ void setup()
   cp5 = new ControlP5(this);
   topPanel = new ControlP5(this);
   buildUI(guiMultiply);
+
+  // Make sure there's always something in videoInput
+  videoInput = createImage(camWidth, camHeight, RGB);
+  ;
+  background(0);
 }
 
 void draw()
 {
 
   // Display the camera input and processed binary image
+
   if (cam.available() && videoMode == VideoMode.CAMERA) {
     //UI is drawn on canvas background, update to clear last frame's UI changes
     background(#111111);
@@ -151,10 +191,22 @@ void draw()
   } else if (videoMode == VideoMode.FILE) {
   }
 
+    videoInput = cam;
+  } else if (videoMode == VideoMode.FILE) {
+    videoInput = movie;
+  }
+
+
   if (isMapping) {
     //sequentialMapping();
     binaryMapping();
   }
+
+
+  //detectBlobs();
+  displayBlobs();
+  //displayContoursBoundingBoxes();
+
   animator.update();
 
   if (isRecording) {
@@ -168,6 +220,7 @@ void keyPressed() {
   }
 
   if (key == 'm') {
+
     if (network.isConnected()==false) {
       println("please connect to a device before mapping");
     } else if (animator.getMode()!=animationMode.CHASE) {
@@ -195,13 +248,13 @@ void keyPressed() {
 
   if (key == 'b') {
     if (animator.getMode()!=animationMode.BINARY) {
-      videoExport.startMovie();
+      //videoExport.startMovie();
       isRecording = true;
       animator.setMode(animationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
       isRecording = false;
-      videoExport.endMovie();
+      //videoExport.endMovie();
       animator.setMode(animationMode.OFF);
       println("Animator off");
     }
@@ -214,8 +267,18 @@ void keyPressed() {
       println("VideoMode: CAMERA");
     } else if (videoMode == VideoMode.CAMERA) {
       videoMode = VideoMode.FILE;
-      loadMovieFile(movieFilePath);
-      println("VideoMode: FILE");
+      boolean success = loadMovieFile(movieFileName);
+      println("VideoMode: FILE " + success);
+    }
+  }
+  // Toggle Movie Recording
+  if (key == 'r') {
+    if (!isRecording) {
+      isRecording = true;
+      videoExport.startMovie();
+    } else {
+      isRecording = false;
+      videoExport.endMovie();
     }
   }
 
@@ -257,18 +320,164 @@ void sequentialMapping() {
 }
 
 void binaryMapping() {
-  for (Contour contour : opencv.findContours()) {
-    contour.draw();
+  // Find all contours
+  contours = opencv.findContours();
+
+  // Filter contours, remove contours that are too big or too small
+  // The filtered results are our 'Blobs' (Should be detected LEDs)
+  newBlobs = filterContours(contours); // Stores all blobs found in this frame
+  if (newBlobs.size() <= 0) {
+    // No new blobs, skip the rest of this method
+    return; 
+  }
+  // Note: newBlobs is actually of the Contours datatype
+  // Register all the new blobs if the blobList is empty
+  if (blobList.isEmpty()) {
+    println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
+    for (int i = 0; i < newBlobs.size(); i++) {
+      println("+++ New blob detected with ID: " + blobCount);
+      int id = blobCount; 
+      blobList.add(new Blob(this, id, newBlobs.get(i)));
+      blobCount++;
+    }
+  }
+
+  // Check if newBlobs are actually new...
+  // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
+  else {
+    // New blobs must be further away to qualify as new blobs
+    float distanceThreshold = 5; 
+    // Store new, qualified blobs found in this frame
+
+    PVector p = new PVector();
+    for (Contour c : newBlobs) {
+      // Get the center coordinate for the new blob
+      float x = (float)c.getBoundingBox().getCenterX();
+      float y = (float)c.getBoundingBox().getCenterY();
+      p.set(x, y);
+
+      // Get existing blob coordinates 
+      ArrayList<PVector> coords = new ArrayList<PVector>();
+      for (Blob blob : blobList) {
+        // Get existing blob coord
+        PVector p2 = new PVector();
+        p2.x = (float)blob.contour.getBoundingBox().getCenterX();
+        p2.y = (float)blob.contour.getBoundingBox().getCenterY();
+        coords.add(p2);
+      }
+
+      // Check coordinate distance
+      boolean isTooClose = false; // Turns true if p.dist
+      for (PVector coord : coords) {
+        float distance = p.dist(coord);
+        if (distance <= distanceThreshold) {
+          isTooClose = true;
+          break;
+        }
+      }
+
+      // If none of the existing blobs are too close, add this one to the blob list
+      if (!isTooClose) {
+        Blob b = new Blob(this, blobCount, c);
+        blobCount++;
+        blobList.add(b);
+      }
+    }
+  }
+
+  // Update the blob age
+  for (int i = 0; i < blobList.size(); i++) {
+    Blob b = blobList.get(i);
+    b.countDown();
+    if (b.dead()) {
+      blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
+    }
+  }
+
+  // Decode blobs (a few at a time for now...) 
+  int numToDecode = 1;
+  if (blobList.size() >= numToDecode) {
+    for (int i = 0; i < numToDecode; i++) {
+      // Get the blob brightness to determine it's state (HIGH/LOW)
+      println("decoding this blob: "+blobList.get(i).id);
+      Rectangle r = blobList.get(i).contour.getBoundingBox();
+      PImage cropped = videoInput.get(r.x, r.y, r.width, r.height);
+      int br = 0; 
+      for (color c : cropped.pixels) {
+        br += brightness(c);
+      }
+      br = br/ cropped.pixels.length;
+      println(br);
+    }
   }
 }
+
+// Filter out contours that are too small or too big
+ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
+
+  ArrayList<Contour> blobs = new ArrayList<Contour>();
+
+  // Which of these contours are blobs?
+  for (int i=0; i<newContours.size(); i++) {
+
+    Contour contour = newContours.get(i);
+    Rectangle r = contour.getBoundingBox();
+
+    // If contour is too small, don't add blob
+    if (r.width < minBlobSize || r.height < minBlobSize || r.width > maxBlobSize || r.height > maxBlobSize) {
+      continue;
+    }
+    blobs.add(contour);
+  }
+
+  return blobs;
+}
+
+void displayBlobs() {
+
+  for (Blob b : blobList) {
+    strokeWeight(1);
+    b.display();
+  }
+}
+
+void displayContoursBoundingBoxes() {
+
+  for (int i=0; i<contours.size(); i++) {
+
+    Contour contour = contours.get(i);
+    Rectangle r = contour.getBoundingBox();
+
+    if (//(contour.area() > 0.9 * src.width * src.height) ||
+      (r.width < minBlobSize || r.height < minBlobSize))
+      continue;
+
+    stroke(255, 0, 0);
+    fill(255, 0, 0, 150);
+    strokeWeight(2);
+    rect(r.x, r.y, r.width, r.height);
+  }
+}
+
+
+
+
+
+
 
 // Load file, return success value
 boolean loadMovieFile(String path) {
   File f = new File(path);
   if (f.exists()) {
-    movie = new Movie(this, path);
+    movie = new Movie(this, "binaryRecording.mp4");
+    movie.loop();
   }
   return f.exists();
+}
+
+// Movie reading callback
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void saveSVG(ArrayList <PVector> points) {

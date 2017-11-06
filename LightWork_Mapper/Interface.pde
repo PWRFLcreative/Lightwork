@@ -1,4 +1,4 @@
-// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -30,8 +30,8 @@ public class Interface {
   //LED defaults
   String               IP = "fade1.local";
   int                  port = 7890;
-  int                  ledsPerStrip =50;
-  int                  numStrips = 3;
+  int                  ledsPerStrip =8; // TODO: DOn't hardcode this
+  int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
 
   //Pixelpusher objects
@@ -175,8 +175,6 @@ public class Interface {
       }
     };
   }
-
-
 
   //open connection to controller
   void connect(PApplet parent) {
