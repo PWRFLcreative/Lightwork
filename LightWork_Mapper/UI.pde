@@ -126,17 +126,18 @@ void buildUI(int mult) {
   //set labels to bottom
   cp5.getController("cvThreshold").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
   cp5.getController("cvThreshold").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
-  
+
   //capture console events to ui
   cp5.enableShortcuts();
   cp5Console = cp5.addTextarea("cp5Console")
-                  .setPosition(0, height-200-uiSpacing)
-                  .setSize(buttonWidth, 200)
-                  .setFont(createFont("", 12*mult))
-                  .setLineHeight(16*mult)
-                  .setColor(color(200))
-                  .setColorBackground(color(#333333, 100))
-                  .setColorForeground(color(255, 100));
+    .setPosition(0, height-200-uiSpacing)
+    .setSize(buttonWidth, 200)
+    .setFont(createFont("", 12*mult))
+    .setLineHeight(16*mult)
+    .setColor(color(200))
+    .setColorBackground(color(#333333))
+    .setColorForeground(color(255, 100))
+    ;
   ;
 
   console = cp5.addConsole(cp5Console);//
@@ -159,7 +160,7 @@ void camera(int n) {
 // TODO: investigate why UI switching throws errors, but keypress switching doesn't
 void driver(int n) { 
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
-  
+
   if (label.equals("PIXELPUSHER")) {
     network.shutdown();
     network.setMode(device.PIXELPUSHER);

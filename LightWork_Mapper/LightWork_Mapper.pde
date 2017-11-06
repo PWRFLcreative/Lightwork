@@ -81,8 +81,6 @@ void setup()
   videoExport = new VideoExport(this, movieFilePath, cam);
 
   opencv = new OpenCV(this, camWidth, camHeight);
-  // Gray channel
-  opencv.gray();
   opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
   //opencv.startBackgroundSubtraction(50, 30, 1.0);
 
@@ -124,6 +122,8 @@ void draw()
     image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
     opencv.loadImage(cam);
+    // Gray channel
+    opencv.gray();
     opencv.threshold(cvThreshold);
     opencv.contrast(cvContrast);
 
@@ -170,8 +170,7 @@ void keyPressed() {
   if (key == 'm') {
     if (network.isConnected()==false) {
       println("please connect to a device before mapping");
-    }
-    else if (animator.getMode()!=animationMode.CHASE) {
+    } else if (animator.getMode()!=animationMode.CHASE) {
       isMapping=!isMapping;
       animator.setMode(animationMode.CHASE);
       println("Chase mode");
@@ -289,10 +288,18 @@ void saveSVG(ArrayList <PVector> points) {
   //selectOutput(prompt, callback, file) - try for file dialog
 }
 
-//Closes connections
+//Closes connections (once deployed as applet)
 void stop()
 {
   cam =null;
-
+  videoExport=null;
   super.stop();
+}
+
+//Closes connections
+void exit()
+{
+  cam =null;
+  videoExport=null;
+  super.exit();
 }
