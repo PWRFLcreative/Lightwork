@@ -30,7 +30,7 @@ public class Interface {
   //LED defaults
   String               IP = "fade1.local";
   int                  port = 7890;
-  int                  ledsPerStrip =50;
+  int                  ledsPerStrip =50; // TODO: DOn't hardcode this
   int                  numStrips = 3;
   int                  numLeds = ledsPerStrip*numStrips;
 
@@ -235,7 +235,7 @@ public class Interface {
       opc = null;
     }
     if (mode==device.PIXELPUSHER) {
-      //registry.stopPushing() ;  //TODO: Need to disconnect devices as well
+      //registry.stopPushing() ; 
       registry.deleteObserver(testObserver);
       //registry = null;
       //testObserver = null;

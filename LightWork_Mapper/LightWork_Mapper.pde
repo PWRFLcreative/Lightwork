@@ -112,7 +112,7 @@ void setup()
   network.setNumLedsPerStrip(8); // TODO: Fix these setters...
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(50);
+  animator.setLedBrightness(100);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
@@ -137,7 +137,6 @@ void draw()
   }
 
   image(videoInput, 0, 0, camWidth, camHeight);
-
 
   opencv.loadImage(videoInput);
   opencv.updateBackground();
@@ -326,7 +325,7 @@ void binaryMapping() {
           break;
         }
       }
-      
+
       // If none of the existing blobs are too close, add this one to the blob list
       if (!isTooClose) {
         Blob b = new Blob(this, blobCount, c);
@@ -335,16 +334,23 @@ void binaryMapping() {
       }
     }
   }
-  
+
   // Update the blob age
   for (int i = 0; i < blobList.size(); i++) {
     Blob b = blobList.get(i);
     b.countDown();
     if (b.dead()) {
-     blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
+      blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
     }
   }
-  
+
+  // Decode a few blobs (a few at a time for now...) 
+  int numToDecode = 10;
+  if (blobList.size() >= numToDecode) {
+    for (int i = 0; i < numToDecode; i++) {
+      println("decoding this blob: "+blobList.get(i).id);
+    }
+  }
 }
 
 // Filter out contours that are too small or too big

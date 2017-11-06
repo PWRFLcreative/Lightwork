@@ -11,10 +11,12 @@ public class BinaryPattern {
   // Pattern detection
   int previousState;
   int detectedState;
-  int animationPatternLength; // 6 bit pattern with a START at the end and an OFF after each one
-  int bitIndex;
-  int numBits;
   int state; // Current bit state, used by animator
+  int animationPatternLength; // 6 bit pattern with a START at the end and an OFF after each one
+  int readIndex; // For reading bit at index (for the animation)
+  int numBits;
+  
+  int writeIndex; // For writing detected bits
 
   String binaryPatternString; 
   int[]  binaryPatternVector;
@@ -35,11 +37,13 @@ public class BinaryPattern {
     numBits = 10; 
     animationPatternLength = 10;
     frameNum = 0; // Used for animation
-    bitIndex = 0; // Used by the detector to write bits 
+    readIndex = 0; // Used by the detector to write bits 
     //state = pattern_state_t.START;
     //generatePattern(0);
     previousState = 0;
     detectedState = 0;
+    
+    writeIndex = 0; 
 
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
@@ -49,7 +53,6 @@ public class BinaryPattern {
 
   // Generate Binary patterns for animation sequence and pattern-matching
   void generatePattern(int num) {
-
     // Convert int to String of fixed length
     String s = Integer.toBinaryString(num); 
     // TODO: string format, use numBits instead of hardcoded 10
@@ -62,32 +65,6 @@ public class BinaryPattern {
       int x = Character.getNumericValue(c);
       binaryPatternVector[i] = x;
     }
-
-    // Convert Binary Pattern to Animation Sequence
-
-    /*
-
-     // Insert START and OFF signals
-     // Example: [START, OFF, HIGH, OFF, LOW, OFF, LOW, OFF, HIGH, OFF, etc].
-     for (int i = 0; i<s.size()+1; i++) { // +1 for a trailing OFF message
-     if (i == 0) {
-     s.insert(i, "2"); // state == START
-     }
-     else if (i%2 == 0) {
-     s.insert(i, "3"); // state == OFF
-     }
-     }
-     // Insert OFF after START
-     s.insert(1, "3");
-     // Insert trailing OFF
-     s.append("3");
-     
-     // Store bitstrings in pattern string
-     animationPatternString = s;
-     
-     // Convert to int vector and store internally
-     animationPatternVector = convertStringToIntVector(animationPatternString);
-     */
   }
 
   void advance() {
@@ -96,5 +73,11 @@ public class BinaryPattern {
     if (frameNum >= animationPatternLength) {
       frameNum = 0;
     }
+  }
+  
+  // Pattern storage
+  
+  void writeBitAtIndex() {
+    
   }
 }
