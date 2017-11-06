@@ -21,14 +21,14 @@ ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
-boolean isMapping = true; // TODO: Switch back to false
+boolean isMapping = false; // TODO: Switch back to false
 
 enum  VideoMode {
   CAMERA, FILE, OFF
 };
 
 VideoMode videoMode; 
-String movieFileName = "partialBinary.mp4";
+String movieFileName = "singleBinary.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -69,7 +69,7 @@ void setup()
   size(640, 480, P2D);
   frameRate(FPS);
 
-  videoMode = VideoMode.FILE; 
+  videoMode = VideoMode.CAMERA; 
 
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -99,7 +99,9 @@ void setup()
 
   if (videoMode == VideoMode.FILE) {
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
-    movie.loop();
+    //movie.loop();
+    movie.play();
+    
   }
 
 
@@ -141,7 +143,6 @@ void setup()
 
   // Make sure there's always something in videoInput
   videoInput = createImage(camWidth, camHeight, RGB);
-  ;
   background(0);
 }
 
@@ -198,7 +199,15 @@ void draw()
 
   if (isMapping) {
     //sequentialMapping();
-    binaryMapping();
+    binaryMapping(); // Find and manage blobs
+
+    // Decode the signal in the blobs
+
+    //print(br);
+    //print(", ");
+    if (blobList.size() > 0) {
+      blobList.get(0).decode(); // Decode the pattern
+    }
   }
 
 
@@ -327,7 +336,7 @@ void binaryMapping() {
   newBlobs = filterContours(contours); // Stores all blobs found in this frame
   if (newBlobs.size() <= 0) {
     // No new blobs, skip the rest of this method
-    return; 
+    return;
   }
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
@@ -398,7 +407,7 @@ void binaryMapping() {
   if (blobList.size() >= numToDecode) {
     for (int i = 0; i < numToDecode; i++) {
       // Get the blob brightness to determine it's state (HIGH/LOW)
-      println("decoding this blob: "+blobList.get(i).id);
+      //println("decoding this blob: "+blobList.get(i).id);
       Rectangle r = blobList.get(i).contour.getBoundingBox();
       PImage cropped = videoInput.get(r.x, r.y, r.width, r.height);
       int br = 0; 
@@ -406,7 +415,21 @@ void binaryMapping() {
         br += brightness(c);
       }
       br = br/ cropped.pixels.length;
-      println(br);
+
+
+      if (i == 0) { // Only look at one blob, for now
+        //print(br);
+        //print(", ");
+        //println(frameCount);
+        //print(leds.get(i).binaryPattern.binaryPatternString);
+        blobList.get(i).registerBrightness(br); // Set blob brightness
+        //blobList.get(i).decode(); // Decode the pattern
+        // Check for pattern match
+        //if (blobList.get(i).matchFound) {
+        //  println("Match found"); 
+        //}
+
+      }
     }
   }
 }
