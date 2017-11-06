@@ -30,8 +30,8 @@ public class Interface {
   //LED defaults
   String               IP = "fade1.local";
   int                  port = 7890;
-  int                  ledsPerStrip =50; // TODO: DOn't hardcode this
-  int                  numStrips = 3;
+  int                  ledsPerStrip =8; // TODO: DOn't hardcode this
+  int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
 
   //Pixelpusher objects

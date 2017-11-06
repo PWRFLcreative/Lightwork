@@ -21,7 +21,7 @@ OpenCV opencv;
 Animator animator;
 Interface network; 
 
-boolean isMapping=false;
+boolean isMapping = true; // TODO: Switch back to false
 
 
 enum  VideoMode {
@@ -29,7 +29,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "sequentialRecording.mp4";
+String movieFileName = "partialBinary.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -57,7 +57,7 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 3;
+int minBlobSize = 5;
 int maxBlobSize = 10;
 
 void setup()
@@ -181,13 +181,13 @@ void keyPressed() {
   if (key == 'm') {
     isMapping=!isMapping;
     // Commented out because it breaks BinaryMapping
-    if (animator.getMode()!=animationMode.CHASE) {
-      animator.setMode(animationMode.CHASE);
-      println("Chase mode");
-    } else {
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
+    //if (animator.getMode()!=animationMode.CHASE) {
+    //  animator.setMode(animationMode.CHASE);
+    //  println("Chase mode");
+    //} else {
+    //  animator.setMode(animationMode.OFF);
+    //  println("Animator off");
+    //}
   }
 
   if (key == 't') {
@@ -280,6 +280,10 @@ void binaryMapping() {
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
   newBlobs = filterContours(contours); // Stores all blobs found in this frame
+  if (newBlobs.size() <= 0) {
+    // No new blobs, skip the rest of this method
+    return; 
+  }
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
   if (blobList.isEmpty()) {
@@ -344,11 +348,20 @@ void binaryMapping() {
     }
   }
 
-  // Decode a few blobs (a few at a time for now...) 
-  int numToDecode = 10;
+  // Decode blobs (a few at a time for now...) 
+  int numToDecode = 1;
   if (blobList.size() >= numToDecode) {
     for (int i = 0; i < numToDecode; i++) {
+      // Get the blob brightness to determine it's state (HIGH/LOW)
       println("decoding this blob: "+blobList.get(i).id);
+      Rectangle r = blobList.get(i).contour.getBoundingBox();
+      PImage cropped = videoInput.get(r.x, r.y, r.width, r.height);
+      int br = 0; 
+      for (color c : cropped.pixels) {
+        br += brightness(c);
+      }
+      br = br/ cropped.pixels.length;
+      println(br);
     }
   }
 }
