@@ -21,7 +21,7 @@ OpenCV opencv;
 Animator animator;
 Interface network; 
 
-boolean isMapping = false; // TODO: Switch back to false
+boolean isMapping = true; // TODO: Switch back to false
 
 
 enum  VideoMode {
@@ -65,7 +65,7 @@ void setup()
   size(640, 960);
   frameRate(FPS);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   String[] cameras = Capture.list();
   coords = new ArrayList<PVector>();
