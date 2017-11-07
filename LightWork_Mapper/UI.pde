@@ -15,7 +15,12 @@ Println console;
 boolean isUIReady = false;
 
 void buildUI() {
-  println("Building UI...");
+  println("setting up ControlP5");
+  cp5 = new ControlP5(this);
+  topPanel = new ControlP5(this);
+  
+  float startTime = millis(); 
+  println("Building UI... at time: " + startTime);
   int uiWidth =500 *guiMultiply;
   int uiSpacing = 20 *guiMultiply;
   int buttonHeight = 25 *guiMultiply;
@@ -28,31 +33,9 @@ void buildUI() {
   cp5.setColorBackground(#333333);
   cp5.setPosition((int)((height / 2)*camAspect+uiSpacing), uiSpacing);
 
-  println("creating top panel");
-  topPanel.setFont(font);
-  topPanel.setColorBackground(#333333);
-  topPanel.setPosition(uiSpacing, uiSpacing);
 
 
-  /* add a ScrollableList, by default it behaves like a DropdownList */
-  println("topPanel: adding scrollable list");
-  topPanel.addScrollableList("camera")
-    .setPosition(0, 0)
-    .setSize(buttonWidth, 300)
-    .setBarHeight(buttonHeight)
-    .setItemHeight(buttonHeight)
-    .addItems(Capture.list())
-    .setOpen(false)    
-    //.close();
-    ;
-  println("topPanel: adding refresh button");
-  topPanel.addButton("refresh")
-    .setPosition(buttonWidth+50, 0)
-    .setSize(buttonWidth/2, buttonHeight)
-    ;
-
-
-  println("listing drivers");
+  //println("listing drivers");
   List driver = Arrays.asList("PixelPusher", "Fadecandy"); //"ArtNet"  removed for now - throws errors
   /* add a ScrollableList, by default it behaves like a DropdownList */
   println("adding scroallable list for drivers");
@@ -68,13 +51,6 @@ void buildUI() {
     //.close();
     ;
 
-  //Group network = cp5.addGroup("network")
-  //  .setPosition(0, 400)
-  //  .setBackgroundHeight(100)
-  //  .setWidth(buttonWidth+uiSpacing)
-  //  .setBarHeight(buttonHeight)
-  //  .setBackgroundColor(color(255, 50))
-  //  ;
 
   println("adding textfield for IP");
   cp5.addTextfield("ip")
@@ -84,6 +60,7 @@ void buildUI() {
     .setValue(network.getIP())
     //.setGroup("network")
     ;
+   println("done adding textfield for IP");
 
   println("adding textfield for ledsPerStrip");
   cp5.addTextfield("leds_per_strip")
@@ -120,7 +97,7 @@ void buildUI() {
 
     ;
 
-  ////set labels to bottom
+  //set labels to bottom
   println("setting labels to bottom");
   cp5.getController("cvContrast").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
   cp5.getController("cvContrast").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
@@ -188,11 +165,40 @@ void buildUI() {
     ;
   ;
   
-  println("adding console");
-  console = cp5.addConsole(cp5Console);//
+  //println("adding console");
+  //console = cp5.addConsole(cp5Console);//
+
+
+// TOP PANEL
+  println("creating top panel");
+  topPanel.setFont(font);
+  topPanel.setColorBackground(#333333);
+  topPanel.setPosition(uiSpacing, uiSpacing);
+
+
+  /* add a ScrollableList, by default it behaves like a DropdownList */
+  println("topPanel: adding scrollable list");
+  topPanel.addScrollableList("camera")
+    .setPosition(0, 0)
+    .setSize(buttonWidth, 300)
+    .setBarHeight(buttonHeight)
+    .setItemHeight(buttonHeight)
+    .addItems(enumerateCams())
+    .setOpen(false)    
+    //.close();
+    ;
+  println("topPanel: adding refresh button");
+  topPanel.addButton("refresh")
+    .setPosition(buttonWidth+50, 0)
+    .setSize(buttonWidth/2, buttonHeight)
+    ;
 
   println("add framerate panel");
   topPanel.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
+  
+  // Wrap up, report done
+  float deltaTime = millis()-startTime; 
+  println("Done building GUI, total time: " + deltaTime); 
   isUIReady = true;
 }
 

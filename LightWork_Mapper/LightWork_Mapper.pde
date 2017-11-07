@@ -70,11 +70,12 @@ int maxBlobSize = 10;
 
 void setup()
 {
+  
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   
-  videoMode = VideoMode.FILE; 
+  videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -140,7 +141,7 @@ void setup()
 
   //Check for hi resolution display
   println("setup gui multiply");
-  int guiMultiply = 1;
+  guiMultiply = 1;
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
@@ -150,9 +151,7 @@ void setup()
   surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  println("setting up ControlP5");
-  cp5 = new ControlP5(this);
-  topPanel = new ControlP5(this);
+  
   
   println("calling buildUI on a thread");
   thread("buildUI");
@@ -167,11 +166,12 @@ void setup()
 void draw()
 {
   if (!isUIReady) {
-   println("Building UI....");
+   println("DrawLoop: Building UI....");
    fill(255);
    text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
    return;
   }
+  
   if (videoMode == VideoMode.CAMERA) {
     if (cam.available()) {
       cam.read();
