@@ -75,7 +75,7 @@ void setup()
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
 
-  videoMode = VideoMode.FILE; 
+  videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -166,8 +166,14 @@ void draw()
 {
   if (!isUIReady) {
     println("DrawLoop: Building UI....");
+    background(0);
     fill(255);
-    text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
+    textAlign(CENTER);
+    pushMatrix(); 
+    translate(camWidth/2, camHeight/2);
+    rotate(frameCount*0.1);
+    text("LOADING...", 0, 0);
+    popMatrix();
     return;
   }
 
@@ -194,20 +200,31 @@ void draw()
   image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
   opencv.loadImage(videoInput);
-  opencv.updateBackground();
+  
 
+  opencv.threshold(cvThreshold);
+  opencv.gray();
+  opencv.contrast(cvContrast);
+  opencv.dilate();
+  opencv.erode();
+  //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.equalizeHistogram();
+  opencv.blur(2);
+  opencv.updateBackground();
+/*
   // Gray channel
   opencv.gray();
   opencv.threshold(cvThreshold);
   opencv.contrast(cvContrast);
-  opencv.equalizeHistogram();
+  
   opencv.invert();
 
   //these help close holes in the binary image
   opencv.dilate();
   opencv.erode();
-  opencv.blur(2);
-
+  
+  opencv.startBackgroundSubtraction(0,5,0);
+*/
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
 

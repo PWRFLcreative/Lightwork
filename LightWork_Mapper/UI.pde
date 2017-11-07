@@ -146,7 +146,7 @@ void buildUI() {
 
   println("adding save button");
   cp5.addButton("save")
-    .setPosition(0, height/6 + buttonHeight*10)
+    .setPosition(0, height/6 + buttonHeight*10+10)
     .setSize(buttonWidth/2, int(buttonHeight*1.5))
     ;
 
