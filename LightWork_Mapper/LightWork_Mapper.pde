@@ -165,16 +165,22 @@ void setup()
 void draw()
 {
   if (!isUIReady) {
+    cp5.setVisible(false);
+    topPanel.setVisible(false); 
     println("DrawLoop: Building UI....");
     background(0);
     fill(255);
     textAlign(CENTER);
     pushMatrix(); 
-    translate(camWidth/2, camHeight/2);
+    translate(width/2, height/2);
     rotate(frameCount*0.1);
     text("LOADING...", 0, 0);
     popMatrix();
     return;
+  }
+  else {
+   cp5.setVisible(true); 
+   topPanel.setVisible(true); 
   }
 
   if (videoMode == VideoMode.CAMERA && cam.available()) {
