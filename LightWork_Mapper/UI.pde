@@ -165,8 +165,9 @@ void buildUI() {
     ;
   ;
   
-  //println("adding console");
-  //console = cp5.addConsole(cp5Console);//
+  println("adding console");
+  // TODO: IS this breaking things?
+  console = cp5.addConsole(cp5Console);//
 
 
 // TOP PANEL
