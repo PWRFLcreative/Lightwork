@@ -74,7 +74,7 @@ void setup()
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -156,6 +156,7 @@ void setup()
   
   println("calling buildUI on a thread");
   thread("buildUI");
+  //buildUI();
 
   // Make sure there's always something in videoInput
   println("allocating videoInput with empty image");
@@ -165,6 +166,12 @@ void setup()
 
 void draw()
 {
+  if (!isUIReady) {
+   println("Building UI....");
+   fill(255);
+   text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
+   return;
+  }
   if (videoMode == VideoMode.CAMERA) {
     if (cam.available()) {
       cam.read();
@@ -201,18 +208,18 @@ void draw()
   opencv.erode();
   opencv.blur(2);
 
-  //cvFBO.beginDraw();
-  //cvFBO.image(opencv.getSnapshot(), 0, 0);
+  cvFBO.beginDraw();
+  cvFBO.image(opencv.getSnapshot(), 0, 0);
 
-  //if (coords.size()>0) {
-  //  for (PVector p : coords) {
-  //    cvFBO.noFill();
-  //    cvFBO.stroke(255, 0, 0);
-  //    cvFBO.ellipse(p.x, p.y, 10, 10);
-  //  }
-  //}
-  //cvFBO.endDraw();
-  //image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
+  if (coords.size()>0) {
+    for (PVector p : coords) {
+      cvFBO.noFill();
+      cvFBO.stroke(255, 0, 0);
+      cvFBO.ellipse(p.x, p.y, 10, 10);
+    }
+  }
+  cvFBO.endDraw();
+  image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
 
   if (isMapping) {
     //sequentialMapping();

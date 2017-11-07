@@ -103,6 +103,7 @@ public class Interface {
   }
 
   String getIP() {
+    println(IP);
     return IP;
   }
 

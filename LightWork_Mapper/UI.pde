@@ -12,6 +12,7 @@ import controlP5.*;
 
 Textarea cp5Console;
 Println console;
+boolean isUIReady = false;
 
 void buildUI() {
   println("Building UI...");
@@ -40,7 +41,7 @@ void buildUI() {
     .setSize(buttonWidth, 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
-    .addItems(enumerateCams())
+    .addItems(Capture.list())
     .setOpen(false)    
     //.close();
     ;
@@ -192,6 +193,7 @@ void buildUI() {
 
   println("add framerate panel");
   topPanel.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
+  isUIReady = true;
 }
 
 //////////////////////////////////////////////////////////////
