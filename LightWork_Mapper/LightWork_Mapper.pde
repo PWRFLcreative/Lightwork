@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+//   //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -21,7 +21,8 @@ ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
-boolean isMapping = false; // TODO: Switch back to false
+boolean isMapping = false; 
+int ledBrightness = 100;
 
 enum  VideoMode {
   CAMERA, FILE, OFF
@@ -101,15 +102,11 @@ void setup()
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     //movie.loop();
     movie.play();
-    
   }
-
 
   // OpenCV Setup
   opencv = new OpenCV(this, camWidth, camHeight);
   opencv.threshold(cvThreshold);
-
-  // Gray channel
   opencv.gray();
   opencv.contrast(cvContrast);
   opencv.dilate();
@@ -118,10 +115,10 @@ void setup()
 
   network = new Interface();
   network.setNumStrips(1);
-  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(100);
+  animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
@@ -150,7 +147,6 @@ void draw()
 {
 
   // Display the camera input and processed binary image
-
   if (cam.available() && videoMode == VideoMode.CAMERA) {
     //UI is drawn on canvas background, update to clear last frame's UI changes
     background(#111111);
@@ -163,13 +159,14 @@ void draw()
     image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
     opencv.loadImage(cam);
+    opencv.updateBackground();
+
     // Gray channel
     opencv.gray();
     opencv.threshold(cvThreshold);
     opencv.contrast(cvContrast);
-
-    opencv.updateBackground();
     opencv.equalizeHistogram();
+    opencv.invert();
 
     //these help close holes in the binary image
     opencv.dilate();
@@ -189,8 +186,9 @@ void draw()
     cvFBO.endDraw();
 
     image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
+  }
 
-  if(videoMode == VideoMode.CAMERA)
+  if (videoMode == VideoMode.CAMERA) {
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
@@ -210,10 +208,11 @@ void draw()
     }
   }
 
-
+  camFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
   //displayContoursBoundingBoxes();
+  camFBO.endDraw();
 
   animator.update();
 
@@ -428,7 +427,6 @@ void binaryMapping() {
         //if (blobList.get(i).matchFound) {
         //  println("Match found"); 
         //}
-
       }
     }
   }
@@ -480,11 +478,6 @@ void displayContoursBoundingBoxes() {
     rect(r.x, r.y, r.width, r.height);
   }
 }
-
-
-
-
-
 
 
 // Load file, return success value

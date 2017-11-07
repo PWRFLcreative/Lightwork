@@ -18,7 +18,7 @@ void buildUI(int mult) {
   int uiWidth =500 *mult;
   int uiSpacing = 20 *mult;
   int buttonHeight = 25 *mult;
-  int buttonWidth =225 *mult;
+  int buttonWidth =230 *mult;
 
   PFont pfont = createFont("OpenSans-Regular.ttf", 12*mult, true); // use true/false for smooth/no-smooth
   ControlFont font = new ControlFont(pfont, 12*mult);
@@ -96,8 +96,7 @@ void buildUI(int mult) {
 
   cp5.addButton("connect")
     .setPosition(0, 650)
-    .setSize(buttonWidth, buttonHeight)
-    .setSize(buttonWidth/2, buttonHeight*2)
+    .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
     ;
 
   cp5.addSlider("cvContrast")
@@ -127,11 +126,40 @@ void buildUI(int mult) {
   cp5.getController("cvThreshold").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
   cp5.getController("cvThreshold").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
+  cp5.addSlider("ledBrightness")
+    .setBroadcast(false)
+    .setPosition(0, 1050)
+    .setSize(buttonWidth, buttonHeight)
+    .setRange(0, 255)
+    .setValue(ledBrightness)
+    .setBroadcast(true)
+    ;
+
+  //set labels to bottom
+  cp5.getController("ledBrightness").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+  cp5.getController("ledBrightness").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+
+  cp5.addButton("test")
+    .setPosition(0, 1150)
+    .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
+    ;
+
+  cp5.addButton("map")
+    .setPosition(buttonWidth/2, 1150)
+    .setSize(buttonWidth/2, int(buttonHeight*1.5))
+    ;
+
+  cp5.addButton("save")
+    .setPosition(0, 1250)
+    .setSize(buttonWidth/2, int(buttonHeight*1.5))
+    ;
+
+
   //capture console events to ui
   cp5.enableShortcuts();
   cp5Console = cp5.addTextarea("cp5Console")
-    .setPosition(0, height-200-uiSpacing)
-    .setSize(buttonWidth, 200)
+    .setPosition(0, height-(buttonHeight*5)-uiSpacing*2)
+    .setSize(buttonWidth, buttonHeight*5)
     .setFont(createFont("", 12*mult))
     .setLineHeight(16*mult)
     .setColor(color(200))
@@ -157,7 +185,6 @@ void camera(int n) {
   switchCamera(label);
 }
 
-// TODO: investigate why UI switching throws errors, but keypress switching doesn't
 void driver(int n) { 
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
 
@@ -179,15 +206,18 @@ void driver(int n) {
 }
 
 public void ip(String theText) {
-  // automatically receives results from controller input
   println("IP set to : "+theText);
   network.setIP(theText);
 }
 
 public void leds_per_strip(String theText) {
-  // automatically receives results from controller input
   println("Leds per strip set to : "+theText);
   network.setNumLedsPerStrip(int(theText));
+}
+
+public void strips(String theText) {
+  println("Strips set to : "+theText);
+  network.setNumStrips(int(theText));
 }
 
 public void connect() {
@@ -223,6 +253,44 @@ public void cvContrast(float value) {
   //opencv.contrast(cvContrast);
   //println("set Open CV contrast to "+cvContrast);
 }
+
+public void ledBrightness(int value) {
+  ledBrightness =value;
+  animator.setLedBrightness(ledBrightness);
+}
+
+public void test() {
+  if (network.isConnected()==false) {
+    println("please connect to a device before testing");
+  } else if (animator.getMode()!=animationMode.TEST) {
+    animator.setMode(animationMode.TEST);
+    println("Test mode");
+  } else {
+    animator.setMode(animationMode.OFF);
+    println("Animator off");
+  }
+}
+
+public void map() {
+  if (network.isConnected()==false) {
+    println("please connect to a device before mapping");
+  } else if (animator.getMode()!=animationMode.CHASE) {
+    isMapping=!isMapping;
+    animator.setMode(animationMode.CHASE);
+    println("Chase mode");
+  } else {
+    isMapping=!isMapping;
+    animator.setMode(animationMode.OFF);
+    println("Animator off");
+  }
+}
+
+public void save() {
+  if (key == 's') {
+    saveSVG(coords);
+  }
+}
+
 
 
 //////////////////////////////////////////////////////////////

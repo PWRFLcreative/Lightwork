@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>// //<>// //<>//
+//  //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -19,9 +19,6 @@ public class Animator {
   int                 ledIndex;               // Index of LED being mapped (lit and detected).
   int                 numLedsPerStrip;        // Number of LEDs per strip
   int                 numStrips;              // How many strips total
-  int                 ledBrightness;          // Brightness of LED's in the animation sequence. Currently hard-coded but
-  // will be determined by camera frame brightness (to avoid flaring by
-  // excessively bright LEDs).
 
   int                 testIndex;              // Used for the test() animation sequence
   int                 frameCounter;           // Internal framecounter
@@ -59,7 +56,6 @@ public class Animator {
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
     ledBrightness = brightness;
-    //opcClient->autoWriteData(getPixels());
   }
 
   void setFrameSkip(int num) {
@@ -95,7 +91,7 @@ public class Animator {
     switch(mode) {
     case CHASE: 
       {
-        chase();
+        chase(); //<>//
         break;
       }
     case TEST: 
@@ -163,11 +159,11 @@ public class Animator {
     testIndex++;
 
     if (testIndex < 30) {
-      setAllLEDColours(color(255, 0, 0));
+      setAllLEDColours(color(ledBrightness, 0, 0));
     } else if (testIndex > 30 && testIndex < 60) {
-      setAllLEDColours(color(0, 255, 0));
+      setAllLEDColours(color(0, ledBrightness, 0));
     } else if (testIndex > 60 && testIndex < 90) {
-      setAllLEDColours(color(0, 0, 255));
+      setAllLEDColours(color(0, 0, ledBrightness));
     }
 
     if (testIndex > 90) {

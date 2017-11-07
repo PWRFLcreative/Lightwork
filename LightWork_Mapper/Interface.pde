@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>//
+//  //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -30,9 +30,10 @@ public class Interface {
   //LED defaults
   String               IP = "fade1.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
-  int                  numStrips = 8;
+  int                  ledsPerStrip = 50; // TODO: DOn't hardcode this
+  int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
+  int                  ledBrightness;
 
   //Pixelpusher objects
   DeviceRegistry registry;
@@ -84,6 +85,17 @@ public class Interface {
 
   int getNumStrips() {
     return numStrips;
+  }
+
+  void setLedBrightness(int brightness) { //TODO: set overall brightness?
+    ledBrightness = brightness;
+
+    if (mode == device.PIXELPUSHER && isConnected()) {
+      registry.setOverallBrightnessScale(ledBrightness);
+    }
+
+    if (opc!=null&&opc.isConnected()) {
+    }
   }
 
   void setIP(String ip) {
@@ -150,7 +162,7 @@ public class Interface {
 
           //iterate through PP strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
-          if (strips.size() > 0) {
+          if (strips.size() > 0) { //<>//
             int stripNum =0;
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {
