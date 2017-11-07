@@ -13,15 +13,15 @@ import controlP5.*;
 Textarea cp5Console;
 Println console;
 
-void buildUI(int mult) {
+void buildUI() {
 
-  int uiWidth =500 *mult;
-  int uiSpacing = 20 *mult;
-  int buttonHeight = 25 *mult;
-  int buttonWidth =230 *mult;
+  int uiWidth =500 *guiMultiply;
+  int uiSpacing = 20 *guiMultiply;
+  int buttonHeight = 25 *guiMultiply;
+  int buttonWidth =230 *guiMultiply;
 
-  PFont pfont = createFont("OpenSans-Regular.ttf", 12*mult, true); // use true/false for smooth/no-smooth
-  ControlFont font = new ControlFont(pfont, 12*mult);
+  PFont pfont = createFont("OpenSans-Regular.ttf", 12*guiMultiply, true); // use true/false for smooth/no-smooth
+  ControlFont font = new ControlFont(pfont, 12*guiMultiply);
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
   cp5.setPosition((int)((height / 2)*camAspect+uiSpacing), uiSpacing);
@@ -160,8 +160,8 @@ void buildUI(int mult) {
   cp5Console = cp5.addTextarea("cp5Console")
     .setPosition(0, height-(buttonHeight*5)-uiSpacing*2)
     .setSize(buttonWidth, buttonHeight*5)
-    .setFont(createFont("", 12*mult))
-    .setLineHeight(16*mult)
+    .setFont(createFont("", 12*guiMultiply))
+    .setLineHeight(16*guiMultiply)
     .setColor(color(200))
     .setColorBackground(color(#333333))
     .setColorForeground(color(255, 100))

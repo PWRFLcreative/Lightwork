@@ -40,6 +40,8 @@ float camAspect = (float)camWidth / (float)camHeight;
 PGraphics camFBO;
 PGraphics cvFBO;
 
+int guiMultiply = 1;
+
 int cvThreshold = 100;
 float cvContrast = 1.35;
 
@@ -67,7 +69,7 @@ int maxBlobSize = 10;
 
 void setup()
 {
-  size(640, 480, P2D);
+  size(640, 480, P3D);
   frameRate(FPS);
 
   videoMode = VideoMode.CAMERA; 
@@ -125,7 +127,6 @@ void setup()
   animator.update();
 
   //Check for hi resolution display
-  int guiMultiply = 1;
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
@@ -136,7 +137,7 @@ void setup()
 
   cp5 = new ControlP5(this);
   topPanel = new ControlP5(this);
-  buildUI(guiMultiply);
+  thread("buildUI");
 
   // Make sure there's always something in videoInput
   videoInput = createImage(camWidth, camHeight, RGB);
