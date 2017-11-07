@@ -70,11 +70,11 @@ int maxBlobSize = 10;
 
 void setup()
 {
-  
+
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
-  
+
   videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
@@ -105,7 +105,7 @@ void setup()
   //  cam.start();
   //}
   cam = new Capture(this, camWidth, camHeight, 30);
-  
+
   println("allocating video export");
   videoExport = new VideoExport(this, "data/"+movieFileName, cam);
 
@@ -151,11 +151,10 @@ void setup()
   surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  
-  
+
+
   println("calling buildUI on a thread");
-  thread("buildUI");
-  //buildUI();
+  thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
   // Make sure there's always something in videoInput
   println("allocating videoInput with empty image");
@@ -166,19 +165,20 @@ void setup()
 void draw()
 {
   if (!isUIReady) {
-   println("DrawLoop: Building UI....");
-   fill(255);
-   text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
-   return;
+    println("DrawLoop: Building UI....");
+    fill(255);
+    text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
+    return;
   }
-  
-  if (videoMode == VideoMode.CAMERA) {
-    if (cam.available()) {
-      cam.read();
-      videoInput = cam;
-    }
+
+  if (videoMode == VideoMode.CAMERA && cam.available()) {
+    cam.read();
+    videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
+  }
+  else {
+    println("Oops, no video input!"); 
   }
 
   // Display the camera input and processed binary image
