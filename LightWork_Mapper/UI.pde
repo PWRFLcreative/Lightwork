@@ -37,7 +37,7 @@ void buildUI() {
     .setSize(buttonWidth, 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
-    .addItems(enumerateCams())
+    .addItems(enumerateCams()) 
     .setOpen(false)    
     //.close();
     ;
@@ -299,8 +299,11 @@ public void save() {
 
 //get the list of currently connected cameras
 String[] enumerateCams() {
+  int startTime = millis();
   //parse out camera names
   String[] list = Capture.list();
+  int endTime =millis();
+  println("listing cams took: "+(startTime-endTime));
   for (int i=0; i<list.length; i++) {
     String item = list[i]; 
     String[] temp = splitTokens(item, ",=");
