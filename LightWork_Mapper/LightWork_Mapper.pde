@@ -41,6 +41,8 @@ float camAspect;
 PGraphics camFBO;
 PGraphics cvFBO;
 
+int guiMultiply = 1;
+
 int cvThreshold = 100;
 float cvContrast = 1.35;
 
@@ -68,12 +70,11 @@ int maxBlobSize = 10;
 
 void setup()
 {
-  println("setting size and FSP");
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   
-  videoMode = VideoMode.FILE; 
+  videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -152,8 +153,9 @@ void setup()
   println("setting up ControlP5");
   cp5 = new ControlP5(this);
   topPanel = new ControlP5(this);
-  println("calling buildUI");
-  buildUI(guiMultiply);
+  
+  println("calling buildUI on a thread");
+  thread("buildUI");
 
   // Make sure there's always something in videoInput
   println("allocating videoInput with empty image");
@@ -163,7 +165,6 @@ void setup()
 
 void draw()
 {
-
   if (videoMode == VideoMode.CAMERA) {
     if (cam.available()) {
       cam.read();
