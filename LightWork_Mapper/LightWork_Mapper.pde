@@ -1,27 +1,28 @@
-//  //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+//   //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls 
 //
 //  This sketch uses computer vision to automatically generate mapping for LEDs.
-//  Currently, Fadecandy is supported.
+//  Currently, Fadecandy and PixelPusher are supported.
 
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
 import com.hamoid.*; // Video recording
-
 import java.awt.Rectangle;
-
 
 Capture cam;
 Movie movie;
 OpenCV opencv;
+ControlP5 cp5;
+ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
-boolean isMapping = true; // TODO: Switch back to false
+boolean isMapping = false; 
+int ledBrightness = 100;
 
 
 enum  VideoMode {
@@ -36,7 +37,12 @@ color off = color(0, 0, 0);
 
 int camWidth =640;
 int camHeight =480;
-float camAspect = (float)camWidth / (float)camHeight;
+float camAspect;
+PGraphics camFBO;
+PGraphics cvFBO;
+
+int cvThreshold = 100;
+float cvContrast = 1.35;
 
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
@@ -62,92 +68,150 @@ int maxBlobSize = 10;
 
 void setup()
 {
-  size(640, 960);
+  println("setting size and FSP");
+  size(640, 480, P2D);
   frameRate(FPS);
-
+  camAspect = (float)camWidth / (float)camHeight;
+  
   videoMode = VideoMode.FILE; 
 
-  String[] cameras = Capture.list();
+  println("creating FBOs");
+  camFBO = createGraphics(camWidth, camHeight, P2D);
+  cvFBO = createGraphics(camWidth, camHeight, P2D);
+
+  println("iterating cameras");
+  //String[] cameras = Capture.list();
+  println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
 
   // Blobs list
   blobList = new ArrayList<Blob>();
 
-  if (cameras == null) {
-    println("Failed to retrieve the list of available cameras, will try the default...");
-    cam = new Capture(this, camWidth, camHeight, FPS);
-  } else if (cameras.length == 0) {
-    println("There are no cameras available for capture.");
-    exit();
-  } else {
-    println("Available cameras:");
-    printArray(cameras);
-    //cam = new Capture(this, camWidth, camHeight, 30);
-    //cam = new Capture(this, cameras[0]);
-    cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
-    cam.start();
-  }
+  //if (cameras == null) {
+  //  println("Failed to retrieve the list of available cameras, will try the default...");
+  //  cam = new Capture(this, camWidth, camHeight, FPS);
+  //} else if (cameras.length == 0) {
+  //  println("There are no cameras available for capture.");
+  //  exit();
+  //} else {
+  //  println("Available cameras:");
+  //  printArray(cameras);
+  //  //cam = new Capture(this, camWidth, camHeight, 30);
+  //  //cam = new Capture(this, cameras[0]);
+  //  cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
+  //  cam.start();
+  //}
+  cam = new Capture(this, camWidth, camHeight, 30);
+  
+  println("allocating video export");
   videoExport = new VideoExport(this, "data/"+movieFileName, cam);
 
   if (videoMode == VideoMode.FILE) {
+    println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     //movie.loop();
     movie.play();
-    
   }
 
-
   // OpenCV Setup
+  println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(100);
-
-  // Gray channel
+  opencv.threshold(cvThreshold);
   opencv.gray();
-  opencv.contrast(1.35);
+  opencv.contrast(cvContrast);
   opencv.dilate();
   opencv.erode();
   opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
+  println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
-  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
+  println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
-  animator.setLedBrightness(100);
+  animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(5);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
 
+  //Check for hi resolution display
+  println("setup gui multiply");
+  int guiMultiply = 1;
+  if (displayWidth >= 2560) {
+    guiMultiply = 2;
+  }
+
+  println("Setting window size");
+  //Window size based on screen dimensions, centered
+  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+
+  println("setting up ControlP5");
+  cp5 = new ControlP5(this);
+  topPanel = new ControlP5(this);
+  println("calling buildUI");
+  buildUI(guiMultiply);
 
   // Make sure there's always something in videoInput
+  println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
   background(0);
 }
 
 void draw()
 {
-  // Display the camera input and processed binary image
 
-  if (cam.available() && videoMode == VideoMode.CAMERA) {
-    cam.read();
-    videoInput = cam;
+  if (videoMode == VideoMode.CAMERA) {
+    if (cam.available()) {
+      cam.read();
+      videoInput = cam;
+    }
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
   }
 
-  image(videoInput, 0, 0, camWidth, camHeight);
+  // Display the camera input and processed binary image
+
+  //UI is drawn on canvas background, update to clear last frame's UI changes
+  background(#111111);
+
+
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+  camFBO.endDraw();
+
+  image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
 
   opencv.loadImage(videoInput);
   opencv.updateBackground();
+
+  // Gray channel
+  opencv.gray();
+  opencv.threshold(cvThreshold);
+  opencv.contrast(cvContrast);
   opencv.equalizeHistogram();
+  opencv.invert();
 
   //these help close holes in the binary image
   opencv.dilate();
   opencv.erode();
   opencv.blur(2);
-  image(opencv.getSnapshot(), 0, camHeight);
+
+  //cvFBO.beginDraw();
+  //cvFBO.image(opencv.getSnapshot(), 0, 0);
+
+  //if (coords.size()>0) {
+  //  for (PVector p : coords) {
+  //    cvFBO.noFill();
+  //    cvFBO.stroke(255, 0, 0);
+  //    cvFBO.ellipse(p.x, p.y, 10, 10);
+  //  }
+  //}
+  //cvFBO.endDraw();
+  //image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
 
   if (isMapping) {
     //sequentialMapping();
@@ -162,20 +226,13 @@ void draw()
     }
   }
 
-
+  camFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
   //displayContoursBoundingBoxes();
+  camFBO.endDraw();
 
   animator.update();
-
-  if (coords.size()>0) {
-    for (PVector p : coords) {
-      noFill();
-      stroke(255, 0, 0);
-      ellipse(p.x, p.y, 10, 10);
-    }
-  }
 
   if (isRecording) {
     videoExport.saveFrame();
@@ -188,19 +245,24 @@ void keyPressed() {
   }
 
   if (key == 'm') {
-    isMapping=!isMapping;
-    // Commented out because it breaks BinaryMapping
-    //if (animator.getMode()!=animationMode.CHASE) {
-    //  animator.setMode(animationMode.CHASE);
-    //  println("Chase mode");
-    //} else {
-    //  animator.setMode(animationMode.OFF);
-    //  println("Animator off");
-    //}
+
+    if (network.isConnected()==false) {
+      println("please connect to a device before mapping");
+    } else if (animator.getMode()!=animationMode.CHASE) {
+      isMapping=!isMapping;
+      animator.setMode(animationMode.CHASE);
+      println("Chase mode");
+    } else {
+      isMapping=!isMapping;
+      animator.setMode(animationMode.OFF);
+      println("Animator off");
+    }
   }
 
   if (key == 't') {
-    if (animator.getMode()!=animationMode.TEST) {
+    if (network.isConnected()==false) {
+      println("please connect to a device before testing");
+    } else if (animator.getMode()!=animationMode.TEST) {
       animator.setMode(animationMode.TEST);
       println("Test mode");
     } else {
@@ -383,7 +445,6 @@ void binaryMapping() {
         //if (blobList.get(i).matchFound) {
         //  println("Match found"); 
         //}
-
       }
     }
   }
@@ -437,11 +498,6 @@ void displayContoursBoundingBoxes() {
 }
 
 
-
-
-
-
-
 // Load file, return success value
 boolean loadMovieFile(String path) {
   File f = new File(path);
@@ -474,8 +530,18 @@ void saveSVG(ArrayList <PVector> points) {
   //selectOutput(prompt, callback, file) - try for file dialog
 }
 
-//Closes connections
+//Closes connections (once deployed as applet)
 void stop()
 {
+  cam =null;
+  videoExport=null;
   super.stop();
+}
+
+//Closes connections
+void exit()
+{
+  cam =null;
+  videoExport=null;
+  super.exit();
 }
