@@ -1,4 +1,4 @@
-// //<>// //<>//
+// //<>// //<>// //<>//
 //  UI.pde
 //  Lightwork-Mapper
 //
@@ -89,7 +89,7 @@ void buildUI() {
   println("adding contrast slider");
   cp5.addSlider("cvContrast")
     .setBroadcast(false)
-    .setPosition(0, 850)
+    .setPosition(0, height/6)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 5)
     .setValue(cvContrast)
@@ -105,7 +105,7 @@ void buildUI() {
   println("adding slider for cvThreshold");
   cp5.addSlider("cvThreshold")
     .setBroadcast(false)
-    .setPosition(0, 950)
+    .setPosition(0, height/6 + buttonHeight*2)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 100)
     .setValue(cvThreshold)
@@ -120,7 +120,7 @@ void buildUI() {
   println("adding slider for ledBrightness");
   cp5.addSlider("ledBrightness")
     .setBroadcast(false)
-    .setPosition(0, 1050)
+    .setPosition(0, height/6 + buttonHeight*4)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 255)
     .setValue(ledBrightness)
@@ -134,19 +134,19 @@ void buildUI() {
 
   println("adding test button");
   cp5.addButton("test")
-    .setPosition(0, 1150)
+    .setPosition(0, height/6 + buttonHeight*6)
     .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
     ;
 
   println("adding map button"); 
   cp5.addButton("map")
-    .setPosition(buttonWidth/2, 1150)
+    .setPosition(buttonWidth/2+10, height/6 + buttonHeight*6)
     .setSize(buttonWidth/2, int(buttonHeight*1.5))
     ;
 
   println("adding save button");
   cp5.addButton("save")
-    .setPosition(0, 1250)
+    .setPosition(0, height/6 + buttonHeight*10)
     .setSize(buttonWidth/2, int(buttonHeight*1.5))
     ;
 

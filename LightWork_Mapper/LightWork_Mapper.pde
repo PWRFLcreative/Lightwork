@@ -1,4 +1,4 @@
-//   //<>// //<>//
+//   //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -75,7 +75,7 @@ void setup()
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
