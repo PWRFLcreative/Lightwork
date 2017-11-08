@@ -18,7 +18,7 @@ void buildUI() {
   println("setting up ControlP5");
   cp5 = new ControlP5(this);
   topPanel = new ControlP5(this);
-  
+
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
   int uiWidth =500 *guiMultiply;
@@ -27,7 +27,7 @@ void buildUI() {
   int buttonWidth =230 *guiMultiply;
 
   println("Creating font...");
-  PFont pfont = createFont("OpenSans-Regular.ttf", 12*guiMultiply, true); // use true/false for smooth/no-smooth
+  PFont pfont = createFont("OpenSans-Regular.ttf", 12*guiMultiply, false); // use true/false for smooth/no-smooth
   ControlFont font = new ControlFont(pfont, 12*guiMultiply);
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
@@ -60,7 +60,7 @@ void buildUI() {
     .setValue(network.getIP())
     //.setGroup("network")
     ;
-   println("done adding textfield for IP");
+  println("done adding textfield for IP");
 
   println("adding textfield for ledsPerStrip");
   cp5.addTextfield("leds_per_strip")
@@ -164,13 +164,13 @@ void buildUI() {
     .setColorForeground(color(255, 100))
     ;
   ;
-  
+
   println("adding console");
   // TODO: IS this breaking things?
   console = cp5.addConsole(cp5Console);//
 
 
-// TOP PANEL
+  // TOP PANEL
   println("creating top panel");
   topPanel.setFont(font);
   topPanel.setColorBackground(#333333);
@@ -179,15 +179,20 @@ void buildUI() {
 
   /* add a ScrollableList, by default it behaves like a DropdownList */
   println("topPanel: adding scrollable list");
-  topPanel.addScrollableList("camera")
-    .setPosition(0, 0)
-    .setSize(buttonWidth, 300)
-    .setBarHeight(buttonHeight)
-    .setItemHeight(buttonHeight)
-    .addItems(enumerateCams())
-    .setOpen(false)    
-    //.close();
-    ;
+
+  // TODO: This conditional is for DEBUG purposes (it takes too much time iterating throught the cameras when all I want to do is load a video...)
+  if (videoMode == VideoMode.CAMERA) { 
+    topPanel.addScrollableList("camera")
+      .setPosition(0, 0)
+      .setSize(buttonWidth, 300)
+      .setBarHeight(buttonHeight)
+      .setItemHeight(buttonHeight)
+      .addItems(enumerateCams())
+      .setOpen(false)    
+      //.close();
+      ;
+  }
+
   println("topPanel: adding refresh button");
   topPanel.addButton("refresh")
     .setPosition(buttonWidth+50, 0)
@@ -196,7 +201,7 @@ void buildUI() {
 
   println("add framerate panel");
   topPanel.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
-  
+
   // Wrap up, report done
   float deltaTime = millis()-startTime; 
   println("Done building GUI, total time: " + deltaTime); 

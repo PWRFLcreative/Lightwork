@@ -21,7 +21,7 @@ ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
-boolean isMapping = false; 
+boolean isMapping = true; 
 int ledBrightness = 100;
 
 
@@ -44,7 +44,7 @@ PGraphics cvFBO;
 int guiMultiply = 1;
 
 int cvThreshold = 100;
-float cvContrast = 1.35;
+float cvContrast = 1.15;
 
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
@@ -75,7 +75,7 @@ void setup()
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -112,8 +112,8 @@ void setup()
   if (videoMode == VideoMode.FILE) {
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
-    //movie.loop();
-    movie.play();
+    movie.loop();
+    //movie.play();
   }
 
   // OpenCV Setup
