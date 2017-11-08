@@ -49,12 +49,15 @@ class Blob {
 
   // Show me
   void display() {
+    float scaleX = (float)camDisplayWidth/(float)camWidth;
+    float scaleY = (float)camDisplayHeight/(float)camHeight;
+    
     Rectangle r = contour.getBoundingBox();
 
     float opacity = map(timer, 0, initTimer, 0, 127);
     fill(0, 0, 255, opacity);
     stroke(0, 0, 255);
-    rect(r.x, r.y, r.width, r.height);
+    rect(r.x*scaleX, r.y*scaleY, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
     //text(""+id, r.x+10, r.y+5);

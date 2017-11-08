@@ -73,12 +73,16 @@ int maxBlobSize = 10;
 int windowSizeX, windowSizeY;
 float scaleFactorX, scaleFactorY;
 
+// Actual display size for camera
+int camDisplayWidth, camDisplayHeight; 
+
 void setup()
 {
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
+  
   videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
@@ -144,7 +148,10 @@ void setup()
   println("windowSize: ", windowSizeX, windowSizeY); 
   println("scaleFactorX, Y: ", scaleFactorX, scaleFactorY);
 
-
+  camDisplayWidth = (int)(height/2*camAspect);
+  camDisplayHeight = height/2; 
+  println("camDisplayWidth: "+camDisplayWidth);
+  println("camDisplayHeight: "+camDisplayHeight);
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
@@ -195,9 +202,8 @@ void draw()
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
 
-  image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
-
-  opencv.loadImage(videoInput);
+  image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
+  opencv.loadImage(camFBO);
   
   opencv.threshold(cvThreshold);
   opencv.gray();
@@ -220,7 +226,7 @@ void draw()
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
+  image(cvFBO, 0, height/2, camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     //sequentialMapping();
@@ -242,7 +248,6 @@ void draw()
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
   
-  println(camAspect);
   animator.update();
 
   if (isRecording) {
@@ -366,7 +371,7 @@ void binaryMapping() {
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
   if (blobList.isEmpty()) {
-    println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
+    //println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
     for (int i = 0; i < newBlobs.size(); i++) {
       println("+++ New blob detected with ID: " + blobCount);
       int id = blobCount; 
