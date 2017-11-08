@@ -57,7 +57,7 @@ class Blob {
     rect(r.x, r.y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id, r.x+10, r.y+5);
+    //text(""+id, r.x+10, r.y+5);
     String decoded = detectedPattern.decodedString.toString();
     text(decoded, r.x+25, r.y+5);
   }

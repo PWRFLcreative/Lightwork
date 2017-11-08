@@ -40,6 +40,7 @@ int camHeight =480;
 float camAspect;
 PGraphics camFBO;
 PGraphics cvFBO;
+PGraphics blobFBO;
 
 int guiMultiply = 1;
 
@@ -68,18 +69,22 @@ int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 int minBlobSize = 5;
 int maxBlobSize = 10;
 
+// Window size
+int windowSizeX, windowSizeY;
+float scaleFactorX, scaleFactorY;
+
 void setup()
 {
-
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
-
-  videoMode = VideoMode.FILE; 
+  println(camAspect);
+  videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
+  blobFBO = createGraphics(camWidth, camHeight, P2D); 
 
   println("iterating cameras");
   //String[] cameras = Capture.list();
@@ -148,9 +153,16 @@ void setup()
 
   println("Setting window size");
   //Window size based on screen dimensions, centered
-  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
+  windowSizeX = (int)(displayHeight / 2 * camAspect + (200 * guiMultiply));
+  windowSizeY = (int)(displayHeight*0.9);
+  
+  surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-
+  
+  scaleFactorX = (float)((float)windowSizeX/(float)camWidth);
+  scaleFactorY = (float)((float)windowSizeY/float(camHeight));
+  println("windowSize: ", windowSizeX, windowSizeY); 
+  println("scaleFactorX, Y: ", scaleFactorX, scaleFactorY);
 
 
   println("calling buildUI on a thread");
@@ -164,13 +176,14 @@ void setup()
 
 void draw()
 {
+  // Loading screen
   if (!isUIReady) {
     cp5.setVisible(false);
     topPanel.setVisible(false); 
     println("DrawLoop: Building UI....");
     background(0);
     fill(255);
-    textAlign(CENTER);
+    //textAlign(CENTER);
     pushMatrix(); 
     translate(width/2, height/2);
     rotate(frameCount*0.1);
@@ -178,7 +191,7 @@ void draw()
     popMatrix();
     return;
   }
-  else {
+  else if (!cp5.isVisible() || !topPanel.isVisible()) {
    cp5.setVisible(true); 
    topPanel.setVisible(true); 
   }
@@ -207,7 +220,6 @@ void draw()
 
   opencv.loadImage(videoInput);
   
-
   opencv.threshold(cvThreshold);
   opencv.gray();
   opencv.contrast(cvContrast);
@@ -257,12 +269,14 @@ void draw()
     }
   }
 
-  camFBO.beginDraw();
+  
+  blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
   //displayContoursBoundingBoxes();
-  camFBO.endDraw();
-
+  blobFBO.endDraw();
+  
+  println(camAspect);
   animator.update();
 
   if (isRecording) {
@@ -382,10 +396,7 @@ void binaryMapping() {
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
   newBlobs = filterContours(contours); // Stores all blobs found in this frame
-  if (newBlobs.size() <= 0) {
-    // No new blobs, skip the rest of this method
-    return;
-  }
+
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
   if (blobList.isEmpty()) {
