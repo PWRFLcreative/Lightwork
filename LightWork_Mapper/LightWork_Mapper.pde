@@ -71,7 +71,6 @@ int maxBlobSize = 10;
 
 // Window size
 int windowSizeX, windowSizeY;
-float scaleFactorX, scaleFactorY;
 
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight; 
@@ -142,11 +141,6 @@ void setup()
  
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-  
-  scaleFactorX = (float)((float)windowSizeX/(float)camWidth);
-  scaleFactorY = (float)((float)windowSizeY/float(camHeight));
-  println("windowSize: ", windowSizeX, windowSizeY); 
-  println("scaleFactorX, Y: ", scaleFactorX, scaleFactorY);
 
   camDisplayWidth = (int)(height/2*camAspect);
   camDisplayHeight = height/2; 
