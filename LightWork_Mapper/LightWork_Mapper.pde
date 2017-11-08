@@ -1,4 +1,4 @@
-//   //<>//
+//   //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -17,12 +17,13 @@ Capture cam;
 Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
-ControlP5 topPanel;
+//ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
 boolean isMapping = false; 
 int ledBrightness = 100;
+
 
 enum  VideoMode {
   CAMERA, FILE, OFF
@@ -36,7 +37,7 @@ color off = color(0, 0, 0);
 
 int camWidth =640;
 int camHeight =480;
-float camAspect = (float)camWidth / (float)camHeight;
+float camAspect;
 PGraphics camFBO;
 PGraphics cvFBO;
 
@@ -69,56 +70,48 @@ int maxBlobSize = 10;
 
 void setup()
 {
-  size(640, 480, P3D);
+
+  size(640, 480, P2D);
   frameRate(FPS);
+  camAspect = (float)camWidth / (float)camHeight;
 
   videoMode = VideoMode.CAMERA; 
 
+  println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
 
-  String[] cameras = Capture.list();
+  println("iterating cameras");
+  println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
 
   // Blobs list
   blobList = new ArrayList<Blob>();
 
-  if (cameras == null) {
-    println("Failed to retrieve the list of available cameras, will try the default...");
-    cam = new Capture(this, camWidth, camHeight, FPS);
-  } else if (cameras.length == 0) {
-    println("There are no cameras available for capture.");
-    exit();
-  } else {
-    //println("Available cameras:");
-    //printArray(cameras);
-    //cam = new Capture(this, camWidth, camHeight, 30);
-    //cam = new Capture(this, cameras[0]);
-    cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
-    cam.start();
-  }
+  cam = new Capture(this, camWidth, camHeight, 30);
+
+  println("allocating video export");
   videoExport = new VideoExport(this, "data/"+movieFileName, cam);
 
   if (videoMode == VideoMode.FILE) {
+    println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     //movie.loop();
     movie.play();
   }
 
   // OpenCV Setup
+  println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(cvThreshold);
-  opencv.gray();
-  opencv.contrast(cvContrast);
-  opencv.dilate();
-  opencv.erode();
   opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
+  println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
+  println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(5);
@@ -127,74 +120,88 @@ void setup()
   animator.update();
 
   //Check for hi resolution display
+  println("setup gui multiply");
+  guiMultiply = 1;
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
 
+  println("Setting window size");
   //Window size based on screen dimensions, centered
-  surface.setSize((int)(displayHeight / 2 * camAspect + (200 * guiMultiply)), (int)(displayHeight*0.9));
+  surface.setSize((int)(displayHeight / 2 * camAspect + (500 * guiMultiply)), (int)(displayHeight*0.9));
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  cp5 = new ControlP5(this);
-  topPanel = new ControlP5(this);
-  thread("buildUI");
+
+
+  println("calling buildUI on a thread");
+  thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
   // Make sure there's always something in videoInput
+  println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
   background(0);
 }
 
 void draw()
 {
-
-  // Display the camera input and processed binary image
-  if (cam.available() && videoMode == VideoMode.CAMERA) {
-    //UI is drawn on canvas background, update to clear last frame's UI changes
-    background(#111111);
-
-    cam.read();
-    camFBO.beginDraw();
-    camFBO.image(cam, 0, 0, camWidth, camHeight);
-    camFBO.endDraw();
-
-    image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
-
-    opencv.loadImage(cam);
-    opencv.updateBackground();
-
-    // Gray channel
-    opencv.gray();
-    opencv.threshold(cvThreshold);
-    opencv.contrast(cvContrast);
-    opencv.equalizeHistogram();
-    opencv.invert();
-
-    //these help close holes in the binary image
-    opencv.dilate();
-    opencv.erode();
-    opencv.blur(2);
-
-    cvFBO.beginDraw();
-    cvFBO.image(opencv.getSnapshot(), 0, 0);
-
-    if (coords.size()>0) {
-      for (PVector p : coords) {
-        cvFBO.noFill();
-        cvFBO.stroke(255, 0, 0);
-        cvFBO.ellipse(p.x, p.y, 10, 10);
-      }
+  if (!isUIReady) {
+    if (frameCount%1000==0) {
+      println("DrawLoop: Building UI....");
     }
-    cvFBO.endDraw();
-
-    image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
+    fill(255);
+    text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
+    return;
   }
 
-  if (videoMode == VideoMode.CAMERA) {
+  if (videoMode == VideoMode.CAMERA && cam!=null ) { //&& cam.available()
+    cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
+  } else {
+    // println("Oops, no video input!");
   }
 
+  // Display the camera input and processed binary image
+
+  //UI is drawn on canvas background, update to clear last frame's UI changes
+  background(#222222);
+
+
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+  camFBO.endDraw();
+
+  image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
+
+  opencv.loadImage(videoInput);
+
+  // Gray channel
+  opencv.gray();
+  opencv.threshold(cvThreshold);
+  opencv.contrast(cvContrast);
+  opencv.equalizeHistogram();
+  //opencv.invert();
+
+  //these help close holes in the binary image
+  opencv.dilate();
+  opencv.erode();
+  opencv.blur(4);
+
+  opencv.updateBackground();
+
+  cvFBO.beginDraw();
+  cvFBO.image(opencv.getSnapshot(), 0, 0);
+
+  if (coords.size()>0) {
+    for (PVector p : coords) {
+      cvFBO.noFill();
+      cvFBO.stroke(255, 0, 0);
+      cvFBO.ellipse(p.x, p.y, 10, 10);
+    }
+  }
+  cvFBO.endDraw();
+  image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
 
   if (isMapping) {
     //sequentialMapping();

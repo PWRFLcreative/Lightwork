@@ -16,6 +16,7 @@ public class BinaryPattern {
   int readIndex; // For reading bit at index (for the animation)
   int numBits;
   
+  StringBuffer decodedString; 
   int writeIndex; // For writing detected bits
 
   String binaryPatternString; 
@@ -38,13 +39,15 @@ public class BinaryPattern {
     animationPatternLength = 10;
     frameNum = 0; // Used for animation
     readIndex = 0; // Used by the detector to write bits 
+    writeIndex = 0; 
     //state = pattern_state_t.START;
     //generatePattern(0);
     previousState = 0;
     detectedState = 0;
     
     writeIndex = 0; 
-
+    decodedString = new StringBuffer(10); // Init with capacity
+    
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
     animationPatternVector = new int[animationPatternLength];
@@ -76,8 +79,16 @@ public class BinaryPattern {
   }
   
   // Pattern storage
-  
-  void writeBitAtIndex() {
+  // TODO: Finish or delete this part
+  void writeNextBit(int bit) {
+
+    decodedString.append(bit);
+    //binaryPatternString.charAt(writeIndex) = String(bit);
     
+    writeIndex++; 
+    if (writeIndex >= animationPatternLength) {
+    writeIndex = 0;  
+    }
   }
+  
 }
