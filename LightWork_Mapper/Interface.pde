@@ -1,4 +1,4 @@
-//  //<>// //<>//
+//  //<>// //<>// //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -163,7 +163,7 @@ public class Interface {
 
           //iterate through PP strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
-          if (strips.size() > 0) { //<>// //<>//
+          if (strips.size() > 0) { //<>//
             int stripNum =0;
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {
@@ -198,17 +198,24 @@ public class Interface {
     if (mode == device.FADECANDY) {
       if (opc== null) {
         opc = new OPC(parent, IP, port);
+
         int startTime = millis();
+
+        print("waiting");
         while (!opc.isConnected) {
           int currentTime = millis(); 
           int deltaTime = currentTime - startTime;
-          if (deltaTime%1000==0)println("waiting...");
+          if ((deltaTime%1000)==0) {
+            print(".");
+          }
           if (deltaTime > 5000) {
+            println(" ");
             println("connection failed, check your connections..."); 
             isConnected = false; 
             break;
           }
         }
+        println(" ");
       }
 
       if (opc.isConnected()) {
@@ -231,16 +238,22 @@ public class Interface {
       registry.setLogging(false);
 
       int startTime = millis();
+
+      print("waiting");
       while (!testObserver.hasStrips) {
         int currentTime = millis(); 
         int deltaTime = currentTime - startTime;
-        if (deltaTime%1000==0)println("waiting...");
+        if ((deltaTime%1000)==0) {
+          print(".");
+        }
         if (deltaTime > 5000) {
+          println(" ");
           println("connection failed, check your connections..."); 
           isConnected = false; 
           break;
         }
       }
+      println(" ");
 
       fetchPPConfig();
 

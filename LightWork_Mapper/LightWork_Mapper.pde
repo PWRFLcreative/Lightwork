@@ -1,4 +1,4 @@
-//   //<>// //<>// //<>//
+//   //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -17,7 +17,7 @@ Capture cam;
 Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
-ControlP5 topPanel;
+//ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
@@ -87,7 +87,6 @@ void setup()
   blobFBO = createGraphics(camWidth, camHeight, P2D); 
 
   println("iterating cameras");
-  //String[] cameras = Capture.list();
   println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
@@ -95,20 +94,6 @@ void setup()
   // Blobs list
   blobList = new ArrayList<Blob>();
 
-  //if (cameras == null) {
-  //  println("Failed to retrieve the list of available cameras, will try the default...");
-  //  cam = new Capture(this, camWidth, camHeight, FPS);
-  //} else if (cameras.length == 0) {
-  //  println("There are no cameras available for capture.");
-  //  exit();
-  //} else {
-  //  println("Available cameras:");
-  //  printArray(cameras);
-  //  //cam = new Capture(this, camWidth, camHeight, 30);
-  //  //cam = new Capture(this, cameras[0]);
-  //  cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
-  //  cam.start();
-  //}
   cam = new Capture(this, camWidth, camHeight, 30);
 
   println("allocating video export");
@@ -124,11 +109,6 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.threshold(cvThreshold);
-  opencv.gray();
-  opencv.contrast(cvContrast);
-  opencv.dilate();
-  opencv.erode();
   opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
@@ -153,9 +133,9 @@ void setup()
 
   println("Setting window size");
   //Window size based on screen dimensions, centered
-  windowSizeX = (int)(displayHeight / 2 * camAspect + (200 * guiMultiply));
+  windowSizeX = (int)(displayHeight / 2 * camAspect + (400 * guiMultiply));
   windowSizeY = (int)(displayHeight*0.9);
-  
+ 
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
   
@@ -179,9 +159,10 @@ void draw()
   // Loading screen
   if (!isUIReady) {
     cp5.setVisible(false);
-    topPanel.setVisible(false); 
-    println("DrawLoop: Building UI....");
     background(0);
+    if (frameCount%1000==0) {
+      println("DrawLoop: Building UI....");
+    }
     fill(255);
     //textAlign(CENTER);
     pushMatrix(); 
@@ -191,25 +172,23 @@ void draw()
     popMatrix();
     return;
   }
-  else if (!cp5.isVisible() || !topPanel.isVisible()) {
-   cp5.setVisible(true); 
-   topPanel.setVisible(true); 
+  else if (!cp5.isVisible()) {
+   cp5.setVisible(true);
   }
 
-  if (videoMode == VideoMode.CAMERA && cam.available()) {
+  if (videoMode == VideoMode.CAMERA && cam!=null ) { //&& cam.available()
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
-  }
-  else {
-    println("Oops, no video input!"); 
+  } else {
+    // println("Oops, no video input!");
   }
 
   // Display the camera input and processed binary image
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
-  background(#111111);
+  background(#222222);
 
 
   camFBO.beginDraw();
@@ -229,20 +208,7 @@ void draw()
   opencv.equalizeHistogram();
   opencv.blur(2);
   opencv.updateBackground();
-/*
-  // Gray channel
-  opencv.gray();
-  opencv.threshold(cvThreshold);
-  opencv.contrast(cvContrast);
-  
-  opencv.invert();
 
-  //these help close holes in the binary image
-  opencv.dilate();
-  opencv.erode();
-  
-  opencv.startBackgroundSubtraction(0,5,0);
-*/
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
 
