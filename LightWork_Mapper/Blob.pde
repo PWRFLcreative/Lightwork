@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 500; //127;
+  private int initTimer = 50; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -135,8 +135,8 @@ class Blob {
 
 
 
-
-      print("["+detectedPattern.state+", "+frameDelta+"], ");
+      print(frameDelta+", ");
+      //print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }

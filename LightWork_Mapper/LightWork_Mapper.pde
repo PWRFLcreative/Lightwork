@@ -81,7 +81,7 @@ void setup()
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
-  
+
   videoMode = VideoMode.CAMERA; 
 
   println("creating FBOs");
@@ -138,7 +138,7 @@ void setup()
   //Window size based on screen dimensions, centered
   windowSizeX = (int)(displayHeight / 2 * camAspect + (400 * guiMultiply));
   windowSizeY = (int)(displayHeight*0.9);
- 
+
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
@@ -172,9 +172,8 @@ void draw()
     text("LOADING...", 0, 0);
     popMatrix();
     return;
-  }
-  else if (!cp5.isVisible()) {
-   cp5.setVisible(true);
+  } else if (!cp5.isVisible()) {
+    cp5.setVisible(true);
   }
 
   if (videoMode == VideoMode.CAMERA && cam!=null ) { //&& cam.available()
@@ -198,16 +197,16 @@ void draw()
 
   image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
   opencv.loadImage(camFBO);
-  
+
   opencv.threshold(cvThreshold);
-  opencv.gray();
-  opencv.contrast(cvContrast);
-  opencv.dilate();
-  opencv.erode();
+  //opencv.gray();
+  //opencv.contrast(cvContrast);
+  //opencv.dilate();
+  //opencv.erode();
   //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
-  opencv.equalizeHistogram();
-  opencv.blur(2);
-  opencv.updateBackground();
+  //opencv.equalizeHistogram();
+  //opencv.blur(2);
+  //opencv.updateBackground();
 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
@@ -224,8 +223,8 @@ void draw()
 
   if (isMapping) {
     //sequentialMapping();
-    binaryMapping(); // Find and manage blobs
-
+    updateBlobs(); // Find and manage blobs
+    decodeBlobs(); 
     // Decode the signal in the blobs
 
     //print(br);
@@ -235,13 +234,14 @@ void draw()
     }
   }
 
-  
+
   blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
+  text("numBlobs: "+blobList.size(), 0, height-20); 
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
-  
+
   animator.update();
 
   if (isRecording) {
@@ -249,102 +249,7 @@ void draw()
   }
 }
 
-void keyPressed() {
-  if (key == 's') {
-    saveSVG(coords);
-  }
-
-  if (key == 'm') {
-
-    if (network.isConnected()==false) {
-      println("please connect to a device before mapping");
-    } else if (animator.getMode()!=animationMode.CHASE) {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.CHASE);
-      println("Chase mode");
-    } else {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 't') {
-    if (network.isConnected()==false) {
-      println("please connect to a device before testing");
-    } else if (animator.getMode()!=animationMode.TEST) {
-      animator.setMode(animationMode.TEST);
-      println("Test mode");
-    } else {
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 'b') {
-    if (animator.getMode()!=animationMode.BINARY) {
-      //videoExport.startMovie();
-      isRecording = true;
-      animator.setMode(animationMode.BINARY);
-      println("Binary mode (monochrome)");
-    } else {
-      isRecording = false;
-      //videoExport.endMovie();
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 'v') {
-    // Toggle Video Input Mode
-    if (videoMode == VideoMode.FILE) {
-      videoMode = VideoMode.CAMERA;
-      println("VideoMode: CAMERA");
-    } else if (videoMode == VideoMode.CAMERA) {
-      videoMode = VideoMode.FILE;
-      boolean success = loadMovieFile(movieFileName);
-      println("VideoMode: FILE " + success);
-    }
-  }
-  // Toggle Movie Recording
-  if (key == 'r') {
-    if (!isRecording) {
-      isRecording = true;
-      videoExport.startMovie();
-    } else {
-      isRecording = false;
-      videoExport.endMovie();
-    }
-  }
-
-  // Test connecting to OPC server
-  if (key == 'o') {
-    network.shutdown();
-    network.setMode(device.FADECANDY);
-    network.connect(this);
-  }
-
-  // Test connecting to PP 
-  if (key == 'p') {
-    network.shutdown();
-    network.setMode(device.PIXELPUSHER);
-    network.connect(this);
-  }
-
-  // All LEDs Black (clear)
-  if (key == 'c') {
-    coords.clear();
-  }
-
-  // All LEDs White (clear)
-  if (key == 'w') {
-    if (network.isConnected()) {
-      animator.setAllLEDColours(on);
-      animator.update();
-    }
-  }
-}
-
+// Mapping methods
 void sequentialMapping() {
   for (Contour contour : opencv.findContours()) {
     noFill();
@@ -354,7 +259,7 @@ void sequentialMapping() {
   }
 }
 
-void binaryMapping() {
+void updateBlobs() {
   // Find all contours
   contours = opencv.findContours();
 
@@ -376,6 +281,7 @@ void binaryMapping() {
 
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
+  
   else {
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 5; 
@@ -425,7 +331,9 @@ void binaryMapping() {
       blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
     }
   }
+}
 
+void decodeBlobs() {
   // Decode blobs (a few at a time for now...) 
   int numToDecode = 1;
   if (blobList.size() >= numToDecode) {
@@ -438,25 +346,16 @@ void binaryMapping() {
       for (color c : cropped.pixels) {
         br += brightness(c);
       }
+     
       br = br/ cropped.pixels.length;
-
-
+      
       if (i == 0) { // Only look at one blob, for now
-        //print(br);
-        //print(", ");
-        //println(frameCount);
-        //print(leds.get(i).binaryPattern.binaryPatternString);
         blobList.get(i).registerBrightness(br); // Set blob brightness
-        //blobList.get(i).decode(); // Decode the pattern
-        // Check for pattern match
-        //if (blobList.get(i).matchFound) {
-        //  println("Match found"); 
-        //}
       }
+      
     }
   }
 }
-
 // Filter out contours that are too small or too big
 ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
 

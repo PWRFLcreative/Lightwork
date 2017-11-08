@@ -116,7 +116,7 @@ void buildUI() {
     .setBroadcast(false)
     .setPosition(0, uiGrid*3+buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
-    .setRange(0, 100)
+    .setRange(0, 255)
     .setValue(cvThreshold)
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
