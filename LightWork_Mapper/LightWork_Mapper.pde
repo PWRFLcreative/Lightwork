@@ -66,8 +66,12 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 5;
-int maxBlobSize = 10;
+//int minBlobSize = 5;
+//int maxBlobSize = 10;
+//float distanceThreshold = 5; 
+int minBlobSize = 50;
+int maxBlobSize = 100;
+float distanceThreshold = 50; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -291,7 +295,7 @@ void updateBlobs() {
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
   else {
     // New blobs must be further away to qualify as new blobs
-    float distanceThreshold = 5; 
+    distanceThreshold = 50; 
     // Store new, qualified blobs found in this frame
 
     // Go through all the new blobs and check if they match an existing blob
