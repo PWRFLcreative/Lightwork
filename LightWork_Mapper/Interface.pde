@@ -242,8 +242,7 @@ public class Interface {
         // Currently this is the only safe place where this is guaranteed to work
         opc.setDithering(false);
         opc.setInterpolation(false);
-        // Update firmware settings (they may have been configured before connection is established)
-        opc.sendFirmwareConfigPacket();
+
         // Clear LEDs
         animator.setAllLEDColours(off);
         // Update pixels twice (elegant, I know... but it works)
