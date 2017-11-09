@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 50; //127;
+  private int initTimer = 150; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -62,7 +62,7 @@ class Blob {
     textSize(12);
     //text(""+id, r.x+10, r.y+5);
     String decoded = detectedPattern.decodedString.toString();
-    text(decoded, r.x+25, r.y+5);
+    text(decoded, r.x*scaleX+25, r.y*scaleY+5);
   }
 
 

@@ -31,7 +31,7 @@ enum  VideoMode {
 
 VideoMode videoMode; 
 String movieFileName = "partialBinary.mp4";
-
+boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
 
@@ -83,7 +83,7 @@ void setup()
   println(camAspect);
 
   videoMode = VideoMode.FILE; 
-
+  shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -106,15 +106,18 @@ void setup()
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     // Pausing the video at the first frame. 
-    mov.play();
-    mov.jump(0);
-    mov.pause();
+    movie.play();
+    if (shouldSyncFrames) {
+      movie.jump(0);
+      movie.pause();
+    }
+    
   }
 
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(1, 50, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -183,7 +186,9 @@ void draw()
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
-    
+    if (shouldSyncFrames) {
+      nextMovieFrame();
+    }
   } else {
     // println("Oops, no video input!");
   }
@@ -200,9 +205,9 @@ void draw()
 
   image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
   opencv.loadImage(camFBO);
+  opencv.gray();
+  //opencv.threshold(cvThreshold);
 
-  opencv.threshold(cvThreshold);
-  //opencv.gray();
   //opencv.contrast(cvContrast);
   //opencv.dilate();
   //opencv.erode();
@@ -226,9 +231,6 @@ void draw()
 
   if (isMapping) {
     //sequentialMapping();
-    if (videoMode == VideoMode.FILE) {
-      movie.
-    }
     updateBlobs(); // Find and manage blobs
     decodeBlobs(); 
     // Decode the signal in the blobs
