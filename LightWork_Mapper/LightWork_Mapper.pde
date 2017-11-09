@@ -21,7 +21,7 @@ ControlP5 cp5;
 Animator animator;
 Interface network; 
 
-boolean isMapping = false; 
+boolean isMapping = true; 
 int ledBrightness = 100;
 
 
@@ -30,7 +30,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "partialBinary.mp4";
+String movieFileName = "singleBinary.mp4";
 boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -106,7 +106,7 @@ void setup()
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     // Pausing the video at the first frame. 
-    movie.play();
+    movie.loop();
     if (shouldSyncFrames) {
       movie.jump(0);
       movie.pause();
@@ -117,7 +117,7 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.startBackgroundSubtraction(1, 2, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -237,9 +237,7 @@ void draw()
 
     //print(br);
     //print(", ");
-    if (blobList.size() > 0) {
-      blobList.get(0).decode(); // Decode the pattern
-    }
+    
   }
 
 
@@ -342,7 +340,9 @@ void updateBlobs() {
 }
 
 void decodeBlobs() {
-  // Decode blobs (a few at a time for now...) 
+  // Decode blobs (a few at a time for now...) +
+  
+  // Update brightness levels for all the blobs
   int numToDecode = 1;
   if (blobList.size() >= numToDecode) {
     for (int i = 0; i < numToDecode; i++) {
@@ -362,6 +362,11 @@ void decodeBlobs() {
       }
     }
   }
+  
+  if (blobList.size() > 0) {
+      blobList.get(0).decode(); // Decode the pattern
+    }
+    
 }
 // Filter out contours that are too small or too big
 ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
