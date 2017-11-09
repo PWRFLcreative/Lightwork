@@ -1,4 +1,4 @@
-// //<>// //<>//
+// //<>// //<>// //<>// //<>//
 //  UI.pde
 //  Lightwork-Mapper
 //
@@ -68,6 +68,7 @@ void buildUI() {
     //.linebreak()
     //.setGroup("network")
     ;
+  println("done adding textfield for IP");
 
   println("adding textfield for ledsPerStrip");
   cp5.addTextfield("leds_per_strip")
@@ -115,7 +116,7 @@ void buildUI() {
     .setBroadcast(false)
     .setPosition(0, uiGrid*3+buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
-    .setRange(0, 100)
+    .setRange(0, 255)
     .setValue(cvThreshold)
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
@@ -162,6 +163,7 @@ void buildUI() {
 
 
   //capture console events to ui
+
   //println("enabling shortcuts");
   //cp5.enableShortcuts();
   //cp5Console = cp5.addTextarea("cp5Console")
@@ -178,7 +180,6 @@ void buildUI() {
   //println("adding console");
   // TODO: IS this breaking things?
   //console = cp5.addConsole(cp5Console);//
-
 
   ////TOP PANEL
   //println("creating top panel");

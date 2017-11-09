@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 500; //127;
+  private int initTimer = 50; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -49,15 +49,18 @@ class Blob {
 
   // Show me
   void display() {
+    float scaleX = (float)camDisplayWidth/(float)camWidth;
+    float scaleY = (float)camDisplayHeight/(float)camHeight;
+    
     Rectangle r = contour.getBoundingBox();
 
     float opacity = map(timer, 0, initTimer, 0, 127);
     fill(0, 0, 255, opacity);
     stroke(0, 0, 255);
-    rect(r.x, r.y, r.width, r.height);
+    rect(r.x*scaleX, r.y*scaleY, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id, r.x+10, r.y+5);
+    //text(""+id, r.x+10, r.y+5);
     String decoded = detectedPattern.decodedString.toString();
     text(decoded, r.x+25, r.y+5);
   }
@@ -132,8 +135,8 @@ class Blob {
 
 
 
-
-      print("["+detectedPattern.state+", "+frameDelta+"], ");
+      print(frameDelta+", ");
+      //print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }

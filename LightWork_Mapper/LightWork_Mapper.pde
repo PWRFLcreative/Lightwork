@@ -1,4 +1,4 @@
-//   //<>// //<>//
+//   //<>// //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -28,7 +28,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "singleBinary.mp4";
+String movieFileName = "partialBinary.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -38,11 +38,12 @@ int camHeight =480;
 float camAspect;
 PGraphics camFBO;
 PGraphics cvFBO;
+PGraphics blobFBO;
 
 int guiMultiply = 1;
 
 int cvThreshold = 100;
-float cvContrast = 1.35;
+float cvContrast = 1.15;
 
 ArrayList <PVector>     coords;
 String savePath = "layout.svg";
@@ -66,18 +67,25 @@ int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 int minBlobSize = 5;
 int maxBlobSize = 10;
 
+// Window size
+int windowSizeX, windowSizeY;
+
+// Actual display size for camera
+int camDisplayWidth, camDisplayHeight; 
+
 void setup()
 {
-
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
+  println(camAspect);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
+  blobFBO = createGraphics(camWidth, camHeight, P2D); 
 
   println("iterating cameras");
   println("making arraylists for coords, leds, and bloblist");
@@ -96,14 +104,16 @@ void setup()
   if (videoMode == VideoMode.FILE) {
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
-    //movie.loop();
+    // Pausing the video at the first frame. 
     movie.play();
+    movie.jump(0);
+    movie.pause();
   }
 
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.startBackgroundSubtraction(1, 50, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -127,9 +137,17 @@ void setup()
 
   println("Setting window size");
   //Window size based on screen dimensions, centered
-  surface.setSize((int)(displayHeight / 2 * camAspect + (500 * guiMultiply)), (int)(displayHeight*0.9));
+
+  windowSizeX = (int)(displayHeight / 2 * camAspect + (400 * guiMultiply));
+  windowSizeY = (int)(displayHeight*0.9);
+
+  surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
+  camDisplayWidth = (int)(height/2*camAspect);
+  camDisplayHeight = height/2; 
+  println("camDisplayWidth: "+camDisplayWidth);
+  println("camDisplayHeight: "+camDisplayHeight);
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
@@ -141,13 +159,23 @@ void setup()
 
 void draw()
 {
+  // Loading screen
   if (!isUIReady) {
+    cp5.setVisible(false);
+    background(0);
     if (frameCount%1000==0) {
       println("DrawLoop: Building UI....");
     }
     fill(255);
-    text("LOADING, BE PATIENT!!!!!!!!!", width/2, height/2);
+    //textAlign(CENTER);
+    pushMatrix(); 
+    translate(width/2, height/2);
+    rotate(frameCount*0.1);
+    text("LOADING...", 0, 0);
+    popMatrix();
     return;
+  } else if (!cp5.isVisible()) {
+    cp5.setVisible(true);
   }
 
   if (videoMode == VideoMode.CAMERA && cam!=null ) { //&& cam.available()
@@ -155,6 +183,7 @@ void draw()
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
+    
   } else {
     // println("Oops, no video input!");
   }
@@ -169,22 +198,17 @@ void draw()
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
 
-  image(camFBO, 0, 0, (height / 2)*camAspect, height/2);
+  image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
+  opencv.loadImage(camFBO);
 
-  opencv.loadImage(videoInput);
-
-  // Gray channel
-  opencv.gray();
   opencv.threshold(cvThreshold);
-  opencv.contrast(cvContrast);
-  opencv.equalizeHistogram();
-  //opencv.invert();
-
-  //these help close holes in the binary image
-  opencv.dilate();
-  opencv.erode();
-  opencv.blur(4);
-
+  //opencv.gray();
+  //opencv.contrast(cvContrast);
+  //opencv.dilate();
+  //opencv.erode();
+  //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  //opencv.equalizeHistogram();
+  //opencv.blur(2);
   opencv.updateBackground();
 
   cvFBO.beginDraw();
@@ -198,12 +222,15 @@ void draw()
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, 0, height/2, (height / 2)*camAspect, height/2);
+  image(cvFBO, 0, height/2, camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     //sequentialMapping();
-    binaryMapping(); // Find and manage blobs
-
+    if (videoMode == VideoMode.FILE) {
+      //movie.
+    }
+    updateBlobs(); // Find and manage blobs
+    decodeBlobs(); 
     // Decode the signal in the blobs
 
     //print(br);
@@ -213,11 +240,13 @@ void draw()
     }
   }
 
-  camFBO.beginDraw();
+
+  blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
+  text("numBlobs: "+blobList.size(), 0, height-20); 
   //displayContoursBoundingBoxes();
-  camFBO.endDraw();
+  blobFBO.endDraw();
 
   animator.update();
 
@@ -226,102 +255,7 @@ void draw()
   }
 }
 
-void keyPressed() {
-  if (key == 's') {
-    saveSVG(coords);
-  }
-
-  if (key == 'm') {
-
-    if (network.isConnected()==false) {
-      println("please connect to a device before mapping");
-    } else if (animator.getMode()!=animationMode.CHASE) {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.CHASE);
-      println("Chase mode");
-    } else {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 't') {
-    if (network.isConnected()==false) {
-      println("please connect to a device before testing");
-    } else if (animator.getMode()!=animationMode.TEST) {
-      animator.setMode(animationMode.TEST);
-      println("Test mode");
-    } else {
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 'b') {
-    if (animator.getMode()!=animationMode.BINARY) {
-      //videoExport.startMovie();
-      isRecording = true;
-      animator.setMode(animationMode.BINARY);
-      println("Binary mode (monochrome)");
-    } else {
-      isRecording = false;
-      //videoExport.endMovie();
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-  }
-
-  if (key == 'v') {
-    // Toggle Video Input Mode
-    if (videoMode == VideoMode.FILE) {
-      videoMode = VideoMode.CAMERA;
-      println("VideoMode: CAMERA");
-    } else if (videoMode == VideoMode.CAMERA) {
-      videoMode = VideoMode.FILE;
-      boolean success = loadMovieFile(movieFileName);
-      println("VideoMode: FILE " + success);
-    }
-  }
-  // Toggle Movie Recording
-  if (key == 'r') {
-    if (!isRecording) {
-      isRecording = true;
-      videoExport.startMovie();
-    } else {
-      isRecording = false;
-      videoExport.endMovie();
-    }
-  }
-
-  // Test connecting to OPC server
-  if (key == 'o') {
-    network.shutdown();
-    network.setMode(device.FADECANDY);
-    network.connect(this);
-  }
-
-  // Test connecting to PP 
-  if (key == 'p') {
-    network.shutdown();
-    network.setMode(device.PIXELPUSHER);
-    network.connect(this);
-  }
-
-  // All LEDs Black (clear)
-  if (key == 'c') {
-    coords.clear();
-  }
-
-  // All LEDs White (clear)
-  if (key == 'w') {
-    if (network.isConnected()) {
-      animator.setAllLEDColours(on);
-      animator.update();
-    }
-  }
-}
-
+// Mapping methods
 void sequentialMapping() {
   for (Contour contour : opencv.findContours()) {
     noFill();
@@ -331,21 +265,18 @@ void sequentialMapping() {
   }
 }
 
-void binaryMapping() {
+void updateBlobs() {
   // Find all contours
   contours = opencv.findContours();
 
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
   newBlobs = filterContours(contours); // Stores all blobs found in this frame
-  if (newBlobs.size() <= 0) {
-    // No new blobs, skip the rest of this method
-    return;
-  }
+
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
   if (blobList.isEmpty()) {
-    println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
+    //println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
     for (int i = 0; i < newBlobs.size(); i++) {
       println("+++ New blob detected with ID: " + blobCount);
       int id = blobCount; 
@@ -356,6 +287,7 @@ void binaryMapping() {
 
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
+
   else {
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 5; 
@@ -405,7 +337,9 @@ void binaryMapping() {
       blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
     }
   }
+}
 
+void decodeBlobs() {
   // Decode blobs (a few at a time for now...) 
   int numToDecode = 1;
   if (blobList.size() >= numToDecode) {
@@ -418,25 +352,15 @@ void binaryMapping() {
       for (color c : cropped.pixels) {
         br += brightness(c);
       }
+
       br = br/ cropped.pixels.length;
 
-
       if (i == 0) { // Only look at one blob, for now
-        //print(br);
-        //print(", ");
-        //println(frameCount);
-        //print(leds.get(i).binaryPattern.binaryPatternString);
         blobList.get(i).registerBrightness(br); // Set blob brightness
-        //blobList.get(i).decode(); // Decode the pattern
-        // Check for pattern match
-        //if (blobList.get(i).matchFound) {
-        //  println("Match found"); 
-        //}
       }
     }
   }
 }
-
 // Filter out contours that are too small or too big
 ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
 
