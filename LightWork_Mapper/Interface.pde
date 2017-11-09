@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>//
+//  //<>// //<>// //<>// //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -163,7 +163,7 @@ public class Interface {
 
           //iterate through PP strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
-          if (strips.size() > 0) { //<>//
+          if (strips.size() > 0) {
             int stripNum =0;
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {
@@ -219,6 +219,9 @@ public class Interface {
       }
 
       if (opc.isConnected()) {
+        // Clear LEDs
+        animator.setAllLEDColours(off);
+        update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
@@ -259,11 +262,19 @@ public class Interface {
 
       if (testObserver.hasStrips) {
         isConnected =true;
+        
+        // Clear LEDs
+        animator.setAllLEDColours(off);
+        update(animator.getPixels());
       }
 
       registry.setLogging(false);
       populateLeds();
     }
+
+    // Turn off LEDs
+    // Turn off LEDs first
+    //animator.resetPixels();
   }
 
   //Close existing connections

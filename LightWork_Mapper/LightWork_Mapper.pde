@@ -21,7 +21,7 @@ ControlP5 cp5;
 Animator animator;
 Interface network; 
 
-boolean isMapping = true; 
+boolean isMapping = false; 
 int ledBrightness = 100;
 
 
@@ -82,7 +82,7 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.FILE; 
+  videoMode = VideoMode.CAMERA; 
   shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -141,7 +141,7 @@ void setup()
 
   println("Setting window size");
   //Window size based on screen dimensions, centered
-  windowSizeX = (int)(displayHeight / 2 * camAspect + (400 * guiMultiply));
+  windowSizeX = (int)(displayHeight / 2 * camAspect + (500 * guiMultiply));
   windowSizeY = (int)(displayHeight*0.9);
 
   surface.setSize(windowSizeX, windowSizeY);
@@ -278,7 +278,7 @@ void updateBlobs() {
   if (blobList.isEmpty()) {
     //println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
     for (int i = 0; i < newBlobs.size(); i++) {
-      println("+++ New blob detected with ID: " + blobCount);
+      //println("+++ New blob detected with ID: " + blobCount);
       int id = blobCount; 
       blobList.add(new Blob(this, id, newBlobs.get(i)));
       blobCount++;

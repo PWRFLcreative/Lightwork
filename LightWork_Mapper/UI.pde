@@ -227,17 +227,14 @@ void driver(int n) {
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
 
   if (label.equals("PIXELPUSHER")) {
-    network.shutdown();
     network.setMode(device.PIXELPUSHER);
     println("network: PixelPusher");
   }
   if (label.equals("FADECANDY")) {
-    network.shutdown();
     network.setMode(device.FADECANDY);
     println("network: Fadecandy");
   }
   if (label.equals("ARTNET")) {
-    network.shutdown();
     network.setMode(device.ARTNET);
     println("network: ArtNet");
   }

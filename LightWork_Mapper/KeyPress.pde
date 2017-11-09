@@ -36,11 +36,11 @@ void keyPressed() {
   if (key == 'b') {
     if (animator.getMode()!=animationMode.BINARY) {
       //videoExport.startMovie();
-      isRecording = true;
+      //isRecording = true;
       animator.setMode(animationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
-      isRecording = false;
+      //isRecording = false;
       //videoExport.endMovie();
       animator.setMode(animationMode.OFF);
       println("Animator off");
@@ -71,14 +71,12 @@ void keyPressed() {
 
   // Test connecting to OPC server
   if (key == 'o') {
-    network.shutdown();
     network.setMode(device.FADECANDY);
     network.connect(this);
   }
 
   // Test connecting to PP 
   if (key == 'p') {
-    network.shutdown();
     network.setMode(device.PIXELPUSHER);
     network.connect(this);
   }
