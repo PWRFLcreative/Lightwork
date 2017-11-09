@@ -265,6 +265,8 @@ void sequentialMapping() {
   }
 }
 
+
+
 void updateBlobs() {
   // Find all contours
   contours = opencv.findContours();
@@ -292,27 +294,26 @@ void updateBlobs() {
     float distanceThreshold = 5; 
     // Store new, qualified blobs found in this frame
 
-    PVector p = new PVector(); // New blob center coord
-    for (Contour c : newBlobs) {
+    // Go through all the new blobs and check if they match an existing blob
+    for (int i = 0; i < newBlobs.size(); i++) {
+      PVector p = new PVector(); // New blob center coord
+      Contour c = newBlobs.get(i);
       // Get the center coordinate for the new blob
       float x = (float)c.getBoundingBox().getCenterX();
       float y = (float)c.getBoundingBox().getCenterY();
       p.set(x, y);
 
-      // Get existing blob coordinates 
-      ArrayList<PVector> coords = new ArrayList<PVector>();
-      for (Blob blob : blobList) {
+      // Check if an existing blob is under the distance threshold
+      // If it is under the threshold it is the 'same' blob
+      boolean isTooClose = false;
+      for (int j = 0; j < blobList.size(); j++) {
+        Blob blob = blobList.get(j);
         // Get existing blob coord
         PVector p2 = new PVector();
         p2.x = (float)blob.contour.getBoundingBox().getCenterX();
         p2.y = (float)blob.contour.getBoundingBox().getCenterY();
-        coords.add(p2);
-      }
-
-      // Check coordinate distance
-      boolean isTooClose = false; // Turns true if p.dist
-      for (PVector coord : coords) {
-        float distance = p.dist(coord);
+        
+        float distance = p.dist(p2);
         if (distance <= distanceThreshold) {
           isTooClose = true;
           break;
