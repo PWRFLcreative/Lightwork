@@ -106,7 +106,26 @@ public class Interface {
     println(IP);
     return IP;
   }
-
+  
+  void setInterpolation(boolean state) {
+    if (mode == device.FADECANDY) {
+      opc.setInterpolation(state);
+    }
+    else {
+      println("Interpolation only supported for FADECANDY."); 
+    }
+  }
+  
+  void setDithering(boolean state) {
+    if (mode == device.FADECANDY) {
+      opc.setDithering(state); 
+      opc.setInterpolation(state);
+    }
+    else {
+      println("Dithering only supported for FADECANDY.");  
+    }
+  }
+  
   boolean isConnected() {
     return isConnected;
   }
@@ -219,12 +238,22 @@ public class Interface {
       }
 
       if (opc.isConnected()) {
+        // TODO: Find a more elegant way to initialize dithering
+        // Currently this is the only safe place where this is guaranteed to work
+        opc.setDithering(false);
+        opc.setInterpolation(false);
+        // Update firmware settings (they may have been configured before connection is established)
+        opc.sendFirmwareConfigPacket();
         // Clear LEDs
         animator.setAllLEDColours(off);
+        // Update pixels twice (elegant, I know... but it works)
         update(animator.getPixels());
+        //update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
+        
+        
       }
       populateLeds();
     }
