@@ -1,32 +1,34 @@
+// Methods for playing movie frame-by-frame
+
 int currentFrame = 0; 
 
 void setMovieFrame(int n) {
   movie.play();
     
   // The duration of a single frame:
-  float frameDuration = 1.0 / mov.frameRate;
+  float frameDuration = 1.0 / movie.frameRate;
     
   // We move to the middle of the frame by adding 0.5:
   float where = (n + 0.5) * frameDuration; 
     
   // Taking into account border effects:
-  float diff = mov.duration() - where;
+  float diff = movie.duration() - where;
   if (diff < 0) {
     where += diff - 0.25 * frameDuration;
   }
     
-  mov.jump(where);
-  mov.pause();  
+  movie.jump(where);
+  movie.pause();  
 }  
 
 int getMovieLength() {
-  return int(mov.duration() * mov.frameRate);
+  return int(movie.duration() * movie.frameRate);
 }
 
-void nextFrame() {
+void nextMovieFrame() {
   setMovieFrame(currentFrame); 
-  if (currentFrame < getLength() - 1) {
-    newFrame++;
+  if (currentFrame < getMovieLength() - 1) {
+    currentFrame++;
   }
   else {
     currentFrame = 0; 

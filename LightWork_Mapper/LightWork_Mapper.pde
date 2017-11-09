@@ -1,4 +1,4 @@
-//   //<>// //<>// //<>// //<>// //<>//
+//   //<>// //<>// //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -29,13 +29,14 @@ enum  VideoMode {
 
 VideoMode videoMode; 
 String movieFileName = "partialBinary.mp4";
-
+boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
 
 int camWidth =640;
 int camHeight =480;
 float camAspect;
+int camWindows = 2;
 PGraphics camFBO;
 PGraphics cvFBO;
 PGraphics blobFBO;
@@ -80,8 +81,8 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.FILE; 
-
+  videoMode = VideoMode.CAMERA; 
+  shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -106,14 +107,17 @@ void setup()
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     // Pausing the video at the first frame. 
     movie.play();
-    movie.jump(0);
-    movie.pause();
+    if (shouldSyncFrames) {
+      movie.jump(0);
+      movie.pause();
+    }
+    
   }
 
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(1, 50, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.startBackgroundSubtraction(2, 5, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -137,15 +141,14 @@ void setup()
 
   println("Setting window size");
   //Window size based on screen dimensions, centered
-
-  windowSizeX = (int)(displayHeight / 2 * camAspect + (400 * guiMultiply));
-  windowSizeY = (int)(displayHeight*0.9);
+  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
+  windowSizeY = (int)(displayHeight / 2 + (300 * guiMultiply)); // adds 300 to height for ui elements
 
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  camDisplayWidth = (int)(height/2*camAspect);
-  camDisplayHeight = height/2; 
+  camDisplayWidth = (int)(displayWidth/3 * 0.8);
+  camDisplayHeight = (int)(camDisplayWidth/camAspect); 
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
   println("calling buildUI on a thread");
@@ -183,7 +186,9 @@ void draw()
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
-    
+    if (shouldSyncFrames) {
+      nextMovieFrame();
+    }
   } else {
     // println("Oops, no video input!");
   }
@@ -198,11 +203,11 @@ void draw()
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
 
-  image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
+  image(camFBO, 0, (100*guiMultiply), camDisplayWidth, camDisplayHeight);
   opencv.loadImage(camFBO);
+  opencv.gray();
+  //opencv.threshold(cvThreshold);
 
-  opencv.threshold(cvThreshold);
-  //opencv.gray();
   //opencv.contrast(cvContrast);
   //opencv.dilate();
   //opencv.erode();
@@ -222,13 +227,11 @@ void draw()
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, 0, height/2, camDisplayWidth, camDisplayHeight);
+  image(cvFBO, camDisplayWidth, (100*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     //sequentialMapping();
-    if (videoMode == VideoMode.FILE) {
-      //movie.
-    }
+
     updateBlobs(); // Find and manage blobs
     decodeBlobs(); 
     // Decode the signal in the blobs

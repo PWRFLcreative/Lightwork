@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>// //<>//
 //  UI.pde
 //  Lightwork-Mapper
 //
@@ -33,12 +33,12 @@ void buildUI() {
   ControlFont font = new ControlFont(pfont, 12*guiMultiply);
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
-  cp5.setPosition((int)((height / 2)*camAspect+uiSpacing), uiSpacing);
+  cp5.setPosition(uiSpacing, uiSpacing);
 
   //println("listing drivers");
   List driver = Arrays.asList("PixelPusher", "Fadecandy"); //"ArtNet"  removed for now - throws errors
   /* add a ScrollableList, by default it behaves like a DropdownList */
-  println("adding scroallable list for drivers");
+  println("adding scrollable list for drivers");
   cp5.addScrollableList("driver")
     .setPosition(0, uiGrid)
     .setSize(buttonWidth, 300)
