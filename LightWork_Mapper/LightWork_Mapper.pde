@@ -17,13 +17,11 @@ Capture cam;
 Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
-//ControlP5 topPanel;
 Animator animator;
 Interface network; 
 
 boolean isMapping = false; 
 int ledBrightness = 100;
-
 
 enum  VideoMode {
   CAMERA, FILE, OFF
@@ -89,6 +87,7 @@ void setup()
   // Blobs list
   blobList = new ArrayList<Blob>();
 
+  printArray(Capture.list());
   cam = new Capture(this, camWidth, camHeight, 30);
 
   println("allocating video export");
@@ -130,8 +129,6 @@ void setup()
   //Window size based on screen dimensions, centered
   surface.setSize((int)(displayHeight / 2 * camAspect + (500 * guiMultiply)), (int)(displayHeight*0.9));
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-
-
 
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
