@@ -1,4 +1,4 @@
-//   //<>// //<>// //<>// //<>// //<>// //<>//
+//    //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -72,7 +72,8 @@ int maxBlobSize = 10;
 int windowSizeX, windowSizeY;
 
 // Actual display size for camera
-int camDisplayWidth, camDisplayHeight; 
+int camDisplayWidth, camDisplayHeight;
+Rectangle camArea;
 
 void setup()
 {
@@ -111,7 +112,6 @@ void setup()
       movie.jump(0);
       movie.pause();
     }
-    
   }
 
   // OpenCV Setup
@@ -142,15 +142,18 @@ void setup()
   println("Setting window size");
   //Window size based on screen dimensions, centered
   windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (300 * guiMultiply)); // adds 300 to height for ui elements
+  windowSizeY = (int)(displayHeight / 2 + (150 * guiMultiply)); // adds 300 to height for ui elements
 
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
   camDisplayWidth = (int)(displayWidth/3 * 0.8);
-  camDisplayHeight = (int)(camDisplayWidth/camAspect); 
+  camDisplayHeight = (int)(camDisplayWidth/camAspect);
+  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
+  println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
@@ -162,7 +165,7 @@ void setup()
 
 void draw()
 {
-  // Loading screen
+  //Loading screen
   if (!isUIReady) {
     cp5.setVisible(false);
     background(0);
@@ -181,7 +184,7 @@ void draw()
     cp5.setVisible(true);
   }
 
-  if (videoMode == VideoMode.CAMERA && cam!=null ) { //&& cam.available()
+  if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
@@ -193,17 +196,15 @@ void draw()
     // println("Oops, no video input!");
   }
 
-  // Display the camera input and processed binary image
-
   //UI is drawn on canvas background, update to clear last frame's UI changes
   background(#222222);
 
-
+  // Display the camera input and processed binary image
   camFBO.beginDraw();
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
 
-  image(camFBO, 0, (100*guiMultiply), camDisplayWidth, camDisplayHeight);
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
   opencv.loadImage(camFBO);
   opencv.gray();
   //opencv.threshold(cvThreshold);
@@ -227,7 +228,7 @@ void draw()
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, camDisplayWidth, (100*guiMultiply), camDisplayWidth, camDisplayHeight);
+  image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     //sequentialMapping();
@@ -247,11 +248,20 @@ void draw()
   blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
-  text("numBlobs: "+blobList.size(), 0, height-20); 
+  //text("numBlobs: "+blobList.size(), 0, height-20); 
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
 
   animator.update();
+
+  if (showLEDColors) {
+    // draw LED color array to screen -
+    for (int i = 0; i<leds.size(); i++) {
+      fill(leds.get(i).c);
+      noStroke();
+      rect(i*5, camArea.y+camArea.height, 5, 5);
+    }
+  }
 
   if (isRecording) {
     videoExport.saveFrame();

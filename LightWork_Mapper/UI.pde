@@ -10,9 +10,10 @@
 
 import controlP5.*;
 
-//Textarea cp5Console;
-//Println console;
+Textarea cp5Console;
+Println console;
 boolean isUIReady = false;
+boolean showLEDColors = true;
 
 void buildUI() {
   println("setting up ControlP5");
@@ -22,10 +23,9 @@ void buildUI() {
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
-  //int uiWidth =500 *guiMultiply;
-  int uiGrid = height/12;
+  int uiGrid = 80*guiMultiply;
   int uiSpacing = 20 *guiMultiply;
-  int buttonHeight = 25 *guiMultiply;
+  int buttonHeight = 30 *guiMultiply;
   int buttonWidth =200 *guiMultiply;
 
   println("Creating font...");
@@ -35,12 +35,68 @@ void buildUI() {
   cp5.setColorBackground(#333333);
   cp5.setPosition(uiSpacing, uiSpacing);
 
-  //println("listing drivers");
+  Group top = cp5.addGroup("top")
+    .setPosition(0, 0)
+    .setBackgroundHeight(30*guiMultiply)
+    .setWidth(width-uiSpacing*2)
+    //.setBackgroundColor(color(255, 50))
+    //.disableCollapse()
+    .hideBar()
+    ;
+
+  Group net = cp5.addGroup("network")
+    .setPosition(0, (70*guiMultiply)+camDisplayHeight)
+    .setBackgroundHeight(200*guiMultiply)
+    .setWidth(uiGrid*4)
+    //.setBackgroundColor(color(255, 50))
+    .hideBar()
+    ;
+
+  Group settings = cp5.addGroup("settings")
+    .setPosition(cp5.get("network").getWidth()+uiSpacing, (70*guiMultiply)+camDisplayHeight)
+    .setBackgroundHeight(200*guiMultiply)
+    .setWidth(uiGrid*4)
+    //.setBackgroundColor(color(255, 50))
+    .hideBar()
+    ;
+
+  println("adding textfield for IP");
+  cp5.addTextfield("ip")
+    .setPosition(0, buttonHeight+uiSpacing)
+    .setSize(buttonWidth, buttonHeight)
+    .setAutoClear(false)
+    .setGroup("network")
+    .setValue(network.getIP())
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    ;
+  println("done adding textfield for IP");
+
+  println("adding textfield for ledsPerStrip");
+  cp5.addTextfield("leds_per_strip")
+    .setPosition(0, buttonHeight*2+uiSpacing*2)
+    .setSize(buttonWidth, buttonHeight)
+    .setAutoClear(false)
+    .setGroup("network")
+    .setValue(str(network.getNumLedsPerStrip()))
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    ;
+
+  println("adding textfield for strips");
+  cp5.addTextfield("strips")
+    .setPosition(0, buttonHeight*3+uiSpacing*3)
+    .setSize(buttonWidth, buttonHeight)
+    .setAutoClear(false)
+    .setGroup("network")
+    .setValue(str(network.getNumStrips()))
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    ;
+
+  println("listing drivers");
+  //draw after text boxes so the dropdown overlaps properly
   List driver = Arrays.asList("PixelPusher", "Fadecandy"); //"ArtNet"  removed for now - throws errors
-  /* add a ScrollableList, by default it behaves like a DropdownList */
   println("adding scrollable list for drivers");
   cp5.addScrollableList("driver")
-    .setPosition(0, uiGrid)
+    .setPosition(0, 0)
     .setSize(buttonWidth, 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
@@ -48,61 +104,26 @@ void buildUI() {
     .setType(ControlP5.DROPDOWN)
     .setOpen(false)
     .bringToFront() 
-    //.close();
-    ;
-
-  //Refresh connected cameras
-  println("cp5: adding refresh button");
-  cp5.addButton("refresh")
-    .setPosition(buttonWidth+uiSpacing, 0)
-    .setSize(buttonWidth/2, buttonHeight)
-    ;
-
-  println("adding textfield for IP");
-  cp5.addTextfield("ip")
-    .setPosition(buttonWidth+uiSpacing, uiGrid)
-    .setSize(buttonWidth/2, buttonHeight)
-    .setAutoClear(false)
-    .setValue(network.getIP())
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    //.linebreak()
-    //.setGroup("network")
-    ;
-  println("done adding textfield for IP");
-
-  println("adding textfield for ledsPerStrip");
-  cp5.addTextfield("leds_per_strip")
-    .setPosition(buttonWidth+uiSpacing, uiGrid+buttonHeight+uiSpacing)
-    .setSize(buttonWidth/2, buttonHeight)
-    .setAutoClear(false)
-    .setValue(str(network.getNumLedsPerStrip()))
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    //.setGroup("network")
-    ;
-
-  println("adding textfield for strips");
-  cp5.addTextfield("strips")
-    .setPosition(buttonWidth+uiSpacing, uiGrid+buttonHeight*2+uiSpacing*2)
-    .setSize(buttonWidth/2, buttonHeight)
-    .setAutoClear(false)
-    .setValue(str(network.getNumStrips()))
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    //.setGroup("network")
-    ;
+    .setGroup("network");
+  ;
+  //TODO  fix style on dropdown 
+  cp5.getController("driver").getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(10);
 
   println("adding connect button");
   cp5.addButton("connect")
-    .setPosition(buttonWidth*2+uiSpacing*2, uiGrid)
-    .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
-    ;
+    .setPosition(buttonWidth+uiSpacing, 0)
+    .setSize(buttonWidth/2-2, buttonHeight)
+    .setGroup("network");
+  ;
 
   println("adding contrast slider");
   cp5.addSlider("cvContrast")
     .setBroadcast(false)
-    .setPosition(0, uiGrid*3)
+    .setPosition(0, 0)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 5)
     .setValue(cvContrast)
+    .setGroup("settings")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
@@ -114,10 +135,11 @@ void buildUI() {
   println("adding slider for cvThreshold");
   cp5.addSlider("cvThreshold")
     .setBroadcast(false)
-    .setPosition(0, uiGrid*3+buttonHeight+uiSpacing)
+    .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 255)
     .setValue(cvThreshold)
+    .setGroup("settings")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
 
@@ -130,13 +152,13 @@ void buildUI() {
   println("adding slider for ledBrightness");
   cp5.addSlider("ledBrightness")
     .setBroadcast(false)
-    .setPosition(0, uiGrid*3+buttonHeight*2+uiSpacing*2)
+    .setPosition(0, (buttonHeight+uiSpacing)*2)
     .setSize(buttonWidth, buttonHeight)
     .setRange(0, 255)
     .setValue(ledBrightness)
+    .setGroup("settings")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-
     ;
 
   ////set labels to bottom
@@ -145,52 +167,55 @@ void buildUI() {
 
   println("adding test button");
   cp5.addButton("test")
-    .setPosition(0, uiGrid*5)
-    .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
+    .setPosition(0, (buttonHeight+uiSpacing)*3)
+    .setSize(buttonWidth/2-2, buttonHeight)
+    .setGroup("settings")
     ;
 
   println("adding map button"); 
   cp5.addButton("map")
-    .setPosition(buttonWidth/2, uiGrid*5)
-    .setSize(buttonWidth/2-2, int(buttonHeight*1.5))
+    .setPosition(buttonWidth/2, (buttonHeight+uiSpacing)*3)
+    .setSize(buttonWidth/2-2, buttonHeight)
+    .setGroup("settings")
+
     ;
 
   println("adding save button");
   cp5.addButton("save")
-    .setPosition(buttonWidth+uiSpacing, uiGrid*5)
-    .setSize(buttonWidth/2, int(buttonHeight*1.5))
+    .setPosition(buttonWidth+uiSpacing, (buttonHeight+uiSpacing)*3)
+    .setSize(buttonWidth/2, buttonHeight)
+    .setGroup("settings")
     ;
 
 
   //capture console events to ui
-
-  //println("enabling shortcuts");
-  //cp5.enableShortcuts();
-  //cp5Console = cp5.addTextarea("cp5Console")
-  //  .setPosition(0, height-(buttonHeight*5)-uiSpacing*2)
-  //  .setSize(buttonWidth, buttonHeight*5)
-  //  .setFont(createFont("", 12*guiMultiply))
-  //  .setLineHeight(16*guiMultiply)
-  //  .setColor(color(200))
-  //  .setColorBackground(color(#333333))
-  //  .setColorForeground(color(255, 100))
-  //  ;
-  //;
+  cp5.enableShortcuts();
+  cp5Console = cp5.addTextarea("cp5Console")
+    .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
+    .setSize((uiGrid*4)-uiSpacing , 180*guiMultiply)
+    .setFont(createFont("", 12*guiMultiply))
+    .setLineHeight(16*guiMultiply)
+    .setColor(color(200))
+    .setColorBackground(color(#333333))
+    .setColorForeground(color(255, 100))
+    ;
+  ;
 
   //println("adding console");
-  // TODO: IS this breaking things?
-  //console = cp5.addConsole(cp5Console);//
-
-  ////TOP PANEL
-  //println("creating top panel");
-  //topPanel.setFont(font);
-  //topPanel.setColorBackground(#333333);
-  //topPanel.setPosition(uiSpacing, uiSpacing);
-
+   //TODO: IS this breaking things?
+  //console = cp5.addConsole(cp5Console).;//
+  //console.play();
 
   //println("add framerate panel");
   //cp5.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
 
+  //Refresh connected cameras
+  println("cp5: adding refresh button");
+  cp5.addButton("refresh")
+    .setPosition(buttonWidth+uiSpacing, 0)
+    .setSize(buttonWidth/2, buttonHeight)
+    .setGroup("top")
+    ;
 
   // made last - enumerating cams will break the ui if done earlier in the sequence
   println("cp5: adding camera dropdown list");
@@ -201,8 +226,7 @@ void buildUI() {
     .setItemHeight(buttonHeight)
     .addItems(enumerateCams())
     .setOpen(false)
-    //.getCaptionLabel().align(CENTER, CENTER) 
-    //.close();
+    .setGroup("top")
     ;
 
   // Wrap up, report done
