@@ -44,7 +44,7 @@ PGraphics blobFBO;
 
 int guiMultiply = 1;
 
-int cvThreshold = 100;
+int cvThreshold = 230;
 float cvContrast = 1.15;
 
 ArrayList <PVector>     coords;
@@ -122,7 +122,7 @@ void setup()
   println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
-  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
+  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
 
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
@@ -206,7 +206,7 @@ void draw()
   image(camFBO, 0, 0, camDisplayWidth, camDisplayHeight);
   opencv.loadImage(camFBO);
   opencv.gray();
-  //opencv.threshold(cvThreshold);
+  opencv.threshold(cvThreshold);
 
   //opencv.contrast(cvContrast);
   //opencv.dilate();
@@ -287,13 +287,12 @@ void updateBlobs() {
 
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
-
   else {
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 5; 
     // Store new, qualified blobs found in this frame
 
-    PVector p = new PVector();
+    PVector p = new PVector(); // New blob center coord
     for (Contour c : newBlobs) {
       // Get the center coordinate for the new blob
       float x = (float)c.getBoundingBox().getCenterX();
@@ -326,6 +325,7 @@ void updateBlobs() {
         blobCount++;
         blobList.add(b);
       }
+      // If new blob isTooClose to a a previous blob, reset the age.
     }
   }
 
