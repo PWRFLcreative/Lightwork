@@ -21,7 +21,7 @@ ControlP5 cp5;
 Animator animator;
 Interface network; 
 
-boolean isMapping = true; 
+boolean isMapping = false; 
 int ledBrightness = 100;
 
 
@@ -30,7 +30,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "singleBinary.mp4";
+String movieFileName = "partialBinary.mp4";
 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -82,7 +82,7 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.FILE; 
 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -105,14 +105,16 @@ void setup()
   if (videoMode == VideoMode.FILE) {
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
-    movie.loop();
-    //movie.play();
+    // Pausing the video at the first frame. 
+    mov.play();
+    mov.jump(0);
+    mov.pause();
   }
 
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
+  opencv.startBackgroundSubtraction(1, 50, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -181,6 +183,7 @@ void draw()
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
     videoInput = movie;
+    
   } else {
     // println("Oops, no video input!");
   }
@@ -206,7 +209,7 @@ void draw()
   //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
   //opencv.equalizeHistogram();
   //opencv.blur(2);
-  //opencv.updateBackground();
+  opencv.updateBackground();
 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
@@ -223,6 +226,9 @@ void draw()
 
   if (isMapping) {
     //sequentialMapping();
+    if (videoMode == VideoMode.FILE) {
+      movie.
+    }
     updateBlobs(); // Find and manage blobs
     decodeBlobs(); 
     // Decode the signal in the blobs
@@ -281,7 +287,7 @@ void updateBlobs() {
 
   // Check if newBlobs are actually new...
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
-  
+
   else {
     // New blobs must be further away to qualify as new blobs
     float distanceThreshold = 5; 
@@ -346,13 +352,12 @@ void decodeBlobs() {
       for (color c : cropped.pixels) {
         br += brightness(c);
       }
-     
+
       br = br/ cropped.pixels.length;
-      
+
       if (i == 0) { // Only look at one blob, for now
         blobList.get(i).registerBrightness(br); // Set blob brightness
       }
-      
     }
   }
 }
