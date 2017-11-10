@@ -142,7 +142,7 @@ void setup()
   println("Setting window size");
   //Window size based on screen dimensions, centered
   windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (150 * guiMultiply)); // adds 300 to height for ui elements
+  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
 
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
@@ -278,7 +278,6 @@ void draw()
   if (showLEDColors) {
     // scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
-    rect (0, 0, width, 5);
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
       noStroke();

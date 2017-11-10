@@ -12,6 +12,7 @@ import controlP5.*;
 
 Textarea cp5Console;
 Println console;
+RadioButton r1, r2;
 boolean isUIReady = false;
 boolean showLEDColors = true;
 
@@ -215,6 +216,34 @@ void buildUI() {
 
   //println("add framerate panel");
   //cp5.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
+
+  r1 = cp5.addRadioButton("videoIn")//.setTitle("Video Input Mode")
+    .setPosition(buttonWidth*2, 0)
+    .setSize(buttonWidth/4, buttonHeight)
+    .setGroup("top")
+    .setColorForeground(color(120))
+    .setColorActive(color(255))
+    .setColorLabel(color(255))
+    .setItemsPerRow(5)
+    .setSpacingColumn(uiSpacing*3)
+    .addItem("Camera", 1)
+    .addItem("File", 2)
+    .activate(0)
+    ;
+
+  r2 = cp5.addRadioButton("stereoToggle")
+    .setPosition(buttonWidth*4, 0)
+    .setSize(buttonWidth/4, buttonHeight)
+    .setGroup("top")
+    .setColorForeground(color(120))
+    .setColorActive(color(255))
+    .setColorLabel(color(255))
+    .setItemsPerRow(5)
+    .setSpacingColumn(uiSpacing*3)
+    .addItem("2D", 1)
+    .addItem("3D", 2)
+    .activate(0)
+    ;
 
   //Refresh connected cameras
   println("cp5: adding refresh button");
