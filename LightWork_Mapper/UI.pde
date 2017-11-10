@@ -15,6 +15,8 @@ Println console;
 boolean isUIReady = false;
 boolean showLEDColors = true;
 
+int loadWidth =0;
+
 void buildUI() {
   println("setting up ControlP5");
 
@@ -60,6 +62,7 @@ void buildUI() {
     .hideBar()
     ;
 
+  //loadWidth = width/12*6;
   println("adding textfield for IP");
   cp5.addTextfield("ip")
     .setPosition(0, buttonHeight+uiSpacing)
@@ -73,6 +76,7 @@ void buildUI() {
 
   println("adding textfield for ledsPerStrip");
   cp5.addTextfield("leds_per_strip")
+    .setCaptionLabel("leds per strip")
     .setPosition(0, buttonHeight*2+uiSpacing*2)
     .setSize(buttonWidth, buttonHeight)
     .setAutoClear(false)
@@ -118,6 +122,7 @@ void buildUI() {
 
   println("adding contrast slider");
   cp5.addSlider("cvContrast")
+    .setCaptionLabel("contrast")
     .setBroadcast(false)
     .setPosition(0, 0)
     .setSize(buttonWidth, buttonHeight)
@@ -134,6 +139,7 @@ void buildUI() {
 
   println("adding slider for cvThreshold");
   cp5.addSlider("cvThreshold")
+    .setCaptionLabel("threshold")
     .setBroadcast(false)
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
@@ -151,6 +157,7 @@ void buildUI() {
 
   println("adding slider for ledBrightness");
   cp5.addSlider("ledBrightness")
+    .setCaptionLabel("led brightness")
     .setBroadcast(false)
     .setPosition(0, (buttonHeight+uiSpacing)*2)
     .setSize(buttonWidth, buttonHeight)
@@ -187,12 +194,12 @@ void buildUI() {
     .setGroup("settings")
     ;
 
-
+  //loadWidth = width/12*9;
   //capture console events to ui
   cp5.enableShortcuts();
   cp5Console = cp5.addTextarea("cp5Console")
     .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
-    .setSize((uiGrid*4)-uiSpacing , 180*guiMultiply)
+    .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
     .setFont(createFont("", 12*guiMultiply))
     .setLineHeight(16*guiMultiply)
     .setColor(color(200))
@@ -202,7 +209,7 @@ void buildUI() {
   ;
 
   //println("adding console");
-   //TODO: IS this breaking things?
+  //TODO: IS this breaking things?
   //console = cp5.addConsole(cp5Console).;//
   //console.play();
 
@@ -230,6 +237,7 @@ void buildUI() {
     ;
 
   // Wrap up, report done
+  //loadWidth = width;
   float deltaTime = millis()-startTime; 
   println("Done building GUI, total time: " + deltaTime + " ms"); 
   isUIReady = true;
@@ -295,6 +303,11 @@ public void connect() {
     cp5.get(Textfield.class, "ip").setValue(network.getIP());
     cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip()));
     cp5.get(Textfield.class, "strips").setValue(str(network.getNumStrips()));
+  }
+
+  if (network.isConnected()) {
+    cp5.get("connect").setColorBackground(color(0, 255, 0));
+    cp5.get("connect").setCaptionLabel("Refresh");
   }
 }
 

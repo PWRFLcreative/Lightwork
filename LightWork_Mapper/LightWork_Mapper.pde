@@ -160,7 +160,9 @@ void setup()
   // Make sure there's always something in videoInput
   println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
+
   background(0);
+  //loadWidth = width/12*3;
 }
 
 void draw()
@@ -172,13 +174,31 @@ void draw()
     if (frameCount%1000==0) {
       println("DrawLoop: Building UI....");
     }
-    fill(255);
-    //textAlign(CENTER);
+
+    int size = (millis()/5%255);
+
     pushMatrix(); 
     translate(width/2, height/2);
-    rotate(frameCount*0.1);
+    //println((1.0/(float)size)%255);
+
+    noFill();
+    stroke(255,size);
+    strokeWeight(4);
+    //rotate(frameCount*0.1);
+    ellipse(0, 0, size, size);
+
+    translate(0, 100*guiMultiply);
+    fill(255);
+    noStroke();
+    textSize(18*guiMultiply);
+    textAlign(CENTER);
     text("LOADING...", 0, 0);
+
     popMatrix();
+
+    //loading bar
+    //rect(0,height/2,loadWidth,10*guiMultiply);
+
     return;
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
@@ -254,12 +274,15 @@ void draw()
 
   animator.update();
 
+  //show the array of colors going out to the LEDs
   if (showLEDColors) {
-    // draw LED color array to screen -
+    // scale based on window size and leds in array
+    float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
+    rect (0, 0, width, 5);
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
       noStroke();
-      rect(i*5, camArea.y+camArea.height, 5, 5);
+      rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
 
