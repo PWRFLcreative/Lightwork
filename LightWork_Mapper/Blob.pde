@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 150; //127;
+  private int initTimer = 50; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -60,29 +60,15 @@ class Blob {
     rect(r.x*scaleX, r.y*scaleY, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id+" "+this.timer, r.x*scaleX+10, r.y*scaleY+5);
+    text(""+id, r.x*scaleX+10, r.y*scaleY+5);
     String decoded = detectedPattern.decodedString.toString();
     //text(decoded, r.x*scaleX+25, r.y*scaleY+5);
   }
 
-
-//  // Give me a new contour for this blob (shape, points, location, size)
-//  // Oooh, it would be nice to lerp here!
-//  void update(Contour newC) {
-
-//    contour = new Contour(parent, newC.pointMat);
-
-//    // Is there a way to update the contour's points without creating a new one?
-//    /*ArrayList<PVector> newPoints = newC.getPoints();
-//     Point[] inputPoints = new Point[newPoints.size()];
-     
-//     for(int i = 0; i < newPoints.size(); i++){
-//     inputPoints[i] = new Point(newPoints.get(i).x, newPoints.get(i).y);
-//     }
-//     contour.loadPoints(inputPoints);*/
-
-//    timer = initTimer;
-//  }
+  void update(Contour newContour) {
+    this.contour = newContour;
+    this.timer = initTimer;
+  }
 
 
   // Count me down, I am gone
@@ -136,7 +122,7 @@ class Blob {
 
 
 
-      print(frameDelta+", ");
+      //print(frameDelta+", ");
       //print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }

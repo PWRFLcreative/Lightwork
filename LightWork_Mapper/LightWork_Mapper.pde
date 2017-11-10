@@ -30,7 +30,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "singleBinary.mp4";
+String movieFileName = "partialBinary.mp4";
 boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -66,12 +66,12 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-//int minBlobSize = 5;
-//int maxBlobSize = 10;
-//float distanceThreshold = 5; 
-int minBlobSize = 50;
-int maxBlobSize = 100;
-float distanceThreshold = 50; 
+int minBlobSize = 5;
+int maxBlobSize = 10;
+float distanceThreshold = 5; 
+//int minBlobSize = 50;
+//int maxBlobSize = 100;
+//float distanceThreshold = 50; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -86,7 +86,8 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.CAMERA; 
+  videoMode = VideoMode.CAMERA; // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  
   shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -115,7 +116,6 @@ void setup()
       movie.jump(0);
       movie.pause();
     }
-    
   }
 
   // OpenCV Setup
@@ -126,7 +126,7 @@ void setup()
   println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
-  network.setNumLedsPerStrip(8); // TODO: Fix these setters...
+  network.setNumLedsPerStrip(5); // TODO: Fix these setters...
 
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
@@ -211,10 +211,11 @@ void draw()
   opencv.loadImage(camFBO);
   opencv.gray();
   opencv.threshold(cvThreshold);
+  
 
   //opencv.contrast(cvContrast);
-  //opencv.dilate();
-  //opencv.erode();
+  opencv.dilate();
+  opencv.erode();
   //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
   //opencv.equalizeHistogram();
   //opencv.blur(2);
@@ -295,7 +296,6 @@ void updateBlobs() {
   // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
   else {
     // New blobs must be further away to qualify as new blobs
-    distanceThreshold = 50; 
     // Store new, qualified blobs found in this frame
 
     // Go through all the new blobs and check if they match an existing blob
@@ -309,7 +309,7 @@ void updateBlobs() {
 
       // Check if an existing blob is under the distance threshold
       // If it is under the threshold it is the 'same' blob
-      boolean isTooClose = false;
+      boolean didMatch = false;
       for (int j = 0; j < blobList.size(); j++) {
         Blob blob = blobList.get(j);
         // Get existing blob coord
@@ -318,14 +318,18 @@ void updateBlobs() {
         p2.y = (float)blob.contour.getBoundingBox().getCenterY();
         
         float distance = p.dist(p2);
+        println(distance); 
         if (distance <= distanceThreshold) {
-          isTooClose = true;
+          didMatch = true;
+          // New blob (c) is the same as old blob (blobList.get(j))
+          // Update old blob with new contour
+          blobList.get(j).update(c);
           break;
         }
       }
 
       // If none of the existing blobs are too close, add this one to the blob list
-      if (!isTooClose) {
+      if (!didMatch) {
         Blob b = new Blob(this, blobCount, c);
         blobCount++;
         blobList.add(b);
