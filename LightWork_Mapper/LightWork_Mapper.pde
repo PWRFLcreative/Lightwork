@@ -137,10 +137,10 @@ void setup()
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
-  
+
   //set up window for 2d mapping
-  window3d();
-  
+  window2d();
+
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
@@ -168,7 +168,7 @@ void draw()
     //println((1.0/(float)size)%255);
 
     noFill();
-    stroke(255,size);
+    stroke(255, size);
     strokeWeight(4);
     //rotate(frameCount*0.1);
     ellipse(0, 0, size, size);
@@ -235,6 +235,11 @@ void draw()
   }
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+
+  if (camWindows==3 && cam2!=null) {
+    cam2.read();
+    image(cam2, camDisplayWidth*2, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+  }
 
   if (isMapping) {
     sequentialMapping();

@@ -217,32 +217,52 @@ void buildUI() {
   //println("add framerate panel");
   //cp5.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
 
-  r1 = cp5.addRadioButton("videoIn")//.setTitle("Video Input Mode")
-    .setPosition(buttonWidth*2, 0)
+  //r1 = cp5.addRadioButton("videoIn")//.setTitle("Video Input Mode")
+  //  .setPosition(buttonWidth*2, 0)
+  //  .setSize(buttonWidth/4, buttonHeight)
+  //  .setGroup("top")
+  //  .setColorForeground(color(120))
+  //  .setColorActive(color(255))
+  //  .setColorLabel(color(255))
+  //  .setItemsPerRow(5)
+  //  .setSpacingColumn(uiSpacing*3)
+  //  .addItem("Camera", 1)
+  //  .addItem("File", 2)
+  //  .activate(0)
+  //  ;
+
+  //r2 = cp5.addRadioButton("stereoToggle")
+  //  .setPosition(buttonWidth*4, 0)
+  //  .setSize(buttonWidth/4, buttonHeight)
+  //  .setGroup("top")
+  //  .setColorForeground(color(120))
+  //  .setColorActive(color(255))
+  //  .setColorLabel(color(255))
+  //  .setItemsPerRow(5)
+  //  .setSpacingColumn(uiSpacing*3)
+  //  .addItem("2D", 1)
+  //  .addItem("3D", 2)
+  //  .activate(0)
+  //  ;
+
+  cp5.addToggle("videoIn")
+    .setBroadcast(false)
+    .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
     .setSize(buttonWidth/4, buttonHeight)
     .setGroup("top")
-    .setColorForeground(color(120))
-    .setColorActive(color(255))
-    .setColorLabel(color(255))
-    .setItemsPerRow(5)
-    .setSpacingColumn(uiSpacing*3)
-    .addItem("Camera", 1)
-    .addItem("File", 2)
-    .activate(0)
+    .setValue(true)
+    .setMode(ControlP5.SWITCH)
+    .setBroadcast(true)
     ;
 
-  r2 = cp5.addRadioButton("stereoToggle")
-    .setPosition(buttonWidth*4, 0)
+  cp5.addToggle("stereoToggle")
+    .setBroadcast(false)
+    .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
     .setSize(buttonWidth/4, buttonHeight)
     .setGroup("top")
-    .setColorForeground(color(120))
-    .setColorActive(color(255))
-    .setColorLabel(color(255))
-    .setItemsPerRow(5)
-    .setSpacingColumn(uiSpacing*3)
-    .addItem("2D", 1)
-    .addItem("3D", 2)
-    .activate(0)
+    .setValue(true)
+    .setMode(ControlP5.SWITCH)
+    .setBroadcast(true)
     ;
 
   //Refresh connected cameras
@@ -253,6 +273,7 @@ void buildUI() {
     .setGroup("top")
     ;
 
+  String[] cams = enumerateCams();
   // made last - enumerating cams will break the ui if done earlier in the sequence
   println("cp5: adding camera dropdown list");
   cp5.addScrollableList("camera")
@@ -260,8 +281,21 @@ void buildUI() {
     .setSize(buttonWidth, 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
-    .addItems(enumerateCams())
+    .addItems(cams)
     .setOpen(false)
+    .setGroup("top")
+    ;
+
+  // made last - enumerating cams will break the ui if done earlier in the sequence
+  println("cp5: adding camera dropdown list");
+  cp5.addScrollableList("camera2")
+    .setPosition(buttonWidth*3+uiSpacing*4, 0)
+    .setSize(buttonWidth, 300)
+    .setBarHeight(buttonHeight)
+    .setItemHeight(buttonHeight)
+    .addItems(cams)
+    .setOpen(false)
+    .setVisible(false)
     .setGroup("top")
     ;
 
@@ -282,6 +316,14 @@ void camera(int n) {
   String label=m.get("name").toString();
   //println(label);
   switchCamera(label);
+}
+
+void camera2(int n) {
+  Map m = cp5.get(ScrollableList.class, "camera2").getItem(n);
+  //println(m);
+  String label=m.get("name").toString();
+  //println(label);
+  switchCamera2(label); //tried passing the camera as arg
 }
 
 void driver(int n) { 
@@ -411,6 +453,34 @@ void fileSelected(File selection) {
   }
 }
 
+void stereoToggle(boolean theFlag) {
+  if (theFlag==true) {
+    camWindows=2;
+    window2d();
+    cp5.get(ScrollableList.class, "camera2").setVisible(false);
+    println("Stereo camera off");
+  } else {
+    camWindows=3;
+    window3d();
+    cp5.get(ScrollableList.class, "camera2")
+      .setVisible(true)
+      //.setPosition(camDisplayWidth, 0)
+      ;
+    cam2 = new Capture(this, camWidth, camHeight, 30);
+    println("Stereo camera on");
+  }
+}
+
+void videoIn(boolean theFlag) {
+  if (theFlag==true) {
+    videoMode = VideoMode.CAMERA; 
+    println("Video mode: Camera");
+  } else {
+    videoMode = VideoMode.FILE; 
+    println("Video mode: File");
+  }
+}
+
 
 //////////////////////////////////////////////////////////////
 // Camera Switching
@@ -460,6 +530,14 @@ void switchCamera(String name) {
   cam=null;
   cam =new Capture(this, camWidth, camHeight, name, 30);
   cam.start();
+}
+
+//UI camera switching
+void switchCamera2(String name) {
+  cam2.stop();
+  cam2=null;
+  cam2 =new Capture(this, camWidth, camHeight, name, 30);
+  cam2.start();
 }
 
 void window2d() {
