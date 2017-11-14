@@ -390,9 +390,15 @@ public void map() {
 }
 
 public void save() {
+  if (coords.size() == 0) {
+    //User is trying to save without anything to output - bail
+    println("No point data to save, run mapping first");
+    return;
+  } else {
     File sketch = new File(sketchPath());
-    selectOutput("Select a file to write to:", "fileSelected",sketch);
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveSVG(coords);
+  }
 }
 
 // event handler for AWT file selection window
@@ -427,7 +433,7 @@ String[] enumerateCams() {
   //catch null cases
   if (list == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
-  //  cam = new Capture(this, camWidth, camHeight, FPS);
+    //  cam = new Capture(this, camWidth, camHeight, FPS);
   } else if (list.length == 0) {
     println("There are no cameras available for capture.");
     //exit();
@@ -456,7 +462,7 @@ void switchCamera(String name) {
   cam.start();
 }
 
-void window2d(){
+void window2d() {
   camWindows = 2;
   println("Setting window size");
   //Window size based on screen dimensions, centered
@@ -473,10 +479,9 @@ void window2d(){
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
-  
 }
 
-void window3d(){
+void window3d() {
   camWindows = 3;
 
   println("Setting window size");
@@ -494,6 +499,4 @@ void window3d(){
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
-  
-  
 }

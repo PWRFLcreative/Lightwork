@@ -14,6 +14,7 @@ import com.hamoid.*; // Video recording
 import java.awt.Rectangle;
 
 Capture cam;
+Capture cam2;
 Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
