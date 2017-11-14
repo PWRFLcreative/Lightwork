@@ -62,7 +62,7 @@ class Blob {
     textSize(12);
     text(""+id, r.x*scaleX+10, r.y*scaleY+5);
     String decoded = detectedPattern.decodedString.toString();
-    //text(decoded, r.x*scaleX+25, r.y*scaleY+5);
+    text(decoded, r.x*scaleX+25, r.y*scaleY+5);
   }
 
   void update(Contour newContour) {

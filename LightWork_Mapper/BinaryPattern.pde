@@ -47,6 +47,7 @@ public class BinaryPattern {
     
     writeIndex = 0; 
     decodedString = new StringBuffer(10); // Init with capacity
+    decodedString.append("0000000000");
     
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
@@ -81,8 +82,12 @@ public class BinaryPattern {
   // Pattern storage
   // TODO: Finish or delete this part
   void writeNextBit(int bit) {
-
-    decodedString.append(bit);
+    //decodedString.append(bit);
+    String s =  String.valueOf(bit);
+    decodedString.replace(writeIndex,writeIndex+1,s);
+    //decodedString.setCharAt(writeIndex,s);
+    println("decodedString: "+decodedString);
+    
     //binaryPatternString.charAt(writeIndex) = String(bit);
     
     writeIndex++; 

@@ -69,9 +69,6 @@ int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 int minBlobSize = 5;
 int maxBlobSize = 10;
 float distanceThreshold = 5; 
-//int minBlobSize = 50;
-//int maxBlobSize = 100;
-//float distanceThreshold = 50; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -126,7 +123,7 @@ void setup()
   println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
-  network.setNumLedsPerStrip(5); // TODO: Fix these setters...
+  network.setNumLedsPerStrip(1); // TODO: Fix these setters...
 
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
@@ -318,7 +315,6 @@ void updateBlobs() {
         p2.y = (float)blob.contour.getBoundingBox().getCenterY();
         
         float distance = p.dist(p2);
-        println(distance); 
         if (distance <= distanceThreshold) {
           didMatch = true;
           // New blob (c) is the same as old blob (blobList.get(j))
@@ -365,7 +361,7 @@ void decodeBlobs() {
       }
 
       br = br/ cropped.pixels.length;
-
+      //print(br+", ");
       if (i == 0) { // Only look at one blob, for now
         blobList.get(i).registerBrightness(br); // Set blob brightness
       }
