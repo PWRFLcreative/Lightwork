@@ -3,7 +3,7 @@
 int currentFrame = 0; 
 
 void setMovieFrame(int n) {
-  movie.play();
+  
     
   // The duration of a single frame:
   float frameDuration = 1.0 / movie.frameRate;
@@ -18,6 +18,7 @@ void setMovieFrame(int n) {
   }
     
   movie.jump(where);
+  movie.play();
   movie.pause();  
 }  
 

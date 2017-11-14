@@ -19,7 +19,7 @@ public class LED {
     c = color(0, 0, 0);
     address = 0;
     coord= new PVector(0, 0);
-    bPatternOffset = 150; 
+    bPatternOffset = 682; 
     binaryPattern = new BinaryPattern();
   }
 

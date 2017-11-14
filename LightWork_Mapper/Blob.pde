@@ -110,20 +110,25 @@ class Blob {
     }
     if (didTransition) {
       frameDelta = frameCount-previousFrameCount;
-      int frameSkip = 3;  // TODO: link this with Animator frameskip
-
+      int frameSkip = animator.frameSkip;  // TODO: link this with Animator frameskip
+      
+      // temporary target pattern for testing
+      
       // Find out how many instances of the previous state occurred (000 = 3, 11 = 2, 1111 = 4, etc)
       int numRepeats = frameDelta/frameSkip;
-
+      //println(numRepeats);
       for (int i = 0; i < numRepeats; i++) {
         detectedPattern.writeNextBit(detectedPattern.state);
       }
 
 
-
+      String targetPattern = "0010010110";
+      if (targetPattern.equals(detectedPattern)) {
+        println("MATCH FOUND!!!!"); 
+      }
 
       //print(frameDelta+", ");
-      //print("["+detectedPattern.state+", "+frameDelta+"], ");
+      print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }

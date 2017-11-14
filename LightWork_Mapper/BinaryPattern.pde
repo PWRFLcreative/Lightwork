@@ -86,14 +86,16 @@ public class BinaryPattern {
     String s =  String.valueOf(bit);
     decodedString.replace(writeIndex,writeIndex+1,s);
     //decodedString.setCharAt(writeIndex,s);
-    println("decodedString: "+decodedString);
+    //print(bit);
     
     //binaryPatternString.charAt(writeIndex) = String(bit);
     
     writeIndex++; 
+    
     if (writeIndex >= animationPatternLength) {
     writeIndex = 0;  
     }
+    
   }
   
 }

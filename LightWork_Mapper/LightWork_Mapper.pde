@@ -30,7 +30,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "partialBinary.mp4";
+String movieFileName = "1010101010.mp4";
 boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
@@ -83,8 +83,8 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.CAMERA; // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  
+  videoMode = VideoMode.FILE; // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
   shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
@@ -98,8 +98,10 @@ void setup()
 
   // Blobs list
   blobList = new ArrayList<Blob>();
-
   cam = new Capture(this, camWidth, camHeight, 30);
+  // Initialize Logitech cam by on launch : TODO: remove this
+  //cam = new Capture(this, camWidth, camHeight, "HD Pro Webcam C920 #2", 30);
+  //cam.start();
 
   println("allocating video export");
   videoExport = new VideoExport(this, "data/"+movieFileName, cam);
@@ -128,7 +130,7 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(5);
+  animator.setFrameSkip(10);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
@@ -199,7 +201,6 @@ void draw()
   //UI is drawn on canvas background, update to clear last frame's UI changes
   background(#222222);
 
-
   camFBO.beginDraw();
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
@@ -208,7 +209,7 @@ void draw()
   opencv.loadImage(camFBO);
   opencv.gray();
   opencv.threshold(cvThreshold);
-  
+
 
   //opencv.contrast(cvContrast);
   opencv.dilate();
@@ -239,19 +240,21 @@ void draw()
 
     //print(br);
     //print(", ");
-    
   }
 
 
   blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
+  fill(255, 0, 0);
   text("numBlobs: "+blobList.size(), 0, height-20); 
+  text("FPS: "+frameRate, 0, height-40); 
+  text("FrameCount: "+frameCount, 0, height-60); 
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
 
   animator.update();
-
+  text("FPS: "+frameRate, 0, 0); 
   if (isRecording) {
     videoExport.saveFrame();
   }
@@ -313,7 +316,7 @@ void updateBlobs() {
         PVector p2 = new PVector();
         p2.x = (float)blob.contour.getBoundingBox().getCenterX();
         p2.y = (float)blob.contour.getBoundingBox().getCenterY();
-        
+
         float distance = p.dist(p2);
         if (distance <= distanceThreshold) {
           didMatch = true;
@@ -346,7 +349,7 @@ void updateBlobs() {
 
 void decodeBlobs() {
   // Decode blobs (a few at a time for now...) +
-  
+
   // Update brightness levels for all the blobs
   int numToDecode = 1;
   if (blobList.size() >= numToDecode) {
@@ -367,11 +370,10 @@ void decodeBlobs() {
       }
     }
   }
-  
+
   if (blobList.size() > 0) {
-      blobList.get(0).decode(); // Decode the pattern
-    }
-    
+    blobList.get(0).decode(); // Decode the pattern
+  }
 }
 // Filter out contours that are too small or too big
 ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
