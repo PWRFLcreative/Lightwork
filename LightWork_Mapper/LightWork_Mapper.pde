@@ -89,7 +89,6 @@ void setup()
   cvFBO = createGraphics(camWidth, camHeight, P2D);
   blobFBO = createGraphics(camWidth, camHeight, P2D); 
 
-  println("iterating cameras");
   println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
   leds =new ArrayList<LED>();
@@ -97,7 +96,6 @@ void setup()
   // Blobs list
   blobList = new ArrayList<Blob>();
 
-  printArray(Capture.list());
   cam = new Capture(this, camWidth, camHeight, 30);
 
   println("allocating video export");
@@ -138,22 +136,10 @@ void setup()
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
-
-  println("Setting window size");
-  //Window size based on screen dimensions, centered
-  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
-
-  surface.setSize(windowSizeX, windowSizeY);
-  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-
-  camDisplayWidth = (int)(displayWidth/3 * 0.8);
-  camDisplayHeight = (int)(camDisplayWidth/camAspect);
-  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
-
-  println("camDisplayWidth: "+camDisplayWidth);
-  println("camDisplayHeight: "+camDisplayHeight);
-  println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
+  
+  //set up window for 2d mapping
+  window3d();
+  
   println("calling buildUI on a thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
@@ -162,7 +148,6 @@ void setup()
   videoInput = createImage(camWidth, camHeight, RGB);
 
   background(0);
-  //loadWidth = width/12*3;
 }
 
 void draw()
@@ -251,7 +236,7 @@ void draw()
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
-    //sequentialMapping();
+    sequentialMapping();
 
     updateBlobs(); // Find and manage blobs
     decodeBlobs(); 

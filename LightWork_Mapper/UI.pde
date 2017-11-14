@@ -390,11 +390,20 @@ public void map() {
 }
 
 public void save() {
-  if (key == 's') {
+    File sketch = new File(sketchPath());
+    selectOutput("Select a file to write to:", "fileSelected",sketch);
     saveSVG(coords);
-  }
 }
 
+// event handler for AWT file selection window
+void fileSelected(File selection) {
+  if (selection == null) {
+    println("Window was closed or the user hit cancel.");
+  } else {
+    savePath = selection.getAbsolutePath();
+    println("User selected " + selection.getAbsolutePath());
+  }
+}
 
 
 //////////////////////////////////////////////////////////////
@@ -413,19 +422,16 @@ String[] enumerateCams() {
   //  cam.start();
   //}
 
-  //int startTime = millis();
-  //parse out camera names
   String[] list = Capture.list();
-  //int endTime =millis();
-  //println("listing cams took: "+(startTime-endTime));
 
   //catch null cases
-  //if (cameras == null) {
-  //  println("Failed to retrieve the list of available cameras, will try the default...");
+  if (list == null) {
+    println("Failed to retrieve the list of available cameras, will try the default...");
   //  cam = new Capture(this, camWidth, camHeight, FPS);
-  //} else if (cameras.length == 0) {
-  //  println("There are no cameras available for capture.");
-  //  exit();
+  } else if (list.length == 0) {
+    println("There are no cameras available for capture.");
+    //exit();
+  }
 
   for (int i=0; i<list.length; i++) {
     String item = list[i]; 
@@ -448,4 +454,46 @@ void switchCamera(String name) {
   cam=null;
   cam =new Capture(this, camWidth, camHeight, name, 30);
   cam.start();
+}
+
+void window2d(){
+  camWindows = 2;
+  println("Setting window size");
+  //Window size based on screen dimensions, centered
+  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
+  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
+
+  surface.setSize(windowSizeX, windowSizeY);
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+
+  camDisplayWidth = (int)(displayWidth/3 * 0.8);
+  camDisplayHeight = (int)(camDisplayWidth/camAspect);
+  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
+  println("camDisplayWidth: "+camDisplayWidth);
+  println("camDisplayHeight: "+camDisplayHeight);
+  println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
+  
+}
+
+void window3d(){
+  camWindows = 3;
+
+  println("Setting window size");
+  //Window size based on screen dimensions, centered
+  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
+  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
+
+  surface.setSize(windowSizeX, windowSizeY);
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+
+  camDisplayWidth = (int)(displayWidth/3 * 0.8);
+  camDisplayHeight = (int)(camDisplayWidth/camAspect);
+  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
+  println("camDisplayWidth: "+camDisplayWidth);
+  println("camDisplayHeight: "+camDisplayHeight);
+  println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
+  
+  
 }
