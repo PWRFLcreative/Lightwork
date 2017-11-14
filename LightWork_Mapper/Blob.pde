@@ -127,8 +127,7 @@ class Blob {
         println("MATCH FOUND!!!!"); 
       }
 
-      //print(frameDelta+", ");
-      print("["+detectedPattern.state+", "+frameDelta+"], ");
+      //print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }

@@ -110,6 +110,7 @@ void setup()
     println("loading video file");
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     // Pausing the video at the first frame. 
+    //movie.speed(0);
     movie.loop();
     if (shouldSyncFrames) {
       movie.jump(0);
@@ -188,8 +189,11 @@ void draw()
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.FILE) {
+    movie.read();
     videoInput = movie;
+    
     if (shouldSyncFrames) {
+      println(frameCount);
       nextMovieFrame();
     }
   } else {
@@ -259,6 +263,7 @@ void draw()
     videoExport.saveFrame();
   }
 }
+
 
 // Mapping methods
 void sequentialMapping() {
@@ -434,9 +439,9 @@ boolean loadMovieFile(String path) {
 }
 
 // Movie reading callback
-void movieEvent(Movie m) {
-  m.read();
-}
+//void movieEvent(Movie m) {
+//  m.read();
+//}
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
