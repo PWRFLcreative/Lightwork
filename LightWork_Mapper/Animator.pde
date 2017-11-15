@@ -118,12 +118,6 @@ public class Animator {
       network.update(this.getPixels());
     }
 
-    // draw LED color array to screen -
-    for (int i = 0; i<leds.size(); i++) {
-      fill(leds.get(i).c);
-      noStroke();
-      rect(i*5, (height)-5, 5, 5);
-    }
   }
 
   // Update the pixels for all the strips

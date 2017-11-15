@@ -1,24 +1,32 @@
 void keyPressed() {
   if (key == 's') {
+      if (coords.size() == 0) {
+    //User is trying to save without anything to output - bail
+    println("No point data to save, run mapping first");
+    return;
+  } else {
+    File sketch = new File(sketchPath());
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveSVG(coords);
+  }
   }
 
   if (key == 'm') {
 
     /* Sorry Tim, this keeps breaking Binary Mapping
-    if (network.isConnected()==false) {
-      println("please connect to a device before mapping");
-    } else if (animator.getMode()!=animationMode.CHASE) {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.CHASE);
-      println("Chase mode");
-    } else {
-      isMapping=!isMapping;
-      animator.setMode(animationMode.OFF);
-      println("Animator off");
-    }
-    */
-    isMapping = !isMapping; 
+     if (network.isConnected()==false) {
+     println("please connect to a device before mapping");
+     } else if (animator.getMode()!=animationMode.CHASE) {
+     isMapping=!isMapping;
+     animator.setMode(animationMode.CHASE);
+     println("Chase mode");
+     } else {
+     isMapping=!isMapping;
+     animator.setMode(animationMode.OFF);
+     println("Animator off");
+     }
+     */
+    isMapping = !isMapping;
   }
 
   if (key == 't') {

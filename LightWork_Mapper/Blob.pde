@@ -49,20 +49,21 @@ class Blob {
 
   // Show me
   void display() {
-    float scaleX = (float)camDisplayWidth/(float)camWidth;
-    float scaleY = (float)camDisplayHeight/(float)camHeight;
-    
     Rectangle r = contour.getBoundingBox();
-
-    float opacity = map(timer, 0, initTimer, 0, 255);
-    fill(0, 0, 255, opacity);
-    stroke(0, 0, 255);
-    rect(r.x*scaleX, r.y*scaleY, r.width, r.height);
+    
+    //set draw location based on displayed camera position, accounts for moving cam in UI
+    float x = map(r.x,0,(float)camWidth,(float)camArea.x,camArea.x+camArea.width);
+    float y = map(r.y,0,(float)camHeight,(float)camArea.y,camArea.y+camArea.height);
+    
+    float opacity = map(timer, 0, initTimer, 0, 127);
+    fill(0, 255, 0, opacity);
+    stroke(0, 255, 0);
+    rect(x,y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id, r.x*scaleX+10, r.y*scaleY+5);
+    text(""+id, r.x+10, r.y+5);
     String decoded = detectedPattern.decodedString.toString();
-    text(decoded, r.x*scaleX+25, r.y*scaleY+5);
+    //text(decoded, x+25, y+5);
   }
 
   void update(Contour newContour) {
