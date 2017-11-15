@@ -1,4 +1,4 @@
-//  //<>//
+//  //<>// //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -87,11 +87,11 @@ public class Animator {
   //////////////////////////////////////////////////////////////
 
   void update() {
-    //if (frameCount % frameSkip == 0) { //<>// //<>//
+    //if (frameCount % frameSkip == 0) { //<>// //<>// //<>//
     switch(mode) {
     case CHASE: 
       {
-        chase(); //<>//
+        chase(); //<>// //<>//
         break;
       }
     case TEST: 
@@ -149,7 +149,7 @@ public class Animator {
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {
-    for (int i = 0; i <  leds.size(); i++) { //<>//
+    for (int i = 0; i <  leds.size(); i++) { //<>// //<>//
       leds.get(i).setColor(col);
     }
   }

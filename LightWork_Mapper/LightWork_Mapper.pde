@@ -22,7 +22,7 @@ Animator animator;
 Interface network; 
 
 boolean isMapping = false; 
-int ledBrightness = 100;
+int ledBrightness = 50;
 
 
 enum  VideoMode {
@@ -83,7 +83,7 @@ void setup()
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
 
-  videoMode = VideoMode.FILE; // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  videoMode = VideoMode.CAMERA; // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
   shouldSyncFrames = false; 
   println("creating FBOs");
@@ -111,8 +111,10 @@ void setup()
     movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
     // Pausing the video at the first frame. 
     //movie.speed(0);
-    movie.loop();
-    if (shouldSyncFrames) {
+    if (!shouldSyncFrames) {
+      movie.loop();
+    }
+    else {
       movie.jump(0);
       movie.pause();
     }
@@ -131,7 +133,7 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(10);
+  animator.setFrameSkip(15);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();

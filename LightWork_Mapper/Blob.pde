@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 50; //127;
+  private int initTimer = 200; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -122,12 +122,12 @@ class Blob {
       }
 
 
-      String targetPattern = "0010010110";
+      String targetPattern = "1010101010";
       if (targetPattern.equals(detectedPattern)) {
         println("MATCH FOUND!!!!"); 
       }
 
-      //print("["+detectedPattern.state+", "+frameDelta+"], ");
+      print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }
