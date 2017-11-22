@@ -17,7 +17,7 @@ void setup() {
   scrape.init();
   scrape.normCoords();
 
-  opc = new OPC(this, "fade1.local", 7890);
+  opc = new OPC(this, "fade2.local", 7890);
   scrape.update();
   opc.showLocations(false);
 

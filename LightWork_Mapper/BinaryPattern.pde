@@ -69,6 +69,7 @@ public class BinaryPattern {
       int x = Character.getNumericValue(c);
       binaryPatternVector[i] = x;
     }
+    println(binaryPatternString);
   }
 
   void advance() {

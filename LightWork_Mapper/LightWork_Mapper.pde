@@ -21,11 +21,12 @@ ControlP5 cp5;
 Animator animator;
 Interface network; 
 
+int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
 int ledBrightness = 50;
 
 enum  VideoMode {
-  CAMERA, FILE, OFF
+  CAMERA, FILE, IMAGE_SEQUENCE, OFF
 };
 
 VideoMode videoMode; 
@@ -127,13 +128,13 @@ void setup()
 
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(1);
-  network.setNumLedsPerStrip(1); // TODO: Fix these setters...
+  network.setNumStrips(4);
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(15);
+  animator.setFrameSkip(30);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
@@ -155,6 +156,7 @@ void setup()
   println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
 
+  captureIndex = 0; 
   background(0);
 }
 
@@ -196,7 +198,11 @@ void draw()
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
   }
-
+  
+  // Update the LEDs (before we do anything else). 
+  animator.update();
+  
+  // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
@@ -208,19 +214,27 @@ void draw()
       println(frameCount);
       nextMovieFrame();
     }
-  } else {
+  } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+    
     // println("Oops, no video input!");
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
   background(#222222);
 
-  // Display the camera input and processed binary image
+  // Display the camera input
   camFBO.beginDraw();
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
-
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+  
+  // Capture 1 frame per animation sequence
+  captureIndex++; 
+  if (captureIndex%30 == 0) {
+     camFBO.save("capture"+captureIndex+".png"); 
+  }
+  
+  // OpenCV processing
   opencv.loadImage(camFBO);
   opencv.gray();
   opencv.threshold(cvThreshold);
@@ -234,9 +248,9 @@ void draw()
   //opencv.blur(2);
   opencv.updateBackground();
 
+  // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
-
   if (coords.size()>0) {
     for (PVector p : coords) {
       cvFBO.noFill();
@@ -245,6 +259,8 @@ void draw()
     }
   }
   cvFBO.endDraw();
+  
+  
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   if (camWindows==3 && cam2!=null) {
@@ -253,10 +269,10 @@ void draw()
   }
 
   if (isMapping) {
-    sequentialMapping();
+    //sequentialMapping();
 
     updateBlobs(); // Find and manage blobs
-    decodeBlobs(); 
+    //decodeBlobs(); 
     // Decode the signal in the blobs
 
     //print(br);
@@ -277,9 +293,9 @@ void draw()
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
 
-  animator.update();
+  
 
-  //show the array of colors going out to the LEDs
+  // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
     // scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?

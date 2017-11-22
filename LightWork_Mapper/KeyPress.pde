@@ -28,7 +28,15 @@ void keyPressed() {
      */
     isMapping = !isMapping;
   }
-
+  // Capture Image sequence
+  // When we are done capturing an image sequence, switch to videoMode = VideoMode.IMAGE_SEQUENCE
+  if (key == 'i') {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.frameSkip = 30;
+    network.update(animator.getPixels());
+    videoInput.save("Capture/captureBackground.png");
+  }
   if (key == 't') {
     if (network.isConnected()==false) {
       println("please connect to a device before testing");
