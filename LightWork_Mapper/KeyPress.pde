@@ -34,6 +34,7 @@ void keyPressed() {
     // Set frameskip so we have enough time to capture an image of each animation frame. 
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.frameSkip = 30;
+    animator.setMode(animationMode.BINARY);
     network.update(animator.getPixels());
     videoInput.save("Capture/captureBackground.png");
   }

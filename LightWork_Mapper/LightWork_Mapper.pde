@@ -22,7 +22,7 @@ Interface network;
 
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
-int ledBrightness = 50;
+int ledBrightness = 150;
 
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, OFF
@@ -77,10 +77,11 @@ Rectangle camArea;
 // Image sequence stuff
 int numFrames = 10;  // The number of frames in the animation
 int currentFrame = 0;
-PImage[] images = new PImage[numFrames];
+ArrayList <PImage> images;
 PImage background = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
-int imageIndex = 0; 
+int imageIndex = 0;
+int captureTimer = 0; 
 
 void setup()
 {
@@ -91,7 +92,6 @@ void setup()
 
   videoMode = VideoMode.CAMERA; 
 
-  shouldSyncFrames = false; 
   println("creating FBOs");
   camFBO = createGraphics(camWidth, camHeight, P2D);
   cvFBO = createGraphics(camWidth, camHeight, P2D);
@@ -99,7 +99,7 @@ void setup()
 
   println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
-  leds =new ArrayList<LED>();
+  leds = new ArrayList<LED>();
 
   // Blobs list
   blobList = new ArrayList<Blob>();
@@ -140,7 +140,9 @@ void setup()
   println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
 
+  // Image sequence
   captureIndex = 0; 
+  images = new ArrayList<PImage>();
   background(0);
 }
 
@@ -182,21 +184,41 @@ void draw()
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
   }
-  
+
   // Update the LEDs (before we do anything else). 
   animator.update();
-  
+
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
     // Capture sequence if it doesn't exist
-    
-    // If sequence exists, playback and decode
-    // Assign diff to videoInput
+    if (images.size() < numFrames) {
+      cam.read();
+      captureTimer++;
+      if (captureTimer >= animator.frameSkip/2) {
+        println("adding image frame to sequence");
+        images.add(cam);
+        captureTimer = 0;
+      }
 
-    
+      videoInput = cam;
+    }
+    // If sequence exists, playback and decode
+    else {
+      println("getting next image for sequence: "+currentFrame);
+      PImage img = images.get(currentFrame);
+      img.loadPixels();
+      image(img, 0,0, 640, 480);
+      videoInput = img;
+      
+      currentFrame++; 
+      if (currentFrame >= numFrames) {
+        currentFrame = 0;
+      }
+    }
+    // Assign diff to videoInput
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -207,13 +229,13 @@ void draw()
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-  
+
   // Capture 1 frame per animation sequence
   captureIndex++; 
   if (captureIndex%30 == 0) {
-     camFBO.save("capture"+captureIndex+".png"); 
+    camFBO.save("capture"+captureIndex+".png");
   }
-  
+
   // OpenCV processing
   opencv.loadImage(camFBO);
   opencv.gray();
@@ -239,8 +261,8 @@ void draw()
     }
   }
   cvFBO.endDraw();
-  
-  
+
+
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   if (camWindows==3 && cam2!=null) {
@@ -263,7 +285,7 @@ void draw()
   blobFBO.beginDraw();
   //detectBlobs();
   displayBlobs();
-  
+
   // Visual debug output
   fill(255, 0, 0);
   text("numBlobs: "+blobList.size(), 0, height-20); 
@@ -273,7 +295,7 @@ void draw()
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
 
-  
+
 
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
