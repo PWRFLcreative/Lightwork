@@ -77,7 +77,7 @@ Rectangle camArea;
 // Image sequence stuff
 int numFrames = 10;  // The number of frames in the animation
 int currentFrame = 0;
-ArrayList <PImage> images;
+ArrayList <PGraphics> images;
 PImage background = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
@@ -142,7 +142,7 @@ void setup()
 
   // Image sequence
   captureIndex = 0; 
-  images = new ArrayList<PImage>();
+  images = new ArrayList<PGraphics>();
   background(0);
 }
 
@@ -196,10 +196,14 @@ void draw()
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       cam.read();
+      PGraphics pg=createGraphics(640, 480, P2D);
+      pg.beginDraw();
+      pg.image(cam, 0, 0);
+      pg.endDraw();
       captureTimer++;
       if (captureTimer >= animator.frameSkip/2) {
         println("adding image frame to sequence");
-        images.add(cam);
+        images.add(pg);
         captureTimer = 0;
       }
 
@@ -210,9 +214,9 @@ void draw()
       println("getting next image for sequence: "+currentFrame);
       PImage img = images.get(currentFrame);
       img.loadPixels();
-      image(img, 0,0, 640, 480);
+      image(img, 0, 0, 640, 480);
       videoInput = img;
-      
+
       currentFrame++; 
       if (currentFrame >= numFrames) {
         currentFrame = 0;
