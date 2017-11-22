@@ -51,37 +51,11 @@ void keyPressed() {
 
   if (key == 'b') {
     if (animator.getMode()!=animationMode.BINARY) {
-      //videoExport.startMovie();
-      //isRecording = true;
       animator.setMode(animationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
-      //isRecording = false;
-      //videoExport.endMovie();
       animator.setMode(animationMode.OFF);
       println("Animator off");
-    }
-  }
-
-  if (key == 'v') {
-    // Toggle Video Input Mode
-    if (videoMode == VideoMode.FILE) {
-      videoMode = VideoMode.CAMERA;
-      println("VideoMode: CAMERA");
-    } else if (videoMode == VideoMode.CAMERA) {
-      videoMode = VideoMode.FILE;
-      boolean success = loadMovieFile(movieFileName);
-      println("VideoMode: FILE " + success);
-    }
-  }
-  // Toggle Movie Recording
-  if (key == 'r') {
-    if (!isRecording) {
-      isRecording = true;
-      videoExport.startMovie();
-    } else {
-      isRecording = false;
-      videoExport.endMovie();
     }
   }
 

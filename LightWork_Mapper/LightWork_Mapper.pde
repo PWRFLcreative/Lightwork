@@ -15,7 +15,6 @@ import java.awt.Rectangle;
 
 Capture cam;
 Capture cam2;
-Movie movie;
 OpenCV opencv;
 ControlP5 cp5;
 Animator animator;
@@ -30,8 +29,7 @@ enum  VideoMode {
 };
 
 VideoMode videoMode; 
-String movieFileName = "1010101010.mp4";
-boolean shouldSyncFrames; // Should we read one movie frame per program frame (slow, but maybe more accurate). 
+
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
 
@@ -54,8 +52,6 @@ String savePath = "layout.svg";
 ArrayList <LED>     leds;
 
 int FPS = 30; 
-VideoExport videoExport;
-boolean isRecording = false;
 
 PImage videoInput; 
 PImage cvOutput;
@@ -77,6 +73,14 @@ int windowSizeX, windowSizeY;
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
 Rectangle camArea;
+
+// Image sequence stuff
+int numFrames = 10;  // The number of frames in the animation
+int currentFrame = 0;
+PImage[] images = new PImage[numFrames];
+PImage background = new PImage();
+PGraphics diff; // Background subtracted from Binary Pattern Image
+int imageIndex = 0; 
 
 void setup()
 {
@@ -100,26 +104,6 @@ void setup()
   // Blobs list
   blobList = new ArrayList<Blob>();
   cam = new Capture(this, camWidth, camHeight, 30);
-  // Initialize Logitech cam by on launch : TODO: remove this
-  //cam = new Capture(this, camWidth, camHeight, "HD Pro Webcam C920 #2", 30);
-  //cam.start();
-
-  println("allocating video export");
-  videoExport = new VideoExport(this, "data/"+movieFileName, cam);
-
-  if (videoMode == VideoMode.FILE) {
-    println("loading video file");
-    movie = new Movie(this, movieFileName); // TODO: Make dynamic (use loadMovieFile method)
-    // Pausing the video at the first frame. 
-    //movie.speed(0);
-    if (!shouldSyncFrames) {
-      movie.loop();
-    }
-    else {
-      movie.jump(0);
-      movie.pause();
-    }
-  }
 
   // OpenCV Setup
   println("Setting up openCV");
@@ -206,17 +190,13 @@ void draw()
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.FILE) {
-    movie.read();
-    videoInput = movie;
-    
-    if (shouldSyncFrames) {
-      println(frameCount);
-      nextMovieFrame();
-    }
   } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+    // Capture sequence if it doesn't exist
     
-    // println("Oops, no video input!");
+    // If sequence exists, playback and decode
+    // Assign diff to videoInput
+
+    
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -305,10 +285,6 @@ void draw()
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
-
-  if (isRecording) {
-    videoExport.saveFrame();
-  }
 }
 
 
@@ -322,15 +298,13 @@ void sequentialMapping() {
   }
 }
 
-
-
 void updateBlobs() {
   // Find all contours
-  contours = opencv.findContours();
+  ArrayList<Contour> contours = opencv.findContours();
 
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
-  newBlobs = filterContours(contours); // Stores all blobs found in this frame
+  ArrayList<Contour> newBlobs = filterContours(contours); // Stores all blobs found in this frame
 
   // Note: newBlobs is actually of the Contours datatype
   // Register all the new blobs if the blobList is empty
@@ -400,33 +374,26 @@ void updateBlobs() {
 }
 
 void decodeBlobs() {
-  // Decode blobs (a few at a time for now...) +
-
   // Update brightness levels for all the blobs
-  int numToDecode = 1;
-  if (blobList.size() >= numToDecode) {
-    for (int i = 0; i < numToDecode; i++) {
+  if (blobList.size() > 0) {
+    for (int i = 0; i < blobList.size(); i++) {
       // Get the blob brightness to determine it's state (HIGH/LOW)
       //println("decoding this blob: "+blobList.get(i).id);
       Rectangle r = blobList.get(i).contour.getBoundingBox();
-      PImage cropped = videoInput.get(r.x, r.y, r.width, r.height);
+      PImage cropped = videoInput.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
         br += brightness(c);
       }
 
       br = br/ cropped.pixels.length;
-      //print(br+", ");
-      if (i == 0) { // Only look at one blob, for now
-        blobList.get(i).registerBrightness(br); // Set blob brightness
-      }
+
+      blobList.get(i).registerBrightness(br); // Set blob brightness
+      blobList.get(i).decode(); // Decode the pattern
     }
   }
-
-  if (blobList.size() > 0) {
-    blobList.get(0).decode(); // Decode the pattern
-  }
 }
+
 // Filter out contours that are too small or too big
 ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
 
@@ -474,22 +441,6 @@ void displayContoursBoundingBoxes() {
   }
 }
 
-
-// Load file, return success value
-boolean loadMovieFile(String path) {
-  File f = new File(path);
-  if (f.exists()) {
-    movie = new Movie(this, "binaryRecording.mp4");
-    movie.loop();
-  }
-  return f.exists();
-}
-
-// Movie reading callback
-//void movieEvent(Movie m) {
-//  m.read();
-//}
-
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
     //User is trying to save without anything to output - bail
@@ -503,15 +454,12 @@ void saveSVG(ArrayList <PVector> points) {
     endRecord();
     println("SVG saved");
   }
-
-  //selectOutput(prompt, callback, file) - try for file dialog
 }
 
 //Closes connections (once deployed as applet)
 void stop()
 {
   cam =null;
-  videoExport=null;
   super.stop();
 }
 
@@ -519,6 +467,5 @@ void stop()
 void exit()
 {
   cam =null;
-  videoExport=null;
   super.exit();
 }
