@@ -261,7 +261,12 @@ void draw()
     //opencv.updateBackground();
   }
 
-
+  // Decode image sequence
+  if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
+    updateBlobs(); 
+    displayBlobs();
+    decodeBlobs();
+  }
 
   // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();

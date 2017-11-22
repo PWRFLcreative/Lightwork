@@ -61,9 +61,9 @@ class Blob {
     rect(x,y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id, r.x+10, r.y+5);
+    text(""+id, x+10, y+5);
     String decoded = detectedPattern.decodedString.toString();
-    //text(decoded, x+25, y+5);
+    text(decoded, x+25, y+5);
   }
 
   void update(Contour newContour) {
@@ -128,7 +128,7 @@ class Blob {
         println("MATCH FOUND!!!!"); 
       }
 
-      print("["+detectedPattern.state+", "+frameDelta+"], ");
+      //print("["+detectedPattern.state+", "+frameDelta+"], ");
       previousFrameCount = frameCount;
     }
   }
