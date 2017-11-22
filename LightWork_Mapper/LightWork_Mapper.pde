@@ -201,17 +201,19 @@ void draw()
       pg.image(cam, 0, 0);
       pg.endDraw();
       captureTimer++;
-      if (captureTimer >= animator.frameSkip/2) {
+      if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
         println("adding image frame to sequence");
         images.add(pg);
-        captureTimer = 0;
+      }
+      else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
+        captureTimer = 0; 
       }
 
       videoInput = cam;
     }
     // If sequence exists, playback and decode
     else {
-      println("getting next image for sequence: "+currentFrame);
+      //println("getting next image for sequence: "+currentFrame);
       PImage img = images.get(currentFrame);
       img.loadPixels();
       image(img, 0, 0, 640, 480);
