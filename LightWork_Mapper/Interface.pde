@@ -28,10 +28,10 @@ public class Interface {
   device              mode;
 
   //LED defaults
-  String               IP = "fade1.local";
+  String               IP = "192.168.1.137";
   int                  port = 7890;
   int                  ledsPerStrip = 50; // TODO: DOn't hardcode this
-  int                  numStrips = 1;
+  int                  numStrips = 3;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
@@ -211,7 +211,8 @@ public class Interface {
           if (deltaTime > 5000) {
             println(" ");
             println("connection failed, check your connections..."); 
-            isConnected = false; 
+            isConnected = false;
+            //network.shutdown();
             break;
           }
         }

@@ -126,7 +126,7 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(5);
+  animator.setFrameSkip(2);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
@@ -182,8 +182,6 @@ void draw()
 
     popMatrix();
 
-    //loading bar
-    //rect(0,height/2,loadWidth,10*guiMultiply);
 
     return;
   } else if (!cp5.isVisible()) {
@@ -256,12 +254,12 @@ void draw()
   }
 
 
-  blobFBO.beginDraw();
-  //detectBlobs();
-  displayBlobs();
-  //text("numBlobs: "+blobList.size(), 0, height-20); 
-  //displayContoursBoundingBoxes();
-  blobFBO.endDraw();
+  //blobFBO.beginDraw();
+  ////detectBlobs();
+  ////displayBlobs();
+  ////text("numBlobs: "+blobList.size(), 0, height-20); 
+  ////displayContoursBoundingBoxes();
+  //blobFBO.endDraw();
 
   animator.update();
 
@@ -286,7 +284,7 @@ void sequentialMapping() {
   for (Contour contour : opencv.findContours()) {
     noFill();
     stroke(255, 0, 0);
-    contour.draw();
+    //contour.draw();
     coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
   }
 }
