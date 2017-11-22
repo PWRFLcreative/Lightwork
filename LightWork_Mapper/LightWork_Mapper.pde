@@ -78,7 +78,7 @@ Rectangle camArea;
 int numFrames = 10;  // The number of frames in the animation
 int currentFrame = 0;
 ArrayList <PGraphics> images;
-PImage background = new PImage();
+PImage backgroundImage = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
 int captureTimer = 0; 
@@ -108,7 +108,7 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  opencv.startBackgroundSubtraction(1, 2, 0.5); //int history, int nMixtures, double backgroundRatio
+  //opencv.startBackgroundSubtraction(1, 2, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
@@ -143,6 +143,7 @@ void setup()
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
+  diff = createGraphics(camWidth, camHeight, P2D); 
   background(0);
 }
 
@@ -204,9 +205,8 @@ void draw()
       if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
         println("adding image frame to sequence");
         images.add(pg);
-      }
-      else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
-        captureTimer = 0; 
+      } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
+        captureTimer = 0;
       }
 
       videoInput = cam;
@@ -214,15 +214,21 @@ void draw()
     // If sequence exists, playback and decode
     else {
       //println("getting next image for sequence: "+currentFrame);
-      PImage img = images.get(currentFrame);
-      img.loadPixels();
-      image(img, 0, 0, 640, 480);
-      videoInput = img;
+      videoInput = images.get(currentFrame);
 
       currentFrame++; 
       if (currentFrame >= numFrames) {
         currentFrame = 0;
       }
+
+      // Background diff
+      diff.beginDraw();
+      diff.background(0);
+      diff.blendMode(NORMAL);
+      diff.image(videoInput, 0, 0);
+      diff.blendMode(SUBTRACT);
+      diff.image(backgroundImage, 0, 0);
+      diff.endDraw();
     }
     // Assign diff to videoInput
   }
@@ -236,25 +242,26 @@ void draw()
   camFBO.endDraw();
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
-  // Capture 1 frame per animation sequence
-  captureIndex++; 
-  if (captureIndex%30 == 0) {
-    camFBO.save("capture"+captureIndex+".png");
+  // OpenCV processing
+  if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+    diff.beginDraw(); 
+    image(diff, camWidth, camHeight); 
+    diff.endDraw(); 
+    opencv.loadImage(diff);
+    opencv.gray();
+    opencv.threshold(cvThreshold);
+    opencv.dilate();
+    opencv.erode();
+  } else {
+    opencv.loadImage(camFBO);
+    opencv.gray();
+    opencv.threshold(cvThreshold);
+    opencv.dilate();
+    opencv.erode();
+    //opencv.updateBackground();
   }
 
-  // OpenCV processing
-  opencv.loadImage(camFBO);
-  opencv.gray();
-  opencv.threshold(cvThreshold);
 
-
-  //opencv.contrast(cvContrast);
-  opencv.dilate();
-  opencv.erode();
-  //opencv.startBackgroundSubtraction(0, 5, 0.5); //int history, int nMixtures, double backgroundRatio
-  //opencv.equalizeHistogram();
-  //opencv.blur(2);
-  opencv.updateBackground();
 
   // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
@@ -313,6 +320,8 @@ void draw()
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
+
+  //image(backgroundImage, 0, 0, 640, 480);
 }
 
 

@@ -37,6 +37,8 @@ void keyPressed() {
     animator.setMode(animationMode.BINARY);
     network.update(animator.getPixels());
     videoInput.save("Capture/captureBackground.png");
+    backgroundImage = videoInput.copy();
+    //backgroundImage.save("yup_it_worked.png");
   }
   if (key == 't') {
     if (network.isConnected()==false) {
