@@ -33,8 +33,8 @@ VideoMode videoMode;
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
 
-int camWidth =640;
-int camHeight =480;
+int camWidth = 640;
+int camHeight = 480;
 float camAspect;
 int camWindows = 2;
 PGraphics camFBO;
@@ -43,7 +43,7 @@ PGraphics blobFBO;
 
 int guiMultiply = 1;
 
-int cvThreshold = 230;
+int cvThreshold = 100;
 float cvContrast = 1.15;
 
 ArrayList <PVector>     coords;
@@ -327,6 +327,7 @@ void draw()
   }
 
   //image(backgroundImage, 0, 0, 640, 480);
+  //image(diff, 0, 0, 640, 480);
 }
 
 
@@ -423,8 +424,8 @@ void decodeBlobs() {
       //println("decoding this blob: "+blobList.get(i).id);
       Rectangle r = blobList.get(i).contour.getBoundingBox();
       // TODO: Which texture do we decode?
-      PImage snap = opencv.getSnapshot();
-      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      //PImage snap = opencv.getSnapshot();
+      PImage cropped = diff.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
         br += brightness(c);
