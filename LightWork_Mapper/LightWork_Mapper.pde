@@ -422,7 +422,9 @@ void decodeBlobs() {
       // Get the blob brightness to determine it's state (HIGH/LOW)
       //println("decoding this blob: "+blobList.get(i).id);
       Rectangle r = blobList.get(i).contour.getBoundingBox();
-      PImage cropped = videoInput.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      // TODO: Which texture do we decode?
+      PImage snap = opencv.getSnapshot();
+      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
         br += brightness(c);

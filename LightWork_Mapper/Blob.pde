@@ -50,27 +50,30 @@ class Blob {
   // Show me
   void display() {
     Rectangle r = contour.getBoundingBox();
-    
+
     //set draw location based on displayed camera position, accounts for moving cam in UI
     float x = map(r.x,0,(float)camWidth,(float)camArea.x,camArea.x+camArea.width);
     float y = map(r.y,0,(float)camHeight,(float)camArea.y,camArea.y+camArea.height);
-    
+    //float x = r.x;
+    //float y = r.y; 
     float opacity = map(timer, 0, initTimer, 0, 127);
     fill(0, 255, 0, opacity);
-    stroke(0, 255, 0);
-    rect(x,y, r.width, r.height);
+    stroke(255, 0, 0);
+    rect(x, y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(""+id, x+10, y+5);
+    stroke(0, 255, 0); 
+    
+    text(""+id, x+3, y+5);
     String decoded = detectedPattern.decodedString.toString();
-    text(decoded, x+25, y+5);
+    fill(0, 255, 0); 
+    text(decoded, x+30, y+5);
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
     this.timer = initTimer;
   }
-
 
   // Count me down, I am gone
   void countDown() {    
@@ -92,44 +95,35 @@ class Blob {
   }
 
   // Decode Binary Pattern
-  void decode() {
+  // TODO: Note: this has been changed a lot
+  void decode() { 
     int br = brightness;
-    int threshold = 180; 
+    int threshold = 15; 
+    println(brightness);
     // Edge detection (rising/falling);
-    int frameDelta = 0; 
-    boolean didTransition = false; 
-    if (br >= threshold && detectedPattern.state == 0) {
-      didTransition = true; 
+
+ 
+    if (br >= threshold) {
       detectedPattern.state = 1;
-      //println(frameDelta+"],");
-      //previousFrameCount = frameCount;
-    } else if (br < threshold && detectedPattern.state == 1) {
-      didTransition = true;
+    } else if (br < threshold) {
       detectedPattern.state = 0; 
-      //print("0, ");  
-      //println(frameCount);
     }
-    if (didTransition) {
-      frameDelta = frameCount-previousFrameCount;
-      int frameSkip = animator.frameSkip;  // TODO: link this with Animator frameskip
-      
-      // temporary target pattern for testing
-      
-      // Find out how many instances of the previous state occurred (000 = 3, 11 = 2, 1111 = 4, etc)
-      int numRepeats = frameDelta/frameSkip;
-      //println(numRepeats);
-      for (int i = 0; i < numRepeats; i++) {
-        detectedPattern.writeNextBit(detectedPattern.state);
-      }
+    //print(detectedPattern.state);
+    // temporary target pattern for testing
+
+    // Find out how many instances of the previous state occurred (000 = 3, 11 = 2, 1111 = 4, etc)
+    //int numRepeats = frameDelta/frameSkip;
+    //println(numRepeats);
+
+   detectedPattern.writeNextBit(detectedPattern.state);
 
 
-      String targetPattern = "1010101010";
-      if (targetPattern.equals(detectedPattern)) {
-        println("MATCH FOUND!!!!"); 
-      }
 
-      //print("["+detectedPattern.state+", "+frameDelta+"], ");
-      previousFrameCount = frameCount;
+    String targetPattern = "1010101010";
+    if (targetPattern.equals(detectedPattern)) {
+      println("MATCH FOUND!!!!");
     }
+
+    //print(detectedPattern.state);
   }
 }
