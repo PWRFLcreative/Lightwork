@@ -82,9 +82,9 @@ PImage backgroundImage = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
 int captureTimer = 0; 
+boolean shouldStartDecoding; // Only start decoding once we've decoded a full sequence
 
-void setup()
-{
+void setup() {
   size(640, 480, P2D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
@@ -112,7 +112,7 @@ void setup()
 
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(4);
+  network.setNumStrips(3);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
   println("creating animator");
@@ -147,8 +147,7 @@ void setup()
   background(0);
 }
 
-void draw()
-{
+void draw() {
   //Loading screen
   if (!isUIReady) {
     //cp5.setVisible(false);
@@ -218,6 +217,7 @@ void draw()
 
       currentFrame++; 
       if (currentFrame >= numFrames) {
+        shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
 
@@ -266,6 +266,9 @@ void draw()
     updateBlobs(); 
     displayBlobs();
     decodeBlobs();
+    if (shouldStartDecoding) {
+      matchBinaryPatterns();
+    }
   }
 
   // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
@@ -289,14 +292,7 @@ void draw()
   }
 
   if (isMapping) {
-    //sequentialMapping();
-
     updateBlobs(); // Find and manage blobs
-    //decodeBlobs(); 
-    // Decode the signal in the blobs
-
-    //print(br);
-    //print(", ");
   }
 
 
@@ -313,8 +309,6 @@ void draw()
   //displayContoursBoundingBoxes();
   blobFBO.endDraw();
 
-
-
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
     // scale based on window size and leds in array
@@ -325,11 +319,7 @@ void draw()
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
-
-  //image(backgroundImage, 0, 0, 640, 480);
-  //image(diff, 0, 0, 640, 480);
 }
-
 
 // Mapping methods
 void sequentialMapping() {
@@ -435,6 +425,26 @@ void decodeBlobs() {
 
       blobList.get(i).registerBrightness(br); // Set blob brightness
       blobList.get(i).decode(); // Decode the pattern
+    }
+  }
+}
+
+void matchBinaryPatterns() {
+  //println("matching...");
+
+  for (int i = 0; i < leds.size(); i++) {
+    if (leds.get(i).foundMatch) {
+      return;
+    }
+    String targetPattern = leds.get(i).binaryPattern.binaryPatternString.toString(); 
+    //println("finding target pattern: "+targetPattern);
+    for (int j = 0; j < blobList.size(); j++) {
+      String decodedPattern = blobList.get(j).detectedPattern.decodedString.toString(); 
+      //println("checking match with decodedPattern: "+decodedPattern);
+      if (targetPattern.equals(decodedPattern)) {
+        leds.get(i).foundMatch = true; 
+        println("LED: "+i+" Blob: "+j+" --- "+targetPattern + " --- " + decodedPattern);
+      }
     }
   }
 }

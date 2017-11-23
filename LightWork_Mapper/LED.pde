@@ -14,13 +14,15 @@ public class LED {
   int bPatternOffset; // Offset the Binary Pattern Seed to avoid 0000000000
   BinaryPattern binaryPattern;
   PVector coord;
+  boolean foundMatch;
 
   LED() {
     c = color(0, 0, 0);
     address = 0;
-    coord= new PVector(0, 0);
+    coord = new PVector(0, 0);
     bPatternOffset = 682; 
     binaryPattern = new BinaryPattern();
+    foundMatch = false; 
   }
 
   void setColor(color col) {

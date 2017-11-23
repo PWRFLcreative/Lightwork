@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 200; //127;
+  private int lifetime = 200; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -40,7 +40,7 @@ class Blob {
 
     this.available = true;
 
-    this.timer = initTimer;
+    this.timer = lifetime;
 
     detectedPattern = new BinaryPattern();
     brightness = 0; 
@@ -56,7 +56,7 @@ class Blob {
     float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
     //float x = r.x;
     //float y = r.y; 
-    float opacity = map(timer, 0, initTimer, 0, 127);
+    float opacity = map(timer, 0, lifetime, 0, 127);
     fill(0, 255, 0, opacity);
     stroke(255, 0, 0);
     rect(x, y, r.width, r.height);
@@ -64,15 +64,15 @@ class Blob {
     textSize(12);
     stroke(0, 255, 0); 
 
-    text(""+id, x+3, y+5);
+    text(""+id, x+15, y+5);
     String decoded = detectedPattern.decodedString.toString();
     fill(0, 255, 0); 
-    text(decoded, x+30, y+5);
+    //text(decoded, x+30, y+5);
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
-    this.timer = initTimer;
+    this.timer = lifetime;
   }
 
   // Count me down, I am gone
@@ -108,11 +108,6 @@ class Blob {
     }
 
     detectedPattern.writeNextBit(detectedPattern.state);
-
-    String targetPattern = "1010101010";
-    if (targetPattern.equals(detectedPattern.decodedString.toString())) {
-      println("MATCH FOUND!!!!");
-    }
 
     //print(detectedPattern.state);
   }
