@@ -7,7 +7,8 @@ void keyPressed() {
   } else {
     File sketch = new File(sketchPath());
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveSVG(coords);
+    removeDuplicates(coords);
+    saveCSV(coords, savePath);
   }
   }
 

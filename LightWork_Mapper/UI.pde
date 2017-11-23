@@ -1,4 +1,4 @@
-// //<>// //<>// //<>// //<>// //<>// //<>//
+// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 //  UI.pde
 //  Lightwork-Mapper
 //
@@ -443,7 +443,9 @@ public void save() {
   } else {
     File sketch = new File(sketchPath());
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveSVG(coords);
+    //saveSVG(coords);
+    removeDuplicates(coords);
+    saveCSV(coords, savePath);
   }
 }
 
