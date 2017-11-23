@@ -52,8 +52,8 @@ class Blob {
     Rectangle r = contour.getBoundingBox();
 
     //set draw location based on displayed camera position, accounts for moving cam in UI
-    float x = map(r.x,0,(float)camWidth,(float)camArea.x,camArea.x+camArea.width);
-    float y = map(r.y,0,(float)camHeight,(float)camArea.y,camArea.y+camArea.height);
+    float x = map(r.x, 0, (float)camWidth, (float)camArea.x, camArea.x+camArea.width);
+    float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
     //float x = r.x;
     //float y = r.y; 
     float opacity = map(timer, 0, initTimer, 0, 127);
@@ -63,7 +63,7 @@ class Blob {
     fill(255, 0, 0);
     textSize(12);
     stroke(0, 255, 0); 
-    
+
     text(""+id, x+3, y+5);
     String decoded = detectedPattern.decodedString.toString();
     fill(0, 255, 0); 
@@ -99,26 +99,18 @@ class Blob {
     int br = brightness;
     int threshold = 50; 
     //println(brightness);
-    
+
     // Edge detection (rising/falling);
     if (br >= threshold) {
       detectedPattern.state = 1;
     } else if (br < threshold) {
-      detectedPattern.state = 0; 
+      detectedPattern.state = 0;
     }
-    //print(detectedPattern.state);
-    // temporary target pattern for testing
 
-    // Find out how many instances of the previous state occurred (000 = 3, 11 = 2, 1111 = 4, etc)
-    //int numRepeats = frameDelta/frameSkip;
-    //println(numRepeats);
-
-   detectedPattern.writeNextBit(detectedPattern.state);
-
-
+    detectedPattern.writeNextBit(detectedPattern.state);
 
     String targetPattern = "1010101010";
-    if (targetPattern.equals(detectedPattern)) {
+    if (targetPattern.equals(detectedPattern.decodedString.toString())) {
       println("MATCH FOUND!!!!");
     }
 
