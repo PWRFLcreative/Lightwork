@@ -28,10 +28,10 @@ public class Interface {
   device              mode;
 
   //LED defaults
-  String               IP = "fade2.local";
+  String               IP = "fade1.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 50; // TODO: DOn't hardcode this
-  int                  numStrips = 1;
+  int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
+  int                  numStrips = 8;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
@@ -240,8 +240,9 @@ public class Interface {
       if (opc.isConnected()) {
         // TODO: Find a more elegant way to initialize dithering
         // Currently this is the only safe place where this is guaranteed to work
-        opc.setDithering(false);
-        opc.setInterpolation(false);
+        //opc.setDithering(false);
+        //opc.setInterpolation(false);
+        // TODO: Deal with this (doesn't work for FUTURE wall, works fine one LIGHT WORK wall).
 
         // Clear LEDs
         animator.setAllLEDColours(off);

@@ -1,14 +1,14 @@
 void keyPressed() {
   if (key == 's') {
-      if (coords.size() == 0) {
-    //User is trying to save without anything to output - bail
-    println("No point data to save, run mapping first");
-    return;
-  } else {
-    File sketch = new File(sketchPath());
-    selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveSVG(coords);
-  }
+    if (coords.size() == 0) {
+      //User is trying to save without anything to output - bail
+      println("No point data to save, run mapping first");
+      return;
+    } else {
+      File sketch = new File(sketchPath());
+      selectOutput("Select a file to write to:", "fileSelected", sketch);
+      saveSVG(coords);
+    }
   }
 
   if (key == 'm') {
@@ -39,6 +39,21 @@ void keyPressed() {
     videoInput.save("Capture/captureBackground.png");
     backgroundImage = videoInput.copy();
     //backgroundImage.save("yup_it_worked.png");
+  }
+  // print led info
+  if (key == 'l') {
+    PrintWriter output;
+    output = createWriter("binary_layout.csv"); 
+    
+    //write vals out to file, start with csv header
+    output.println("address"+","+"x"+","+"y"+","+"z");
+    
+    println("CSV saved");
+    for (int i = 0; i < leds.size(); i++) {
+      output.println(leds.get(i).address+","+leds.get(i).coord.x+","+leds.get(i).coord.y+","+leds.get(i).coord.z);
+      println(leds.get(i).address+" "+leds.get(i).coord.x+" "+leds.get(i).coord.y);
+    }
+    output.close(); // Finishes the file
   }
   if (key == 't') {
     if (network.isConnected()==false) {

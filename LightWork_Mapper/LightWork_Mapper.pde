@@ -443,6 +443,10 @@ void matchBinaryPatterns() {
       //println("checking match with decodedPattern: "+decodedPattern);
       if (targetPattern.equals(decodedPattern)) {
         leds.get(i).foundMatch = true; 
+        Rectangle rect = blobList.get(j).contour.getBoundingBox();
+        PVector pvec = new PVector(); 
+        pvec.set((float)rect.getCenterX(), (float)rect.getCenterY());
+        leds.get(i).setCoord(pvec);
         println("LED: "+i+" Blob: "+j+" --- "+targetPattern + " --- " + decodedPattern);
       }
     }
