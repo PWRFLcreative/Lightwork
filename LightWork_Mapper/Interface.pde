@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>//
+//   //<>//
 //  Interface.pde
 //  Lightwork-Mapper
 //
@@ -163,7 +163,7 @@ public class Interface {
 
           //iterate through PP strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
-          if (strips.size() > 0) { //<>//
+          if (strips.size() > 0) { //<>// //<>//
             int stripNum =0;
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {

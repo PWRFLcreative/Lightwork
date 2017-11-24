@@ -1,4 +1,4 @@
-//    //<>// //<>//
+//    //<>// //<>// //<>// //<>//
 //  LED_Mapper.pde
 //  Lightwork-Mapper
 //
@@ -48,7 +48,7 @@ int cvThreshold = 100;
 float cvContrast = 1.15;
 
 ArrayList <PVector>     coords;
-String savePath = "layout.svg";
+String savePath;
 
 ArrayList <LED>     leds;
 
@@ -78,7 +78,7 @@ Rectangle camArea;
 
 void setup()
 {
-  size(640, 480, P2D);
+  size(640, 480, P3D);
   frameRate(FPS);
   camAspect = (float)camWidth / (float)camHeight;
   println(camAspect);
@@ -86,9 +86,9 @@ void setup()
   videoMode = VideoMode.CAMERA; 
   shouldSyncFrames = false; 
   println("creating FBOs");
-  camFBO = createGraphics(camWidth, camHeight, P2D);
-  cvFBO = createGraphics(camWidth, camHeight, P2D);
-  blobFBO = createGraphics(camWidth, camHeight, P2D); 
+  camFBO = createGraphics(camWidth, camHeight, P3D);
+  cvFBO = createGraphics(camWidth, camHeight, P3D);
+  blobFBO = createGraphics(camWidth, camHeight, P3D); 
 
   println("making arraylists for coords, leds, and bloblist");
   coords = new ArrayList<PVector>();
@@ -126,7 +126,7 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(5);
+  animator.setFrameSkip(3);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
@@ -240,17 +240,18 @@ void draw()
   }
 
   if (isMapping) {
+    updateBlobs(); 
     sequentialMapping();
 
-    updateBlobs(); // Find and manage blobs
-    decodeBlobs(); 
-    // Decode the signal in the blobs
+    //// Find and manage blobs
+    //    decodeBlobs(); 
+    //    // Decode the signal in the blobs
 
-    //print(br);
-    //print(", ");
-    if (blobList.size() > 0) {
-      blobList.get(0).decode(); // Decode the pattern
-    }
+    //    //print(br);
+    //    //print(", ");
+    //    if (blobList.size() > 0) {
+    //      blobList.get(0).decode(); // Decode the pattern
+    //    }
   }
 
 
@@ -281,12 +282,36 @@ void draw()
 
 // Mapping methods
 void sequentialMapping() {
-  for (Contour contour : opencv.findContours()) {
-    noFill();
-    stroke(255, 0, 0);
-    //contour.draw();
-    coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
+  //for (Contour contour : opencv.findContours()) {
+  //  noFill();
+  //  stroke(255, 0, 0);
+  //  //contour.draw();
+  //  coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
+  //}
+
+  if (blobList.size()!=0) {
+    Blob current = blobList.get(blobList.size()-1);  //only keeping one
+    println(blobList.size());
+    Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
+    PVector loc = new PVector(); 
+    loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
+
+    //PVector loc = new PVector();
+    //loc.set( (float)current.contour.getBoundingBox().getCenterX(), (float)current.contour.getBoundingBox().getCenterY());
+    ////coords.add(new PVector((float)current.contour.getBoundingBox().getCenterX(), (float)current.contour.getBoundingBox().getCenterY()));
+
+    //for (int i=0 ; i<leds.size() ; i++){ //<>//
+    //}
+    int index = animator.getLedIndex();
+    //LED temp = 
+    leds.get(index).setCoord(loc);
+    //temp.setCoord(loc); 
+    //leds.set(index,temp);
+    coords.add(loc);
+    println(loc);
   }
+
+  displayBlobs();
 }
 
 void updateBlobs() {
@@ -302,7 +327,7 @@ void updateBlobs() {
   if (blobList.isEmpty()) {
     //println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
     for (int i = 0; i < newBlobs.size(); i++) {
-      println("+++ New blob detected with ID: " + blobCount);
+      //println("+++ New blob detected with ID: " + blobCount);
       int id = blobCount; 
       blobList.add(new Blob(this, id, newBlobs.get(i)));
       blobCount++;
@@ -414,23 +439,23 @@ void displayBlobs() {
   }
 }
 
-void displayContoursBoundingBoxes() {
+//void displayContoursBoundingBoxes() {
 
-  for (int i=0; i<contours.size(); i++) {
+//  for (int i=0; i<contours.size(); i++) {
 
-    Contour contour = contours.get(i);
-    Rectangle r = contour.getBoundingBox();
+//    Contour contour = contours.get(i);
+//    Rectangle r = contour.getBoundingBox();
 
-    if (//(contour.area() > 0.9 * src.width * src.height) ||
-      (r.width < minBlobSize || r.height < minBlobSize))
-      continue;
+//    if (//(contour.area() > 0.9 * src.width * src.height) ||
+//      (r.width < minBlobSize || r.height < minBlobSize))
+//      continue;
 
-    stroke(255, 0, 0);
-    fill(255, 0, 0, 150);
-    strokeWeight(2);
-    rect(r.x, r.y, r.width, r.height);
-  }
-}
+//    stroke(255, 0, 0);
+//    fill(255, 0, 0, 150);
+//    strokeWeight(2);
+//    rect(r.x, r.y, r.width, r.height);
+//  }
+//}
 
 
 // Load file, return success value
@@ -465,75 +490,75 @@ void saveSVG(ArrayList <PVector> points) {
   //selectOutput(prompt, callback, file) - try for file dialog
 }
 
-void saveCSV(ArrayList <PVector> points, String path) {
-  if (points.size() == 0) {
-    //User is trying to save without anything to output - bail
-    println("No point data to save, run mapping first");
-    return;
-  } else {
-    PrintWriter output;
-    output = createWriter(path); 
+void saveCSV(ArrayList <LED> l, String path) {
+  //if (blobList.size() == 0) {
+  //  //User is trying to save without anything to output - bail
+  //  println("No point data to save, run mapping first");
+  //  return;
+  //} else {
+  PrintWriter output;
+  output = createWriter(path); 
 
-    //console feedback
-    println("svg contains "+points.size()+" vertecies");
+  //console feedback
+  println("svg contains "+l.size()+" vertecies");
 
-    //write vals out to file
-    int id=0;
-    output.println("id"+","+"x"+","+"y"+","+"z");
-    for (PVector temp : points) { 
-      output.println(id+","+temp.x+","+temp.y);
-      id++;
-    }
-    output.close(); // Finishes the file
-    println("CSV saved");
+  //write vals out to file, start with csv header
+  output.println("address"+","+"x"+","+"y"+","+"z");
+  for (int i = 0; i<l.size(); i++) {
+    LED temp = l.get(i);
+    output.println(temp.address+","+temp.coord.x+","+temp.coord.y+","+temp.coord.z);
+    println(temp.address+","+temp.coord.x+","+temp.coord.y+","+temp.coord.z);
   }
+  output.close(); // Finishes the file
+  println("CSV saved");
+  //  }
 }
 
 //Filter duplicates from point array
-ArrayList <PVector> removeDuplicates(ArrayList <PVector> points) {
-  println( "Removing duplicates");
+//ArrayList <PVector> removeDuplicates(ArrayList <PVector> points) {
+//  println( "Removing duplicates");
 
-  float thresh = 3.0; 
+//  float thresh = 3.0; 
 
-  // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
-  for (PVector p : points) {
-    float i = points.get(1).dist(p); // distance to current point, used to avoid comporating a point to itself
-    //PVector pt = p;
+//  // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
+//  for (PVector p : points) {
+//    float i = points.get(1).dist(p); // distance to current point, used to avoid comporating a point to itself
+//    //PVector pt = p;
 
-    // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
-    if (p.x == 0 && p.y == 0) {
-      continue; // Go to the next iteration
-    }
+//    // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
+//    if (p.x == 0 && p.y == 0) {
+//      continue; // Go to the next iteration
+//    }
 
-    // Compare point to all other points
-    for (Iterator iter = points.iterator(); iter.hasNext();) {
-      PVector item = (PVector)iter.next();
-      float j = points.get(1).dist(item); 
-      //PVector pt2 = item;
-      float dist = p.dist(item);
-      
-      // Comparing point to itself... do nothing and move on.
-      if (i == j) {
-        //ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
-        continue; // Move on to the next j point
-      }
-      // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
-      //else if (pt.x == pt2.x && pt.y == pt2.y) {
-      //  //ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
-      //  iter = points.remove(iter);
-      //  break;
-      //}
-      // Check point distance, remove points that are too close
-      else if (dist < thresh) {
-        println("removing duplicate point");
-        points.remove(iter);
-        break;
-      }
-    }
-  }
+//    // Compare point to all other points
+//    for (Iterator iter = points.iterator(); iter.hasNext();) {
+//      PVector item = (PVector)iter.next();
+//      float j = points.get(1).dist(item); 
+//      //PVector pt2 = item;
+//      float dist = p.dist(item);
 
-  return points;
-}
+//      // Comparing point to itself... do nothing and move on.
+//      if (i == j) {
+//        //ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
+//        continue; // Move on to the next j point
+//      }
+//      // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
+//      //else if (pt.x == pt2.x && pt.y == pt2.y) {
+//      //  //ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
+//      //  iter = points.remove(iter);
+//      //  break;
+//      //}
+//      // Check point distance, remove points that are too close
+//      else if (dist < thresh) {
+//        println("removing duplicate point");
+//        points.remove(iter);
+//        break;
+//      }
+//    }
+//  }
+
+//  return points;
+//}
 
 //Closes connections (once deployed as applet)
 void stop()

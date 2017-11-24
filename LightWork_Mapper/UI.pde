@@ -441,11 +441,14 @@ public void save() {
     println("No point data to save, run mapping first");
     return;
   } else {
-    File sketch = new File(sketchPath());
-    selectOutput("Select a file to write to:", "fileSelected", sketch);
+    //File sketch = new File("layout.csv");
+    //selectOutput("Select a file to write to:", "fileSelected", sketch);
     //saveSVG(coords);
-    removeDuplicates(coords);
-    saveCSV(coords, savePath);
+    //removeDuplicates(coords);
+    savePath = "layout.csv"; //sketchPath()+
+    //while (savePath!=null) {
+      saveCSV(leds, savePath);
+    //}
   }
 }
 
@@ -504,7 +507,7 @@ String[] enumerateCams() {
   } else if (list.length == 0) {
     println("There are no cameras available for capture.");
   }
-  
+
   //parse out camera names from device listing
   for (int i=0; i<list.length; i++) {
     String item = list[i]; 

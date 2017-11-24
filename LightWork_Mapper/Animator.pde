@@ -65,6 +65,10 @@ public class Animator {
   int getFrameSkip() {
     return frameSkip;
   }
+  
+  int getLedIndex(){
+    return ledIndex;
+  }
 
   // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
   void resetPixels() {
@@ -91,7 +95,7 @@ public class Animator {
     switch(mode) {
     case CHASE: 
       {
-        chase(); //<>//
+        chase();
         break;
       }
     case TEST: 
@@ -135,15 +139,15 @@ public class Animator {
 
     if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
-    // Loop around
+    // Stop at end of LEDs
     if (ledIndex >= leds.size()) {
-      ledIndex = 0;
+      this.setMode(animationMode.OFF);
     }
   }
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {
-    for (int i = 0; i <  leds.size(); i++) { //<>//
+    for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).setColor(col);
     }
   }

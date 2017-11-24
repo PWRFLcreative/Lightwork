@@ -1,15 +1,15 @@
 void keyPressed() {
   if (key == 's') {
-      if (coords.size() == 0) {
-    //User is trying to save without anything to output - bail
-    println("No point data to save, run mapping first");
-    return;
-  } else {
-    File sketch = new File(sketchPath());
-    selectOutput("Select a file to write to:", "fileSelected", sketch);
-    removeDuplicates(coords);
-    saveCSV(coords, savePath);
-  }
+    if (coords.size() == 0) {
+      //User is trying to save without anything to output - bail
+      println("No point data to save, run mapping first");
+      return;
+    } else {
+      File sketch = new File(sketchPath());
+      selectOutput("Select a file to write to:", "fileSelected", sketch);
+      //removeDuplicates(coords);
+      saveCSV(leds, savePath);
+    }
   }
 
   if (key == 'm') {
@@ -102,6 +102,13 @@ void keyPressed() {
     if (network.isConnected()) {
       animator.setAllLEDColours(on);
       animator.update();
+    }
+  }
+
+  //check led coords
+  if (key == 'l') {
+    for (LED temp : leds) {
+      println(temp.coord);
     }
   }
 }

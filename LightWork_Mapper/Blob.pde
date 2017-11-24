@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int initTimer = 300; //127;
+  private int lifeTime = 3; //127;
   public int timer;
 
   // Unique ID for each blob
@@ -40,7 +40,7 @@ class Blob {
 
     available = true;
 
-    timer = initTimer;
+    timer = lifeTime;
 
     detectedPattern = new BinaryPattern();
     brightness = 0; 
@@ -55,7 +55,7 @@ class Blob {
     float x = map(r.x,0,(float)camWidth,(float)camArea.x,camArea.x+camArea.width);
     float y = map(r.y,0,(float)camHeight,(float)camArea.y,camArea.y+camArea.height);
     
-    float opacity = map(timer, 0, initTimer, 0, 127);
+    float opacity = map(timer, 0, lifeTime, 0, 127);
     fill(0, 255, 0, opacity);
     stroke(0, 255, 0);
     rect(x,y, r.width, r.height);
@@ -82,7 +82,7 @@ class Blob {
      }
      contour.loadPoints(inputPoints);*/
 
-    timer = initTimer;
+    timer = lifeTime;
   }
 
   // Count me down, I am gone
