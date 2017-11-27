@@ -1,6 +1,6 @@
 void keyPressed() {
   if (key == 's') {
-    if (coords.size() == 0) {
+    if (leds.size() == 0) { // TODO: Review this
       //User is trying to save without anything to output - bail
       println("No point data to save, run mapping first");
       return;
@@ -12,19 +12,16 @@ void keyPressed() {
   }
 
   if (key == 'm') {
-    /* Sorry Tim, this keeps breaking Binary Mapping
      if (network.isConnected()==false) {
      println("please connect to a device before mapping");
      } else if (animator.getMode()!=animationMode.CHASE) {
-     isMapping=!isMapping;
      animator.setMode(animationMode.CHASE);
+     
      println("Chase mode");
      } else {
-     isMapping=!isMapping;
      animator.setMode(animationMode.OFF);
      println("Animator off");
      }
-     */
     isMapping = !isMapping;
   }
   // Capture Image sequence
@@ -42,6 +39,7 @@ void keyPressed() {
   // print led info
   if (key == 'l') {
 
+    // Save to the Scraper project
     String savePath = "../LightWork_Scraper/data/binary_layout.csv";
     saveCSV(leds, savePath); 
   }
@@ -81,7 +79,10 @@ void keyPressed() {
 
   // All LEDs Black (clear)
   if (key == 'c') {
-    coords.clear();
+    for (int i = 0; i < leds.size(); i++) {
+      leds.get(i).coord.set(0, 0); 
+    }
+    
   }
 
   // All LEDs White (clear)
@@ -94,8 +95,8 @@ void keyPressed() {
 
   //check led coords
   if (key == 'l') {
-    for (LED temp : leds) {
-      println(temp.coord);
+    for (LED led : leds) {
+      println(led.coord);
     }
   }
 }
