@@ -1,4 +1,4 @@
-//  LED_Mapper.pde //<>// //<>//
+//  LED_Mapper.pde //<>// //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls 
@@ -243,9 +243,6 @@ void draw() {
 
   // OpenCV processing
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-    diff.beginDraw(); 
-    image(diff, camWidth, camHeight); 
-    diff.endDraw(); 
     opencv.loadImage(diff);
     opencv.gray();
     opencv.threshold(cvThreshold);
