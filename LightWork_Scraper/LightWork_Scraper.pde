@@ -13,11 +13,11 @@ void setup() {
   background(0);
 
   //initialize scraper
-  scrape = new Scraper("layout.svg"); 
+  scrape = new Scraper("FUTURE_Layout.svg"); 
   scrape.init();
   scrape.normCoords();
 
-  opc = new OPC(this, "fade2.local", 7890);
+  opc = new OPC(this, "fade1.local", 7890);
   scrape.update();
   opc.showLocations(false);
 
@@ -26,8 +26,7 @@ void setup() {
 }
 
 void draw() {
-  background(0);
-  
+
   // Test animation
   //noFill();
   //strokeWeight(25);
