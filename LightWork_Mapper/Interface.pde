@@ -1,5 +1,4 @@
-//  //<>// //<>// //<>// //<>// //<>//
-//  Interface.pde
+//  Interface.pde //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -28,7 +27,7 @@ public class Interface {
   device              mode;
 
   //LED defaults
-  String               IP = "fade1.local";
+  String               IP = "fade2.local";
   int                  port = 7890;
   int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
   int                  numStrips = 8;
@@ -230,7 +229,8 @@ public class Interface {
           if (deltaTime > 5000) {
             println(" ");
             println("connection failed, check your connections..."); 
-            isConnected = false; 
+            isConnected = false;
+            //network.shutdown();
             break;
           }
         }
@@ -252,8 +252,6 @@ public class Interface {
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
-        
-        
       }
       populateLeds();
     }

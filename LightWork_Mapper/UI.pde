@@ -1,5 +1,4 @@
-// //<>// //<>// //<>// //<>// //<>// //<>//
-//  UI.pde
+//  UI.pde //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -23,13 +22,12 @@ void buildUI() {
 
   cp5 = new ControlP5(this);
   cp5.setVisible(false);
-  //topPanel = new ControlP5(this);
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
   int uiGrid = 80*guiMultiply;
   int uiSpacing = 20 *guiMultiply;
-  int buttonHeight = 30 *guiMultiply;
+  int buttonHeight = 25 *guiMultiply;
   int buttonWidth =200 *guiMultiply;
 
   println("Creating font...");
@@ -215,8 +213,8 @@ void buildUI() {
   //console = cp5.addConsole(cp5Console).;//
   //console.play();
 
-  //println("add framerate panel");
-  //cp5.addFrameRate().setPosition(0, height-(buttonHeight+uiSpacing));
+  println("add framerate panel");
+  cp5.addFrameRate().setPosition((camDisplayWidth*2)-uiSpacing*3, 0);
 
   //r1 = cp5.addRadioButton("videoIn")//.setTitle("Video Input Mode")
   //  .setPosition(buttonWidth*2, 0)
@@ -248,22 +246,26 @@ void buildUI() {
 
   cp5.addToggle("videoIn")
     .setBroadcast(false)
+    .setCaptionLabel("Video In")
     .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
     .setSize(buttonWidth/4, buttonHeight)
     .setGroup("top")
     .setValue(true)
     .setMode(ControlP5.SWITCH)
     .setBroadcast(true)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   cp5.addToggle("stereoToggle")
     .setBroadcast(false)
+    .setCaptionLabel("Stereo Toggle")
     .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
     .setSize(buttonWidth/4, buttonHeight)
     .setGroup("top")
     .setValue(true)
     .setMode(ControlP5.SWITCH)
     .setBroadcast(true)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   //Refresh connected cameras
@@ -436,9 +438,14 @@ public void save() {
     println("No point data to save, run mapping first");
     return;
   } else {
-    File sketch = new File(sketchPath());
-    selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveSVG(coords);
+    //File sketch = new File("layout.csv");
+    //selectOutput("Select a file to write to:", "fileSelected", sketch);
+    //saveSVG(coords);
+    //removeDuplicates(coords);
+    savePath = "layout.csv"; //sketchPath()+
+    //while (savePath!=null) {
+      saveCSV(leds, savePath);
+    //}
   }
 }
 
@@ -488,26 +495,17 @@ void videoIn(boolean theFlag) {
 //get the list of currently connected cameras
 String[] enumerateCams() {
 
-  //} else {
-  //  println("Available cameras:");
-  //  printArray(cameras);
-  //  //cam = new Capture(this, camWidth, camHeight, 30);
-  //  //cam = new Capture(this, cameras[0]);
-  //  cam = new Capture(this, camWidth, camHeight, cameras[0], FPS);
-  //  cam.start();
-  //}
-
   String[] list = Capture.list();
 
   //catch null cases
   if (list == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
-    //  cam = new Capture(this, camWidth, camHeight, FPS);
+    //cam = new Capture(this, camWidth, camHeight, FPS);
   } else if (list.length == 0) {
     println("There are no cameras available for capture.");
-    //exit();
   }
 
+  //parse out camera names from device listing
   for (int i=0; i<list.length; i++) {
     String item = list[i]; 
     String[] temp = splitTokens(item, ",=");

@@ -7,12 +7,11 @@ void keyPressed() {
     } else {
       File sketch = new File(sketchPath());
       selectOutput("Select a file to write to:", "fileSelected", sketch);
-      saveSVG(coords);
+      saveCSV(leds, savePath);
     }
   }
 
   if (key == 'm') {
-
     /* Sorry Tim, this keeps breaking Binary Mapping
      if (network.isConnected()==false) {
      println("please connect to a device before mapping");
@@ -99,6 +98,13 @@ void keyPressed() {
     if (network.isConnected()) {
       animator.setAllLEDColours(on);
       animator.update();
+    }
+  }
+
+  //check led coords
+  if (key == 'l') {
+    for (LED temp : leds) {
+      println(temp.coord);
     }
   }
 }

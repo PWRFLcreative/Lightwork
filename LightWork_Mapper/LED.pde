@@ -39,6 +39,6 @@ public class LED {
   //}
 
   void setCoord(PVector coordinates) {
-    coord.set( coordinates.x, coordinates.y);
+    coord.set( coordinates.x, coordinates.y); //<>//
   }
 }

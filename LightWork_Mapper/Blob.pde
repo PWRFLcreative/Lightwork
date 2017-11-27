@@ -37,9 +37,7 @@ class Blob {
     this.parent = parent;
     this.id = id;
     this.contour = new Contour(parent, c.pointMat);
-
     this.available = true;
-
     this.timer = lifetime;
 
     detectedPattern = new BinaryPattern();
@@ -57,6 +55,7 @@ class Blob {
     //float x = r.x;
     //float y = r.y; 
     float opacity = map(timer, 0, lifetime, 0, 127);
+
     fill(0, 255, 0, opacity);
     stroke(255, 0, 0);
     rect(x, y, r.width, r.height);
@@ -73,6 +72,7 @@ class Blob {
   void update(Contour newContour) {
     this.contour = newContour;
     this.timer = lifetime;
+
   }
 
   // Count me down, I am gone
