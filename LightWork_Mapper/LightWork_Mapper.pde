@@ -1,4 +1,4 @@
-//  LED_Mapper.pde //<>//
+//  LED_Mapper.pde //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls 
@@ -530,28 +530,20 @@ void saveSVG(ArrayList <PVector> points) {
   }
 }
 
-void saveCSV(ArrayList <LED> l, String path) {
-  //if (blobList.size() == 0) {
-  //  //User is trying to save without anything to output - bail
-  //  println("No point data to save, run mapping first");
-  //  return;
-  //} else {
+void saveCSV(ArrayList <LED> ledArray, String path) {
   PrintWriter output;
-  output = createWriter(path); 
-
-  //console feedback
-  println("svg contains "+l.size()+" vertecies");
-
-  //write vals out to file, start with csv header
-  output.println("address"+","+"x"+","+"y"+","+"z");
-  for (int i = 0; i<l.size(); i++) {
-    LED temp = l.get(i);
-    output.println(temp.address+","+temp.coord.x+","+temp.coord.y+","+temp.coord.z);
-    println(temp.address+","+temp.coord.x+","+temp.coord.y+","+temp.coord.z);
-  }
-  output.close(); // Finishes the file
-  println("CSV saved");
-  //  }
+    output = createWriter(path); 
+    
+    //write vals out to file, start with csv header
+    output.println("address"+","+"x"+","+"y"+","+"z");
+    
+    println("CSV saved");
+    for (int i = 0; i < ledArray.size(); i++) {
+      output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
+      println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
+    }
+    output.close(); // Finishes the file
+    println("Exported CSV File to "+path); 
 }
 
 //Filter duplicates from point array
