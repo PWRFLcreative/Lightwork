@@ -41,19 +41,8 @@ void keyPressed() {
   }
   // print led info
   if (key == 'l') {
-    //PrintWriter output;
-    //output = createWriter("binary_layout.csv"); 
-    
-    ////write vals out to file, start with csv header
-    //output.println("address"+","+"x"+","+"y"+","+"z");
-    
-    //println("CSV saved");
-    //for (int i = 0; i < leds.size(); i++) {
-    //  output.println(leds.get(i).address+","+leds.get(i).coord.x+","+leds.get(i).coord.y+","+leds.get(i).coord.z);
-    //  println(leds.get(i).address+" "+leds.get(i).coord.x+" "+leds.get(i).coord.y);
-    //}
-    //output.close(); // Finishes the file
-    String savePath = "binary_layout.csv";
+
+    String savePath = "../LightWork_Scraper/data/binary_layout.csv";
     saveCSV(leds, savePath); 
   }
   if (key == 't') {

@@ -62,9 +62,9 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 5;
+int minBlobSize = 1;
 int maxBlobSize = 10;
-float distanceThreshold = 5; 
+float distanceThreshold = 1; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -244,18 +244,14 @@ void draw() {
   // OpenCV processing
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
     opencv.loadImage(diff);
-    opencv.gray();
-    opencv.threshold(cvThreshold);
-    opencv.dilate();
-    opencv.erode();
   } else {
     opencv.loadImage(camFBO);
-    opencv.gray();
-    opencv.threshold(cvThreshold);
-    opencv.dilate();
-    opencv.erode();
     //opencv.updateBackground();
   }
+  opencv.gray();
+  opencv.threshold(cvThreshold);
+  opencv.dilate();
+  opencv.erode();
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
@@ -529,18 +525,18 @@ void saveSVG(ArrayList <PVector> points) {
 
 void saveCSV(ArrayList <LED> ledArray, String path) {
   PrintWriter output;
-    output = createWriter(path); 
-    
-    //write vals out to file, start with csv header
-    output.println("address"+","+"x"+","+"y"+","+"z");
-    
-    println("CSV saved");
-    for (int i = 0; i < ledArray.size(); i++) {
-      output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
-      println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
-    }
-    output.close(); // Finishes the file
-    println("Exported CSV File to "+path); 
+  output = createWriter(path); 
+
+  //write vals out to file, start with csv header
+  output.println("address"+","+"x"+","+"y"+","+"z");
+
+  println("CSV saved");
+  for (int i = 0; i < ledArray.size(); i++) {
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
+    println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
+  }
+  output.close(); // Finishes the file
+  println("Exported CSV File to "+path);
 }
 
 //Filter duplicates from point array
