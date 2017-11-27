@@ -1,66 +1,53 @@
-/* Make OPC LED layout, based on vertecies of an input SVG
+/* Make LED layout, based on vertecies of an input CSV/SVG
  Tim Rolls 2017*/
 
 Scraper scrape;
-OPC opc;
+Interface network; 
 
 PImage clouds;
 int pos;
-float margin =50;
+float margin =50; //prevents scraper from operating outside the canvas
 
 void setup() {
-  size(640, 480, JAVA2D); // wtf
+  size(640, 480, P3D); // wtf
   background(0);
 
   //initialize scraper
-  scrape = new Scraper("FUTURE_Layout.svg"); 
-  scrape.init();
-  scrape.normCoords();
-
-  opc = new OPC(this, "192.168.1.137", 7890);
+  //replace with your filename, make sure it's in the sketch or /data folder
+  scrape = new Scraper("binary_layout.csv"); 
+  
+  //initialize connection to LED driver
+  network = new Interface(device.FADECANDY, "192.168.1.137", 3,50);
+  network.connect(this);
+  
+  //update scraper after network connects
   scrape.update();
-  opc.showLocations(false);
 
-  //display array of points from SVG
+  //output scraper locations to console
   //println(scrape.getArray());
 }
 
 void draw() {
   background(0);
 
-  // Test animation
-  //noFill();
-  //strokeWeight(25);
-  //for (int i = 0; i < 100; i+=10) {
-  //  stroke(255-i*2.5*sin(frameCount*0.7), i*2.5*sin(frameCount*0.5), 255*sin(frameCount*0.2));
-  //  ellipse(width/2, height/2, i*100*sin(frameCount*0.02), i*100*sin(frameCount*0.02));
-  //}
-  // End test animation
-
-
-  //rect(0,0,50,50); //test margin bounds
+  //Show locations loaded from layout in processing sketch 
   scrape.display();
 
-  //simple chase animation
+  //simple chase animation - replace with your drawing code
   //noStroke();
-  fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
-  //if (pos<=width)pos+=5;
+  //fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
+  //ellipse(mouseX, mouseY, 30, 30);
+  
+  //fill(frameCount%255, 23, 145, 232);
+  //if (pos<=height)pos+=5;
   //else pos=0;
-  //rect(pos, 0, 100, height);
+  //rect(0, pos, width, 100);
+  
+  //cursor to test accuracy
+  noStroke();
+  fill(255 , 255, 255);
   ellipse(mouseX, mouseY, 30, 30);
   
-  fill(frameCount%255, 23, 145, 232);
-  if (pos<=height)pos+=5;
-  else pos=0;
-  rect(0, pos, width, 100);
-  //ellipse(mouseX, mouseY, 30, 30);
-
-
-  //for (int i = 0; i < mouseX; i++) {
-  //  stroke(i, mouseX, mouseY);
-  //  line(i, 0, i, height); 
-  //}
-  noStroke();
-  fill(100, 100, 100);
-  ellipse(mouseX, mouseY, 30, 30);
+  scrape.update();
+  network.update(scrape.getColors());
 }
