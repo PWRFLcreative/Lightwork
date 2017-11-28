@@ -137,13 +137,14 @@ public class Animator {
       }
       leds.get(i).setColor(col);
     }
-
+    
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly
     if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) {
-      this.setMode(AnimationMode.OFF);
-    } //<>//
+      this.setMode(AnimationMode.OFF); //<>//
+    }
   } //<>//
 
   // Set all LEDs to the same colour (useful to turn them all on or off).

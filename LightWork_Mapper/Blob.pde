@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int lifetime = 200; //127;
+  private int lifetime = blobLifetime; // Global (set using UI); 
   public int timer;
 
   // Unique ID for each blob

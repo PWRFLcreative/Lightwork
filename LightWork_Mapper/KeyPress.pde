@@ -23,6 +23,7 @@ void keyPressed() {
       animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
+    blobLifetime = animator.frameSkip/4;
     isMapping = !isMapping;
   }
   // Capture Image sequence
@@ -35,6 +36,7 @@ void keyPressed() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save("backgroundImage.png");
+    blobLifetime = 200; 
   }
   // (K)Calibration Mode
   if (key == 'k') {

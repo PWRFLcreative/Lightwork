@@ -23,6 +23,7 @@ Interface network;
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
 int ledBrightness = 150;
+int blobLifetime = 200; 
 
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
@@ -62,9 +63,9 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 1;
+int minBlobSize = 2;
 int maxBlobSize = 10;
-float distanceThreshold = 1; 
+float distanceThreshold = 2; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -328,13 +329,7 @@ void processCV() {
 
 // Mapping methods
 void sequentialMapping() {
-  //for (Contour contour : opencv.findContours()) {
-  //  noFill();
-  //  stroke(255, 0, 0);
-  //  //contour.draw();
-  //  coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
-  //}
-
+  //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobList.size()!=0) {
     Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
     PVector loc = new PVector(); 
@@ -342,7 +337,7 @@ void sequentialMapping() {
 
     int index = animator.getLedIndex();
     leds.get(index).setCoord(loc);
-    println(loc);
+    //println(loc);
   }
 }
 
