@@ -15,6 +15,7 @@ import java.awt.Rectangle;
 Capture cam;
 Capture cam2;
 OpenCV opencv;
+OpenCV blobCV; // Separate CV instance for blob tracking because. Using only one results in different image processing when calling opencv.findContours()
 ControlP5 cp5;
 Animator animator;
 Interface network; 
@@ -139,7 +140,8 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, videoInput);
-
+  blobCV =  new OpenCV(this, opencv.getSnapshot());
+  
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
@@ -187,7 +189,7 @@ void draw() {
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available()) {
 
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
@@ -217,19 +219,43 @@ void draw() {
       }
 
       // Background diff
-      processCV();
-      
+      //processCV();
+      diff.beginDraw();
+      diff.background(0);
+      diff.blendMode(NORMAL);
+      diff.image(videoInput, 0, 0);
+      diff.blendMode(SUBTRACT);
+      diff.image(backgroundImage, 0, 0);
+      diff.endDraw();
+      //image(diff, 0, 0); 
+      opencv.loadImage(diff);
+      opencv.contrast(cvContrast);
+      opencv.threshold(cvThreshold);
+      opencv.dilate();
+      opencv.erode();
     }
     // Assign diff to videoInput
   }
 
   // Calibration mode, use this to tweak your parameters before mapping
-  else if (videoMode == VideoMode.CALIBRATION) {
+  else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    processCV(); 
-
+    //processCV();
+    diff.beginDraw();
+    diff.background(0);
+    diff.blendMode(NORMAL);
+    diff.image(videoInput, 0, 0);
+    diff.blendMode(SUBTRACT);
+    diff.image(backgroundImage, 0, 0);
+    diff.endDraw();
+    //image(diff, 0, 0); 
+    opencv.loadImage(diff);
+    opencv.contrast(cvContrast);
+    opencv.threshold(cvThreshold);
+    opencv.dilate();
+    opencv.erode();
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -251,24 +277,18 @@ void draw() {
    }
    */
 
-  //opencv.gray();
-  //opencv.contrast(cvContrast);
-  //opencv.brightness(200);
-  //opencv.threshold(cvThreshold);
-  //opencv.dilate();
-  //opencv.erode();
-
   // Decode image sequence
-  /*
+
+
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-   updateBlobs(); 
-   displayBlobs();
-   decodeBlobs();
-   if (shouldStartDecoding) {
-   matchBinaryPatterns();
-   }
-   }
-   */
+    updateBlobs(); 
+    displayBlobs();
+    decodeBlobs();
+    if (shouldStartDecoding) {
+      matchBinaryPatterns();
+    }
+  }
+
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
@@ -322,11 +342,12 @@ void processCV() {
   diff.blendMode(SUBTRACT);
   diff.image(backgroundImage, 0, 0);
   diff.endDraw();
-  image(diff, 0, 0); 
+  //image(diff, 0, 0); 
   opencv.loadImage(diff);
   opencv.contrast(cvContrast);
   opencv.threshold(cvThreshold);
 }
+
 // Mapping methods
 void sequentialMapping() {
   //for (Contour contour : opencv.findContours()) {
@@ -349,7 +370,8 @@ void sequentialMapping() {
 
 void updateBlobs() {
   // Find all contours
-  ArrayList<Contour> contours = opencv.findContours();
+  blobCV.loadImage(opencv.getSnapshot());
+  ArrayList<Contour> contours = blobCV.findContours();
 
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
