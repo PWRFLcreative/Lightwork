@@ -145,7 +145,7 @@ public class Animator {
     if (ledIndex >= leds.size()) {
       this.setMode(AnimationMode.OFF); //<>//
     }
-  } //<>//
+  }
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {

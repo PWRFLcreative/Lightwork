@@ -13,6 +13,7 @@ void keyPressed() {
 
   if (key == 'm') {
     backgroundImage = videoInput.copy(); 
+    animator.setFrameSkip(6);
     if (network.isConnected()==false) {
       println("please connect to a device before mapping");
     } else if (animator.getMode()!=AnimationMode.CHASE) {
@@ -23,7 +24,7 @@ void keyPressed() {
       animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
-    blobLifetime = animator.frameSkip/4;
+    blobLifetime = animator.frameSkip; // Make sure there's only one blob at a time.
     isMapping = !isMapping;
   }
   // Capture Image sequence

@@ -91,12 +91,14 @@ public class Scraper { //<>//
   //update colors to be sent for next network packet
   void update() {
 
-    for (int i = 0; i<loc.size() ; i++) {
+    for (int i = 0; i<loc.size(); i++) {
       PVector temp = loc.get(i);
-      colors[i] = get((int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
+      if (!(temp.x == 0.0) && !(temp.y == 0.0)) { // Don't sample from 0,0 coord
+        colors[i] = get((int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
+      }
     }
-    
-    
+
+
 
     //println(loc.size());
   }
