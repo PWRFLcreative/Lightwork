@@ -1,4 +1,4 @@
-//  UI.pde //<>//
+//  UI.pde //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -433,19 +433,13 @@ public void map() {
 }
 
 public void save() {
-  if (coords.size() == 0) {
+  if (leds.size() == 0) { // TODO: review, does this work?
     //User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
   } else {
-    //File sketch = new File("layout.csv");
-    //selectOutput("Select a file to write to:", "fileSelected", sketch);
-    //saveSVG(coords);
-    //removeDuplicates(coords);
-    savePath = "layout.csv"; //sketchPath()+
-    //while (savePath!=null) {
-      saveCSV(leds, savePath);
-    //}
+    savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
+    saveCSV(leds, savePath);
   }
 }
 
@@ -469,9 +463,9 @@ void stereoToggle(boolean theFlag) {
     camWindows=3;
     window3d();
     cp5.get(ScrollableList.class, "camera2")
-      .setVisible(true)
+      .setVisible(true);
       //.setPosition(camDisplayWidth, 0)
-      ;
+      
     cam2 = new Capture(this, camWidth, camHeight, 30);
     println("Stereo camera on");
   }

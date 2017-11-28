@@ -63,7 +63,7 @@ class Blob {
     textSize(12);
     stroke(0, 255, 0); 
 
-    text(""+id, x+15, y+5);
+    //text(""+id, x+15, y+5);
     String decoded = detectedPattern.decodedString.toString();
     fill(0, 255, 0); 
     //text(decoded, x+30, y+5);

@@ -1,5 +1,4 @@
-//  LED_Mapper.pde  //<>// //<>// //<>//
-//  Lightwork-Mapper
+//  Lightwork_Mapper //<>// //<>// //<>//
 //
 //  Created by Leo Stefansson and Tim Rolls 
 //
@@ -45,7 +44,6 @@ int guiMultiply = 1;
 int cvThreshold = 100;
 float cvContrast = 1.15;
 
-ArrayList <PVector>     coords;
 String savePath;
 
 ArrayList <LED>     leds;
@@ -62,7 +60,8 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 1;
+
+int minBlobSize = 2;
 int maxBlobSize = 10;
 float distanceThreshold = 2; 
 
@@ -98,8 +97,7 @@ void setup()
   cvFBO = createGraphics(camWidth, camHeight, P3D);
   blobFBO = createGraphics(camWidth, camHeight, P3D); 
 
-  println("making arraylists for coords, leds, and bloblist");
-  coords = new ArrayList<PVector>();
+  println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
 
   // Blobs list
@@ -243,22 +241,15 @@ void draw() {
 
   // OpenCV processing
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-    diff.beginDraw(); 
-    image(diff, camWidth, camHeight); 
-    diff.endDraw(); 
     opencv.loadImage(diff);
-    opencv.gray();
-    opencv.threshold(cvThreshold);
-    opencv.dilate();
-    opencv.erode();
   } else {
     opencv.loadImage(camFBO);
-    opencv.gray();
-    opencv.threshold(cvThreshold);
-    opencv.dilate();
-    opencv.erode();
     //opencv.updateBackground();
   }
+  opencv.gray();
+  opencv.threshold(cvThreshold);
+  opencv.dilate();
+  opencv.erode();
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
@@ -273,11 +264,11 @@ void draw() {
   // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
-  if (coords.size()>0) {
-    for (PVector p : coords) {
+  if (leds.size()>0) {
+    for (LED led : leds) {
       cvFBO.noFill();
       cvFBO.stroke(255, 0, 0);
-      cvFBO.ellipse(p.x, p.y, 10, 10);
+      cvFBO.ellipse(led.coord.x, led.coord.y, 10, 10);
     }
   }
   cvFBO.endDraw();
@@ -309,7 +300,7 @@ void draw() {
       noStroke();
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
-  }
+  } //<>//
 }
 
 // Mapping methods
@@ -322,24 +313,12 @@ void sequentialMapping() {
   //}
 
   if (blobList.size()!=0) {
-    Blob current = blobList.get(blobList.size()-1);  //only keeping one
-    println(blobList.size());
     Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
     PVector loc = new PVector(); 
     loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
-
-    //PVector loc = new PVector();
-    //loc.set( (float)current.contour.getBoundingBox().getCenterX(), (float)current.contour.getBoundingBox().getCenterY());
-    ////coords.add(new PVector((float)current.contour.getBoundingBox().getCenterX(), (float)current.contour.getBoundingBox().getCenterY()));
-
-    //for (int i=0 ; i<leds.size() ; i++){ //<>//
-    //}
+    
     int index = animator.getLedIndex();
-    //LED temp = 
     leds.get(index).setCoord(loc);
-    //temp.setCoord(loc); 
-    //leds.set(index,temp);
-    coords.add(loc);
     println(loc);
   }
 
@@ -429,7 +408,7 @@ void decodeBlobs() {
       //println("decoding this blob: "+blobList.get(i).id);
       Rectangle r = blobList.get(i).contour.getBoundingBox();
       // TODO: Which texture do we decode?
-      //PImage snap = opencv.getSnapshot();
+      PImage snap = opencv.getSnapshot();
       PImage cropped = diff.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
@@ -532,18 +511,18 @@ void saveSVG(ArrayList <PVector> points) {
 
 void saveCSV(ArrayList <LED> ledArray, String path) {
   PrintWriter output;
-    output = createWriter(path); 
-    
-    //write vals out to file, start with csv header
-    output.println("address"+","+"x"+","+"y"+","+"z");
-    
-    println("CSV saved");
-    for (int i = 0; i < ledArray.size(); i++) {
-      output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
-      println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
-    }
-    output.close(); // Finishes the file
-    println("Exported CSV File to "+path); 
+  output = createWriter(path); 
+
+  //write vals out to file, start with csv header
+  output.println("address"+","+"x"+","+"y"+","+"z");
+
+  println("CSV saved");
+  for (int i = 0; i < ledArray.size(); i++) {
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
+    println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
+  }
+  output.close(); // Finishes the file
+  println("Exported CSV File to "+path);
 }
 
 //Filter duplicates from point array

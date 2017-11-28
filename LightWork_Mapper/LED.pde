@@ -34,11 +34,7 @@ public class LED {
     binaryPattern.generatePattern(address+bPatternOffset);
   }
 
-  //void LEDsetBinaryPattern(BinaryPattern pat) {
-  //  binaryPattern = pat;
-  //}
-
   void setCoord(PVector coordinates) {
-    coord.set( coordinates.x, coordinates.y); //<>//
+    coord.set( coordinates.x, coordinates.y);
   }
 }
