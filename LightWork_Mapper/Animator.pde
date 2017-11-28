@@ -1,4 +1,4 @@
-//  //<>// //<>// //<>//
+//   //<>//
 //  Animator.pde
 //  Lightwork-Mapper
 //
@@ -17,9 +17,6 @@ enum animationMode {
 public class Animator {
 
   int                 ledIndex;               // Index of LED being mapped (lit and detected).
-  int                 numLedsPerStrip;        // Number of LEDs per strip
-  int                 numStrips;              // How many strips total
-
   int                 testIndex;              // Used for the test() animation sequence
   int                 frameCounter;           // Internal framecounter
   int                 frameSkip;              // How many frames to skip between updates
@@ -94,7 +91,7 @@ public class Animator {
     //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>//
     switch(mode) {
     case CHASE: 
-      {
+      { //<>//
         chase();
         break;
       }
@@ -152,19 +149,21 @@ public class Animator {
     }
   }
 
-  //LED Pre-flight test
+  //LED pre-flight test. Cycle: White, Red, Green, Blue.
   void test() {
     testIndex++;
 
     if (testIndex < 30) {
-      setAllLEDColours(color(ledBrightness, 0, 0));
+      setAllLEDColours(color(ledBrightness, ledBrightness, ledBrightness));
     } else if (testIndex > 30 && testIndex < 60) {
-      setAllLEDColours(color(0, ledBrightness, 0));
+      setAllLEDColours(color(ledBrightness, 0, 0));
     } else if (testIndex > 60 && testIndex < 90) {
+      setAllLEDColours(color(0, ledBrightness, 0));
+    }else if (testIndex > 90 && testIndex < 120) {
       setAllLEDColours(color(0, 0, ledBrightness));
     }
 
-    if (testIndex > 90) {
+    if (testIndex > 120) {
       testIndex = 0;
     }
   }

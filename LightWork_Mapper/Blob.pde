@@ -97,7 +97,7 @@ class Blob {
   // Decode Binary Pattern
   void decode() { 
     int br = brightness;
-    int threshold = 50; 
+    int threshold = 25; 
     //println(brightness);
 
     // Edge detection (rising/falling);

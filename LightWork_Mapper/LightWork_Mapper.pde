@@ -1,4 +1,4 @@
-//  LED_Mapper.pde //<>// //<>//
+//  LED_Mapper.pde  //<>// //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls 
@@ -62,9 +62,9 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 5;
+int minBlobSize = 1;
 int maxBlobSize = 10;
-float distanceThreshold = 5; 
+float distanceThreshold = 2; 
 
 // Window size
 int windowSizeX, windowSizeY;
@@ -300,7 +300,7 @@ void draw() {
   blobFBO.endDraw();
 
 
-  // Draw the array of colors going out to the LEDs
+  // Draw the array of colors going out to the LEDs //<>//
   if (showLEDColors) {
     // scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
