@@ -108,8 +108,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(1);
-  network.setNumLedsPerStrip(5); // TODO: Fix these setters...
+  network.setNumStrips(3);
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
 
   // Animator
   println("creating animator");
@@ -141,7 +141,7 @@ void setup()
   println("Setting up openCV");
   opencv = new OpenCV(this, videoInput);
   blobCV =  new OpenCV(this, opencv.getSnapshot());
-  
+
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
@@ -207,6 +207,8 @@ void draw() {
       }
 
       videoInput = cam;
+      //processCV(); // TODO: This causes the last bit of the sequence to not register resulting
+                     //        in every other LED not being decoded (and detected) properly
     }
 
     // If sequence exists, playback and decode
@@ -217,22 +219,8 @@ void draw() {
         shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
-
       // Background diff
-      //processCV();
-      diff.beginDraw();
-      diff.background(0);
-      diff.blendMode(NORMAL);
-      diff.image(videoInput, 0, 0);
-      diff.blendMode(SUBTRACT);
-      diff.image(backgroundImage, 0, 0);
-      diff.endDraw();
-      //image(diff, 0, 0); 
-      opencv.loadImage(diff);
-      opencv.contrast(cvContrast);
-      opencv.threshold(cvThreshold);
-      opencv.dilate();
-      opencv.erode();
+      processCV();
     }
     // Assign diff to videoInput
   }
@@ -242,20 +230,7 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    //processCV();
-    diff.beginDraw();
-    diff.background(0);
-    diff.blendMode(NORMAL);
-    diff.image(videoInput, 0, 0);
-    diff.blendMode(SUBTRACT);
-    diff.image(backgroundImage, 0, 0);
-    diff.endDraw();
-    //image(diff, 0, 0); 
-    opencv.loadImage(diff);
-    opencv.contrast(cvContrast);
-    opencv.threshold(cvThreshold);
-    opencv.dilate();
-    opencv.erode();
+    processCV();
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
