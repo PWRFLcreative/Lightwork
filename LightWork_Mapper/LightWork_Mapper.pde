@@ -209,6 +209,7 @@ void draw() {
 
     // If sequence exists, playback and decode
     else {
+      println("IMG sequence exists, playing back sequence.");
       videoInput = images.get(currentFrame);
       currentFrame++; 
       if (currentFrame >= numFrames) {
@@ -216,7 +217,19 @@ void draw() {
         currentFrame = 0;
       }
 
-      opencv.diff(backgroundImage);
+      // Background diff
+      
+      diff.beginDraw();
+      diff.background(0);
+      diff.blendMode(NORMAL);
+      diff.image(videoInput, 0, 0);
+      diff.blendMode(SUBTRACT);
+      diff.image(backgroundImage, 0, 0);
+      diff.endDraw();
+      image(diff, 0, 0); 
+      opencv.loadImage(diff);
+      
+      
     }
     // Assign diff to videoInput
   }
@@ -235,7 +248,10 @@ void draw() {
     diff.endDraw();
     image(diff, 0, 0); 
     opencv.loadImage(diff);
+    opencv.contrast(cvContrast);
+    opencv.threshold(cvThreshold);
     //opencv.diff(videoInput);
+    //opencv.diff(backgroundImage);
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -250,13 +266,13 @@ void draw() {
   // OpenCV processing
   /*
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-    opencv.loadImage(diff);
-    opencv.diff(backgroundImage);
-  } else {
-    opencv.loadImage(camFBO);
-  }
-  */
-  
+   opencv.loadImage(diff);
+   opencv.diff(backgroundImage);
+   } else {
+   opencv.loadImage(camFBO);
+   }
+   */
+
   //opencv.gray();
   //opencv.contrast(cvContrast);
   //opencv.brightness(200);
@@ -265,6 +281,7 @@ void draw() {
   //opencv.erode();
 
   // Decode image sequence
+  /*
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     updateBlobs(); 
     displayBlobs();
@@ -273,7 +290,8 @@ void draw() {
       matchBinaryPatterns();
     }
   }
-
+  */
+  
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
@@ -302,7 +320,6 @@ void draw() {
   blobFBO.beginDraw();
   displayBlobs();
   blobFBO.endDraw();
-
 
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {

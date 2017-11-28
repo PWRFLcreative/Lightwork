@@ -32,7 +32,6 @@ void keyPressed() {
     animator.frameSkip = 30;
     animator.setMode(AnimationMode.BINARY);
     network.update(animator.getPixels());
-    videoInput.save("Capture/captureBackground.png");
     backgroundImage = videoInput.copy();
     backgroundImage.save("backgroundImage.png");
   }
