@@ -106,9 +106,7 @@ class Blob {
     } else if (br < threshold) {
       detectedPattern.state = 0;
     }
-
+    // Write the detected bit to pattern
     detectedPattern.writeNextBit(detectedPattern.state);
-
-    //print(detectedPattern.state);
   }
 }

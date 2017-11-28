@@ -36,6 +36,12 @@ void keyPressed() {
     backgroundImage = videoInput.copy();
     //backgroundImage.save("yup_it_worked.png");
   }
+  // (K)Calibration Mode
+  if (key == 'k') {
+    videoMode = VideoMode.CALIBRATION; 
+    backgroundImage = videoInput.copy();
+    animator.setMode(animationMode.BINARY);
+  }
   // print led info
   if (key == 'l') {
 

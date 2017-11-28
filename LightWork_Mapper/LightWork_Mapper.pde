@@ -24,7 +24,7 @@ boolean isMapping = false;
 int ledBrightness = 150;
 
 enum  VideoMode {
-  CAMERA, FILE, IMAGE_SEQUENCE, OFF
+  CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
 };
 
 VideoMode videoMode; 
@@ -107,17 +107,16 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, camWidth, camHeight);
-  //opencv.startBackgroundSubtraction(1, 2, 0.5); //int history, int nMixtures, double backgroundRatio
 
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(3);
-  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
+  network.setNumStrips(1);
+  network.setNumLedsPerStrip(5); // TODO: Fix these setters...
 
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(30);
+  animator.setFrameSkip(18);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(animationMode.OFF);
   animator.update();
@@ -149,7 +148,6 @@ void setup()
 void draw() {
   //Loading screen
   if (!isUIReady) {
-    //cp5.setVisible(false);
     background(0);
     if (frameCount%1000==0) {
       println("DrawLoop: Building UI....");
@@ -159,23 +157,17 @@ void draw() {
 
     pushMatrix(); 
     translate(width/2, height/2);
-    //println((1.0/(float)size)%255);
-
     noFill();
     stroke(255, size);
     strokeWeight(4);
-    //rotate(frameCount*0.1);
     ellipse(0, 0, size, size);
-
     translate(0, 100*guiMultiply);
     fill(255);
     noStroke();
     textSize(18*guiMultiply);
     textAlign(CENTER);
     text("LOADING...", 0, 0);
-
     popMatrix();
-
 
     return;
   } else if (!cp5.isVisible()) {
@@ -219,16 +211,23 @@ void draw() {
       }
 
       // Background diff
-      diff.beginDraw();
-      diff.background(0);
-      diff.blendMode(NORMAL);
-      diff.image(videoInput, 0, 0);
-      diff.blendMode(SUBTRACT);
-      diff.image(backgroundImage, 0, 0);
-      diff.endDraw();
+      //diff.beginDraw();
+      //diff.background(0);
+      //diff.blendMode(NORMAL);
+      //diff.image(videoInput, 0, 0);
+      //diff.blendMode(SUBTRACT);
+      //diff.image(backgroundImage, 0, 0);
+      //diff.endDraw();
+      opencv.diff(backgroundImage);
     }
     // Assign diff to videoInput
   }
+  // Calibration mode
+  else if (videoMode == VideoMode.CALIBRATION) {
+      cam.read(); 
+      videoInput = cam; 
+      opencv.diff(backgroundImage); 
+    }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
   background(#222222);
@@ -244,12 +243,13 @@ void draw() {
     opencv.loadImage(diff);
   } else {
     opencv.loadImage(camFBO);
-    //opencv.updateBackground();
   }
-  opencv.gray();
-  opencv.threshold(cvThreshold);
-  opencv.dilate();
-  opencv.erode();
+  //opencv.gray();
+  //opencv.contrast(cvContrast);
+  //opencv.brightness(200);
+  //opencv.threshold(cvThreshold);
+  //opencv.dilate();
+  //opencv.erode();
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
@@ -316,13 +316,11 @@ void sequentialMapping() {
     Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
     PVector loc = new PVector(); 
     loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
-    
+
     int index = animator.getLedIndex();
     leds.get(index).setCoord(loc);
     println(loc);
   }
-
-  displayBlobs();
 }
 
 void updateBlobs() {
@@ -424,8 +422,6 @@ void decodeBlobs() {
 }
 
 void matchBinaryPatterns() {
-  //println("matching...");
-
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
       return;
