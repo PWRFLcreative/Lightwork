@@ -209,7 +209,6 @@ void draw() {
 
     // If sequence exists, playback and decode
     else {
-      println("IMG sequence exists, playing back sequence.");
       videoInput = images.get(currentFrame);
       currentFrame++; 
       if (currentFrame >= numFrames) {
@@ -218,17 +217,7 @@ void draw() {
       }
 
       // Background diff
-      
-      diff.beginDraw();
-      diff.background(0);
-      diff.blendMode(NORMAL);
-      diff.image(videoInput, 0, 0);
-      diff.blendMode(SUBTRACT);
-      diff.image(backgroundImage, 0, 0);
-      diff.endDraw();
-      image(diff, 0, 0); 
-      opencv.loadImage(diff);
-      
+      processCV();
       
     }
     // Assign diff to videoInput
@@ -239,19 +228,8 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    diff.beginDraw();
-    diff.background(0);
-    diff.blendMode(NORMAL);
-    diff.image(videoInput, 0, 0);
-    diff.blendMode(SUBTRACT);
-    diff.image(backgroundImage, 0, 0);
-    diff.endDraw();
-    image(diff, 0, 0); 
-    opencv.loadImage(diff);
-    opencv.contrast(cvContrast);
-    opencv.threshold(cvThreshold);
-    //opencv.diff(videoInput);
-    //opencv.diff(backgroundImage);
+    processCV(); 
+
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -283,15 +261,15 @@ void draw() {
   // Decode image sequence
   /*
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    updateBlobs(); 
-    displayBlobs();
-    decodeBlobs();
-    if (shouldStartDecoding) {
-      matchBinaryPatterns();
-    }
-  }
-  */
-  
+   updateBlobs(); 
+   displayBlobs();
+   decodeBlobs();
+   if (shouldStartDecoding) {
+   matchBinaryPatterns();
+   }
+   }
+   */
+
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
@@ -336,6 +314,19 @@ void draw() {
 // -----------------------------------------------------------
 // -----------------------------------------------------------
 
+void processCV() {
+  diff.beginDraw();
+  diff.background(0);
+  diff.blendMode(NORMAL);
+  diff.image(videoInput, 0, 0);
+  diff.blendMode(SUBTRACT);
+  diff.image(backgroundImage, 0, 0);
+  diff.endDraw();
+  image(diff, 0, 0); 
+  opencv.loadImage(diff);
+  opencv.contrast(cvContrast);
+  opencv.threshold(cvThreshold);
+}
 // Mapping methods
 void sequentialMapping() {
   //for (Contour contour : opencv.findContours()) {
