@@ -8,7 +8,6 @@
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
-import com.hamoid.*; // Video recording
 import java.awt.Rectangle;
 
 Capture cam;
@@ -300,8 +299,8 @@ void draw() {
       noStroke();
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
-  } //<>//
-}
+  }
+} //<>//
 
 // Mapping methods
 void sequentialMapping() {

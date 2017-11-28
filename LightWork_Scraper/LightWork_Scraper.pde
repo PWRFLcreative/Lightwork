@@ -9,7 +9,7 @@ int pos;
 float margin =50; //prevents scraper from operating outside the canvas
 
 void setup() {
-  size(640, 480, P3D); // wtf
+  size(640, 480, P3D); 
   background(0);
 
   //initialize scraper
@@ -34,14 +34,14 @@ void draw() {
   scrape.display();
 
   //simple chase animation - replace with your drawing code
-  //noStroke();
-  //fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
-  //ellipse(mouseX, mouseY, 30, 30);
+  noStroke();
+  fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
+  ellipse(mouseX, mouseY, 30, 30);
   
-  //fill(frameCount%255, 23, 145, 232);
-  //if (pos<=height)pos+=5;
-  //else pos=0;
-  //rect(0, pos, width, 100);
+  fill(frameCount%255, 23, 145, 232);
+  if (pos<=height)pos+=5;
+  else pos=0;
+  rect(0, pos, width, 100);
   
   //cursor to test accuracy
   noStroke();
