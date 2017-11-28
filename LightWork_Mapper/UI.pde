@@ -409,11 +409,11 @@ public void ledBrightness(int value) {
 public void test() {
   if (network.isConnected()==false) {
     println("please connect to a device before testing");
-  } else if (animator.getMode()!=animationMode.TEST) {
-    animator.setMode(animationMode.TEST);
+  } else if (animator.getMode()!=AnimationMode.TEST) {
+    animator.setMode(AnimationMode.TEST);
     println("Test mode");
   } else {
-    animator.setMode(animationMode.OFF);
+    animator.setMode(AnimationMode.OFF);
     println("Animator off");
   }
 }
@@ -421,13 +421,13 @@ public void test() {
 public void map() {
   if (network.isConnected()==false) {
     println("please connect to a device before mapping");
-  } else if (animator.getMode()!=animationMode.CHASE) {
+  } else if (animator.getMode()!=AnimationMode.CHASE) {
     isMapping=!isMapping;
-    animator.setMode(animationMode.CHASE);
+    animator.setMode(AnimationMode.CHASE);
     println("Chase mode");
   } else {
     isMapping=!isMapping;
-    animator.setMode(animationMode.OFF);
+    animator.setMode(AnimationMode.OFF);
     println("Animator off");
   }
 }

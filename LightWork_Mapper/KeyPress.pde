@@ -14,12 +14,12 @@ void keyPressed() {
   if (key == 'm') {
      if (network.isConnected()==false) {
      println("please connect to a device before mapping");
-     } else if (animator.getMode()!=animationMode.CHASE) {
-     animator.setMode(animationMode.CHASE);
+     } else if (animator.getMode()!=AnimationMode.CHASE) {
+     animator.setMode(AnimationMode.CHASE);
      
      println("Chase mode");
      } else {
-     animator.setMode(animationMode.OFF);
+     animator.setMode(AnimationMode.OFF);
      println("Animator off");
      }
     isMapping = !isMapping;
@@ -30,7 +30,7 @@ void keyPressed() {
     // Set frameskip so we have enough time to capture an image of each animation frame. 
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.frameSkip = 30;
-    animator.setMode(animationMode.BINARY);
+    animator.setMode(AnimationMode.BINARY);
     network.update(animator.getPixels());
     videoInput.save("Capture/captureBackground.png");
     backgroundImage = videoInput.copy();
@@ -40,7 +40,7 @@ void keyPressed() {
   if (key == 'k') {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
-    animator.setMode(animationMode.BINARY);
+    animator.setMode(AnimationMode.BINARY);
   }
   // print led info
   if (key == 'l') {
@@ -52,21 +52,21 @@ void keyPressed() {
   if (key == 't') {
     if (network.isConnected()==false) {
       println("please connect to a device before testing");
-    } else if (animator.getMode()!=animationMode.TEST) {
-      animator.setMode(animationMode.TEST);
+    } else if (animator.getMode()!=AnimationMode.TEST) {
+      animator.setMode(AnimationMode.TEST);
       println("Test mode");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
   }
 
   if (key == 'b') {
-    if (animator.getMode()!=animationMode.BINARY) {
-      animator.setMode(animationMode.BINARY);
+    if (animator.getMode()!=AnimationMode.BINARY) {
+      animator.setMode(AnimationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
   }

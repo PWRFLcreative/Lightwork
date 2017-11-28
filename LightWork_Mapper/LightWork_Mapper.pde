@@ -1,4 +1,4 @@
-//  LED_Mapper.pde //<>// //<>// //<>//
+//  LED_Mapper.pde //<>// //<>// //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls 
@@ -104,24 +104,22 @@ void setup()
   blobList = new ArrayList<Blob>();
   cam = new Capture(this, camWidth, camHeight, 30);
 
-  // OpenCV Setup
-  println("Setting up openCV");
-  opencv = new OpenCV(this, camWidth, camHeight);
-
+  // Network
   println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(1);
   network.setNumLedsPerStrip(5); // TODO: Fix these setters...
 
+  // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(18);
   animator.setAllLEDColours(off); // Clear the LED strips
-  animator.setMode(animationMode.OFF);
+  animator.setMode(AnimationMode.OFF);
   animator.update();
 
-  //Check for hi resolution display
+  //Check for high resolution display
   println("setup gui multiply");
   guiMultiply = 1;
   if (displayWidth >= 2560) {
@@ -138,6 +136,10 @@ void setup()
   println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
 
+  // OpenCV Setup
+  println("Setting up openCV");
+  opencv = new OpenCV(this, videoInput);
+  
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
