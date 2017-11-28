@@ -47,7 +47,7 @@ public class Animator {
     ledIndex = 0; // TODO: resetInternalVariables() method?
     testIndex = 0;
     frameCounter = 0;
-    resetPixels();
+    //resetPixels();
   }
 
   AnimationMode getMode() {
@@ -72,6 +72,7 @@ public class Animator {
 
   // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
   void resetPixels() {
+    println("Animator -> resetPixels()"); 
     network.populateLeds();
     network.update(this.getPixels());
   }
@@ -86,12 +87,12 @@ public class Animator {
   }
 
 
-  //////////////////////////////////////////////////////////////
-  // Animation Methods //<>// //<>//
+  ////////////////////////////////////////////////////////////// //<>//
+  // Animation Methods //<>//
   //////////////////////////////////////////////////////////////
 
-  void update() {
-    //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>// //<>//
+  void update() { //<>//
+    //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>//
     switch(mode) {
     case CHASE: 
       {
@@ -142,8 +143,8 @@ public class Animator {
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) {
       this.setMode(AnimationMode.OFF);
-    }
-  } //<>// //<>//
+    } //<>//
+  } //<>//
 
   // Set all LEDs to the same colour (useful to turn them all on or off).
   void setAllLEDColours(color col) {

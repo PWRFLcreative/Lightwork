@@ -110,12 +110,13 @@ void setup()
   network = new Interface();
   network.setNumStrips(3);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
-
+  //network.populateLeds();
+  
   // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(18);
+  animator.setFrameSkip(10);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(AnimationMode.OFF);
   animator.update();
@@ -285,7 +286,9 @@ void draw() {
   }
 
   if (isMapping) {
+    processCV(); 
     updateBlobs(); // Find and manage blobs
+    displayBlobs(); 
     sequentialMapping();
   }
 

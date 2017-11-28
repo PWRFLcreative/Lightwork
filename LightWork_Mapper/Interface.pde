@@ -147,6 +147,7 @@ public class Interface {
     //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
 
     if (leds.size()>0) {
+      println("Clearing leds"); 
       leds.clear();
     }
 

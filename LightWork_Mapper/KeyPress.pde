@@ -12,6 +12,7 @@ void keyPressed() {
   }
 
   if (key == 'm') {
+    backgroundImage = videoInput.copy(); 
     if (network.isConnected()==false) {
       println("please connect to a device before mapping");
     } else if (animator.getMode()!=AnimationMode.CHASE) {
