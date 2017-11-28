@@ -34,12 +34,13 @@ void keyPressed() {
     network.update(animator.getPixels());
     videoInput.save("Capture/captureBackground.png");
     backgroundImage = videoInput.copy();
-    //backgroundImage.save("yup_it_worked.png");
+    backgroundImage.save("backgroundImage.png");
   }
   // (K)Calibration Mode
   if (key == 'k') {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
+    backgroundImage.save("calibrationBackgroundImage.png");
     animator.setMode(AnimationMode.BINARY);
   }
   // print led info

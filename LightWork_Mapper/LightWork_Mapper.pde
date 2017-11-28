@@ -139,7 +139,7 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, videoInput);
-  
+
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
@@ -147,8 +147,10 @@ void setup()
   background(0);
 }
 
+// -----------------------------------------------------------
+// -----------------------------------------------------------
 void draw() {
-  //Loading screen
+  // LOADING SCREEN
   if (!isUIReady) {
     background(0);
     if (frameCount%1000==0) {
@@ -175,19 +177,22 @@ void draw() {
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
   }
+  // END LOADING SCREEN 
 
   // Update the LEDs (before we do anything else). 
   animator.update();
 
+  // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       cam.read();
-      PGraphics pg=createGraphics(640, 480, P2D);
+      PGraphics pg = createGraphics(640, 480, P2D);
       pg.beginDraw();
       pg.image(cam, 0, 0);
       pg.endDraw();
@@ -201,35 +206,37 @@ void draw() {
 
       videoInput = cam;
     }
+
     // If sequence exists, playback and decode
     else {
-      //println("getting next image for sequence: "+currentFrame);
       videoInput = images.get(currentFrame);
-
       currentFrame++; 
       if (currentFrame >= numFrames) {
         shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
 
-      // Background diff
-      //diff.beginDraw();
-      //diff.background(0);
-      //diff.blendMode(NORMAL);
-      //diff.image(videoInput, 0, 0);
-      //diff.blendMode(SUBTRACT);
-      //diff.image(backgroundImage, 0, 0);
-      //diff.endDraw();
       opencv.diff(backgroundImage);
     }
     // Assign diff to videoInput
   }
-  // Calibration mode
+
+  // Calibration mode, use this to tweak your parameters before mapping
   else if (videoMode == VideoMode.CALIBRATION) {
-      cam.read(); 
-      videoInput = cam; 
-      opencv.diff(backgroundImage); 
-    }
+    cam.read(); 
+    videoInput = cam; 
+    // Background diff
+    diff.beginDraw();
+    diff.background(0);
+    diff.blendMode(NORMAL);
+    diff.image(videoInput, 0, 0);
+    diff.blendMode(SUBTRACT);
+    diff.image(backgroundImage, 0, 0);
+    diff.endDraw();
+    image(diff, 0, 0); 
+    opencv.loadImage(diff);
+    //opencv.diff(videoInput);
+  }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
   background(#222222);
@@ -241,11 +248,15 @@ void draw() {
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
+  /*
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
     opencv.loadImage(diff);
+    opencv.diff(backgroundImage);
   } else {
     opencv.loadImage(camFBO);
   }
+  */
+  
   //opencv.gray();
   //opencv.contrast(cvContrast);
   //opencv.brightness(200);
@@ -263,7 +274,7 @@ void draw() {
     }
   }
 
-  // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
+  // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
   if (leds.size()>0) {
@@ -274,10 +285,9 @@ void draw() {
     }
   }
   cvFBO.endDraw();
-
-
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
+  // Secondary Camera for Stereo Capture
   if (camWindows==3 && cam2!=null) {
     cam2.read();
     image(cam2, camDisplayWidth*2, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
@@ -288,6 +298,7 @@ void draw() {
     sequentialMapping();
   }
 
+  // Display blobs
   blobFBO.beginDraw();
   displayBlobs();
   blobFBO.endDraw();
@@ -304,6 +315,9 @@ void draw() {
     }
   }
 }
+
+// -----------------------------------------------------------
+// -----------------------------------------------------------
 
 // Mapping methods
 void sequentialMapping() {
