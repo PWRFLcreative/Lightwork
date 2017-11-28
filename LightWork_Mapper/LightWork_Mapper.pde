@@ -61,9 +61,9 @@ ArrayList<Contour> newBlobs;
 ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-int minBlobSize = 1;
+int minBlobSize = 2;
 int maxBlobSize = 10;
-float distanceThreshold = 1; 
+float distanceThreshold = 2; 
 
 // Window size
 int windowSizeX, windowSizeY;
