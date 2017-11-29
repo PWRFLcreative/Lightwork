@@ -14,7 +14,7 @@ void setup() {
 
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
-  scrape = new Scraper("binary_layout.csv"); 
+  scrape = new Scraper("layout.csv"); 
   
   //initialize connection to LED driver
   network = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
