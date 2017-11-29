@@ -197,16 +197,16 @@ void buildUI() {
   //loadWidth = width/12*9;
   //capture console events to ui
   cp5.enableShortcuts();
-  cp5Console = cp5.addTextarea("cp5Console")
-    .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
-    .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
-    .setFont(createFont("", 12*guiMultiply))
-    .setLineHeight(16*guiMultiply)
-    .setColor(color(200))
-    .setColorBackground(color(#333333))
-    .setColorForeground(color(255, 100))
-    ;
-  ;
+  //cp5Console = cp5.addTextarea("cp5Console")
+  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
+  //  .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
+  //  .setFont(createFont("", 12*guiMultiply))
+  //  .setLineHeight(16*guiMultiply)
+  //  .setColor(color(200))
+  //  .setColorBackground(color(#333333))
+  //  .setColorForeground(color(255, 100))
+  //  ;
+  //;
 
   //println("adding console");
   //TODO: IS this breaking things?
@@ -244,17 +244,17 @@ void buildUI() {
   //  .activate(0)
   //  ;
 
-  cp5.addToggle("videoIn")
-    .setBroadcast(false)
-    .setCaptionLabel("Video In")
-    .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
-    .setSize(buttonWidth/4, buttonHeight)
-    .setGroup("top")
-    .setValue(true)
-    .setMode(ControlP5.SWITCH)
-    .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    ;
+  //cp5.addToggle("videoIn")
+  //  .setBroadcast(false)
+  //  .setCaptionLabel("Video In")
+  //  .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
+  //  .setSize(buttonWidth/4, buttonHeight)
+  //  .setGroup("top")
+  //  .setValue(true)
+  //  .setMode(ControlP5.SWITCH)
+  //  .setBroadcast(true)
+  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+  //  ;
 
   cp5.addToggle("stereoToggle")
     .setBroadcast(false)
