@@ -30,38 +30,17 @@ void keyPressed() {
   // Capture Image sequence
   // When we are done capturing an image sequence, switch to videoMode = VideoMode.IMAGE_SEQUENCE
   if (key == 'i') {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.frameSkip = 18;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save("backgroundImage.png");
-    blobLifetime = 200; 
+    binaryMapping();  
   }
   // (K)Calibration Mode
   if (key == 'k') {
-    // Activate Calibration Mode
-    if (videoMode != VideoMode.CALIBRATION) {
-      videoMode = VideoMode.CALIBRATION; 
-      backgroundImage = videoInput.copy();
-      backgroundImage.save("calibrationBackgroundImage.png");
-      animator.setMode(AnimationMode.BINARY);
-    } 
-    // Decativate Calibration Mode
-    else if (videoMode == VideoMode.CALIBRATION) {
-      videoMode = VideoMode.CAMERA;
-      backgroundImage = createImage(camWidth, camHeight, RGB);
-      opencv.loadImage(backgroundImage); // Clears OpenCV frame
-      animator.setMode(AnimationMode.OFF); 
-      animator.resetPixels();
-    }
+    calibrate(); 
   }
   // print led info
   if (key == 'l') {
 
     // Save to the Scraper project
-    String savePath = "../LightWork_Scraper/data/binary_layout.csv";
+    String savePath = "../LightWork_Scraper/data/layout.csv";
     saveCSV(leds, savePath);
   }
   if (key == 't') {
