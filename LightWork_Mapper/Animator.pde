@@ -1,5 +1,4 @@
-//   //<>//
-//  Animator.pde
+//  Animator.pde //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -10,7 +9,7 @@
 //////////////////////////////////////////////////////////////
 
 
-enum animationMode {
+enum AnimationMode {
   CHASE, TEST, BINARY, OFF
 };
 
@@ -21,12 +20,12 @@ public class Animator {
   int                 frameCounter;           // Internal framecounter
   int                 frameSkip;              // How many frames to skip between updates
 
-  animationMode       mode;
+  AnimationMode       mode;
 
   Animator() {
     println("Animator created");
     ledIndex = 0; // Internal counter
-    mode = animationMode.OFF;
+    mode = AnimationMode.OFF;
 
     testIndex = 0;
     frameCounter = 0;
@@ -38,16 +37,16 @@ public class Animator {
   //////////////////////////////////////////////////////////////
 
 
-  void setMode(animationMode m) {
+  void setMode(AnimationMode m) {
     setAllLEDColours(off);
     mode = m;
     ledIndex = 0; // TODO: resetInternalVariables() method?
     testIndex = 0;
     frameCounter = 0;
-    resetPixels();
+    //resetPixels();
   }
 
-  animationMode getMode() {
+  AnimationMode getMode() {
     return mode;
   }
 
@@ -69,6 +68,7 @@ public class Animator {
 
   // Internal method to reassign pixels with a vector of the right length. Gives all pixels a value of (0,0,0) (black/off).
   void resetPixels() {
+    println("Animator -> resetPixels()"); 
     network.populateLeds();
     network.update(this.getPixels());
   }
@@ -83,16 +83,16 @@ public class Animator {
   }
 
 
-  //////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////// //<>//
   // Animation Methods //<>//
   //////////////////////////////////////////////////////////////
 
-  void update() {
-    //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>//
+  void update() { //<>// //<>//
+    //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>// //<>//
     switch(mode) {
     case CHASE: 
-      { //<>//
-        chase();
+      { //<>// //<>//
+        chase(); //<>//
         break;
       }
     case TEST: 
@@ -115,7 +115,7 @@ public class Animator {
     frameCounter++;
 
     //send pixel data over network
-    if (mode!=animationMode.OFF && network.isConnected) {
+    if (mode!=AnimationMode.OFF && network.isConnected) {
       network.update(this.getPixels());
     }
 
@@ -133,16 +133,17 @@ public class Animator {
       }
       leds.get(i).setColor(col);
     }
-
+    
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly
     if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) {
-      this.setMode(animationMode.OFF);
+      this.setMode(AnimationMode.OFF); //<>//
     }
-  } //<>//
+  }
 
-  // Set all LEDs to the same colour (useful to turn them all on or off).
+  // Set all LEDs to the same colour (useful to turn them all on or off). //<>//
   void setAllLEDColours(color col) {
     for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).setColor(col);

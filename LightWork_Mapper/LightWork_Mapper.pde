@@ -1,4 +1,6 @@
-//  Lightwork_Mapper //<>// //<>// //<>//
+//  LED_Mapper.pde //<>//
+//  Lightwork-Mapper
+
 //
 //  Created by Leo Stefansson and Tim Rolls 
 //
@@ -13,6 +15,7 @@ import java.awt.Rectangle;
 Capture cam;
 Capture cam2;
 OpenCV opencv;
+OpenCV blobCV; // Separate CV instance for blob tracking because. Using only one results in different image processing when calling opencv.findContours()
 ControlP5 cp5;
 Animator animator;
 Interface network; 
@@ -20,9 +23,10 @@ Interface network;
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
 int ledBrightness = 150;
+int blobLifetime = 200; 
 
 enum  VideoMode {
-  CAMERA, FILE, IMAGE_SEQUENCE, OFF
+  CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
 };
 
 VideoMode videoMode; 
@@ -103,25 +107,23 @@ void setup()
   blobList = new ArrayList<Blob>();
   cam = new Capture(this, camWidth, camHeight, 30);
 
-  // OpenCV Setup
-  println("Setting up openCV");
-  opencv = new OpenCV(this, camWidth, camHeight);
-  //opencv.startBackgroundSubtraction(1, 2, 0.5); //int history, int nMixtures, double backgroundRatio
-
+  // Network
   println("setting up network Interface");
   network = new Interface();
   network.setNumStrips(3);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
-
+  //network.populateLeds();
+  
+  // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(30);
+  animator.setFrameSkip(10);
   animator.setAllLEDColours(off); // Clear the LED strips
-  animator.setMode(animationMode.OFF);
+  animator.setMode(AnimationMode.OFF);
   animator.update();
 
-  //Check for hi resolution display
+  //Check for high resolution display
   println("setup gui multiply");
   guiMultiply = 1;
   if (displayWidth >= 2560) {
@@ -138,6 +140,11 @@ void setup()
   println("allocating videoInput with empty image");
   videoInput = createImage(camWidth, camHeight, RGB);
 
+  // OpenCV Setup
+  println("Setting up openCV");
+  opencv = new OpenCV(this, videoInput);
+  blobCV =  new OpenCV(this, opencv.getSnapshot());
+
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
@@ -145,10 +152,11 @@ void setup()
   background(0);
 }
 
+// -----------------------------------------------------------
+// -----------------------------------------------------------
 void draw() {
-  //Loading screen
+  // LOADING SCREEN
   if (!isUIReady) {
-    //cp5.setVisible(false);
     background(0);
     if (frameCount%1000==0) {
       println("DrawLoop: Building UI....");
@@ -158,41 +166,38 @@ void draw() {
 
     pushMatrix(); 
     translate(width/2, height/2);
-    //println((1.0/(float)size)%255);
-
     noFill();
     stroke(255, size);
     strokeWeight(4);
-    //rotate(frameCount*0.1);
     ellipse(0, 0, size, size);
-
     translate(0, 100*guiMultiply);
     fill(255);
     noStroke();
     textSize(18*guiMultiply);
     textAlign(CENTER);
     text("LOADING...", 0, 0);
-
     popMatrix();
-
 
     return;
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
   }
+  // END LOADING SCREEN 
 
   // Update the LEDs (before we do anything else). 
   animator.update();
 
+  // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available()) {
+
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       cam.read();
-      PGraphics pg=createGraphics(640, 480, P2D);
+      PGraphics pg = createGraphics(640, 480, P2D);
       pg.beginDraw();
       pg.image(cam, 0, 0);
       pg.endDraw();
@@ -205,28 +210,30 @@ void draw() {
       }
 
       videoInput = cam;
+      //processCV(); // TODO: This causes the last bit of the sequence to not register resulting
+                     //        in every other LED not being decoded (and detected) properly
     }
+
     // If sequence exists, playback and decode
     else {
-      //println("getting next image for sequence: "+currentFrame);
       videoInput = images.get(currentFrame);
-
       currentFrame++; 
       if (currentFrame >= numFrames) {
         shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
-
       // Background diff
-      diff.beginDraw();
-      diff.background(0);
-      diff.blendMode(NORMAL);
-      diff.image(videoInput, 0, 0);
-      diff.blendMode(SUBTRACT);
-      diff.image(backgroundImage, 0, 0);
-      diff.endDraw();
+      processCV();
     }
     // Assign diff to videoInput
+  }
+
+  // Calibration mode, use this to tweak your parameters before mapping
+  else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
+    cam.read(); 
+    videoInput = cam; 
+    // Background diff
+    processCV();
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -239,18 +246,18 @@ void draw() {
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
+  /*
   if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-    opencv.loadImage(diff);
-  } else {
-    opencv.loadImage(camFBO);
-    //opencv.updateBackground();
-  }
-  opencv.gray();
-  opencv.threshold(cvThreshold);
-  opencv.dilate();
-  opencv.erode();
+   opencv.loadImage(diff);
+   opencv.diff(backgroundImage);
+   } else {
+   opencv.loadImage(camFBO);
+   }
+   */
 
   // Decode image sequence
+
+
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     updateBlobs(); 
     displayBlobs();
@@ -260,7 +267,8 @@ void draw() {
     }
   }
 
-  // Display Binary Image and dots for detected LEDs (dots for sequential mapping only). 
+
+  // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   cvFBO.image(opencv.getSnapshot(), 0, 0);
   if (leds.size()>0) {
@@ -271,26 +279,28 @@ void draw() {
     }
   }
   cvFBO.endDraw();
-
-
   image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
+  // Secondary Camera for Stereo Capture
   if (camWindows==3 && cam2!=null) {
     cam2.read();
     image(cam2, camDisplayWidth*2, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
   }
 
   if (isMapping) {
+    processCV(); 
     updateBlobs(); // Find and manage blobs
+    displayBlobs(); 
     sequentialMapping();
   }
 
+  // Display blobs
   blobFBO.beginDraw();
   displayBlobs();
   blobFBO.endDraw();
 
+  // Draw the array of colors going out to the LEDs
 
-  // Draw the array of colors going out to the LEDs //<>//
   if (showLEDColors) {
     // scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
@@ -302,31 +312,41 @@ void draw() {
   }
 } //<>//
 
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+
+void processCV() {
+  diff.beginDraw();
+  diff.background(0);
+  diff.blendMode(NORMAL);
+  diff.image(videoInput, 0, 0);
+  diff.blendMode(SUBTRACT);
+  diff.image(backgroundImage, 0, 0);
+  diff.endDraw();
+  //image(diff, 0, 0); 
+  opencv.loadImage(diff);
+  opencv.contrast(cvContrast);
+  opencv.threshold(cvThreshold);
+}
+
 // Mapping methods
 void sequentialMapping() {
-  //for (Contour contour : opencv.findContours()) {
-  //  noFill();
-  //  stroke(255, 0, 0);
-  //  //contour.draw();
-  //  coords.add(new PVector((float)contour.getBoundingBox().getCenterX(), (float)contour.getBoundingBox().getCenterY()));
-  //}
-
+  //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobList.size()!=0) {
     Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
     PVector loc = new PVector(); 
     loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
-    
+
     int index = animator.getLedIndex();
     leds.get(index).setCoord(loc);
-    println(loc);
+    //println(loc);
   }
-
-  displayBlobs();
 }
 
 void updateBlobs() {
   // Find all contours
-  ArrayList<Contour> contours = opencv.findContours();
+  blobCV.loadImage(opencv.getSnapshot());
+  ArrayList<Contour> contours = blobCV.findContours();
 
   // Filter contours, remove contours that are too big or too small
   // The filtered results are our 'Blobs' (Should be detected LEDs)
@@ -423,8 +443,6 @@ void decodeBlobs() {
 }
 
 void matchBinaryPatterns() {
-  //println("matching...");
-
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
       return;

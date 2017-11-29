@@ -12,55 +12,55 @@ void keyPressed() {
   }
 
   if (key == 'm') {
-     if (network.isConnected()==false) {
-     println("please connect to a device before mapping");
-     } else if (animator.getMode()!=animationMode.CHASE) {
-     animator.setMode(animationMode.CHASE);
-     
-     println("Chase mode");
-     } else {
-     animator.setMode(animationMode.OFF);
-     println("Animator off");
-     }
+    backgroundImage = videoInput.copy(); 
+    animator.setFrameSkip(6);
+    if (network.isConnected()==false) {
+      println("please connect to a device before mapping");
+    } else if (animator.getMode()!=AnimationMode.CHASE) {
+      animator.setMode(AnimationMode.CHASE);
+
+      println("Chase mode");
+    } else {
+      animator.setMode(AnimationMode.OFF);
+      println("Animator off");
+    }
+    blobLifetime = animator.frameSkip; // Make sure there's only one blob at a time.
     isMapping = !isMapping;
   }
   // Capture Image sequence
   // When we are done capturing an image sequence, switch to videoMode = VideoMode.IMAGE_SEQUENCE
   if (key == 'i') {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.frameSkip = 30;
-    animator.setMode(animationMode.BINARY);
-    network.update(animator.getPixels());
-    videoInput.save("Capture/captureBackground.png");
-    backgroundImage = videoInput.copy();
-    //backgroundImage.save("yup_it_worked.png");
+    binaryMapping();  
+  }
+  // (K)Calibration Mode
+  if (key == 'k') {
+    calibrate(); 
   }
   // print led info
   if (key == 'l') {
 
     // Save to the Scraper project
-    String savePath = "../LightWork_Scraper/data/binary_layout.csv";
-    saveCSV(leds, savePath); 
+    String savePath = "../LightWork_Scraper/data/layout.csv";
+    saveCSV(leds, savePath);
   }
   if (key == 't') {
     if (network.isConnected()==false) {
       println("please connect to a device before testing");
-    } else if (animator.getMode()!=animationMode.TEST) {
-      animator.setMode(animationMode.TEST);
+    } else if (animator.getMode()!=AnimationMode.TEST) {
+      animator.setMode(AnimationMode.TEST);
       println("Test mode");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
   }
 
   if (key == 'b') {
-    if (animator.getMode()!=animationMode.BINARY) {
-      animator.setMode(animationMode.BINARY);
+    if (animator.getMode()!=AnimationMode.BINARY) {
+      animator.setMode(AnimationMode.BINARY);
       println("Binary mode (monochrome)");
     } else {
-      animator.setMode(animationMode.OFF);
+      animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
   }
@@ -80,9 +80,8 @@ void keyPressed() {
   // All LEDs Black (clear)
   if (key == 'c') {
     for (int i = 0; i < leds.size(); i++) {
-      leds.get(i).coord.set(0, 0); 
+      leds.get(i).coord.set(0, 0);
     }
-    
   }
 
   // All LEDs White (clear)

@@ -20,7 +20,7 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int lifetime = 200; //127;
+  private int lifetime = blobLifetime; // Global (set using UI); 
   public int timer;
 
   // Unique ID for each blob
@@ -106,9 +106,7 @@ class Blob {
     } else if (br < threshold) {
       detectedPattern.state = 0;
     }
-
+    // Write the detected bit to pattern
     detectedPattern.writeNextBit(detectedPattern.state);
-
-    //print(detectedPattern.state);
   }
 }

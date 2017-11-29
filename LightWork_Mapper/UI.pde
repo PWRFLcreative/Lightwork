@@ -173,18 +173,18 @@ void buildUI() {
   //cp5.getController("ledBrightness").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
   println("adding test button");
-  cp5.addButton("test")
+  cp5.addButton("calibrate")
     .setPosition(0, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2-2, buttonHeight)
     .setGroup("settings")
     ;
 
   println("adding map button"); 
-  cp5.addButton("map")
+  cp5.addButton("binaryMapping")
     .setPosition(buttonWidth/2, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2-2, buttonHeight)
     .setGroup("settings")
-
+    .setCaptionLabel("map")
     ;
 
   println("adding save button");
@@ -197,16 +197,16 @@ void buildUI() {
   //loadWidth = width/12*9;
   //capture console events to ui
   cp5.enableShortcuts();
-  cp5Console = cp5.addTextarea("cp5Console")
-    .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
-    .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
-    .setFont(createFont("", 12*guiMultiply))
-    .setLineHeight(16*guiMultiply)
-    .setColor(color(200))
-    .setColorBackground(color(#333333))
-    .setColorForeground(color(255, 100))
-    ;
-  ;
+  //cp5Console = cp5.addTextarea("cp5Console")
+  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
+  //  .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
+  //  .setFont(createFont("", 12*guiMultiply))
+  //  .setLineHeight(16*guiMultiply)
+  //  .setColor(color(200))
+  //  .setColorBackground(color(#333333))
+  //  .setColorForeground(color(255, 100))
+  //  ;
+  //;
 
   //println("adding console");
   //TODO: IS this breaking things?
@@ -244,17 +244,17 @@ void buildUI() {
   //  .activate(0)
   //  ;
 
-  cp5.addToggle("videoIn")
-    .setBroadcast(false)
-    .setCaptionLabel("Video In")
-    .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
-    .setSize(buttonWidth/4, buttonHeight)
-    .setGroup("top")
-    .setValue(true)
-    .setMode(ControlP5.SWITCH)
-    .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    ;
+  //cp5.addToggle("videoIn")
+  //  .setBroadcast(false)
+  //  .setCaptionLabel("Video In")
+  //  .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
+  //  .setSize(buttonWidth/4, buttonHeight)
+  //  .setGroup("top")
+  //  .setValue(true)
+  //  .setMode(ControlP5.SWITCH)
+  //  .setBroadcast(true)
+  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+  //  ;
 
   cp5.addToggle("stereoToggle")
     .setBroadcast(false)
@@ -406,30 +406,33 @@ public void ledBrightness(int value) {
   animator.setLedBrightness(ledBrightness);
 }
 
-public void test() {
-  if (network.isConnected()==false) {
-    println("please connect to a device before testing");
-  } else if (animator.getMode()!=animationMode.TEST) {
-    animator.setMode(animationMode.TEST);
-    println("Test mode");
-  } else {
-    animator.setMode(animationMode.OFF);
-    println("Animator off");
+public void calibrate() {
+  // Activate Calibration Mode
+  if (videoMode != VideoMode.CALIBRATION) {
+    videoMode = VideoMode.CALIBRATION; 
+    backgroundImage = videoInput.copy();
+    backgroundImage.save("calibrationBackgroundImage.png");
+    animator.setMode(AnimationMode.BINARY);
+  } 
+  // Decativate Calibration Mode
+  else if (videoMode == VideoMode.CALIBRATION) {
+    videoMode = VideoMode.CAMERA;
+    backgroundImage = createImage(camWidth, camHeight, RGB);
+    opencv.loadImage(backgroundImage); // Clears OpenCV frame
+    animator.setMode(AnimationMode.OFF); 
+    animator.resetPixels();
   }
 }
 
-public void map() {
-  if (network.isConnected()==false) {
-    println("please connect to a device before mapping");
-  } else if (animator.getMode()!=animationMode.CHASE) {
-    isMapping=!isMapping;
-    animator.setMode(animationMode.CHASE);
-    println("Chase mode");
-  } else {
-    isMapping=!isMapping;
-    animator.setMode(animationMode.OFF);
-    println("Animator off");
-  }
+public void binaryMapping() {
+  // Set frameskip so we have enough time to capture an image of each animation frame. 
+  videoMode = VideoMode.IMAGE_SEQUENCE;
+  animator.frameSkip = 18;
+  animator.setMode(AnimationMode.BINARY);
+  //animator.resetPixels();
+  backgroundImage = videoInput.copy();
+  backgroundImage.save("backgroundImage.png");
+  blobLifetime = 200;
 }
 
 public void save() {
@@ -464,8 +467,8 @@ void stereoToggle(boolean theFlag) {
     window3d();
     cp5.get(ScrollableList.class, "camera2")
       .setVisible(true);
-      //.setPosition(camDisplayWidth, 0)
-      
+    //.setPosition(camDisplayWidth, 0)
+
     cam2 = new Capture(this, camWidth, camHeight, 30);
     println("Stereo camera on");
   }
