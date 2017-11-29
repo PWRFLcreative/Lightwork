@@ -427,15 +427,22 @@ public void calibrate() {
 public void binaryMapping() {
   if (videoMode != VideoMode.IMAGE_SEQUENCE) {
     // Set frameskip so we have enough time to capture an image of each animation frame. 
-  videoMode = VideoMode.IMAGE_SEQUENCE;
-  animator.frameSkip = 18;
-  animator.setMode(AnimationMode.BINARY);
-  //animator.resetPixels();
-  backgroundImage = videoInput.copy();
-  backgroundImage.save("backgroundImage.png");
-  blobLifetime = 200;
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.frameSkip = 18;
+    animator.setMode(AnimationMode.BINARY);
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save("backgroundImage.png");
+    blobLifetime = 200;
+  } else {
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.OFF);
+    animator.resetPixels();
+    blobList.clear();
+    shouldStartDecoding = false; 
+    images.clear();
+    currentFrame = 0; 
   }
-  
 }
 
 public void save() {
