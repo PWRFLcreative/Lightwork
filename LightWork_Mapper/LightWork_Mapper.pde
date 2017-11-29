@@ -1,4 +1,4 @@
-//  LED_Mapper.pde //<>//
+//  LED_Mapper.pde //<>// //<>//
 //  Lightwork-Mapper
 
 //
@@ -65,7 +65,7 @@ ArrayList<Blob> blobList;
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 
 int minBlobSize = 2;
-int maxBlobSize = 10;
+int maxBlobSize = 30;
 float distanceThreshold = 2; 
 
 // Window size
