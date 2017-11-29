@@ -1,4 +1,4 @@
-//  UI.pde //<>// //<>//
+//  UI.pde //<>// //<>// //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -425,7 +425,8 @@ public void calibrate() {
 }
 
 public void binaryMapping() {
-  // Set frameskip so we have enough time to capture an image of each animation frame. 
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
   videoMode = VideoMode.IMAGE_SEQUENCE;
   animator.frameSkip = 18;
   animator.setMode(AnimationMode.BINARY);
@@ -433,6 +434,8 @@ public void binaryMapping() {
   backgroundImage = videoInput.copy();
   backgroundImage.save("backgroundImage.png");
   blobLifetime = 200;
+  }
+  
 }
 
 public void save() {

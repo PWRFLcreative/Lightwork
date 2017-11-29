@@ -428,7 +428,7 @@ void decodeBlobs() {
       Rectangle r = blobList.get(i).contour.getBoundingBox();
       // TODO: Which texture do we decode?
       PImage snap = opencv.getSnapshot();
-      PImage cropped = diff.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
         br += brightness(c);
