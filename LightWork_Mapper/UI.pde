@@ -583,3 +583,11 @@ void window3d() {
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
 }
+
+void warranty(){
+ println("Lightwork-Mapper"); 
+ println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL");
+ println("This program comes with ABSOLUTELY NO WARRANTY");
+ println("");
+ 
+}

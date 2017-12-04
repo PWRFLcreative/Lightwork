@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/* //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -106,8 +106,9 @@ void setup()
 {
   size(640, 480, P3D);
   frameRate(FPS);
+  warranty();
   camAspect = (float)camWidth / (float)camHeight;
-  println(camAspect);
+  println("Cam Aspect: "+camAspect);
 
   videoMode = VideoMode.CAMERA; 
 
@@ -326,7 +327,7 @@ void draw() {
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
-} //<>// //<>//
+} //<>//
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
