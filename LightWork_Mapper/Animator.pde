@@ -1,12 +1,12 @@
-//  Animator.pde //<>//
-//  Lightwork-Mapper
-//
-//  Created by Leo Stefansson and Tim Rolls
-//
-//  This Class handles timing and generates the state and color of all connected LEDs
-//  Currently missing Binary pattern parts
-//
-//////////////////////////////////////////////////////////////
+ /* //<>//
+ *  Animator
+ *  
+ *  This Class handles timing and generates the state and color of all connected LEDs
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @author Leó Stefánsson and Tim Rolls
+ */
 
 
 enum AnimationMode {

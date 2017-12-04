@@ -1,11 +1,27 @@
-//  LED_Mapper.pde //<>// //<>//
-//  Lightwork-Mapper
-
-//
-//  Created by Leo Stefansson and Tim Rolls 
-//
-//  This sketch uses computer vision to automatically generate mapping for LEDs.
-//  Currently, Fadecandy and PixelPusher are supported.
+/* //<>// //<>//
+ *  Lightwork-Mapper
+ *  
+ *  This sketch uses computer vision to automatically generate mapping for LEDs.
+ *  Currently, Fadecandy and PixelPusher are supported.
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ *  
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *  
+*/
 
 import processing.svg.*;
 import processing.video.*; 
@@ -310,7 +326,7 @@ void draw() {
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
-} //<>//
+} //<>// //<>//
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------

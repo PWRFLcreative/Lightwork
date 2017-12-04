@@ -1,3 +1,13 @@
+/*
+ *  Keypress
+ *  
+ *  Keyboard event handlers, mostly duplicate functionality with the GUI
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ */
+
 void keyPressed() {
   //if (key == 's') {
   //  if (leds.size() == 0) { // TODO: Review this

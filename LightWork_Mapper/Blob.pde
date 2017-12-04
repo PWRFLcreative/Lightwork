@@ -1,4 +1,4 @@
-/**
+/*
  * Blob Class
  *
  * Based on this example by Daniel Shiffman:

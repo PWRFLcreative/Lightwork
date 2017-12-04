@@ -1,11 +1,12 @@
-//  Interface.pde //<>// //<>//
-//  Lightwork-Mapper
-//
-//  Created by Leo Stefansson and Tim Rolls
-//  
-//  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
-//
-//////////////////////////////////////////////////////////////
+/* //<>//
+ *  LED
+ *  
+ *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ */
 
 
 //Pixel Pusher library imports

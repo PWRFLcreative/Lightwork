@@ -1,11 +1,12 @@
-//  UI.pde //<>// //<>// //<>//
-//  Lightwork-Mapper
-//
-//  Created by Leo Stefansson and Tim Rolls
-//  
-//  This class builds the UI for the application
-//
-//////////////////////////////////////////////////////////////
+/* //<>//
+ *  UI
+ *  
+ *  This class builds the UI for the application
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ */
 
 import controlP5.*;
 
