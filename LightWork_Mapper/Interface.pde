@@ -27,7 +27,7 @@ public class Interface {
   device              mode;
 
   //LED defaults
-  String               IP = "fade2.local";
+  String               IP = "fade1.local";
   int                  port = 7890;
   int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
   int                  numStrips = 8;

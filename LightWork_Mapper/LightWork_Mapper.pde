@@ -4,7 +4,7 @@
 //
 //  Created by Leo Stefansson and Tim Rolls 
 //
-//  This sketch uses computer vision to automatically generate mapping for LEDs.
+//  This sketch uses computer vision to automatically generate mappin  g for LEDs.
 //  Currently, Fadecandy and PixelPusher are supported.
 
 import processing.svg.*;
@@ -110,8 +110,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(3);
-  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
+  network.setNumStrips(6);
+  network.setNumLedsPerStrip(40); // TODO: Fix these setters...
   //network.populateLeds();
   
   // Animator
