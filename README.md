@@ -1,4 +1,4 @@
-# Lightwork Quick Reference
+# Lightwork BETA Quick Reference
 
 Lightwork helps simplify the process of mapping complex arrangements of LEDs. To use it, you’ll want to set up your driver hardware and LEDs first.
 
@@ -16,11 +16,17 @@ This guide is very useful for setting up a raspberry pi to drive FadeCandy contr
 
 **Artnet**, you’ll need to consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
 
-## Required libraries
+## Requirements
 
-All available from the Sketch>Import Library> Add Library dialog in the Processing IDE:
+**Libraries:**
+All available from the Sketch>Import Library>Add Library dialog in the Processing IDE:
 
 **PixelPusher, OpenCV, ControlP5**
+
+We reccommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
+
+Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
+
 
 # LightWork Mapper
 
@@ -59,6 +65,8 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 **Save:** Saves a CSV of the mapping layout, to be used in the Lightwork Scraper.
 
 ## Keyboard controls:
+
+Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
 S: save
 
