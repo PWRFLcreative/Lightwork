@@ -2,6 +2,21 @@
 
 Lightwork helps simplify the process of mapping complex arrangements of LEDs. To use it, you’ll want to set up your driver hardware and LEDs first.
 
+## Requirements
+
+**Libraries:**
+All available from the Sketch>Import Library>Add Library dialog in the Processing IDE:
+
+**PixelPusher, OpenCV, ControlP5**
+
+We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
+
+Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
+
+1440x900 or higher resolution recommended.
+
+PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs.
+
 **PixelPusher setup reference:**
 
 [https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started](https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started)
@@ -15,17 +30,6 @@ This guide is very useful for setting up a raspberry pi to drive FadeCandy contr
 [https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup](https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup)
 
 **Artnet**, you’ll need to consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
-
-## Requirements
-
-**Libraries:**
-All available from the Sketch>Import Library>Add Library dialog in the Processing IDE:
-
-**PixelPusher, OpenCV, ControlP5**
-
-We reccommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
-
-Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
 
 
 # LightWork Mapper
