@@ -5,16 +5,18 @@ Lightwork helps simplify the process of mapping complex arrangements of LEDs. To
 ## Requirements
 
 **Libraries:**
-All available from the Sketch>Import Library>Add Library dialog in the Processing IDE:
-
 **PixelPusher, OpenCV, ControlP5**
+All available from the Sketch>Import Library>Add Library dialog in the Processing IDE.
 
-We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
-
+**Software**
 Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
 
 1440x900 or higher resolution recommended.
 
+**A Webcam**
+We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
+
+**Hardware**
 PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs.
 
 **PixelPusher setup reference:**
