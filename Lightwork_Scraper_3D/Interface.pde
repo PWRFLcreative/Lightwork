@@ -186,8 +186,21 @@ public class Interface {
   // Network Methods
   //////////////////////////////////////////////////////////////
 
-  void update(color[] colors) {
+  void update(HashMap hm) {
 
+    ArrayList<Integer>  colorArray = new ArrayList<Integer>(); 
+    for (int i = 0; i < hm.size(); i++) {
+     color c = (int)hm.get(i); 
+     colorArray.add(c); 
+    }
+    
+    
+    // Actualn colors[] array
+    color[] colors = new color[colorArray.size()];
+    for (int i = 0; i < colors.length; i++) {
+       colors[i] = colorArray.get(i); 
+    }
+    
     switch(mode) {
     case FADECANDY: 
       {
@@ -316,7 +329,7 @@ public class Interface {
         
         // Clear LEDs
         //animator.setAllLEDColours(off);
-        update(scraper.getColors());
+        //update(scraper.getColors());
       }
 
       registry.setLogging(false);

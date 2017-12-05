@@ -8,7 +8,7 @@ Capture cam;
 
 PImage clouds;
 int pos;
-float margin =50; //prevents scraper from operating outside the canvas
+float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
 void setup() {
@@ -24,8 +24,8 @@ void setup() {
   scrape = new Scraper("layout.csv"); 
 
   //initialize connection to LED driver
-  network = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
-  //network = new Interface(device.FADECANDY, "fade1.local", 1, 50);
+  //network = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
+  network = new Interface(device.FADECANDY, "fade1.local", 1, 50);
   network.connect(this);
 
   //update scraper after network connects

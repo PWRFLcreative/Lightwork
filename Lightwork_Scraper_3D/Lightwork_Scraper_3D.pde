@@ -36,34 +36,17 @@ void draw() {
   background(0); 
 
   // Lighting
-  pointLight(255, 255, 255, width*2, 0, scraper.depth*15); 
-
-  // Draw the reference plane
+  pointLight(255, 255, 255, width, 0, scraper.depth*15); 
 
   // Draw reference plane
-  fill(255); 
+  fill(255);
   pushMatrix();
   translate(0, 0, -scraper.depth);
   rect(-width, -height, width*2, height*2); 
   popMatrix();
 
-  // Draw the LED coordinates
-  /*
-  for (int i = 0; i < coord.size(); i++) {
-    pushMatrix(); 
-    translate(coord.get(i).x-width/2, coord.get(i).y-height/2, coord.get(i).z*4); 
-
-    fill(255); 
-    sphere(5);  
-    translate(0, 0, 10); 
-    fill(255, 0, 0); 
-    text(i, 0, 0); 
-
-    popMatrix();
-  }
-  */ 
-  
   scraper.display();
-  //scraper.update();
-  //network.update(scraper.getColors());
+  scraper.update();
+  network.update(scraper.hm);
+  
 }
