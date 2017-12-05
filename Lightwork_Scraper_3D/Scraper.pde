@@ -9,9 +9,11 @@ public class Scraper {
 
   ArrayList<PVector> loc;
   color[] colors;
+  int depth;
 
   Scraper ( String in) {  
     file=in;
+    depth = 100;
     loc = new ArrayList<PVector>();
     //thread("loadCSV(file)");
     loadCSV(file);
