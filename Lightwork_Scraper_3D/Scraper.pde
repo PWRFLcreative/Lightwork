@@ -58,17 +58,9 @@ public class Scraper {
 
   //update colors to be sent for next network packet
   void update() {
-
-    //for (int i = 0; i<loc.size(); i++) {
-    //  PVector temp = loc.get(i);
-    //  colors[i] = get((int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
-    //}
-    
     // Populate hashmap with random colors, for now.
     // This should sample colors from the 3D space
     for (int i = 0; i<loc.size(); i++) {
-      PVector vec = loc.get(i);
-      //print(vec);
       color c = color((int)random(255), (int)random(255), (int)random(255));
       hm.put(i, c); 
     }
