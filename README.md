@@ -8,7 +8,7 @@ Lightwork helps simplify the process of mapping complex arrangements of LEDs. To
 **Libraries:**
 **PixelPusher, OpenCV, ControlP5**
 
-All available from the 'Sketch > Import Library > Add Library' dialog in the Processing IDE.
+All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
 
 **Software**
 
