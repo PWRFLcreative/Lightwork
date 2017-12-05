@@ -2,7 +2,6 @@
 
 Lightwork helps simplify the process of mapping complex arrangements of LEDs. To use it, you’ll want to set up your driver hardware and LEDs first.
 
----
 
 #### Requirements
 
@@ -22,26 +21,23 @@ Tested and developed in OSX 10.12 and Windows 10, may not behave well in other o
 We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
 
 **Hardware**
-
 PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs.
 
 **PixelPusher setup reference:**
-
 [https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started](https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started)
 
 **FadeCandy:**
-
 [https://github.com/scanlime/fadecandy](https://github.com/scanlime/fadecandy)
 
 This guide is very useful for setting up a raspberry pi to drive FadeCandy controllers over network:
 
 [https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup](https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup)
 
-**Artnet**, you’ll need to consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
+**Artnet:**
+Consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
 
----
 
-## LightWork Mapper
+### LightWork Mapper
 
 The application used to map your LED array.
 
@@ -77,9 +73,8 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 
 **Save:** Saves a CSV of the mapping layout, to be used in the Lightwork Scraper.
 
----
 
-#### Keyboard controls:
+#### KEYBOARD CONTROLS:
 
 Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
@@ -93,9 +88,8 @@ L: save layout to CSV
 
 T: test mode
 
----
 
-## LightWork Scraper
+### LIGHTWORK SCRAPER
 
 Use with your own sketch to map your content onto the LED array
 
