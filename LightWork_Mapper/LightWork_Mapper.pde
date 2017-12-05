@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -21,7 +21,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *  
-*/
+ */
 
 import processing.svg.*;
 import processing.video.*; 
@@ -101,12 +101,13 @@ int imageIndex = 0;
 int captureTimer = 0; 
 boolean shouldStartDecoding; // Only start decoding once we've decoded a full sequence
 
-
 void setup()
 {
   size(640, 480, P3D);
   frameRate(FPS);
   warranty();
+  String os=System.getProperty("os.name");
+  println("Operating System: "+os);
   camAspect = (float)camWidth / (float)camHeight;
   println("Cam Aspect: "+camAspect);
 
@@ -130,7 +131,7 @@ void setup()
   network.setNumStrips(3);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
   //network.populateLeds();
-  
+
   // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
@@ -228,7 +229,7 @@ void draw() {
 
       videoInput = cam;
       //processCV(); // TODO: This causes the last bit of the sequence to not register resulting
-                     //        in every other LED not being decoded (and detected) properly
+      //        in every other LED not being decoded (and detected) properly
     }
 
     // If sequence exists, playback and decode
@@ -327,7 +328,7 @@ void draw() {
       rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
     }
   }
-} //<>//
+}
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
@@ -604,6 +605,14 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
 
 //  return points;
 //}
+
+//Console warranty info
+void warranty() {
+  println("Lightwork-Mapper"); 
+  println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL");
+  println("This program comes with ABSOLUTELY NO WARRANTY");
+  println("");
+}
 
 //Closes connections (once deployed as applet)
 void stop()

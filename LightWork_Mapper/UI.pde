@@ -63,6 +63,14 @@ void buildUI() {
     .hideBar()
     ;
 
+  Group mapping = cp5.addGroup("mapping")
+    .setPosition((cp5.get("network").getWidth()+uiSpacing)*2, (70*guiMultiply)+camDisplayHeight)
+    .setBackgroundHeight(200*guiMultiply)
+    .setWidth(uiGrid*4)
+    //.setBackgroundColor(color(255, 50))
+    .hideBar()
+    ;
+
   //loadWidth = width/12*6;
   println("adding textfield for IP");
   cp5.addTextfield("ip")
@@ -73,7 +81,6 @@ void buildUI() {
     .setValue(network.getIP())
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
-  println("done adding textfield for IP");
 
   println("adding textfield for ledsPerStrip");
   cp5.addTextfield("leds_per_strip")
@@ -173,18 +180,30 @@ void buildUI() {
   //cp5.getController("ledBrightness").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
   //cp5.getController("ledBrightness").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
+  //Mapping type toggle
+  List mapToggle = Arrays.asList("Binary", "Sequential");
+  ButtonBar b = cp5.addButtonBar("mappingToggle")
+    .setPosition(0, (buttonHeight+uiSpacing)*3)
+    .setSize(buttonWidth, buttonHeight)
+    .addItems(mapToggle)
+    .setDefaultValue(0)
+    .setGroup("settings")
+    ;
+
+  cp5.getController("mappingToggle").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+
   println("adding test button");
   cp5.addButton("calibrate")
     .setPosition(0, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2-2, buttonHeight)
-    .setGroup("settings")
+    .setGroup("mapping")
     ;
 
   println("adding map button"); 
   cp5.addButton("binaryMapping")
     .setPosition(buttonWidth/2, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2-2, buttonHeight)
-    .setGroup("settings")
+    .setGroup("mapping")
     .setCaptionLabel("map")
     ;
 
@@ -192,7 +211,7 @@ void buildUI() {
   cp5.addButton("save")
     .setPosition(buttonWidth+uiSpacing, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2, buttonHeight)
-    .setGroup("settings")
+    .setGroup("mapping")
     ;
 
   //loadWidth = width/12*9;
@@ -217,34 +236,6 @@ void buildUI() {
   println("add framerate panel");
   cp5.addFrameRate().setPosition((camDisplayWidth*2)-uiSpacing*3, 0);
 
-  //r1 = cp5.addRadioButton("videoIn")//.setTitle("Video Input Mode")
-  //  .setPosition(buttonWidth*2, 0)
-  //  .setSize(buttonWidth/4, buttonHeight)
-  //  .setGroup("top")
-  //  .setColorForeground(color(120))
-  //  .setColorActive(color(255))
-  //  .setColorLabel(color(255))
-  //  .setItemsPerRow(5)
-  //  .setSpacingColumn(uiSpacing*3)
-  //  .addItem("Camera", 1)
-  //  .addItem("File", 2)
-  //  .activate(0)
-  //  ;
-
-  //r2 = cp5.addRadioButton("stereoToggle")
-  //  .setPosition(buttonWidth*4, 0)
-  //  .setSize(buttonWidth/4, buttonHeight)
-  //  .setGroup("top")
-  //  .setColorForeground(color(120))
-  //  .setColorActive(color(255))
-  //  .setColorLabel(color(255))
-  //  .setItemsPerRow(5)
-  //  .setSpacingColumn(uiSpacing*3)
-  //  .addItem("2D", 1)
-  //  .addItem("3D", 2)
-  //  .activate(0)
-  //  ;
-
   //cp5.addToggle("videoIn")
   //  .setBroadcast(false)
   //  .setCaptionLabel("Video In")
@@ -257,17 +248,17 @@ void buildUI() {
   //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
   //  ;
 
-  cp5.addToggle("stereoToggle")
-    .setBroadcast(false)
-    .setCaptionLabel("Stereo Toggle")
-    .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
-    .setSize(buttonWidth/4, buttonHeight)
-    .setGroup("top")
-    .setValue(true)
-    .setMode(ControlP5.SWITCH)
-    .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
-    ;
+  //cp5.addToggle("stereoToggle")
+  //  .setBroadcast(false)
+  //  .setCaptionLabel("Stereo Toggle")
+  //  .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
+  //  .setSize(buttonWidth/4, buttonHeight)
+  //  .setGroup("top")
+  //  .setValue(true)
+  //  .setMode(ControlP5.SWITCH)
+  //  .setBroadcast(true)
+  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+  //  ;
 
   //Refresh connected cameras
   println("cp5: adding refresh button");
@@ -425,26 +416,7 @@ public void calibrate() {
   }
 }
 
-public void binaryMapping() {
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.frameSkip = 18;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save("backgroundImage.png");
-    blobLifetime = 200;
-  } else {
-    videoMode = VideoMode.CAMERA;
-    animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobList.clear();
-    shouldStartDecoding = false; 
-    images.clear();
-    currentFrame = 0; 
-  }
-}
+
 
 public void save() {
   if (leds.size() == 0) { // TODO: review, does this work?
@@ -495,9 +467,21 @@ void videoIn(boolean theFlag) {
   }
 }
 
+void mappingToggle(int n) {
+  if (n==0) {
+    videoMode = VideoMode.IMAGE_SEQUENCE; 
+    animator.setMode(AnimationMode.BINARY);
+    println("Mapping Mode: Binary");
+  } else if (n==1) {
+    videoMode = VideoMode.CAMERA; 
+    animator.setMode(AnimationMode.CHASE);
+    println("Mapping Mode: Sequential");
+  }
+}
+
 
 //////////////////////////////////////////////////////////////
-// Camera Switching
+// UI Methods
 //////////////////////////////////////////////////////////////
 
 //get the list of currently connected cameras
@@ -529,7 +513,7 @@ String[] enumerateCams() {
   return cameras;
 }
 
-//UI camera switching
+//UI camera switching - Cam 1
 void switchCamera(String name) {
   cam.stop();
   cam=null;
@@ -537,7 +521,7 @@ void switchCamera(String name) {
   cam.start();
 }
 
-//UI camera switching
+//UI camera switching - Cam 2
 void switchCamera2(String name) {
   cam2.stop();
   cam2=null;
@@ -584,10 +568,24 @@ void window3d() {
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
 }
 
-void warranty(){
- println("Lightwork-Mapper"); 
- println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL");
- println("This program comes with ABSOLUTELY NO WARRANTY");
- println("");
- 
+// 
+public void binaryMapping() {
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.frameSkip = 18;
+    animator.setMode(AnimationMode.BINARY);
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save("backgroundImage.png");
+    blobLifetime = 200;
+  } else {
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.OFF);
+    animator.resetPixels();
+    blobList.clear();
+    shouldStartDecoding = false; 
+    images.clear();
+    currentFrame = 0;
+  }
 }
