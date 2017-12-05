@@ -27,6 +27,12 @@ void keyPressed() {
     blobLifetime = animator.frameSkip; // Make sure there's only one blob at a time.
     isMapping = !isMapping;
   }
+  
+  // Export binary image (CV FBO) 
+  if (key == 'p') {
+     cvFBO.save("future_binary_close.png");
+  }
+  
   // Capture Image sequence
   // When we are done capturing an image sequence, switch to videoMode = VideoMode.IMAGE_SEQUENCE
   //if (key == 'i') {
