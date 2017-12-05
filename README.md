@@ -3,7 +3,7 @@
 Lightwork helps simplify the process of mapping complex arrangements of LEDs. To use it, you’ll want to set up your driver hardware and LEDs first.
 
 
-#### Requirements
+### Requirements
 
 **Libraries:**
 **PixelPusher, OpenCV, ControlP5**
@@ -37,11 +37,11 @@ This guide is very useful for setting up a raspberry pi to drive FadeCandy contr
 Consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
 
 
-### LightWork Mapper
+## LightWork Mapper
 
 The application used to map your LED array.
 
-#### UI controls:
+### UI controls:
 
 **Camera:** select a connected USB webcam
 
@@ -74,22 +74,22 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 **Save:** Saves a CSV of the mapping layout, to be used in the Lightwork Scraper.
 
 
-#### KEYBOARD CONTROLS:
+## KEYBOARD CONTROLS:
 
 Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
-S: save
+**S:** save
 
-M: sequential mapping
+**M:** sequential mapping
 
-I: Image sequence mapping
+**I:** Image sequence mapping
 
-L: save layout to CSV
+**L:** save layout to CSV
 
-T: test mode
+**T:** test mode
 
 
-### LIGHTWORK SCRAPER
+## LIGHTWORK SCRAPER
 
 Use with your own sketch to map your content onto the LED array
 
