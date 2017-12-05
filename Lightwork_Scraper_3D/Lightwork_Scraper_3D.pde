@@ -16,15 +16,16 @@ void setup() {
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(2500);
   cam.setDistance(1500);
-  // Color Scraper
-  scraper = new Scraper("future_stereo_normalized.csv");
+  
+  
   
   // Network Interface
   //initialize connection to LED driver
   //network = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
-  network = new Interface(device.FADECANDY, "fade1.local", 1, 50);
+  network = new Interface(device.FADECANDY, "fade1.local", 6, 40);
   network.connect(this);
-  
+  // Color Scraper
+  scraper = new Scraper("future_stereo_normalized.csv", network.numLeds);
 
   background(0);
   fill(255);
@@ -46,7 +47,8 @@ void draw() {
   popMatrix();
 
   scraper.display();
-  scraper.update();
+  //scraper.update();
+  scraper.updateColorAtAddress(color((int)random(255), (int)random(255), (int)random(255)), (int)random(network.numLeds));
   network.update(scraper.hm);
   
 }

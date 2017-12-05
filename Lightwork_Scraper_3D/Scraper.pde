@@ -5,18 +5,24 @@ public class Scraper {
 
   ArrayList<PVector> loc;
   color[] colors;
-  int depth;
-  Table table;
+  int depth; // Z coordinate scaling
+  Table table; // For loading CSV
   HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>(); // Key:Value (Int:color (Color is actually Integer))
 
-  Scraper ( String in) {  
+  Scraper (String in, int ledCount) {  
     file=in;
-    depth = 100;
+    depth = 100; // Z coordinate scaling
     loc = new ArrayList<PVector>();
     //thread("loadCSV(file)");
     loadCSV(file);
     //normCoords();
     colors = new color[loc.size()];
+    
+    // Populate hashmap with color values
+    for (int i = 0; i < ledCount; i++) {
+      hm.put(i, color(0, 0, 0));  
+    }
+    
   }
 
 
@@ -65,4 +71,9 @@ public class Scraper {
       hm.put(i, c); 
     }
   }
+  
+  void updateColorAtAddress(color c, int address) {
+   hm.put(address, c);  
+  }
+  
 }
