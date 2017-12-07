@@ -50,7 +50,6 @@ public class Interface {
 
   Interface() {
     mode = device.NULL;
-    //populateLeds();
     println("Interface created");
   }
 
@@ -61,9 +60,13 @@ public class Interface {
     numStrips =strips;
     ledsPerStrip = ledCount;
     numLeds = ledsPerStrip*numStrips;
-    leds = new LED[numLeds]; 
-
+    leds = new LED[numLeds];
+    
+    for (int i = 0; i < leds.length; i++) {
+      leds[i] = new LED(); 
+    }
     //populateLeds();
+
     println("Interface created");
   }
 
@@ -73,10 +76,6 @@ public class Interface {
     numStrips =strips;
     ledsPerStrip = ledCount;
     numLeds = ledsPerStrip*numStrips;
-    leds = new LED[
-    
-    numLeds];
-
     //populateLeds();
     println("Interface created");
   }
@@ -113,15 +112,39 @@ public class Interface {
     return numStrips;
   }
 
-  void setLeds(Scraper s) {
-    for (Map.Entry me : s.hm.entrySet()) {
-      int k = (int)me.getKey(); 
-      //println(k);
-      //print(me.getKey() + " is ");
-      //println(me.getValue());
+  //load position data from csv
+  void loadCSV(String file_) {
+    // Populate table
+    println("LOAD CSV"); 
+    table = loadTable(file_, "header");
+    printArray(table.getColumnTitles()); 
+    int zDepth = 400; 
+    for ( int i = 0; i < table.getRowCount(); i++) {
+      TableRow row = table.getRow(i);
+      int address = row.getInt("address");
+      float x = row.getFloat("x")*width;
+      float y = row.getFloat("y")*height;
+      float z = row.getFloat("z")*zDepth;
+      //println(z); 
+      PVector v = new PVector();
+      v.set (x, y, z ); 
+      leds[i].address = address; 
+      leds[i].coord.set(v); 
     }
-
+    
+    for (int i = 0; i<leds.length; i++) {
+      println(leds[i].address);  
+    }
   }
+
+  //    void setLeds(Scraper s) {
+  //      for (Map.Entry me : s.hm.entrySet()) {
+  //        int k = (int)me.getKey(); 
+  //        println(k);
+  //        //print(me.getKey() + " is ");
+  //        //println(me.getValue());
+  //      }
+  //    }
 
   //TODO: rework this to work in mapper and scraper
 
@@ -182,8 +205,7 @@ public class Interface {
 
   // Reset the LED vector
   //void populateLeds() {
-
-  //  //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
+  //  leds = new LED[numLeds];
 
   //  if (leds.size()>0) {
   //    leds.clear();
@@ -206,12 +228,12 @@ public class Interface {
 
     // Actualn colors[] array
     color[] colors = new color[leds.length];
-    
+
     for (int i = 0; i < leds.length; i++) {
       colors[i] = leds[i].c;
     }
-    
-    
+
+
     switch(mode) {
     case FADECANDY: 
       {
@@ -373,6 +395,7 @@ public class Interface {
     registry.setLogging(b);
   }
 }
+
 
 // PixelPusher Observer
 // Monitors network for changes in PixelPusher configuration

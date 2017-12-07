@@ -1,59 +1,22 @@
 // 3D Pixel Scraper
 
 public class Scraper {
-  String file;
-
-  ArrayList<PVector> loc;
-  color[] colors;
+  LED[] leds; 
   int depth; // Z coordinate scaling
   Table table; // For loading CSV
-  HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>(); // Key:Value (Int:color (Color is actually Integer))
   int sphereRadius = 5; 
-  
-  Scraper (String in, int ledCount) {  
-    file=in;
+
+  Scraper (LED[] ledArray) {  
+    leds = ledArray; 
     depth = 400; // Z coordinate scaling
-    loc = new ArrayList<PVector>();
-    //thread("loadCSV(file)");
-    loadCSV(file);
-    //normCoords();
-    colors = new color[loc.size()];
-    
-    //// Populate hashmap with color values
-    //for (int i = 0; i < loc.size(); i++) {
-    //  hm.put(loc.get(i), color(0, 0, 0));  
-    //}
-    
   }
-
-
-  //load position data from csv
-  void loadCSV(String file_) {
-    // Populate table
-    table = loadTable(file_, "header");
-
-    for ( int i = 0; i < table.getRowCount(); i++) {
-      TableRow row = table.getRow(i);
-      int address = row.getInt("address");
-      float x = row.getFloat("x")*width;
-      float y = row.getFloat("y")*height;
-      float z = row.getFloat("z")*depth;
-      //println(z); 
-      PVector v = new PVector();
-      v.set (x, y, z );
-      loc.add(v);
-      hm.put(address, color(0, 0, 0)); 
-    }
-  }
-
-  
 
   //show points in output window
   void display() {
 
-    for (int i = 0; i < loc.size(); i++) {
+    for (int i = 0; i < leds.length; i++) {
       pushMatrix(); 
-      translate(loc.get(i).x-width/2, loc.get(i).y-height/2, loc.get(i).z); 
+      translate(leds[i].coord.x-width/2, leds[i].coord.y-height/2, leds[i].coord.z); 
       fill(255); 
       sphere(sphereRadius);  
       translate(0, 0, 10); 
@@ -66,16 +29,15 @@ public class Scraper {
 
   //update colors to be sent for next network packet
   void update() {
-    // Populate hashmap with random colors, for now.
-    // This should sample colors from the 3D space
-    for (int i = 0; i<loc.size(); i++) {
+    // Populate LEDs with colours
+    for (int i = 0; i<leds.length; i++) {
       color c = color((int)random(255), (int)random(255), (int)random(255));
-      hm.put(i, c); 
+      leds[i].c = c; 
     }
   }
-  
+
   void updateColorAtAddress(color c, int address) {
-   hm.put(address, c);  
+    //hm.put(address, c);
   }
   
 }
