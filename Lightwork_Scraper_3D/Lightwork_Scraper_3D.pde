@@ -24,7 +24,8 @@ void setup() {
   //ledController = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
   ledController = new Interface(device.FADECANDY, "fade1.local", 6, 40);
   ledController.connect(this);
-  ledController.loadCSV("future_stereo_with_zeros.csv"); 
+  //ledController.loadCSV("future_stereo_with_zeros.csv");
+  ledController.loadCSV("future_depth_map_no_zeros.csv");
   // Color Scraper
   scraper = new Scraper(ledController.leds);
 
@@ -52,16 +53,19 @@ void draw() {
   
   fill(0, 255, 255);
   pushMatrix();
-  translate(0, 0, planeDepth);
+  translate(0, 0, mouseY);
   rect(-width, -height, width*2, height*2); 
   popMatrix();
   
   planeDepth -= 1;
   
   for (int i = 0; i < scraper.leds.length; i++) {
-    float dist = abs(scraper.leds[i].coord.z - planeDepth); 
+    float dist = abs(scraper.leds[i].coord.z - mouseY); 
     if (dist < scraper.sphereRadius) {
-      scraper.updateColorAtAddress(color(255, 0, 0),i);
+      scraper.updateColorAtAddress(color(0, 255, 255),i);
+    }
+    else {
+      scraper.updateColorAtAddress(color(0, 0, 0), i);  
     }
   }
   
