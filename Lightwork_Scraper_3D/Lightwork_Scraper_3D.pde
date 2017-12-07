@@ -68,6 +68,6 @@ void draw() {
   scraper.display();
   scraper.update();
   //scraper.updateColorAtAddress(color((int)random(255), (int)random(255), (int)random(255)), (int)random(network.numLeds));
-  //network.update(scraper.hm);
+  ledController.update(scraper.leds);
   
 }

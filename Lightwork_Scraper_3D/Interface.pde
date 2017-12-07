@@ -223,14 +223,14 @@ public class Interface {
   // Network Methods
   //////////////////////////////////////////////////////////////
 
-  void update(HashMap hm) {
+  void update(LED[] ledArray) {
 
 
     // Actualn colors[] array
-    color[] colors = new color[leds.length];
+    color[] colors = new color[ledArray.length];
 
-    for (int i = 0; i < leds.length; i++) {
-      colors[i] = leds[i].c;
+    for (int i = 0; i < ledArray.length; i++) {
+      colors[i] = ledArray[i].c;
     }
 
 
