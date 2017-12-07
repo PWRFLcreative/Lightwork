@@ -1,4 +1,4 @@
- /* //<>//
+/* //<>//
  *  Animator
  *  
  *  This Class handles timing and generates the state and color of all connected LEDs

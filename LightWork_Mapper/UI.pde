@@ -15,8 +15,7 @@ Println console;
 RadioButton r1, r2;
 boolean isUIReady = false;
 boolean showLEDColors = true;
-
-int loadWidth =0;
+boolean patternMapping = true;
 
 void buildUI() {
   println("setting up ControlP5");
@@ -26,21 +25,21 @@ void buildUI() {
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
-  int uiGrid = 80*guiMultiply;
-  int uiSpacing = 20 *guiMultiply;
-  int buttonHeight = 25 *guiMultiply;
-  int buttonWidth =200 *guiMultiply;
+  int uiGrid = 80;
+  int uiSpacing = 20;
+  int buttonHeight = 25;
+  int buttonWidth =200;
 
   println("Creating font...");
-  PFont pfont = createFont("OpenSans-Regular.ttf", 12*guiMultiply, false); // use true/false for smooth/no-smooth
-  ControlFont font = new ControlFont(pfont, 12*guiMultiply);
+  PFont pfont = createFont("OpenSans-Regular.ttf", 12, false); // use true/false for smooth/no-smooth
+  ControlFont font = new ControlFont(pfont, 12);
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
   cp5.setPosition(uiSpacing, uiSpacing);
 
   Group top = cp5.addGroup("top")
     .setPosition(0, 0)
-    .setBackgroundHeight(30*guiMultiply)
+    .setBackgroundHeight(30)
     .setWidth(width-uiSpacing*2)
     //.setBackgroundColor(color(255, 50))
     //.disableCollapse()
@@ -48,24 +47,24 @@ void buildUI() {
     ;
 
   Group net = cp5.addGroup("network")
-    .setPosition(0, (70*guiMultiply)+camDisplayHeight)
-    .setBackgroundHeight(200*guiMultiply)
+    .setPosition(0, (70)+camDisplayHeight)
+    .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
     .hideBar()
     ;
 
   Group settings = cp5.addGroup("settings")
-    .setPosition(cp5.get("network").getWidth()+uiSpacing, (70*guiMultiply)+camDisplayHeight)
-    .setBackgroundHeight(200*guiMultiply)
+    .setPosition(cp5.get("network").getWidth()+uiSpacing, (70)+camDisplayHeight)
+    .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
     .hideBar()
     ;
 
   Group mapping = cp5.addGroup("mapping")
-    .setPosition((cp5.get("network").getWidth()+uiSpacing)*2, (70*guiMultiply)+camDisplayHeight)
-    .setBackgroundHeight(200*guiMultiply)
+    .setPosition((cp5.get("network").getWidth()+uiSpacing)*2, (70)+camDisplayHeight)
+    .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
     .hideBar()
@@ -79,7 +78,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(network.getIP())
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
   println("adding textfield for ledsPerStrip");
@@ -90,7 +89,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(str(network.getNumLedsPerStrip()))
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
   println("adding textfield for strips");
@@ -100,7 +99,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(str(network.getNumStrips()))
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
   println("listing drivers");
@@ -138,7 +137,7 @@ void buildUI() {
     .setValue(cvContrast)
     .setGroup("settings")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
   ////set labels to bottom
@@ -155,7 +154,7 @@ void buildUI() {
     .setValue(cvThreshold)
     .setGroup("settings")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
 
     ;
 
@@ -173,7 +172,7 @@ void buildUI() {
     .setValue(ledBrightness)
     .setGroup("settings")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
   ////set labels to bottom
@@ -200,7 +199,7 @@ void buildUI() {
     ;
 
   println("adding map button"); 
-  cp5.addButton("binaryMapping")
+  cp5.addButton("map")
     .setPosition(buttonWidth/2, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth/2-2, buttonHeight)
     .setGroup("mapping")
@@ -218,10 +217,10 @@ void buildUI() {
   //capture console events to ui
   cp5.enableShortcuts();
   //cp5Console = cp5.addTextarea("cp5Console")
-  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70*guiMultiply)+camDisplayHeight)
-  //  .setSize((uiGrid*4)-uiSpacing, 180*guiMultiply)
-  //  .setFont(createFont("", 12*guiMultiply))
-  //  .setLineHeight(16*guiMultiply)
+  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70)+camDisplayHeight)
+  //  .setSize((uiGrid*4)-uiSpacing, 180)
+  //  .setFont(createFont("", 12))
+  //  .setLineHeight(16)
   //  .setColor(color(200))
   //  .setColorBackground(color(#333333))
   //  .setColorForeground(color(255, 100))
@@ -245,7 +244,7 @@ void buildUI() {
   //  .setValue(true)
   //  .setMode(ControlP5.SWITCH)
   //  .setBroadcast(true)
-  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
   //  ;
 
   //cp5.addToggle("stereoToggle")
@@ -257,7 +256,7 @@ void buildUI() {
   //  .setValue(true)
   //  .setMode(ControlP5.SWITCH)
   //  .setBroadcast(true)
-  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
   //  ;
 
   //Refresh connected cameras
@@ -314,13 +313,6 @@ void camera(int n) {
   switchCamera(label);
 }
 
-void camera2(int n) {
-  Map m = cp5.get(ScrollableList.class, "camera2").getItem(n);
-  //println(m);
-  String label=m.get("name").toString();
-  //println(label);
-  switchCamera2(label); //tried passing the camera as arg
-}
 
 void driver(int n) { 
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
@@ -404,7 +396,11 @@ public void calibrate() {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("calibrationBackgroundImage.png");
-    animator.setMode(AnimationMode.BINARY);
+    if ( patternMapping == true) {
+      animator.setMode(AnimationMode.BINARY);
+    } else {
+      animator.setMode(AnimationMode.CHASE);
+    }
   } 
   // Decativate Calibration Mode
   else if (videoMode == VideoMode.CALIBRATION) {
@@ -415,8 +411,6 @@ public void calibrate() {
     animator.resetPixels();
   }
 }
-
-
 
 public void save() {
   if (leds.size() == 0) { // TODO: review, does this work?
@@ -439,23 +433,23 @@ void fileSelected(File selection) {
   }
 }
 
-void stereoToggle(boolean theFlag) {
-  if (theFlag==true) {
-    camWindows=2;
-    window2d();
-    cp5.get(ScrollableList.class, "camera2").setVisible(false);
-    println("Stereo camera off");
-  } else {
-    camWindows=3;
-    window3d();
-    cp5.get(ScrollableList.class, "camera2")
-      .setVisible(true);
-    //.setPosition(camDisplayWidth, 0)
+//void stereoToggle(boolean theFlag) {
+//  if (theFlag==true) {
+//    camWindows=2;
+//    window2d();
+//    cp5.get(ScrollableList.class, "camera2").setVisible(false);
+//    println("Stereo camera off");
+//  } else {
+//    camWindows=3;
+//    window3d();
+//    cp5.get(ScrollableList.class, "camera2")
+//      .setVisible(true);
+//    //.setPosition(camDisplayWidth, 0)
 
-    cam2 = new Capture(this, camWidth, camHeight, 30);
-    println("Stereo camera on");
-  }
-}
+//    cam2 = new Capture(this, camWidth, camHeight, 30);
+//    println("Stereo camera on");
+//  }
+//}
 
 void videoIn(boolean theFlag) {
   if (theFlag==true) {
@@ -470,12 +464,34 @@ void videoIn(boolean theFlag) {
 void mappingToggle(int n) {
   if (n==0) {
     videoMode = VideoMode.IMAGE_SEQUENCE; 
-    animator.setMode(AnimationMode.BINARY);
+    patternMapping = true;
     println("Mapping Mode: Binary");
   } else if (n==1) {
     videoMode = VideoMode.CAMERA; 
-    animator.setMode(AnimationMode.CHASE);
+    patternMapping = false;
     println("Mapping Mode: Sequential");
+  }
+}
+
+// 
+public void map() {
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.frameSkip = 18;
+    animator.setMode(AnimationMode.BINARY);
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save("data/backgroundImage.png");
+    blobLifetime = 200;
+  } else {
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.OFF);
+    animator.resetPixels();
+    blobList.clear();
+    shouldStartDecoding = false; 
+    images.clear();
+    currentFrame = 0;
   }
 }
 
@@ -521,27 +537,27 @@ void switchCamera(String name) {
   cam.start();
 }
 
-//UI camera switching - Cam 2
-void switchCamera2(String name) {
-  cam2.stop();
-  cam2=null;
-  cam2 =new Capture(this, camWidth, camHeight, name, 30);
-  cam2.start();
-}
+////UI camera switching - Cam 2
+//void switchCamera2(String name) {
+//  cam2.stop();
+//  cam2=null;
+//  cam2 =new Capture(this, camWidth, camHeight, name, 30);
+//  cam2.start();
+//}
 
 void window2d() {
   camWindows = 2;
   println("Setting window size");
   //Window size based on screen dimensions, centered
   windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
+  windowSizeY = (int)(displayHeight / 2 + (140)); // adds to height for ui elements
 
   surface.setSize(windowSizeX, windowSizeY);
   surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
   camDisplayWidth = (int)(displayWidth/3 * 0.8);
   camDisplayHeight = (int)(camDisplayWidth/camAspect);
-  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+  camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
 
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
@@ -561,31 +577,9 @@ void window3d() {
 
   camDisplayWidth = (int)(displayWidth/3 * 0.8);
   camDisplayHeight = (int)(camDisplayWidth/camAspect);
-  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+  camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
 
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
-}
-
-// 
-public void binaryMapping() {
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.frameSkip = 18;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save("backgroundImage.png");
-    blobLifetime = 200;
-  } else {
-    videoMode = VideoMode.CAMERA;
-    animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobList.clear();
-    shouldStartDecoding = false; 
-    images.clear();
-    currentFrame = 0;
-  }
 }

@@ -30,7 +30,6 @@ PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs.
 [https://github.com/scanlime/fadecandy](https://github.com/scanlime/fadecandy)
 
 This guide is very useful for setting up a raspberry pi to drive FadeCandy controllers over network:
-
 [https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup](https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup)
 
 **Artnet:**
@@ -74,7 +73,7 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 **Save:** Saves a CSV of the mapping layout, to be used in the Lightwork Scraper.
 
 
-## KEYBOARD CONTROLS:
+## Keyboard Controls:
 
 Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
@@ -89,7 +88,7 @@ Can be enabled in Keypress.pde - disabled to prevent interfering with text field
 **T:** test mode
 
 
-## LIGHTWORK SCRAPER
+## Lightwork Scraper
 
 Use with your own sketch to map your content onto the LED array
 

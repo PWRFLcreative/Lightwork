@@ -1,4 +1,4 @@
- /*
+/*
  *  BinaryPattern Generator Class
  *  
  *  This class generates binary patterns used in matching LED addressed to physical locations
