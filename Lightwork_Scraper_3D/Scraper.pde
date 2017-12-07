@@ -8,20 +8,21 @@ public class Scraper {
   int depth; // Z coordinate scaling
   Table table; // For loading CSV
   HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>(); // Key:Value (Int:color (Color is actually Integer))
-
+  int sphereRadius = 5; 
+  
   Scraper (String in, int ledCount) {  
     file=in;
-    depth = 100; // Z coordinate scaling
+    depth = 400; // Z coordinate scaling
     loc = new ArrayList<PVector>();
     //thread("loadCSV(file)");
     loadCSV(file);
     //normCoords();
     colors = new color[loc.size()];
     
-    // Populate hashmap with color values
-    for (int i = 0; i < ledCount; i++) {
-      hm.put(i, color(0, 0, 0));  
-    }
+    //// Populate hashmap with color values
+    //for (int i = 0; i < loc.size(); i++) {
+    //  hm.put(loc.get(i), color(0, 0, 0));  
+    //}
     
   }
 
@@ -33,14 +34,15 @@ public class Scraper {
 
     for ( int i = 0; i < table.getRowCount(); i++) {
       TableRow row = table.getRow(i);
-      int index = row.getInt("address");
+      int address = row.getInt("address");
       float x = row.getFloat("x")*width;
       float y = row.getFloat("y")*height;
       float z = row.getFloat("z")*depth;
-
+      //println(z); 
       PVector v = new PVector();
       v.set (x, y, z );
       loc.add(v);
+      hm.put(address, color(0, 0, 0)); 
     }
   }
 
@@ -51,9 +53,9 @@ public class Scraper {
 
     for (int i = 0; i < loc.size(); i++) {
       pushMatrix(); 
-      translate(loc.get(i).x-width/2, loc.get(i).y-height/2, loc.get(i).z*4); 
+      translate(loc.get(i).x-width/2, loc.get(i).y-height/2, loc.get(i).z); 
       fill(255); 
-      sphere(5);  
+      sphere(sphereRadius);  
       translate(0, 0, 10); 
       //fill(255, 0, 0); 
       //text(i, 0, 0); 

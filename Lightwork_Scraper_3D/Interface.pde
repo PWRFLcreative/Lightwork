@@ -24,7 +24,8 @@ enum device {
 
 public class Interface {
 
-  device              mode;
+  device               mode;
+  LED[]                leds; 
 
   //LED defaults
   String               IP = "fade2.local";
@@ -46,30 +47,36 @@ public class Interface {
   //////////////////////////////////////////////////////////////
   //Constructors
   /////////////////////////////////////////////////////////////
-  
+
   Interface() {
     mode = device.NULL;
     //populateLeds();
     println("Interface created");
   }
-  
+
   //setup for fadecandy
-  Interface(device m, String ip, int strips, int leds){
+  Interface(device m, String ip, int strips, int ledCount) {
     mode = m;
     IP = ip;
     numStrips =strips;
-    ledsPerStrip = leds;
+    ledsPerStrip = ledCount;
     numLeds = ledsPerStrip*numStrips;
+    leds = new LED[numLeds]; 
+
     //populateLeds();
     println("Interface created");
   }
-  
-    //setup for pixel pusher (no address required)
-  Interface(device m, int strips, int leds){
+
+  //setup for pixel pusher (no address required)
+  Interface(device m, int strips, int ledCount) {
     mode = m;
     numStrips =strips;
-    ledsPerStrip = leds;
+    ledsPerStrip = ledCount;
     numLeds = ledsPerStrip*numStrips;
+    leds = new LED[
+    
+    numLeds];
+
     //populateLeds();
     println("Interface created");
   }
@@ -105,9 +112,19 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
-  
+
+  void setLeds(Scraper s) {
+    for (Map.Entry me : s.hm.entrySet()) {
+      int k = (int)me.getKey(); 
+      //println(k);
+      //print(me.getKey() + " is ");
+      //println(me.getValue());
+    }
+
+  }
+
   //TODO: rework this to work in mapper and scraper
-  
+
   //void setLedBrightness(int brightness) { //TODO: set overall brightness?
   //  ledBrightness = brightness;
 
@@ -127,26 +144,24 @@ public class Interface {
     println(IP);
     return IP;
   }
-  
+
   void setInterpolation(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setInterpolation(state);
-    }
-    else {
-      println("Interpolation only supported for FADECANDY."); 
+    } else {
+      println("Interpolation only supported for FADECANDY.");
     }
   }
-  
+
   void setDithering(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setDithering(state); 
       opc.setInterpolation(state);
-    }
-    else {
-      println("Dithering only supported for FADECANDY.");  
+    } else {
+      println("Dithering only supported for FADECANDY.");
     }
   }
-  
+
   boolean isConnected() {
     return isConnected;
   }
@@ -162,9 +177,9 @@ public class Interface {
       }
     }
   }
-  
+
   //TODO: rework this to work in mapper and scrapergit 
-  
+
   // Reset the LED vector
   //void populateLeds() {
 
@@ -188,18 +203,14 @@ public class Interface {
 
   void update(HashMap hm) {
 
-    ArrayList<Integer>  colorArray = new ArrayList<Integer>(); 
-    for (int i = 0; i < hm.size(); i++) {
-     color c = (int)hm.get(i); 
-     colorArray.add(c); 
-    }
-    
-    
+
     // Actualn colors[] array
-    color[] colors = new color[colorArray.size()];
-    for (int i = 0; i < colors.length; i++) {
-       colors[i] = colorArray.get(i); 
+    color[] colors = new color[leds.length];
+    
+    for (int i = 0; i < leds.length; i++) {
+      colors[i] = leds[i].c;
     }
+    
     
     switch(mode) {
     case FADECANDY: 
@@ -326,7 +337,7 @@ public class Interface {
 
       if (testObserver.hasStrips) {
         isConnected =true;
-        
+
         // Clear LEDs
         //animator.setAllLEDColours(off);
         //update(scraper.getColors());
