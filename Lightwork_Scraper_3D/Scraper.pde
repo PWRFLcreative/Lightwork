@@ -5,9 +5,13 @@ public class Scraper {
   int depth; // Z coordinate scaling
   Table table; // For loading CSV
   int sphereRadius = 5; 
+  HashMap <Integer, Integer> addressMap = new HashMap<Integer,Integer>(); // LED Index:Adress  - Look up address to return the index of a given LED
 
   Scraper (LED[] ledArray) {  
     leds = ledArray; 
+    for (int i = 0; i < leds.length; i++) {
+      addressMap.put(i, leds[i].address);
+    }
     depth = 400; // Z coordinate scaling
   }
 
@@ -37,7 +41,9 @@ public class Scraper {
   }
 
   void updateColorAtAddress(color c, int address) {
+    int ledIndex = addressMap.get(address); 
     //hm.put(address, c);
+    leds[ledIndex].c = c; 
   }
   
 }

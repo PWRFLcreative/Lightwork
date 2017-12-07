@@ -131,10 +131,6 @@ public class Interface {
       leds[i].address = address; 
       leds[i].coord.set(v); 
     }
-    
-    for (int i = 0; i<leds.length; i++) {
-      println(leds[i].address);  
-    }
   }
 
   //    void setLeds(Scraper s) {

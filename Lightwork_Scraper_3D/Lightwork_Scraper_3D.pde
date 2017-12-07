@@ -58,15 +58,15 @@ void draw() {
   
   planeDepth -= 1;
   
-  //for (int i = 0; i < scraper.leds.length; i++) {
-  //  float dist = abs(scraper.leds[i].coord.z - planeDepth); 
-  //  if (dist < scraper.sphereRadius) {
-  //    scraper.updateColorAtAddress(color(255, 0, 0),i);
-  //  }
-  //}
+  for (int i = 0; i < scraper.leds.length; i++) {
+    float dist = abs(scraper.leds[i].coord.z - planeDepth); 
+    if (dist < scraper.sphereRadius) {
+      scraper.updateColorAtAddress(color(255, 0, 0),i);
+    }
+  }
   
   scraper.display();
-  scraper.update();
+  //scraper.update();
   //scraper.updateColorAtAddress(color((int)random(255), (int)random(255), (int)random(255)), (int)random(network.numLeds));
   ledController.update(scraper.leds);
   
