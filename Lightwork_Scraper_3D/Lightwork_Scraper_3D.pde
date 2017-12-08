@@ -8,6 +8,7 @@ import toxi.color.*;
 
 ToxiclibsSupport gfx;
 Plane plane; 
+Sphere[] spheres;
 
 PeasyCam cam;
 Scraper scraper;
@@ -45,7 +46,14 @@ void setup() {
   // Color Scraper
   scraper = new Scraper(hardware.leds);
 
-  
+  spheres = new Sphere[scraper.leds.length]; 
+  for (int i = 0; i < scraper.leds.length; i++) {
+    spheres[i] = new Sphere(scraper.sphereRadius); 
+    PVector pvec = scraper.leds[i].coord; 
+    Vec3D vec = new Vec3D(pvec.x, pvec.y, pvec.z); 
+    spheres[i].set(vec); 
+  }
+  println("num spheres: "+spheres.length); 
   background(0);
   fill(255);
   noStroke();
@@ -79,7 +87,7 @@ void draw() {
   gfx.fill(TColor.GREEN); 
   gfx.plane(plane, 10000); 
   
-  for (int i = 0; i < scraper.leds.length-1; i++) {
+  for (int i = 0; i < scraper.leds.length; i++) {
     //float dist = abs(scraper.leds[i].coord.z - mouseY);
     Vec3D vec = new Vec3D(scraper.leds[i].coord.x, scraper.leds[i].coord.y, scraper.leds[i].coord.z); 
     //Vec3D vec = new Vec3D(mouseX, mouseY, 0); 
@@ -95,7 +103,10 @@ void draw() {
     }
   }
   
-  scraper.display();
+  for (int i = 0; i < spheres.length; i++) {
+    gfx.sphere(spheres[i], 10);  
+  }
+  //scraper.display();
   
   // Draw toxiclib spheres
 
