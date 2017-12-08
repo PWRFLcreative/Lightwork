@@ -13,9 +13,12 @@ import controlP5.*;
 Textarea cp5Console;
 Println console;
 RadioButton r1, r2;
+Range blob;
 boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
+
+int frameSkip = 12;
 
 void buildUI() {
   println("setting up ControlP5");
@@ -25,10 +28,10 @@ void buildUI() {
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
-  int uiGrid = 80;
+  int uiGrid = 60;
   int uiSpacing = 20;
-  int buttonHeight = 25;
-  int buttonWidth =200;
+  int buttonHeight = 30;
+  int buttonWidth =150;
 
   println("Creating font...");
   PFont pfont = createFont("OpenSans-Regular.ttf", 12, false); // use true/false for smooth/no-smooth
@@ -55,7 +58,7 @@ void buildUI() {
     ;
 
   Group settings = cp5.addGroup("settings")
-    .setPosition(cp5.get("network").getWidth()+uiSpacing, (70)+camDisplayHeight)
+    .setPosition((uiGrid+uiSpacing)*4, (70)+camDisplayHeight)
     .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
@@ -63,16 +66,25 @@ void buildUI() {
     ;
 
   Group mapping = cp5.addGroup("mapping")
-    .setPosition((cp5.get("network").getWidth()+uiSpacing)*2, (70)+camDisplayHeight)
+    .setPosition((uiGrid+uiSpacing)*8, (70)+camDisplayHeight)
     .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
     .hideBar()
     ;
 
+  Group buttons = cp5.addGroup("buttons")
+    .setPosition(-uiSpacing, height-70)
+    .setBackgroundHeight(70)
+    .setWidth(width)
+    .setBackgroundColor(color(70))
+    .hideBar()
+    ;
+
   //loadWidth = width/12*6;
   println("adding textfield for IP");
   cp5.addTextfield("ip")
+    .setCaptionLabel("ip address")
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setAutoClear(false)
@@ -122,9 +134,9 @@ void buildUI() {
 
   println("adding connect button");
   cp5.addButton("connect")
-    .setPosition(buttonWidth+uiSpacing, 0)
+    .setPosition(uiSpacing/2, uiSpacing/2)
     .setSize(buttonWidth/2-2, buttonHeight)
-    .setGroup("network");
+    .setGroup("buttons");
   ;
 
   println("adding contrast slider");
@@ -171,6 +183,7 @@ void buildUI() {
     .setRange(0, 255)
     .setValue(ledBrightness)
     .setGroup("settings")
+    //.plugTo(ledBrightness)
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
@@ -193,24 +206,51 @@ void buildUI() {
 
   println("adding test button");
   cp5.addButton("calibrate")
-    .setPosition(0, (buttonHeight+uiSpacing)*3)
+    .setPosition((uiGrid+uiSpacing)*4+uiSpacing, uiSpacing/2)
     .setSize(buttonWidth/2-2, buttonHeight)
-    .setGroup("mapping")
+    .setGroup("buttons")
     ;
 
   println("adding map button"); 
   cp5.addButton("map")
-    .setPosition(buttonWidth/2, (buttonHeight+uiSpacing)*3)
+    .setPosition((uiGrid+uiSpacing)*4+(buttonWidth/2)+2+uiSpacing, uiSpacing/2)
     .setSize(buttonWidth/2-2, buttonHeight)
-    .setGroup("mapping")
+    .setGroup("buttons")
     .setCaptionLabel("map")
     ;
 
   println("adding save button");
   cp5.addButton("save")
-    .setPosition(buttonWidth+uiSpacing, (buttonHeight+uiSpacing)*3)
+    .setPosition((uiGrid+uiSpacing)*8+uiSpacing, uiSpacing/2)
     .setSize(buttonWidth/2, buttonHeight)
+    .setGroup("buttons")
+    ;
+
+  println("adding frameskip slider");
+  cp5.addSlider("frameskip")
+    .setBroadcast(false)
+    .setPosition(0, 0)
+    .setSize(buttonWidth, buttonHeight)
+    .setRange(6, 30)
+    .setValue(frameSkip)
     .setGroup("mapping")
+    .setBroadcast(true)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    ;
+
+  blob = cp5.addRange("blobSize")
+    // disable broadcasting since setRange and setRangeValues will trigger an event
+    .setBroadcast(false) 
+    .setPosition(0, buttonHeight+uiSpacing)
+    .setSize(buttonWidth, buttonHeight)
+    .setHandleSize(10)
+    .setRange(1, 100)
+    .setRangeValues(minBlobSize, maxBlobSize)
+    .setGroup("mapping")
+    // after the initialization we turn broadcast back on again
+    .setBroadcast(true)
+    //.setColorForeground(color(255, 40))
+    //.setColorBackground(color(255, 40))  
     ;
 
   //loadWidth = width/12*9;
@@ -387,7 +427,19 @@ public void cvContrast(float value) {
 
 public void ledBrightness(int value) {
   ledBrightness =value;
-  animator.setLedBrightness(ledBrightness);
+  animator.setLedBrightness(value);
+}
+
+public void frameskip(int value) {
+  frameSkip =value;
+  animator.setFrameSkip(value);
+}
+
+void controlEvent(ControlEvent theControlEvent) {
+  if(theControlEvent.isFrom("blobSize")) {
+  minBlobSize = int(theControlEvent.getController().getArrayValue(0));
+  maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
+  }
 }
 
 public void calibrate() {
@@ -537,13 +589,6 @@ void switchCamera(String name) {
   cam.start();
 }
 
-////UI camera switching - Cam 2
-//void switchCamera2(String name) {
-//  cam2.stop();
-//  cam2=null;
-//  cam2 =new Capture(this, camWidth, camHeight, name, 30);
-//  cam2.start();
-//}
 
 void window2d() {
   camWindows = 2;
@@ -552,30 +597,14 @@ void window2d() {
   windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
   windowSizeY = (int)(displayHeight / 2 + (140)); // adds to height for ui elements
 
-  surface.setSize(windowSizeX, windowSizeY);
-  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+  //surface.setSize(windowSizeX, windowSizeY);
+  //surface.setSize(960, 740);
+  //surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+  surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
 
-  camDisplayWidth = (int)(displayWidth/3 * 0.8);
-  camDisplayHeight = (int)(camDisplayWidth/camAspect);
-  camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
-
-  println("camDisplayWidth: "+camDisplayWidth);
-  println("camDisplayHeight: "+camDisplayHeight);
-  println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
-}
-
-void window3d() {
-  camWindows = 3;
-
-  println("Setting window size");
-  //Window size based on screen dimensions, centered
-  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (140 * guiMultiply)); // adds to height for ui elements
-
-  surface.setSize(windowSizeX, windowSizeY);
-  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-
-  camDisplayWidth = (int)(displayWidth/3 * 0.8);
+  //camDisplayWidth = (int)(displayWidth/3 * 0.8);
+  //camDisplayHeight = (int)(camDisplayWidth/camAspect);
+  camDisplayWidth = (int)(width/2);
   camDisplayHeight = (int)(camDisplayWidth/camAspect);
   camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
 

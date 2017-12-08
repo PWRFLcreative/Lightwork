@@ -103,7 +103,7 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 
 void setup()
 {
-  size(640, 480, P3D);
+  size(960, 740, P3D);
   pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
