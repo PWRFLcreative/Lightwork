@@ -25,7 +25,7 @@ enum device {
 public class Interface {
 
   device               mode;
-  LED[]                leds; 
+  LED[]                hardwareLeds; 
 
   //LED defaults
   String               IP = "fade2.local";
@@ -60,11 +60,7 @@ public class Interface {
     numStrips =strips;
     ledsPerStrip = ledCount;
     numLeds = ledsPerStrip*numStrips;
-    leds = new LED[numLeds];
     
-    for (int i = 0; i < leds.length; i++) {
-      leds[i] = new LED(); 
-    }
     //populateLeds();
 
     println("Interface created");
@@ -118,7 +114,15 @@ public class Interface {
     println("LOAD CSV"); 
     table = loadTable(file_, "header");
     printArray(table.getColumnTitles()); 
-    int zDepth = 400; 
+    
+    // Allocate LEDS
+    hardwareLeds = new LED[table.getRowCount()];
+    
+    for (int i = 0; i < hardwareLeds.length; i++) {
+      hardwareLeds[i] = new LED(); 
+    }
+    
+    int zDepth = 300; 
     for ( int i = 0; i < table.getRowCount(); i++) {
       TableRow row = table.getRow(i);
       int address = row.getInt("address");
@@ -128,8 +132,8 @@ public class Interface {
       //println(z); 
       PVector v = new PVector();
       v.set (x, y, z ); 
-      leds[i].address = address; 
-      leds[i].coord.set(v); 
+      hardwareLeds[i].address = address; 
+      hardwareLeds[i].coord.set(v); 
     }
   }
 
@@ -252,7 +256,6 @@ public class Interface {
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {
                 color c = colors[(ledsPerStrip*stripNum)+stripPos];
-
                 strip.setPixel(c, stripPos);
               }
               stripNum++;

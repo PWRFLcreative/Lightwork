@@ -64,7 +64,7 @@ ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 
-int minBlobSize = 2;
+int minBlobSize = 1;
 int maxBlobSize = 30;
 float distanceThreshold = 2; 
 

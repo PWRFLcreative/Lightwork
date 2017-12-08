@@ -21,13 +21,13 @@ void setup() {
 
   // Network Interface
   //initialize connection to LED driver
-  //ledController = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,50);
-  ledController = new Interface(device.FADECANDY, "fade1.local", 6, 40);
+  ledController = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,100);
+  //ledController = new Interface(device.FADECANDY, "fade1.local", 6, 40);
   ledController.connect(this);
   //ledController.loadCSV("future_stereo_with_zeros.csv");
-  ledController.loadCSV("future_depth_map_no_zeros.csv");
+  ledController.loadCSV("christmas_layout.csv");
   // Color Scraper
-  scraper = new Scraper(ledController.leds);
+  scraper = new Scraper(ledController.hardwareLeds);
 
   
   background(0);
@@ -50,17 +50,17 @@ void draw() {
   popMatrix();
 
   // Draw intersecting plane
-  
+  /*
   fill(0, 255, 255);
   pushMatrix();
   translate(0, 0, mouseY);
   rect(-width, -height, width*2, height*2); 
   popMatrix();
-  
+  */
   planeDepth -= 1;
   
-  for (int i = 0; i < scraper.leds.length; i++) {
-    float dist = abs(scraper.leds[i].coord.z - mouseY); 
+  for (int i = 0; i < scraper.scraperLeds.length-1; i++) {
+    float dist = abs(scraper.scraperLeds[i].coord.z - mouseY); 
     if (dist < scraper.sphereRadius) {
       scraper.updateColorAtAddress(color(0, 255, 255),i);
     }
@@ -72,6 +72,6 @@ void draw() {
   scraper.display();
   //scraper.update();
   //scraper.updateColorAtAddress(color((int)random(255), (int)random(255), (int)random(255)), (int)random(network.numLeds));
-  ledController.update(scraper.leds);
+  ledController.update(scraper.scraperLeds);
   
 }
