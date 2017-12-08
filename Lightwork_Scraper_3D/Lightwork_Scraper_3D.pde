@@ -1,18 +1,33 @@
 import peasy.*;
 
+import toxi.processing.*;
+import toxi.geom.*;
+import toxi.geom.Vec3D;
+import toxi.geom.mesh.*;
+import toxi.color.*;
+
+ToxiclibsSupport gfx;
+Plane plane; 
+
 PeasyCam cam;
 Scraper scraper;
-Interface ledController; 
+Interface hardware; 
 float margin = 50; // Prevents scraper from operating outside the canvas
 
 Table table; 
 ArrayList <PVector> coord;
 
-float planeDepth; 
-
+// Global LED array (shared by interface(reading) and scraper(writing)
 void setup() {
   size(1280, 720, P3D); 
-  planeDepth = 500; 
+  
+  // ToxicLibs stuff
+  gfx = new ToxiclibsSupport(this);
+  plane = new Plane();
+  plane.x = width/2; 
+  plane.y = height/2; 
+  plane.z = -10; 
+  
   // Setup PeasyCam
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
@@ -21,13 +36,14 @@ void setup() {
 
   // Network Interface
   //initialize connection to LED driver
-  ledController = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,100);
-  //ledController = new Interface(device.FADECANDY, "fade1.local", 6, 40);
-  ledController.connect(this);
-  //ledController.loadCSV("future_stereo_with_zeros.csv");
-  ledController.loadCSV("christmas_layout.csv");
+  //hardware = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,100);
+  hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
+  
+  hardware.connect(this);
+  hardware.loadCSV("future_stereo_with_zeros.csv");
+  //hardware.loadCSV("christmas_layout_filtered.csv");
   // Color Scraper
-  scraper = new Scraper(ledController.hardwareLeds);
+  scraper = new Scraper(hardware.leds);
 
   
   background(0);
@@ -40,8 +56,8 @@ void draw() {
   background(0); 
 
   // Lighting
-  pointLight(255, 255, 255, width, 0, scraper.depth*15); 
-
+  //pointLight(255, 255, 255, width, 0, scraper.depth*15); 
+  lights(); 
   // Draw reference plane
   fill(255);
   pushMatrix();
@@ -50,28 +66,41 @@ void draw() {
   popMatrix();
 
   // Draw intersecting plane
-  /*
-  fill(0, 255, 255);
-  pushMatrix();
-  translate(0, 0, mouseY);
-  rect(-width, -height, width*2, height*2); 
-  popMatrix();
-  */
-  planeDepth -= 1;
   
-  for (int i = 0; i < scraper.scraperLeds.length-1; i++) {
-    float dist = abs(scraper.scraperLeds[i].coord.z - mouseY); 
+  // Plane
+  //plane.x = mouseX/2; 
+  plane.y = map(mouseY, 0, height, -height, height); 
+  println(mouseY);
+  //plane.rotateX(0.1);
+  //plane.rotateY(0.05);
+  //plane.rotateZ(0.075);
+  
+  
+  gfx.fill(TColor.GREEN); 
+  gfx.plane(plane, 10000); 
+  
+  for (int i = 0; i < scraper.leds.length-1; i++) {
+    //float dist = abs(scraper.leds[i].coord.z - mouseY);
+    Vec3D vec = new Vec3D(scraper.leds[i].coord.x, scraper.leds[i].coord.y, scraper.leds[i].coord.z); 
+    //Vec3D vec = new Vec3D(mouseX, mouseY, 0); 
+    float dist = plane.getDistanceToPoint(vec);
+    //if (plane.containsPoint(vec)) {
+    //  scraper.updateColorAtAddress(color(0, 255, 255),i);
+    //}
     if (dist < scraper.sphereRadius) {
-      scraper.updateColorAtAddress(color(0, 255, 255),i);
+      scraper.updateColorAtIndex(color(0, 255, 255),i);
     }
     else {
-      scraper.updateColorAtAddress(color(0, 0, 0), i);  
+      scraper.updateColorAtIndex(color(0, 0, 0), i);  
     }
   }
   
   scraper.display();
+  
+  // Draw toxiclib spheres
+
   //scraper.update();
   //scraper.updateColorAtAddress(color((int)random(255), (int)random(255), (int)random(255)), (int)random(network.numLeds));
-  ledController.update(scraper.scraperLeds);
+  hardware.update(scraper.leds);
   
 }

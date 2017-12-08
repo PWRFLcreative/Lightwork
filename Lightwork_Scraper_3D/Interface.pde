@@ -25,7 +25,7 @@ enum device {
 public class Interface {
 
   device               mode;
-  LED[]                hardwareLeds; 
+  LED[]                leds; 
 
   //LED defaults
   String               IP = "fade2.local";
@@ -116,10 +116,10 @@ public class Interface {
     printArray(table.getColumnTitles()); 
     
     // Allocate LEDS
-    hardwareLeds = new LED[table.getRowCount()];
+    leds = new LED[table.getRowCount()];
     
-    for (int i = 0; i < hardwareLeds.length; i++) {
-      hardwareLeds[i] = new LED(); 
+    for (int i = 0; i < leds.length; i++) {
+      leds[i] = new LED(); 
     }
     
     int zDepth = 300; 
@@ -132,8 +132,8 @@ public class Interface {
       //println(z); 
       PVector v = new PVector();
       v.set (x, y, z ); 
-      hardwareLeds[i].address = address; 
-      hardwareLeds[i].coord.set(v); 
+      leds[i].address = address; 
+      leds[i].coord.set(v); 
     }
   }
 
@@ -227,7 +227,7 @@ public class Interface {
 
 
     // Actualn colors[] array
-    color[] colors = new color[ledArray.length];
+    color[] colors = new color[numLeds];
 
     for (int i = 0; i < ledArray.length; i++) {
       colors[i] = ledArray[i].c;
