@@ -29,9 +29,9 @@ void setup() {
   gfx = new ToxiclibsSupport(this);
   plane = new Plane();
   //plane = new Plane(new Vec3D(100, 200, 100), Vec3D.randomVector());
-  plane.x = width/2; 
-  plane.y = height+100; 
-  plane.z = -10; 
+  //plane.x = width/2; 
+  //plane.y = height+100; 
+  //plane.z = -10; 
   //plane.normal = new Vec3D(mouseX, mouseY, 0);
   //plane.rotateY(90);
   
@@ -41,7 +41,7 @@ void setup() {
   // Setup PeasyCam
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
-  cam.setMaximumDistance(2500);
+  cam.setMaximumDistance(3500);
   cam.setDistance(1500);
 
   // Network Interface
@@ -82,11 +82,12 @@ void draw() {
   // Plane
   //plane.y = sin(frameCount*0.01)*width; 
   //plane.rotateZ(0.1);
-  //plane.x = mouseX/2; 
-  //plane.y = map(mouseY, 0, height, -height, height+100); 
+  plane.x = map(mouseX, 0, width, -width, width+100); 
+  plane.y = map(mouseY, 0, height, -height, height+100); 
   //plane.rotateX(0.1);
   //plane.rotateY(0.05);
   //plane.rotateZ(0.075);
+  plane.normal = new Vec3D(0, 0, frameCount);
   
   //gfx.translate(new Vec3D(-width/2, -height/2, 0.));
   
@@ -97,7 +98,7 @@ void draw() {
   plane.normal = new Vec3D(mouseX, mouseY, 0);
   
   gfx.fill(TColor.newRGBA(0,255,255,30)); 
-  gfx.plane(plane, 10000); 
+  gfx.plane(plane, 800); 
   
   for (int i = 0; i < scraper.leds.length; i++) {
     Vec3D vec = new Vec3D(scraper.leds[i].coord.x, scraper.leds[i].coord.y, scraper.leds[i].coord.z); 
