@@ -8,6 +8,8 @@ import toxi.color.*;
 
 ToxiclibsSupport gfx;
 Plane plane; 
+Plane refPlane; 
+TriangleMesh mesh;
 Sphere[] spheres;
 
 PeasyCam cam;
@@ -17,17 +19,24 @@ float margin = 50; // Prevents scraper from operating outside the canvas
 
 Table table; 
 ArrayList <PVector> coord;
+float lfo; 
 
 // Global LED array (shared by interface(reading) and scraper(writing)
 void setup() {
   size(1280, 720, P3D); 
-  
+  lfo = 0.0; 
   // ToxicLibs stuff
   gfx = new ToxiclibsSupport(this);
   plane = new Plane();
+  //plane = new Plane(new Vec3D(100, 200, 100), Vec3D.randomVector());
   plane.x = width/2; 
-  plane.y = height/2; 
+  plane.y = height+100; 
   plane.z = -10; 
+  //plane.normal = new Vec3D(mouseX, mouseY, 0);
+  //plane.rotateY(90);
+  
+  refPlane = new Plane(); 
+  //mesh = refPlane.toMesh(300.0);
   
   // Setup PeasyCam
   cam = new PeasyCam(this, 100);
@@ -67,45 +76,53 @@ void draw() {
   //pointLight(255, 255, 255, width, 0, scraper.depth*15); 
   lights(); 
   // Draw reference plane
-  fill(255);
-  pushMatrix();
-  translate(0, 0, -scraper.depth);
-  rect(-width, -height, width*2, height*2); 
-  popMatrix();
 
   // Draw intersecting plane
   
   // Plane
+  //plane.y = sin(frameCount*0.01)*width; 
+  //plane.rotateZ(0.1);
   //plane.x = mouseX/2; 
-  plane.y = map(mouseY, 0, height, -height, height); 
-  println(mouseY);
+  //plane.y = map(mouseY, 0, height, -height, height+100); 
   //plane.rotateX(0.1);
   //plane.rotateY(0.05);
   //plane.rotateZ(0.075);
   
+  //gfx.translate(new Vec3D(-width/2, -height/2, 0.));
   
-  gfx.fill(TColor.GREEN); 
+  //gfx.plane(refPlane, 1000); 
+  //mesh.rotateX(30.0); 
+  //gfx.mesh(mesh, true); 
+  
+  plane.normal = new Vec3D(mouseX, mouseY, 0);
+  
+  gfx.fill(TColor.newRGBA(0,255,255,30)); 
   gfx.plane(plane, 10000); 
   
   for (int i = 0; i < scraper.leds.length; i++) {
-    //float dist = abs(scraper.leds[i].coord.z - mouseY);
     Vec3D vec = new Vec3D(scraper.leds[i].coord.x, scraper.leds[i].coord.y, scraper.leds[i].coord.z); 
-    //Vec3D vec = new Vec3D(mouseX, mouseY, 0); 
+    spheres[i].set(vec);
     float dist = plane.getDistanceToPoint(vec);
-    //if (plane.containsPoint(vec)) {
-    //  scraper.updateColorAtAddress(color(0, 255, 255),i);
-    //}
     if (dist < scraper.sphereRadius) {
-      scraper.updateColorAtIndex(color(0, 255, 255),i);
+      
+      gfx.fill(TColor.newRGBA(255,0,0,255)); 
+      scraper.updateColorAtIndex(color(255, 0, 0),i);
     }
     else {
+      gfx.fill(TColor.newRGBA(255,255,255,255)); 
       scraper.updateColorAtIndex(color(0, 0, 0), i);  
     }
+    
+    gfx.sphere(spheres[i], scraper.sphereRadius); 
   }
   
-  for (int i = 0; i < spheres.length; i++) {
-    gfx.sphere(spheres[i], 10);  
-  }
+  
+  // Display spheres
+  //gfx.fill(TColor.newRGBA(0,255,255,100)); 
+  //gfx.translate(new Vec3D(-width/2, -height/2, 0.));
+  //for (int i = 0; i < spheres.length; i++) {
+  //  gfx.sphere(spheres[i], 10);  
+  //}
   //scraper.display();
   
   // Draw toxiclib spheres
