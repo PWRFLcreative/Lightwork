@@ -536,9 +536,10 @@ void fileSelected(File selection) {
   }
 }
 
-void saveSettings(float v) {
-  cp5.saveProperties("default", dataPath("default"));
-}
+//TODO: investigate "ignoring" error and why this doesn't work, but keypress do
+//void saveSettings(float v) {
+//  cp5.saveProperties("default", "controlP5.json");
+//}
 
 //void stereoToggle(boolean theFlag) {
 //  if (theFlag==true) {
