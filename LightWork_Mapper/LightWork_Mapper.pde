@@ -58,12 +58,8 @@ PGraphics camFBO;
 PGraphics cvFBO;
 PGraphics blobFBO;
 
-int guiMultiply = 1;
-
 int cvThreshold = 100;
 float cvContrast = 1.15;
-
-String savePath;
 
 ArrayList <LED>     leds;
 
@@ -85,7 +81,7 @@ int maxBlobSize = 30;
 float distanceThreshold = 2; 
 
 // Window size
-int windowSizeX, windowSizeY;
+//int windowSizeX, windowSizeY;
 
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
@@ -103,7 +99,7 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 
 void setup()
 {
-  size(960, 740, P3D);
+  size(960, 700, P3D);
   pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
@@ -187,7 +183,7 @@ void draw() {
     stroke(255, size);
     strokeWeight(4);
     ellipse(0, 0, size, size);
-    translate(0, 100);
+    translate(0, 200);
     fill(255);
     noStroke();
     textSize(18);
@@ -209,7 +205,7 @@ void draw() {
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available()) {
+  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
 
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
@@ -296,7 +292,7 @@ void draw() {
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, camDisplayWidth, (70), camDisplayWidth, camDisplayHeight);
+  image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
   // Secondary Camera for Stereo Capture
   //if (camWindows==3 && cam2!=null) {

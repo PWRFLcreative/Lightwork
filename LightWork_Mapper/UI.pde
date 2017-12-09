@@ -14,11 +14,15 @@ Textarea cp5Console;
 Println console;
 RadioButton r1, r2;
 Range blob;
+Textlabel tl1;
+
 boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
 
 int frameSkip = 12;
+
+String savePath;
 
 void buildUI() {
   println("setting up ControlP5");
@@ -90,6 +94,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(network.getIP())
+    .setVisible(false)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
@@ -101,6 +106,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(str(network.getNumLedsPerStrip()))
+    .setVisible(false)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
@@ -111,6 +117,7 @@ void buildUI() {
     .setAutoClear(false)
     .setGroup("network")
     .setValue(str(network.getNumStrips()))
+    .setVisible(false)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
@@ -120,7 +127,7 @@ void buildUI() {
   println("adding scrollable list for drivers");
   cp5.addScrollableList("driver")
     .setPosition(0, 0)
-    .setSize(buttonWidth, 300)
+    .setSize(int(buttonWidth*1.5), 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
     .addItems(driver)
@@ -130,11 +137,11 @@ void buildUI() {
     .setGroup("network");
   ;
   //TODO  fix style on dropdown 
-  cp5.getController("driver").getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(10);
+  cp5.getController("driver").getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(uiSpacing);
 
   println("adding connect button");
   cp5.addButton("connect")
-    .setPosition(uiSpacing/2, uiSpacing/2)
+    .setPosition(uiSpacing, uiSpacing/2)
     .setSize(buttonWidth/2-2, buttonHeight)
     .setGroup("buttons");
   ;
@@ -193,16 +200,21 @@ void buildUI() {
   //cp5.getController("ledBrightness").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
   //Mapping type toggle
-  List mapToggle = Arrays.asList("Binary", "Sequential");
+  List mapToggle = Arrays.asList("Pattern", "Sequence");
   ButtonBar b = cp5.addButtonBar("mappingToggle")
     .setPosition(0, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth, buttonHeight)
     .addItems(mapToggle)
-    .setDefaultValue(0)
+    //.setId(0)
     .setGroup("settings")
     ;
 
-  cp5.getController("mappingToggle").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
+  tl1 = cp5.addTextlabel("mapMode")
+    .setText("MAPPING MODE")
+    .setPosition(buttonWidth+5, 5+(buttonHeight+uiSpacing)*3)
+    .setGroup("settings")
+    .setFont(font)
+    ;
 
   println("adding test button");
   cp5.addButton("calibrate")
@@ -220,9 +232,18 @@ void buildUI() {
     ;
 
   println("adding save button");
-  cp5.addButton("save")
+  cp5.addButton("saveLayout")
+    .setCaptionLabel("Save Layout")
     .setPosition((uiGrid+uiSpacing)*8+uiSpacing, uiSpacing/2)
-    .setSize(buttonWidth/2, buttonHeight)
+    .setSize(int(buttonWidth*.75), buttonHeight)
+    .setGroup("buttons")
+    ;
+
+  println("adding settings button");
+  cp5.addButton("saveSettings")
+    .setCaptionLabel("Save Settings")
+    .setPosition((uiGrid+uiSpacing)*8+uiSpacing+int(buttonWidth*.75)+4, uiSpacing/2)
+    .setSize(int(buttonWidth*.75), buttonHeight)
     .setGroup("buttons")
     ;
 
@@ -232,15 +253,17 @@ void buildUI() {
     .setPosition(0, 0)
     .setSize(buttonWidth, buttonHeight)
     .setRange(6, 30)
-    .setValue(frameSkip)
+    .plugTo(frameSkip)
     .setGroup("mapping")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
+  println("adding blob range slider");
   blob = cp5.addRange("blobSize")
     // disable broadcasting since setRange and setRangeValues will trigger an event
     .setBroadcast(false) 
+    .setCaptionLabel("min/max blob size")
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10)
@@ -252,6 +275,20 @@ void buildUI() {
     //.setColorForeground(color(255, 40))
     //.setColorBackground(color(255, 40))  
     ;
+
+  println("adding blob distance slider");
+  cp5.addSlider("distance")
+    .setBroadcast(false)
+    .setCaptionLabel("min blob distance")
+    .setPosition(0, (buttonHeight+uiSpacing)*2)
+    .setSize(buttonWidth, buttonHeight)
+    .setRange(1, 10)
+    .plugTo(distanceThreshold)
+    .setGroup("mapping")
+    .setBroadcast(true)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    ;
+
 
   //loadWidth = width/12*9;
   //capture console events to ui
@@ -302,7 +339,7 @@ void buildUI() {
   //Refresh connected cameras
   println("cp5: adding refresh button");
   cp5.addButton("refresh")
-    .setPosition(buttonWidth+uiSpacing, 0)
+    .setPosition(int(buttonWidth*1.5)+uiSpacing, 0)
     .setSize(buttonWidth/2, buttonHeight)
     .setGroup("top")
     ;
@@ -312,7 +349,7 @@ void buildUI() {
   println("cp5: adding camera dropdown list");
   cp5.addScrollableList("camera")
     .setPosition(0, 0)
-    .setSize(buttonWidth, 300)
+    .setSize(int(buttonWidth*1.5), 300)
     .setBarHeight(buttonHeight)
     .setItemHeight(buttonHeight)
     .addItems(cams)
@@ -332,6 +369,12 @@ void buildUI() {
     .setVisible(false)
     .setGroup("top")
     ;
+  
+    //check for defaults file  
+    File defaults = new File("controlP5.json");
+    if (defaults.exists()) {
+      cp5.loadProperties("controlP5.json");
+    }
 
   // Wrap up, report done
   //loadWidth = width;
@@ -359,10 +402,16 @@ void driver(int n) {
 
   if (label.equals("PIXELPUSHER")) {
     network.setMode(device.PIXELPUSHER);
+    cp5.get(Textfield.class, "ip").setVisible(false);
+    cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
+    cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: PixelPusher");
   }
   if (label.equals("FADECANDY")) {
     network.setMode(device.FADECANDY);
+    cp5.get(Textfield.class, "ip").setVisible(true);
+    cp5.get(Textfield.class, "leds_per_strip").setVisible(true);
+    cp5.get(Textfield.class, "strips").setVisible(true);
     println("network: Fadecandy");
   }
   if (label.equals("ARTNET")) {
@@ -396,9 +445,9 @@ public void connect() {
 
   if (network.getMode()==device.PIXELPUSHER) {
     network.fetchPPConfig();
-    cp5.get(Textfield.class, "ip").setValue(network.getIP());
-    cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip()));
-    cp5.get(Textfield.class, "strips").setValue(str(network.getNumStrips()));
+    cp5.get(Textfield.class, "ip").setValue(network.getIP()).setVisible(true);
+    cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip())).setVisible(true);
+    cp5.get(Textfield.class, "strips").setValue(str(network.getNumStrips())).setVisible(true);
   }
 
   if (network.isConnected()) {
@@ -436,9 +485,9 @@ public void frameskip(int value) {
 }
 
 void controlEvent(ControlEvent theControlEvent) {
-  if(theControlEvent.isFrom("blobSize")) {
-  minBlobSize = int(theControlEvent.getController().getArrayValue(0));
-  maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
+  if (theControlEvent.isFrom("blobSize")) {
+    minBlobSize = int(theControlEvent.getController().getArrayValue(0));
+    maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
   }
 }
 
@@ -447,7 +496,7 @@ public void calibrate() {
   if (videoMode != VideoMode.CALIBRATION) {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
-    backgroundImage.save("calibrationBackgroundImage.png");
+    backgroundImage.save("data/calibrationBackgroundImage.png");
     if ( patternMapping == true) {
       animator.setMode(AnimationMode.BINARY);
     } else {
@@ -464,13 +513,15 @@ public void calibrate() {
   }
 }
 
-public void save() {
+public void saveLayout() {
   if (leds.size() == 0) { // TODO: review, does this work?
     //User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
   } else {
-    savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
+    //savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
+    File sketch = new File("../LightWork_Scraper/data/layout.csv");
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveCSV(leds, savePath);
   }
 }
@@ -483,6 +534,10 @@ void fileSelected(File selection) {
     savePath = selection.getAbsolutePath();
     println("User selected " + selection.getAbsolutePath());
   }
+}
+
+void saveSettings(float v) {
+  cp5.saveProperties("default", dataPath("default"));
 }
 
 //void stereoToggle(boolean theFlag) {
@@ -517,11 +572,11 @@ void mappingToggle(int n) {
   if (n==0) {
     videoMode = VideoMode.IMAGE_SEQUENCE; 
     patternMapping = true;
-    println("Mapping Mode: Binary");
+    println("Mapping Mode: Pattern");
   } else if (n==1) {
     videoMode = VideoMode.CAMERA; 
     patternMapping = false;
-    println("Mapping Mode: Sequential");
+    println("Mapping Mode: Sequence");
   }
 }
 
@@ -534,8 +589,9 @@ public void map() {
     animator.setMode(AnimationMode.BINARY);
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
-    backgroundImage.save("data/backgroundImage.png");
+    backgroundImage.save(dataPath("backgroundImage.png"));
     blobLifetime = 200;
+    isMapping=true;
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
@@ -544,6 +600,7 @@ public void map() {
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
+    isMapping = false;
   }
 }
 
@@ -591,11 +648,11 @@ void switchCamera(String name) {
 
 
 void window2d() {
-  camWindows = 2;
-  println("Setting window size");
+  //camWindows = 2;
+  //println("Setting window size");
   //Window size based on screen dimensions, centered
-  windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  windowSizeY = (int)(displayHeight / 2 + (140)); // adds to height for ui elements
+  //windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
+  //windowSizeY = (int)(displayHeight / 2 + (140)); // adds to height for ui elements
 
   //surface.setSize(windowSizeX, windowSizeY);
   //surface.setSize(960, 740);
@@ -606,6 +663,7 @@ void window2d() {
   //camDisplayHeight = (int)(camDisplayWidth/camAspect);
   camDisplayWidth = (int)(width/2);
   camDisplayHeight = (int)(camDisplayWidth/camAspect);
+
   camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
 
   println("camDisplayWidth: "+camDisplayWidth);
