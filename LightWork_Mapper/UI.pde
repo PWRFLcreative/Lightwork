@@ -19,6 +19,7 @@ Textlabel tl1;
 boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
+boolean stereoMode = false;
 
 int frameSkip = 12;
 
@@ -29,6 +30,12 @@ void buildUI() {
 
   cp5 = new ControlP5(this);
   cp5.setVisible(false);
+  //cp5.getProperties().setFormat(ControlP5.SERIALIZED);
+
+  cp5.enableShortcuts();
+
+  //check for defaults file  
+  File defaults = new File("controlP5.json");
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
@@ -43,6 +50,13 @@ void buildUI() {
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
   cp5.setPosition(uiSpacing, uiSpacing);
+
+  cp5.mapKeyFor(new ControlKey() {
+    public void keyEvent() {
+    }
+  }
+  , ALT);
+
 
   Group top = cp5.addGroup("top")
     .setPosition(0, 0)
@@ -155,6 +169,7 @@ void buildUI() {
     .setRange(0, 5)
     .setValue(cvContrast)
     .setGroup("settings")
+    .setMoveable(false)
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
@@ -230,6 +245,14 @@ void buildUI() {
     .setGroup("buttons")
     .setCaptionLabel("map")
     ;
+    
+  cp5.addButton("map2")
+    .setPosition((uiGrid+uiSpacing)*4+buttonWidth+2+uiSpacing, uiSpacing/2)
+    .setSize(buttonWidth/2-2, buttonHeight)
+    .setGroup("buttons")
+    .setCaptionLabel("map right")
+    .setVisible(false)
+    ;
 
   println("adding save button");
   cp5.addButton("saveLayout")
@@ -239,13 +262,13 @@ void buildUI() {
     .setGroup("buttons")
     ;
 
-  println("adding settings button");
-  cp5.addButton("saveSettings")
-    .setCaptionLabel("Save Settings")
-    .setPosition((uiGrid+uiSpacing)*8+uiSpacing+int(buttonWidth*.75)+4, uiSpacing/2)
-    .setSize(int(buttonWidth*.75), buttonHeight)
-    .setGroup("buttons")
-    ;
+  //println("adding settings button");
+  //cp5.addButton("saveSettings")
+  //  .setCaptionLabel("Save Settings")
+  //  .setPosition((uiGrid+uiSpacing)*8+uiSpacing+int(buttonWidth*.75)+4, uiSpacing/2)
+  //  .setSize(int(buttonWidth*.75), buttonHeight)
+  //  .setGroup("buttons")
+  //  ;
 
   println("adding frameskip slider");
   cp5.addSlider("frameskip")
@@ -292,7 +315,7 @@ void buildUI() {
 
   //loadWidth = width/12*9;
   //capture console events to ui
-  cp5.enableShortcuts();
+
   //cp5Console = cp5.addTextarea("cp5Console")
   //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70)+camDisplayHeight)
   //  .setSize((uiGrid*4)-uiSpacing, 180)
@@ -324,17 +347,17 @@ void buildUI() {
   //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
   //  ;
 
-  //cp5.addToggle("stereoToggle")
-  //  .setBroadcast(false)
-  //  .setCaptionLabel("Stereo Toggle")
-  //  .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
-  //  .setSize(buttonWidth/4, buttonHeight)
-  //  .setGroup("top")
-  //  .setValue(true)
-  //  .setMode(ControlP5.SWITCH)
-  //  .setBroadcast(true)
-  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
-  //  ;
+  cp5.addToggle("stereoToggle")
+    .setBroadcast(false)
+    .setCaptionLabel("Stereo Toggle")
+    .setPosition((buttonWidth*2)+uiSpacing*3, 0)    
+    .setSize(buttonWidth/3, buttonHeight)
+    .setGroup("top")
+    .setValue(true)
+    .setMode(ControlP5.SWITCH)
+    .setBroadcast(true)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    ;
 
   //Refresh connected cameras
   println("cp5: adding refresh button");
@@ -358,23 +381,23 @@ void buildUI() {
     ;
 
   // made last - enumerating cams will break the ui if done earlier in the sequence
-  println("cp5: adding camera dropdown list");
-  cp5.addScrollableList("camera2")
-    .setPosition(buttonWidth*3+uiSpacing*4, 0)
-    .setSize(buttonWidth, 300)
-    .setBarHeight(buttonHeight)
-    .setItemHeight(buttonHeight)
-    .addItems(cams)
-    .setOpen(false)
-    .setVisible(false)
-    .setGroup("top")
-    ;
-  
-    //check for defaults file  
-    File defaults = new File("controlP5.json");
-    if (defaults.exists()) {
-      cp5.loadProperties("controlP5.json");
-    }
+  //println("cp5: adding camera dropdown list");
+  //cp5.addScrollableList("camera2")
+  //  .setPosition(buttonWidth*3+uiSpacing*4, 0)
+  //  .setSize(buttonWidth, 300)
+  //  .setBarHeight(buttonHeight)
+  //  .setItemHeight(buttonHeight)
+  //  .addItems(cams)
+  //  .setOpen(false)
+  //  .setVisible(false)
+  //  .setGroup("top")
+  //  ;
+
+  //load defaults
+  if (defaults.exists()) {
+    cp5.loadProperties("controlP5.json");
+    cp5.update();
+  }
 
   // Wrap up, report done
   //loadWidth = width;
@@ -537,37 +560,34 @@ void fileSelected(File selection) {
 }
 
 //TODO: investigate "ignoring" error and why this doesn't work, but keypress do
-//void saveSettings(float v) {
-//  cp5.saveProperties("default", "controlP5.json");
-//}
+void saveSettings(float v) {
+  cp5.saveProperties("default");
+}
 
-//void stereoToggle(boolean theFlag) {
-//  if (theFlag==true) {
-//    camWindows=2;
-//    window2d();
-//    cp5.get(ScrollableList.class, "camera2").setVisible(false);
-//    println("Stereo camera off");
-//  } else {
-//    camWindows=3;
-//    window3d();
-//    cp5.get(ScrollableList.class, "camera2")
-//      .setVisible(true);
-//    //.setPosition(camDisplayWidth, 0)
-
-//    cam2 = new Capture(this, camWidth, camHeight, 30);
-//    println("Stereo camera on");
-//  }
-//}
-
-void videoIn(boolean theFlag) {
+void stereoToggle(boolean theFlag) {
   if (theFlag==true) {
-    videoMode = VideoMode.CAMERA; 
-    println("Video mode: Camera");
+    stereoMode=false;
+    cp5.get(Button.class, "map").setCaptionLabel("map");
+    cp5.get(Button.class, "map2").setVisible(false);    
+    println("Stereo mode off");
   } else {
-    videoMode = VideoMode.FILE; 
-    println("Video mode: File");
+    stereoMode=true;
+    cp5.get(Button.class, "map").setCaptionLabel("map left");
+    cp5.get(Button.class, "map2").setVisible(true);
+
+    println("Stereo mode on");
   }
 }
+
+//void videoIn(boolean theFlag) {
+//  if (theFlag==true) {
+//    videoMode = VideoMode.CAMERA; 
+//    println("Video mode: Camera");
+//  } else {
+//    videoMode = VideoMode.FILE; 
+//    println("Video mode: File");
+//  }
+//}
 
 void mappingToggle(int n) {
   if (n==0) {
@@ -586,13 +606,35 @@ public void map() {
   if (videoMode != VideoMode.IMAGE_SEQUENCE) {
     // Set frameskip so we have enough time to capture an image of each animation frame. 
     videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.frameSkip = 18;
     animator.setMode(AnimationMode.BINARY);
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
     blobLifetime = 200;
     isMapping=true;
+  } else {
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.OFF);
+    animator.resetPixels();
+    blobList.clear();
+    shouldStartDecoding = false; 
+    images.clear();
+    currentFrame = 0;
+    isMapping = false;
+  }
+}
+
+public void map2() {
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.setMode(AnimationMode.BINARY);
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save(dataPath("backgroundImage.png"));
+    blobLifetime = 200;
+    isMapping=true;
+  }
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
