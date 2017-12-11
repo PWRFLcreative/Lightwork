@@ -75,6 +75,16 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 
 ## Keyboard Controls:
 
+**ALT-SHIFT-S** : Save UI properties to file
+
+**ALT-SHIFT-L** : Load UI properties to file
+
+Note: ALT also enables dragging in ControlP5, try to release the alt key first after using these commands. If it's releases last it can enable dragging.
+
+**SHIFT-H** : Disable dragging (if activated with alt)
+
+
+
 Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
 **S:** save
