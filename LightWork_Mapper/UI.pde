@@ -699,8 +699,12 @@ void window2d() {
 
   //surface.setSize(windowSizeX, windowSizeY);
   //surface.setSize(960, 740);
-  //surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-  surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
+  if(displayDensity()==2){
+    surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
+  }
+  else{
+      surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+  }
 
   //camDisplayWidth = (int)(displayWidth/3 * 0.8);
   //camDisplayHeight = (int)(camDisplayWidth/camAspect);
