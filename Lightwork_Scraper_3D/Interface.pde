@@ -179,24 +179,6 @@ public class Interface {
     }
   }
 
-  //TODO: rework this to work in mapper and scrapergit 
-
-  // Reset the LED vector
-  //void populateLeds() {
-  //  leds = new LED[numLeds];
-
-  //  if (leds.size()>0) {
-  //    leds.clear();
-  //  }
-
-  //  for (int i = 0; i < numLeds; i++) {
-  //    LED temp= new LED();
-  //    leds.add(temp);
-  //    leds.get(i).setAddress(i);
-  //    //leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
-  //  }
-  //}
-
   //////////////////////////////////////////////////////////////
   // Network Methods
   //////////////////////////////////////////////////////////////
@@ -284,22 +266,10 @@ public class Interface {
       }
 
       if (opc.isConnected()) {
-        // TODO: Find a more elegant way to initialize dithering
-        // Currently this is the only safe place where this is guaranteed to work
-        //opc.setDithering(false);
-        //opc.setInterpolation(false);
-        // TODO: Deal with this (doesn't work for FUTURE wall, works fine one LIGHT WORK wall).
-
-        // Clear LEDs
-        //animator.setAllLEDColours(off);
-        // Update pixels twice (elegant, I know... but it works)
-        //update(animator.getPixels());
-        //update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
       }
-      //populateLeds();
     }
 
     if (mode == device.PIXELPUSHER ) {
@@ -335,19 +305,10 @@ public class Interface {
 
       if (testObserver.hasStrips) {
         isConnected =true;
-
-        // Clear LEDs
-        //animator.setAllLEDColours(off);
-        //update(scraper.getColors());
       }
-
       registry.setLogging(false);
-      //populateLeds();
     }
 
-    // Turn off LEDs
-    // Turn off LEDs first
-    //animator.resetPixels();
   }
 
   //Close existing connections

@@ -25,7 +25,7 @@ public class Scraper {
   }
 
   void updateColorAtIndex(color c, int index) {
-    int ledAddress = addressMap.get(index); 
-    leds[ledAddress].c = c;
+    leds[index].c = c;
   }
+  
 }

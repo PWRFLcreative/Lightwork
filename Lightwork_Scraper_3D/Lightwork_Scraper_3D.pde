@@ -50,13 +50,15 @@ void setup() {
   //initialize connection to LED driver
   //hardware = new Interface(device.PIXELPUSHER, "192.168.1.137", 1, 100);
   hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
-
-  hardware.connect(this);
-  //hardware.loadCSV("future_stereo_with_zeros.csv");
   hardware.loadCSV("future_depth_map_no_zeros.csv");
+  hardware.connect(this);
+  
+  //hardware.loadCSV("future_stereo_with_zeros.csv");
+  //hardware.loadCSV("future_depth_map_no_zeros.csv");
   //hardware.loadCSV("christmas_layout_filtered.csv");
+  
   // Color Scraper
-  scraper = new Scraper(hardware.leds);
+  scraper = new Scraper(hardware.leds); // Initialize the scraper with the hardware LEDs
 
   spheres = new Sphere[scraper.leds.length]; 
   for (int i = 0; i < scraper.leds.length; i++) {
