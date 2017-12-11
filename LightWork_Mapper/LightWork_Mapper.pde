@@ -22,7 +22,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *  
  */
- 
+
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
@@ -100,7 +100,7 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 void setup()
 {
   size(960, 700, P3D);
-  pixelDensity(displayDensity());
+  //pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
 
@@ -259,17 +259,16 @@ void draw() {
   image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
-  /*
-  if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-   opencv.loadImage(diff);
-   opencv.diff(backgroundImage);
-   } else {
-   opencv.loadImage(camFBO);
-   }
-   */
+
+  //if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+  //  opencv.loadImage(diff);
+  //  opencv.diff(backgroundImage);
+  //} else {
+  //  opencv.loadImage(camFBO);
+  //}
+
 
   // Decode image sequence
-
 
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     updateBlobs(); 
@@ -283,7 +282,8 @@ void draw() {
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
-  cvFBO.image(opencv.getSnapshot(), 0, 0);
+  PImage snap = opencv.getSnapshot(); 
+  cvFBO.image(snap, 0, 0, 640, 480);
   if (leds.size()>0) {
     for (LED led : leds) {
       cvFBO.noFill();

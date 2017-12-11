@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/* //<>// //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -699,7 +699,10 @@ void window2d() {
 
   //surface.setSize(windowSizeX, windowSizeY);
   //surface.setSize(960, 740);
+  println("displayDensity: "+displayDensity()); 
   if(displayDensity()==2){
+    println("xLoc :"+((int)(displayWidth / 2)-width));
+    println("displayWidth: "+displayWidth);
     surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
   }
   else{
