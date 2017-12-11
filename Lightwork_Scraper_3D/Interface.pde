@@ -25,7 +25,7 @@ enum device {
 public class Interface {
 
   device               mode;
-  LED[]                leds; 
+  private LED[]                leds; 
 
   //LED defaults
   String               IP = "fade2.local";
@@ -137,28 +137,6 @@ public class Interface {
     }
   }
 
-  //    void setLeds(Scraper s) {
-  //      for (Map.Entry me : s.hm.entrySet()) {
-  //        int k = (int)me.getKey(); 
-  //        println(k);
-  //        //print(me.getKey() + " is ");
-  //        //println(me.getValue());
-  //      }
-  //    }
-
-  //TODO: rework this to work in mapper and scraper
-
-  //void setLedBrightness(int brightness) { //TODO: set overall brightness?
-  //  ledBrightness = brightness;
-
-  //  if (mode == device.PIXELPUSHER && isConnected()) {
-  //    registry.setOverallBrightnessScale(ledBrightness);
-  //  }
-
-  //  if (opc!=null&&opc.isConnected()) {
-  //  }
-  //}
-
   void setIP(String ip) {
     IP=ip;
   }
@@ -232,7 +210,6 @@ public class Interface {
     for (int i = 0; i < ledArray.length; i++) {
       colors[i] = ledArray[i].c;
     }
-
 
     switch(mode) {
     case FADECANDY: 

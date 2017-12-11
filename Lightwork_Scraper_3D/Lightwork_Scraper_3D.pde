@@ -13,6 +13,7 @@ Plane refPlane;
 WETriangleMesh mesh;
 SubdivisionStrategy subdiv=new MidpointSubdivision();
 Sphere[] spheres;
+int sphereRadius = 15; 
 
 PeasyCam cam;
 Scraper scraper;
@@ -51,14 +52,15 @@ void setup() {
   hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
 
   hardware.connect(this);
-  hardware.loadCSV("future_stereo_with_zeros.csv");
+  //hardware.loadCSV("future_stereo_with_zeros.csv");
+  hardware.loadCSV("future_depth_map_no_zeros.csv");
   //hardware.loadCSV("christmas_layout_filtered.csv");
   // Color Scraper
   scraper = new Scraper(hardware.leds);
 
   spheres = new Sphere[scraper.leds.length]; 
   for (int i = 0; i < scraper.leds.length; i++) {
-    spheres[i] = new Sphere(scraper.sphereRadius); 
+    spheres[i] = new Sphere(sphereRadius); 
     PVector pvec = scraper.leds[i].coord; 
     Vec3D vec = new Vec3D(pvec.x, pvec.y, pvec.z); 
     spheres[i].set(vec);
@@ -94,9 +96,6 @@ void draw() {
   mesh.center(new Vec3D(mX, mY, 0)); 
   //mesh.rotateAroundAxis(new Vec3D(0, 0, 0), 1);
   mesh.rotateZ(frameRate*0.001); 
-  noFill(); 
-  stroke(255); 
-  //mesh.subdivide(subdiv, 10); 
   gfx.mesh(mesh); 
 
   // Draw spheres and light set LED states. 
@@ -110,7 +109,7 @@ void draw() {
     float dist = closestPoint.distanceTo(vec);
     //float dist = bounds.getDistanceToPoint(vec);
     // Color the intersecting spheres and light up the corresponding LEDs
-    if (dist < scraper.sphereRadius) {
+    if (dist < sphereRadius) {
       //if (bounds.containsPoint(vec)) {
       gfx.fill(TColor.newRGBA(255, 0, 0, 255)); 
       scraper.updateColorAtIndex(color(255, 0, 0), i);
@@ -121,7 +120,7 @@ void draw() {
       scraper.updateColorAtIndex(color(0, 0, 0), i);
     }
     // Draw the spheres
-    gfx.sphere(spheres[i], scraper.sphereRadius, true);
+    gfx.sphere(spheres[i], sphereRadius, true);
   }
   // Update the physical LED colours
   hardware.update(scraper.leds);
