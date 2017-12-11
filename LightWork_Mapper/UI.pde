@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -634,7 +634,7 @@ public void map2() {
     backgroundImage.save(dataPath("backgroundImage.png"));
     blobLifetime = 200;
     isMapping=true;
-  }
+  
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
