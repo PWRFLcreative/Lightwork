@@ -1,32 +1,46 @@
-# Lightwork Quick Reference
+# Lightwork BETA Quick Reference
 
 Lightwork helps simplify the process of mapping complex arrangements of LEDs. To use it, you’ll want to set up your driver hardware and LEDs first.
 
-**PixelPusher setup reference:**
 
+### Requirements
+
+**Libraries:**
+**PixelPusher, OpenCV, ControlP5**
+
+All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
+
+**Software**
+
+Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
+
+1440x900 or higher resolution recommended.
+
+**A Webcam**
+
+We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality capture.
+
+**Hardware**
+PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs.
+
+**PixelPusher setup reference:**
 [https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started](https://sites.google.com/a/heroicrobot.com/pixelpusher/home/getting-started)
 
 **FadeCandy:**
-
 [https://github.com/scanlime/fadecandy](https://github.com/scanlime/fadecandy)
 
 This guide is very useful for setting up a raspberry pi to drive FadeCandy controllers over network:
-
 [https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup](https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/fadecandy-server-setup)
 
-**Artnet**, you’ll need to consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
+**Artnet:**
+Consult your hardware’s manual for setup. (ArtNet support is currently incomplete)
 
-## Required libraries
 
-All available from the Sketch>Import Library> Add Library dialog in the Processing IDE:
-
-**PixelPusher, OpenCV, ControlP5**
-
-# LightWork Mapper
+## LightWork Mapper
 
 The application used to map your LED array.
 
-## UI controls:
+### UI controls:
 
 **Camera:** select a connected USB webcam
 
@@ -58,19 +72,23 @@ Binary flashes the full array in binary patterns, capturing a video frame for ea
 
 **Save:** Saves a CSV of the mapping layout, to be used in the Lightwork Scraper.
 
-## Keyboard controls:
 
-S: save
+## Keyboard Controls:
 
-M: sequential mapping
+Can be enabled in Keypress.pde - disabled to prevent interfering with text field entry
 
-I: Image sequence mapping
+**S:** save
 
-L: save layout to CSV
+**M:** sequential mapping
 
-T: test mode
+**I:** Image sequence mapping
 
-# LightWork Scraper
+**L:** save layout to CSV
+
+**T:** test mode
+
+
+## Lightwork Scraper
 
 Use with your own sketch to map your content onto the LED array
 

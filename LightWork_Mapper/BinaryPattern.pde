@@ -1,10 +1,12 @@
-/* BinaryPattern Generator Class
- created by Leó Stefánsson
- okt. 25 2017
- @ PWRFL / Lightwork
+/*
+ *  BinaryPattern Generator Class
+ *  
+ *  This class generates binary patterns used in matching LED addressed to physical locations
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @author Leó Stefánsson
  */
-
-
 
 public class BinaryPattern {
 

@@ -1,12 +1,12 @@
-//
-//  LED.pde
-//  Lightwork-Mapper
-//
-//  Created by Leo Stefansson and Tim Rolls
-//  
-//  This class tracks location, pattern and color data per LED
-//
-//////////////////////////////////////////////////////////////
+/*
+ *  LED
+ *  
+ *  This class tracks location, pattern and color data per LED
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ */
 
 public class LED {
   color c; // Current LED color

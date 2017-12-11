@@ -1,12 +1,28 @@
-//  LED_Mapper.pde //<>// //<>//
-//  Lightwork-Mapper
-
-//
-//  Created by Leo Stefansson and Tim Rolls 
-//
-//  This sketch uses computer vision to automatically generate mappin  g for LEDs.
-//  Currently, Fadecandy and PixelPusher are supported.
-
+/* //<>//
+ *  Lightwork-Mapper
+ *  
+ *  This sketch uses computer vision to automatically generate mapping for LEDs.
+ *  Currently, Fadecandy and PixelPusher are supported.
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ *  
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *  
+ */
+ 
 import processing.svg.*;
 import processing.video.*; 
 import gab.opencv.*;
@@ -42,12 +58,8 @@ PGraphics camFBO;
 PGraphics cvFBO;
 PGraphics blobFBO;
 
-int guiMultiply = 1;
-
 int cvThreshold = 100;
 float cvContrast = 1.15;
-
-String savePath;
 
 ArrayList <LED>     leds;
 
@@ -69,7 +81,7 @@ int maxBlobSize = 30;
 float distanceThreshold = 2; 
 
 // Window size
-int windowSizeX, windowSizeY;
+//int windowSizeX, windowSizeY;
 
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
@@ -85,13 +97,14 @@ int imageIndex = 0;
 int captureTimer = 0; 
 boolean shouldStartDecoding; // Only start decoding once we've decoded a full sequence
 
-
 void setup()
 {
-  size(640, 480, P3D);
+  size(960, 700, P3D);
+  pixelDensity(displayDensity());
   frameRate(FPS);
-  camAspect = (float)camWidth / (float)camHeight;
-  println(camAspect);
+  warranty();
+
+  println("Cam Aspect: "+camAspect);
 
   videoMode = VideoMode.CAMERA; 
 
@@ -113,7 +126,7 @@ void setup()
   network.setNumStrips(6);
   network.setNumLedsPerStrip(40); // TODO: Fix these setters...
   //network.populateLeds();
-  
+
   // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
@@ -123,12 +136,12 @@ void setup()
   animator.setMode(AnimationMode.OFF);
   animator.update();
 
-  //Check for high resolution display
-  println("setup gui multiply");
-  guiMultiply = 1;
-  if (displayWidth >= 2560) {
-    guiMultiply = 2;
-  }
+  ////Check for high resolution display
+  //println("setup gui multiply");
+  //guiMultiply = 1;
+  //if (displayWidth >= 2560) {
+  //  guiMultiply = 2;
+  //}
 
   //set up window for 2d mapping
   window2d();
@@ -170,10 +183,10 @@ void draw() {
     stroke(255, size);
     strokeWeight(4);
     ellipse(0, 0, size, size);
-    translate(0, 100*guiMultiply);
+    translate(0, 200);
     fill(255);
     noStroke();
-    textSize(18*guiMultiply);
+    textSize(18);
     textAlign(CENTER);
     text("LOADING...", 0, 0);
     popMatrix();
@@ -192,7 +205,7 @@ void draw() {
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available()) {
+  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
 
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
@@ -211,7 +224,7 @@ void draw() {
 
       videoInput = cam;
       //processCV(); // TODO: This causes the last bit of the sequence to not register resulting
-                     //        in every other LED not being decoded (and detected) properly
+      //        in every other LED not being decoded (and detected) properly
     }
 
     // If sequence exists, playback and decode
@@ -243,7 +256,7 @@ void draw() {
   camFBO.beginDraw();
   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
   camFBO.endDraw();
-  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+  image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
   /*
@@ -279,13 +292,13 @@ void draw() {
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, camDisplayWidth, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+  image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
   // Secondary Camera for Stereo Capture
-  if (camWindows==3 && cam2!=null) {
-    cam2.read();
-    image(cam2, camDisplayWidth*2, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-  }
+  //if (camWindows==3 && cam2!=null) {
+  //  cam2.read();
+  //  image(cam2, camDisplayWidth*2, (70), camDisplayWidth, camDisplayHeight);
+  //}
 
   if (isMapping) {
     processCV(); 
@@ -297,7 +310,7 @@ void draw() {
   // Display blobs
   blobFBO.beginDraw();
   displayBlobs();
-  blobFBO.endDraw();
+  blobFBO.endDraw(); //<>//
 
   // Draw the array of colors going out to the LEDs
 
@@ -307,10 +320,10 @@ void draw() {
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
       noStroke();
-      rect(i*x, (camArea.y+camArea.height)-(5*guiMultiply), x, 5*guiMultiply);
+      rect(i*x, (camArea.y+camArea.height)-(5), x, 5);
     }
   }
-} //<>//
+}
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
@@ -342,6 +355,28 @@ void sequentialMapping() {
     //println(loc);
   }
 }
+
+// TODO: implement this method in main pde properly
+//public void binaryMapping() {
+//  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+//    // Set frameskip so we have enough time to capture an image of each animation frame. 
+//    videoMode = VideoMode.IMAGE_SEQUENCE;
+//    animator.frameSkip = 18;
+//    animator.setMode(AnimationMode.BINARY);
+//    //animator.resetPixels();
+//    backgroundImage = videoInput.copy();
+//    backgroundImage.save("backgroundImage.png");
+//    blobLifetime = 200;
+//  } else {
+//    videoMode = VideoMode.CAMERA;
+//    animator.setMode(AnimationMode.OFF);
+//    animator.resetPixels();
+//    blobList.clear();
+//    shouldStartDecoding = false; 
+//    images.clear();
+//    currentFrame = 0;
+//  }
+//}
 
 void updateBlobs() {
   // Find all contours
@@ -587,6 +622,17 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
 
 //  return points;
 //}
+
+//Console warranty  and OS info
+void warranty() {
+  println("Lightwork-Mapper"); 
+  println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL");
+  println("This program comes with ABSOLUTELY NO WARRANTY");
+  println("");
+  String os=System.getProperty("os.name");
+  println("Operating System: "+os);
+  camAspect = (float)camWidth / (float)camHeight;
+}
 
 //Closes connections (once deployed as applet)
 void stop()

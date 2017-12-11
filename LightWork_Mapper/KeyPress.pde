@@ -1,3 +1,17 @@
+/*
+ *  Keypress
+ *  
+ *  Keyboard event handlers, mostly duplicate functionality with the GUI
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @authors Leó Stefánsson and Tim Rolls
+ */
+
+//ALT-SHIFT-S : Save UI properties to file
+//ALT-SHIFT-L : Load UI properties to file
+//SHIFT-H : Disable dragging (if accidentally activated with shift)
+
 void keyPressed() {
   //if (key == 's') {
   //  if (leds.size() == 0) { // TODO: Review this
