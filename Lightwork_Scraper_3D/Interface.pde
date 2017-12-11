@@ -183,14 +183,16 @@ public class Interface {
   // Network Methods
   //////////////////////////////////////////////////////////////
 
-  void update(LED[] ledArray) {
-
-
+  void updateColorAtIndex(color c, int index) {
+    leds[index].c = c;
+  }
+  
+  void update() {
     // Actualn colors[] array
     color[] colors = new color[numLeds];
 
-    for (int i = 0; i < ledArray.length; i++) {
-      colors[i] = ledArray[i].c;
+    for (int i = 0; i < leds.length; i++) {
+      colors[i] = leds[i].c;
     }
 
     switch(mode) {

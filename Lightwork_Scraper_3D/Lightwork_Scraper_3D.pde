@@ -16,7 +16,6 @@ Sphere[] spheres;
 int sphereRadius = 15; 
 
 PeasyCam cam;
-Scraper scraper;
 Interface hardware; 
 float margin = 50; // Prevents scraper from operating outside the canvas
 
@@ -50,20 +49,20 @@ void setup() {
   //initialize connection to LED driver
   //hardware = new Interface(device.PIXELPUSHER, "192.168.1.137", 1, 100);
   hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
-  hardware.loadCSV("future_depth_map_no_zeros.csv");
+  //hardware.loadCSV("future_depth_map_no_zeros.csv");
   hardware.connect(this);
   
-  //hardware.loadCSV("future_stereo_with_zeros.csv");
+  hardware.loadCSV("future_stereo_with_zeros.csv");
   //hardware.loadCSV("future_depth_map_no_zeros.csv");
   //hardware.loadCSV("christmas_layout_filtered.csv");
   
   // Color Scraper
-  scraper = new Scraper(hardware.leds); // Initialize the scraper with the hardware LEDs
+  //scraper = new Scraper(hardware.leds); // Initialize the scraper with the hardware LEDs
 
-  spheres = new Sphere[scraper.leds.length]; 
-  for (int i = 0; i < scraper.leds.length; i++) {
+  spheres = new Sphere[hardware.leds.length]; 
+  for (int i = 0; i < hardware.leds.length; i++) {
     spheres[i] = new Sphere(sphereRadius); 
-    PVector pvec = scraper.leds[i].coord; 
+    PVector pvec = hardware.leds[i].coord; 
     Vec3D vec = new Vec3D(pvec.x, pvec.y, pvec.z); 
     spheres[i].set(vec);
   }
@@ -102,28 +101,27 @@ void draw() {
 
   // Draw spheres and light set LED states. 
 
-  for (int i = 0; i < scraper.leds.length; i++) {
-    Vec3D vec = new Vec3D(scraper.leds[i].coord.x, scraper.leds[i].coord.y, scraper.leds[i].coord.z); 
+  for (int i = 0; i < hardware.leds.length; i++) {
+    Vec3D vec = new Vec3D(hardware.leds[i].coord.x, hardware.leds[i].coord.y, hardware.leds[i].coord.z); 
     spheres[i].set(vec);
     // Check if the plane is intersecting a sphere
-    AABB bounds = mesh.getBoundingBox();
     Vec3D closestPoint = mesh.getClosestVertexToPoint(vec);
     float dist = closestPoint.distanceTo(vec);
     //float dist = bounds.getDistanceToPoint(vec);
     // Color the intersecting spheres and light up the corresponding LEDs
-    if (dist < sphereRadius) {
+    if (dist < sphereRadius*2) {
       //if (bounds.containsPoint(vec)) {
       gfx.fill(TColor.newRGBA(255, 0, 0, 255)); 
-      scraper.updateColorAtIndex(color(255, 0, 0), i);
+      hardware.updateColorAtIndex(color(255, 0, 0), i);
     }
     // Set neutral color for non-intersecting spheres and turn off LEDs
     else {
       gfx.fill(TColor.newRGBA(255, 255, 255, 255)); 
-      scraper.updateColorAtIndex(color(0, 0, 0), i);
+      hardware.updateColorAtIndex(color(0, 0, 0), i);
     }
     // Draw the spheres
     gfx.sphere(spheres[i], sphereRadius, true);
   }
   // Update the physical LED colours
-  hardware.update(scraper.leds);
+  hardware.update();
 }
