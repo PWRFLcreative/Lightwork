@@ -103,7 +103,8 @@ void setup()
   //pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
-
+  
+  camAspect = (float)camWidth / (float)camHeight;
   println("Cam Aspect: "+camAspect);
 
   videoMode = VideoMode.CAMERA; 
@@ -631,7 +632,6 @@ void warranty() {
   println("");
   String os=System.getProperty("os.name");
   println("Operating System: "+os);
-  camAspect = (float)camWidth / (float)camHeight;
 }
 
 //Closes connections (once deployed as applet)
