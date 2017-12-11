@@ -33,18 +33,12 @@ void setup() {
   plane = new Plane();
   // Convert plane to a mesh of finite size
   mesh = new WETriangleMesh();
-  plane.toMesh(mesh, 1000.0);
-  int numSplits = 6; 
+  plane.toMesh(mesh, 500.0);
+  int numSplits = 4; 
   for (int i = 0; i < numSplits; i++) {
     mesh.subdivide(subdiv);
   }
   
-
-
-
-  //refPlane = new Plane(); 
-
-
   // Setup PeasyCam
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
@@ -53,12 +47,12 @@ void setup() {
 
   // Network Interface
   //initialize connection to LED driver
-  hardware = new Interface(device.PIXELPUSHER, "192.168.1.137", 1, 100);
-  //hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
+  //hardware = new Interface(device.PIXELPUSHER, "192.168.1.137", 1, 100);
+  hardware = new Interface(device.FADECANDY, "fade1.local", 6, 40);
 
   hardware.connect(this);
-  //hardware.loadCSV("future_stereo_with_zeros.csv");
-  hardware.loadCSV("christmas_layout_filtered.csv");
+  hardware.loadCSV("future_stereo_with_zeros.csv");
+  //hardware.loadCSV("christmas_layout_filtered.csv");
   // Color Scraper
   scraper = new Scraper(hardware.leds);
 
@@ -127,7 +121,7 @@ void draw() {
       scraper.updateColorAtIndex(color(0, 0, 0), i);
     }
     // Draw the spheres
-    gfx.sphere(spheres[i], scraper.sphereRadius);
+    gfx.sphere(spheres[i], scraper.sphereRadius, true);
   }
   // Update the physical LED colours
   hardware.update(scraper.leds);
