@@ -699,6 +699,9 @@ void window2d() {
 
   //surface.setSize(windowSizeX, windowSizeY);
   //surface.setSize(960, 740);
+  
+  println("display: "+displayWidth+", "+displayHeight+"  Window: "+width+", "+height);
+  
   if(displayDensity()==2){
     surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
   }

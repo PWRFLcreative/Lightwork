@@ -1,4 +1,4 @@
-/*  //<>//
+/*  //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -100,7 +100,7 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 void setup()
 {
   size(960, 700, P3D);
-  pixelDensity(displayDensity());
+  //pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
 
