@@ -31,7 +31,7 @@ import java.awt.Rectangle;
 Capture cam;
 Capture cam2;
 OpenCV opencv;
-OpenCV blobCV; // Separate CV instance for blob tracking because. Using only one results in different image processing when calling opencv.findContours()
+
 ControlP5 cp5;
 Animator animator;
 Interface network; 
@@ -103,8 +103,7 @@ void setup()
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
 
-  // Blobs Manager
-  blobManager = new BlobManager(this); 
+  
   
   
   cam = new Capture(this, camWidth, camHeight, 30);
@@ -145,7 +144,9 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, videoInput);
-  blobCV =  new OpenCV(this, opencv.getSnapshot());
+  
+  // Blob Manager
+  blobManager = new BlobManager(this, opencv); 
 
   // Image sequence
   captureIndex = 0; 
