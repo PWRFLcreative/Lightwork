@@ -52,8 +52,6 @@ class Blob {
     //set draw location based on displayed camera position, accounts for moving cam in UI
     float x = map(r.x, 0, (float)camWidth, (float)camArea.x, camArea.x+camArea.width);
     float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
-    //float x = r.x;
-    //float y = r.y; 
     float opacity = map(timer, 0, lifetime, 0, 127);
 
     fill(0, 255, 0, opacity);
@@ -62,16 +60,11 @@ class Blob {
     fill(255, 0, 0);
     textSize(12);
     stroke(0, 255, 0); 
-
-    //text(""+id, x+15, y+5);
-    String decoded = detectedPattern.decodedString.toString();
-    fill(0, 255, 0); 
-    //text(decoded, x+30, y+5);
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
-    this.timer = lifetime;
+    //this.timer = lifetime;
 
   }
 

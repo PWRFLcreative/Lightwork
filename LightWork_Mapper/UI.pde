@@ -610,7 +610,7 @@ public void map() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.blobLifetime = 200;
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
   } else {
     videoMode = VideoMode.CAMERA;
@@ -632,7 +632,7 @@ public void map2() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.blobLifetime = 200;
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
   
   } else {

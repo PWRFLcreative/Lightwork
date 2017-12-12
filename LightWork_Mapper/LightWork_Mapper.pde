@@ -39,7 +39,7 @@ BlobManager blobManager;
 
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
-int ledBrightness = 150;
+
 
 
 enum  VideoMode {
@@ -59,10 +59,11 @@ PGraphics camFBO;
 PGraphics cvFBO;
 PGraphics blobFBO;
 
-int cvThreshold = 100;
+int cvThreshold = 25;
 float cvContrast = 1.15;
+int ledBrightness = 45;
 
-ArrayList <LED>     leds;
+ArrayList <LED>     leds; // Global, used by Animator and Interface classes
 
 int FPS = 30; 
 
@@ -145,7 +146,6 @@ void setup()
   background(0);
   
   // DEBUG MODE: For my convenience, remove before testing/publishing
-  camera(0);
   
 }
 
@@ -183,6 +183,14 @@ void draw() {
 
   // Update the LEDs (before we do anything else). 
   animator.update();
+  
+  // BLOB MANAGER DEBUG BLOCK
+  blobManager.processCV();
+  blobManager.update();
+  blobManager.display(); 
+  
+  
+  // END BLOB MANAGER DEBUG BLOCK
 
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
@@ -207,8 +215,6 @@ void draw() {
       }
 
       videoInput = cam;
-      //processCV(); // TODO: This causes the last bit of the sequence to not register resulting
-      //        in every other LED not being decoded (and detected) properly
     }
 
     // If sequence exists, playback and decode
@@ -242,27 +248,15 @@ void draw() {
   camFBO.endDraw();
   image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
 
-  // OpenCV processing
-
-  //if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-  //  opencv.loadImage(diff);
-  //  opencv.diff(backgroundImage);
-  //} else {
-  //  opencv.loadImage(camFBO);
-  //}
-
-
   // Decode image sequence
-
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    blobManager.updateBlobs(); 
-    blobManager.displayBlobs();
-    blobManager.decodeBlobs();
+    blobManager.update(); 
+    blobManager.display();
+    blobManager.decode();
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
   }
-
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
@@ -278,16 +272,18 @@ void draw() {
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
+  /* TODO: Re-enable
   if (isMapping) {
     blobManager.processCV(); 
     blobManager.updateBlobs(); // Find and manage blobs
     blobManager.displayBlobs(); 
     if(!patternMapping){sequentialMapping();}
   }
+  */
 
   // Display blobs
   blobFBO.beginDraw();
-  blobManager.displayBlobs();
+  blobManager.display();
   blobFBO.endDraw(); //<>//
 
   // Draw the array of colors going out to the LEDs

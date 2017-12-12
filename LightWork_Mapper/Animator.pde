@@ -87,11 +87,11 @@ public class Animator {
   // Animation Methods //<>//
   //////////////////////////////////////////////////////////////
 
-  void update() { //<>// //<>//
+  void update() {  //<>//
     //if (frameCount % frameSkip == 0) { //<>// //<>// //<>// //<>// //<>//
     switch(mode) {
     case CHASE: 
-      { //<>// //<>//
+      {  //<>//
         chase(); //<>//
         break;
       }
