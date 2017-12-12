@@ -1,4 +1,4 @@
-/*   //<>// //<>//
+/*   //<>// //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -135,7 +135,7 @@ void setup()
   // OpenCV Setup
   println("Setting up openCV");
   opencv = new OpenCV(this, videoInput);
-  
+
   // Blob Manager
   blobManager = new BlobManager(this, opencv); 
 
@@ -144,9 +144,8 @@ void setup()
   images = new ArrayList<PGraphics>();
   diff = createGraphics(camWidth, camHeight, P2D); 
   background(0);
-  
+
   // DEBUG MODE: For my convenience, remove before testing/publishing
-  
 }
 
 // -----------------------------------------------------------
@@ -183,14 +182,13 @@ void draw() {
 
   // Update the LEDs (before we do anything else). 
   animator.update();
-  
-  // BLOB MANAGER DEBUG BLOCK
-  blobManager.processCV();
-  blobManager.update();
-  blobManager.display(); 
-  
-  
-  // END BLOB MANAGER DEBUG BLOCK
+
+  // BLOB MANAGER DEBUG BLOCK --------------------------------------------------------------------------------
+  processCV();
+  blobManager.update(opencv.findContours());
+  //blobManager.display(); 
+
+  // END BLOB MANAGER DEBUG BLOCK ----------------------------------------------------------------------------
 
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
@@ -226,7 +224,7 @@ void draw() {
         currentFrame = 0;
       }
       // Background diff
-      blobManager.processCV();
+      processCV();
     }
     // Assign diff to videoInput
   }
@@ -236,7 +234,7 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    blobManager.processCV();
+    processCV();
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -250,15 +248,16 @@ void draw() {
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    blobManager.update(); 
+    blobManager.update(opencv.findContours()); 
     blobManager.display();
-    blobManager.decode();
+    decode();
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
   }
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
+
   cvFBO.beginDraw();
   PImage snap = opencv.getSnapshot(); 
   cvFBO.image(snap, 0, 0, 640, 480);
@@ -273,18 +272,18 @@ void draw() {
   image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
   /* TODO: Re-enable
-  if (isMapping) {
-    blobManager.processCV(); 
-    blobManager.updateBlobs(); // Find and manage blobs
-    blobManager.displayBlobs(); 
-    if(!patternMapping){sequentialMapping();}
-  }
-  */
+   if (isMapping) {
+   blobManager.processCV(); 
+   blobManager.updateBlobs(); // Find and manage blobs
+   blobManager.displayBlobs(); 
+   if(!patternMapping){sequentialMapping();}
+   }
+   */
 
   // Display blobs
   blobFBO.beginDraw();
   blobManager.display();
-  blobFBO.endDraw(); //<>//
+  blobFBO.endDraw();
 
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
@@ -439,6 +438,42 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
 
 //  return points;
 //}
+
+void decode() {
+  // Update brightness levels for all the blobs
+  if (blobManager.blobList.size() > 0) {
+    for (int i = 0; i < blobManager.blobList.size(); i++) {
+      // Get the blob brightness to determine it's state (HIGH/LOW)
+      //println("decoding this blob: "+blobList.get(i).id);
+      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
+      // TODO: Which texture do we decode?
+      PImage snap = opencv.getSnapshot();
+      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      int br = 0; 
+      for (color c : cropped.pixels) {
+        br += brightness(c);
+      }
+
+      br = br/ cropped.pixels.length;
+
+      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
+      blobManager.blobList.get(i).decode(); // Decode the pattern
+    }
+  }
+}
+
+void processCV() {
+  diff.beginDraw();
+  diff.background(0);
+  diff.blendMode(NORMAL);
+  diff.image(videoInput, 0, 0);
+  diff.blendMode(SUBTRACT);
+  diff.image(backgroundImage, 0, 0);
+  diff.endDraw();
+  opencv.loadImage(diff);
+  opencv.contrast(cvContrast);
+  opencv.threshold(cvThreshold);
+}
 
 //Console warranty  and OS info
 void warranty() {
