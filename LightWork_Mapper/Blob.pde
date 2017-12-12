@@ -20,7 +20,6 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int lifetime; // Global (set using UI); 
   public int timer;
 
   // Unique ID for each blob
@@ -52,7 +51,7 @@ class Blob {
     //set draw location based on displayed camera position, accounts for moving cam in UI
     float x = map(r.x, 0, (float)camWidth, (float)camArea.x, camArea.x+camArea.width);
     float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
-    float opacity = map(timer, 0, lifetime, 0, 127);
+    float opacity = map(timer+1, 0, 255, 0, 127);
 
     fill(0, 255, 0, opacity);
     stroke(255, 0, 0);

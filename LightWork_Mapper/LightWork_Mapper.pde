@@ -247,8 +247,9 @@ void draw() {
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     blobManager.update(opencv.findContours()); 
     blobManager.display();
-    decode();
     processCV();
+    decode();
+    
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
