@@ -38,7 +38,7 @@ class Blob {
     this.id = id;
     this.contour = new Contour(parent, c.pointMat);
     this.available = true;
-    this.timer = lifetime;
+    this.timer = 100; // TODO: Synchronize with Blob class and/or UI
 
     detectedPattern = new BinaryPattern();
     brightness = 0; 

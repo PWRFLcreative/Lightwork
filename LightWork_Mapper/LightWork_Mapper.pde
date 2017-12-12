@@ -103,9 +103,6 @@ void setup()
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
 
-  
-  
-  
   cam = new Capture(this, camWidth, camHeight, 30);
 
   // Network
@@ -124,17 +121,10 @@ void setup()
   animator.setMode(AnimationMode.OFF);
   animator.update();
 
-  ////Check for high resolution display
-  //println("setup gui multiply");
-  //guiMultiply = 1;
-  //if (displayWidth >= 2560) {
-  //  guiMultiply = 2;
-  //}
-
   //set up window for 2d mapping
   window2d();
 
-  println("calling buildUI on a thread");
+  println("calling buildUI on a separate thread");
   thread("buildUI"); // This takes more than 5 seconds and will break OpenGL if it's not on a separate thread
 
   // Make sure there's always something in videoInput
@@ -153,6 +143,10 @@ void setup()
   images = new ArrayList<PGraphics>();
   diff = createGraphics(camWidth, camHeight, P2D); 
   background(0);
+  
+  // DEBUG MODE: For my convenience, remove before testing/publishing
+  camera(0);
+  
 }
 
 // -----------------------------------------------------------
@@ -193,8 +187,6 @@ void draw() {
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
-  //if ( cam!=null ) { 
-
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
@@ -228,7 +220,7 @@ void draw() {
         currentFrame = 0;
       }
       // Background diff
-      processCV();
+      blobManager.processCV();
     }
     // Assign diff to videoInput
   }
@@ -238,7 +230,7 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    processCV();
+    blobManager.processCV();
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes
@@ -287,7 +279,7 @@ void draw() {
   image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
-    processCV(); 
+    blobManager.processCV(); 
     blobManager.updateBlobs(); // Find and manage blobs
     blobManager.displayBlobs(); 
     if(!patternMapping){sequentialMapping();}
@@ -313,19 +305,7 @@ void draw() {
 // -----------------------------------------------------------
 // -----------------------------------------------------------
 
-void processCV() {
-  diff.beginDraw();
-  diff.background(0);
-  diff.blendMode(NORMAL);
-  diff.image(videoInput, 0, 0);
-  diff.blendMode(SUBTRACT);
-  diff.image(backgroundImage, 0, 0);
-  diff.endDraw();
-  //image(diff, 0, 0); 
-  opencv.loadImage(diff);
-  opencv.contrast(cvContrast);
-  opencv.threshold(cvThreshold);
-}
+
 
 // Mapping methods
 void sequentialMapping() {
