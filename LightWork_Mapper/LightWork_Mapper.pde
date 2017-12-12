@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*  //<>// //<>//
+=======
+/* //<>//
+>>>>>>> e0df4f6bc0862487612f4a86ae1d3c98b4f9b272
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -76,7 +80,7 @@ ArrayList<Blob> blobList;
 // Number of blobs detected over all time. Used to set IDs.
 int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 
-int minBlobSize = 2;
+int minBlobSize = 1;
 int maxBlobSize = 30;
 float distanceThreshold = 2; 
 
@@ -124,8 +128,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(3);
-  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
+  network.setNumStrips(6);
+  network.setNumLedsPerStrip(40); // TODO: Fix these setters...
   //network.populateLeds();
 
   // Animator
@@ -262,17 +266,16 @@ void draw() {
   image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
-  /*
-  if (videoMode == VideoMode.IMAGE_SEQUENCE) {
-   opencv.loadImage(diff);
-   opencv.diff(backgroundImage);
-   } else {
-   opencv.loadImage(camFBO);
-   }
-   */
+
+  //if (videoMode == VideoMode.IMAGE_SEQUENCE) {
+  //  opencv.loadImage(diff);
+  //  opencv.diff(backgroundImage);
+  //} else {
+  //  opencv.loadImage(camFBO);
+  //}
+
 
   // Decode image sequence
-
 
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     updateBlobs(); 
@@ -286,7 +289,8 @@ void draw() {
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
-  cvFBO.image(opencv.getSnapshot(), 0, 0);
+  PImage snap = opencv.getSnapshot(); 
+  cvFBO.image(snap, 0, 0, 640, 480);
   if (leds.size()>0) {
     for (LED led : leds) {
       cvFBO.noFill();
@@ -313,7 +317,7 @@ void draw() {
   // Display blobs
   blobFBO.beginDraw();
   displayBlobs();
-  blobFBO.endDraw();
+  blobFBO.endDraw(); //<>//
 
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
