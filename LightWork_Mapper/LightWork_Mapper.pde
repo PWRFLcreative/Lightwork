@@ -103,7 +103,7 @@ void setup()
   //pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
-  
+
   camAspect = (float)camWidth / (float)camHeight;
   println("Cam Aspect: "+camAspect);
 
@@ -204,6 +204,8 @@ void draw() {
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
+  //if ( cam!=null ) { 
+
     cam.read();
     videoInput = cam;
   } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
@@ -305,7 +307,7 @@ void draw() {
     processCV(); 
     updateBlobs(); // Find and manage blobs
     displayBlobs(); 
-    sequentialMapping();
+    if(!patternMapping){sequentialMapping();}
   }
 
   // Display blobs
@@ -314,7 +316,6 @@ void draw() {
   blobFBO.endDraw();
 
   // Draw the array of colors going out to the LEDs
-
   if (showLEDColors) {
     // scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
@@ -446,6 +447,7 @@ void updateBlobs() {
   }
 
   // Update the blob age
+  //for (int i = blobList.size()-1; i > 0; i--) {
   for (int i = 0; i < blobList.size(); i++) {
     Blob b = blobList.get(i);
     b.countDown();
