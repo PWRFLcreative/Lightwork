@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/*  //<>// //<>//
-=======
-/* //<>//
->>>>>>> e0df4f6bc0862487612f4a86ae1d3c98b4f9b272
+/*   //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -39,11 +35,12 @@ OpenCV blobCV; // Separate CV instance for blob tracking because. Using only one
 ControlP5 cp5;
 Animator animator;
 Interface network; 
+BlobManager blobManager; 
 
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
 int ledBrightness = 150;
-int blobLifetime = 200; 
+
 
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
@@ -71,21 +68,6 @@ int FPS = 30;
 
 PImage videoInput; 
 PImage cvOutput;
-
-ArrayList<Contour> contours;
-// List of detected contours parsed as blobs (every frame)
-ArrayList<Contour> newBlobs;
-// List of my blob objects (persistent)
-ArrayList<Blob> blobList;
-// Number of blobs detected over all time. Used to set IDs.
-int blobCount = 0; // Use this to assign new (unique) ID's to blobs
-
-int minBlobSize = 1;
-int maxBlobSize = 30;
-float distanceThreshold = 2; 
-
-// Window size
-//int windowSizeX, windowSizeY;
 
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
@@ -121,8 +103,10 @@ void setup()
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
 
-  // Blobs list
-  blobList = new ArrayList<Blob>();
+  // Blobs Manager
+  blobManager = new BlobManager(this); 
+  
+  
   cam = new Capture(this, camWidth, camHeight, 30);
 
   // Network
@@ -278,9 +262,9 @@ void draw() {
   // Decode image sequence
 
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    updateBlobs(); 
-    displayBlobs();
-    decodeBlobs();
+    blobManager.updateBlobs(); 
+    blobManager.displayBlobs();
+    blobManager.decodeBlobs();
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
@@ -301,22 +285,16 @@ void draw() {
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
-  // Secondary Camera for Stereo Capture
-  //if (camWindows==3 && cam2!=null) {
-  //  cam2.read();
-  //  image(cam2, camDisplayWidth*2, (70), camDisplayWidth, camDisplayHeight);
-  //}
-
   if (isMapping) {
     processCV(); 
-    updateBlobs(); // Find and manage blobs
-    displayBlobs(); 
+    blobManager.updateBlobs(); // Find and manage blobs
+    blobManager.displayBlobs(); 
     if(!patternMapping){sequentialMapping();}
   }
 
   // Display blobs
   blobFBO.beginDraw();
-  displayBlobs();
+  blobManager.displayBlobs();
   blobFBO.endDraw(); //<>//
 
   // Draw the array of colors going out to the LEDs
@@ -351,8 +329,8 @@ void processCV() {
 // Mapping methods
 void sequentialMapping() {
   //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
-  if (blobList.size()!=0) {
-    Rectangle rect = blobList.get(blobList.size()-1).contour.getBoundingBox();
+  if (blobManager.blobList.size()!=0) {
+    Rectangle rect = blobManager.blobList.get(blobManager.blobList.size()-1).contour.getBoundingBox();
     PVector loc = new PVector(); 
     loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
 
@@ -384,105 +362,7 @@ void sequentialMapping() {
 //  }
 //}
 
-void updateBlobs() {
-  // Find all contours
-  blobCV.loadImage(opencv.getSnapshot());
-  ArrayList<Contour> contours = blobCV.findContours();
 
-  // Filter contours, remove contours that are too big or too small
-  // The filtered results are our 'Blobs' (Should be detected LEDs)
-  ArrayList<Contour> newBlobs = filterContours(contours); // Stores all blobs found in this frame
-
-  // Note: newBlobs is actually of the Contours datatype
-  // Register all the new blobs if the blobList is empty
-  if (blobList.isEmpty()) {
-    //println("Blob List is Empty, adding " + newBlobs.size() + " new blobs.");
-    for (int i = 0; i < newBlobs.size(); i++) {
-      //println("+++ New blob detected with ID: " + blobCount);
-      int id = blobCount; 
-      blobList.add(new Blob(this, id, newBlobs.get(i)));
-      blobCount++;
-    }
-  }
-
-  // Check if newBlobs are actually new...
-  // First, check if the location is unique, so we don't register new blobs with the same (or similar) coordinates
-  else {
-    // New blobs must be further away to qualify as new blobs
-    // Store new, qualified blobs found in this frame
-
-    // Go through all the new blobs and check if they match an existing blob
-    for (int i = 0; i < newBlobs.size(); i++) {
-      PVector p = new PVector(); // New blob center coord
-      Contour c = newBlobs.get(i);
-      // Get the center coordinate for the new blob
-      float x = (float)c.getBoundingBox().getCenterX();
-      float y = (float)c.getBoundingBox().getCenterY();
-      p.set(x, y);
-
-      // Check if an existing blob is under the distance threshold
-      // If it is under the threshold it is the 'same' blob
-      boolean didMatch = false;
-      for (int j = 0; j < blobList.size(); j++) {
-        Blob blob = blobList.get(j);
-        // Get existing blob coord
-        PVector p2 = new PVector();
-        p2.x = (float)blob.contour.getBoundingBox().getCenterX();
-        p2.y = (float)blob.contour.getBoundingBox().getCenterY();
-
-        float distance = p.dist(p2);
-        if (distance <= distanceThreshold) {
-          didMatch = true;
-          // New blob (c) is the same as old blob (blobList.get(j))
-          // Update old blob with new contour
-          blobList.get(j).update(c);
-          break;
-        }
-      }
-
-      // If none of the existing blobs are too close, add this one to the blob list
-      if (!didMatch) {
-        Blob b = new Blob(this, blobCount, c);
-        blobCount++;
-        blobList.add(b);
-      }
-      // If new blob isTooClose to a a previous blob, reset the age.
-    }
-  }
-
-  // Update the blob age
-  //for (int i = blobList.size()-1; i > 0; i--) {
-  for (int i = 0; i < blobList.size(); i++) {
-    Blob b = blobList.get(i);
-    b.countDown();
-    if (b.dead()) {
-      blobList.remove(i); // TODO: Is this safe? Removing from array I'm iterating over...
-    }
-  }
-}
-
-void decodeBlobs() {
-  // Update brightness levels for all the blobs
-  if (blobList.size() > 0) {
-    for (int i = 0; i < blobList.size(); i++) {
-      // Get the blob brightness to determine it's state (HIGH/LOW)
-      //println("decoding this blob: "+blobList.get(i).id);
-      Rectangle r = blobList.get(i).contour.getBoundingBox();
-      // TODO: Which texture do we decode?
-      PImage snap = opencv.getSnapshot();
-      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
-      int br = 0; 
-      for (color c : cropped.pixels) {
-        br += brightness(c);
-      }
-
-      br = br/ cropped.pixels.length;
-
-      blobList.get(i).registerBrightness(br); // Set blob brightness
-      blobList.get(i).decode(); // Decode the pattern
-    }
-  }
-}
 
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
@@ -491,12 +371,12 @@ void matchBinaryPatterns() {
     }
     String targetPattern = leds.get(i).binaryPattern.binaryPatternString.toString(); 
     //println("finding target pattern: "+targetPattern);
-    for (int j = 0; j < blobList.size(); j++) {
-      String decodedPattern = blobList.get(j).detectedPattern.decodedString.toString(); 
+    for (int j = 0; j < blobManager.blobList.size(); j++) {
+      String decodedPattern = blobManager.blobList.get(j).detectedPattern.decodedString.toString(); 
       //println("checking match with decodedPattern: "+decodedPattern);
       if (targetPattern.equals(decodedPattern)) {
         leds.get(i).foundMatch = true; 
-        Rectangle rect = blobList.get(j).contour.getBoundingBox();
+        Rectangle rect = blobManager.blobList.get(j).contour.getBoundingBox();
         PVector pvec = new PVector(); 
         pvec.set((float)rect.getCenterX(), (float)rect.getCenterY());
         leds.get(i).setCoord(pvec);
@@ -505,53 +385,6 @@ void matchBinaryPatterns() {
     }
   }
 }
-
-// Filter out contours that are too small or too big
-ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {
-
-  ArrayList<Contour> blobs = new ArrayList<Contour>();
-
-  // Which of these contours are blobs?
-  for (int i=0; i<newContours.size(); i++) {
-
-    Contour contour = newContours.get(i);
-    Rectangle r = contour.getBoundingBox();
-
-    // If contour is too small, don't add blob
-    if (r.width < minBlobSize || r.height < minBlobSize || r.width > maxBlobSize || r.height > maxBlobSize) {
-      continue;
-    }
-    blobs.add(contour);
-  }
-
-  return blobs;
-}
-
-void displayBlobs() {
-
-  for (Blob b : blobList) {
-    strokeWeight(1);
-    b.display();
-  }
-}
-
-//void displayContoursBoundingBoxes() {
-
-//  for (int i=0; i<contours.size(); i++) {
-
-//    Contour contour = contours.get(i);
-//    Rectangle r = contour.getBoundingBox();
-
-//    if (//(contour.area() > 0.9 * src.width * src.height) ||
-//      (r.width < minBlobSize || r.height < minBlobSize))
-//      continue;
-
-//    stroke(255, 0, 0);
-//    fill(255, 0, 0, 150);
-//    strokeWeight(2);
-//    rect(r.x, r.y, r.width, r.height);
-//  }
-//}
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {

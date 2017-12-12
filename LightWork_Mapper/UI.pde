@@ -291,7 +291,7 @@ void buildUI() {
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10)
     .setRange(1, 100)
-    .setRangeValues(minBlobSize, maxBlobSize)
+    .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
     // after the initialization we turn broadcast back on again
     .setBroadcast(true)
@@ -306,7 +306,7 @@ void buildUI() {
     .setPosition(0, (buttonHeight+uiSpacing)*2)
     .setSize(buttonWidth, buttonHeight)
     .setRange(1, 10)
-    .plugTo(distanceThreshold)
+    .plugTo(blobManager.distanceThreshold)
     .setGroup("mapping")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
@@ -509,8 +509,8 @@ public void frameskip(int value) {
 
 void controlEvent(ControlEvent theControlEvent) {
   if (theControlEvent.isFrom("blobSize")) {
-    minBlobSize = int(theControlEvent.getController().getArrayValue(0));
-    maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
+    blobManager.minBlobSize = int(theControlEvent.getController().getArrayValue(0));
+    blobManager.maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
   }
 }
 
@@ -610,13 +610,13 @@ public void map() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
+    blobManager.blobLifetime = 200;
     isMapping=true;
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
-    blobList.clear();
+    blobManager.blobList.clear();
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
@@ -632,14 +632,14 @@ public void map2() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
+    blobManager.blobLifetime = 200;
     isMapping=true;
   
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
-    blobList.clear();
+    blobManager.blobList.clear();
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
@@ -699,13 +699,8 @@ void window2d() {
 
   //surface.setSize(windowSizeX, windowSizeY);
   //surface.setSize(960, 740);
-<<<<<<< HEAD
   
   println("display: "+displayWidth+", "+displayHeight+"  Window: "+width+", "+height);
-  
-=======
-  println("displayDensity: "+displayDensity()); 
->>>>>>> e0df4f6bc0862487612f4a86ae1d3c98b4f9b272
   if(displayDensity()==2){
     println("xLoc :"+((int)(displayWidth / 2)-width));
     println("displayWidth: "+displayWidth);
