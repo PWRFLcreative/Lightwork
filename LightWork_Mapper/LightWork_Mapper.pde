@@ -40,8 +40,6 @@ BlobManager blobManager;
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false; 
 
-
-
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
 };
@@ -87,7 +85,6 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 void setup()
 {
   size(960, 700, P3D);
-  //pixelDensity(displayDensity());
   frameRate(FPS);
   warranty();
 
@@ -145,7 +142,6 @@ void setup()
   diff = createGraphics(camWidth, camHeight, P2D); 
   background(0);
 
-  // DEBUG MODE: For my convenience, remove before testing/publishing
 }
 
 // -----------------------------------------------------------
@@ -184,9 +180,10 @@ void draw() {
   animator.update();
 
   // BLOB MANAGER DEBUG BLOCK --------------------------------------------------------------------------------
-  processCV();
-  blobManager.update(opencv.findContours());
-  //blobManager.display(); 
+  
+  //ArrayList<Contour> con = opencv.findContours();
+  //processCV();
+  //blobManager.update(con);
 
   // END BLOB MANAGER DEBUG BLOCK ----------------------------------------------------------------------------
 
@@ -251,6 +248,7 @@ void draw() {
     blobManager.update(opencv.findContours()); 
     blobManager.display();
     decode();
+    processCV();
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
