@@ -314,6 +314,7 @@ void buildUI() {
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
+
   //loadWidth = width/12*9;
   //capture console events to ui
 
@@ -591,6 +592,7 @@ void mappingToggle(int n) {
     println("Mapping Mode: Sequence");
   }
 }
+
 
 public void map() {
     //turn off mapping
