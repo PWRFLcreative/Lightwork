@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*   //<>// //<>// //<>//
+=======
+/*   //<>//
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -68,6 +72,25 @@ int FPS = 30;
 PImage videoInput; 
 PImage cvOutput;
 
+<<<<<<< HEAD
+=======
+ArrayList<Contour> contours;
+// List of detected contours parsed as blobs (every frame)
+ArrayList<Contour> newBlobs;
+// List of my blob objects (persistent)
+ArrayList<Blob> blobList;
+// Number of blobs detected over all time. Used to set IDs.
+int blobCount = 0; // Use this to assign new (unique) ID's to blobs
+
+int minBlobSize = 2;
+int maxBlobSize = 30;
+float distanceThreshold = 2; 
+
+//Window size
+int windowSizeX, windowSizeY;
+int guiMultiply = 1;
+
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
 Rectangle camArea;
@@ -85,6 +108,10 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 void setup()
 {
   size(960, 700, P3D);
+<<<<<<< HEAD
+=======
+  //pixelDensity(displayDensity()); Breaks openCV and PGraphics
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
   frameRate(FPS);
   warranty();
 
@@ -114,11 +141,25 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
+<<<<<<< HEAD
   animator.setFrameSkip(20);
+=======
+  animator.setFrameSkip(frameSkip);
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(AnimationMode.OFF);
   animator.update();
 
+<<<<<<< HEAD
+=======
+  //Check for high resolution display
+  println("setup gui multiply");
+  guiMultiply = 1;
+  if (displayWidth >= 2560) {
+    guiMultiply = 2;
+  }
+
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
   //set up window for 2d mapping
   window2d();
 
@@ -197,7 +238,7 @@ void draw() {
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       cam.read();
-      PGraphics pg = createGraphics(640, 480, P2D);
+      PGraphics pg = createGraphics(camWidth, camHeight, P2D);
       pg.beginDraw();
       pg.image(cam, 0, 0);
       pg.endDraw();
@@ -239,9 +280,11 @@ void draw() {
 
   // Display the camera input
   camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+  camFBO.image(videoInput, 0, 0 );
+ //   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+
   camFBO.endDraw();
-  image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
@@ -268,6 +311,7 @@ void draw() {
     }
   }
   cvFBO.endDraw();
+<<<<<<< HEAD
   image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
 
   /* TODO: Re-enable
@@ -278,6 +322,16 @@ void draw() {
    if(!patternMapping){sequentialMapping();}
    }
    */
+=======
+  image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
+  if (isMapping) {
+    processCV(); 
+    updateBlobs(); // Find and manage blobs
+    displayBlobs(); 
+    if(!patternMapping){sequentialMapping();}
+  }
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
 
   // Display blobs
   blobFBO.beginDraw();
@@ -287,7 +341,7 @@ void draw() {
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
     // scale based on window size and leds in array
-    float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
+    float x = (float)width/ (float)leds.size(); 
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
       noStroke();
@@ -392,6 +446,7 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   println("Exported CSV File to "+path);
 }
 
+<<<<<<< HEAD
 //Filter duplicates from point array
 //ArrayList <PVector> removeDuplicates(ArrayList <PVector> points) {
 //  println( "Removing duplicates");
@@ -474,6 +529,8 @@ void processCV() {
   opencv.threshold(cvThreshold);
 }
 
+=======
+>>>>>>> e77164f970641fa4f7b80ac780dd90c86f410a78
 //Console warranty  and OS info
 void warranty() {
   println("Lightwork-Mapper"); 
