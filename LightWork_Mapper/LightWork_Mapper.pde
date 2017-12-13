@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/*   //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -80,8 +80,9 @@ int minBlobSize = 2;
 int maxBlobSize = 30;
 float distanceThreshold = 2; 
 
-// Window size
-//int windowSizeX, windowSizeY;
+//Window size
+int windowSizeX, windowSizeY;
+int guiMultiply = 1;
 
 // Actual display size for camera
 int camDisplayWidth, camDisplayHeight;
@@ -100,7 +101,7 @@ boolean shouldStartDecoding; // Only start decoding once we've decoded a full se
 void setup()
 {
   size(960, 700, P3D);
-  //pixelDensity(displayDensity());
+  //pixelDensity(displayDensity()); Breaks openCV and PGraphics
   frameRate(FPS);
   warranty();
 
@@ -132,17 +133,17 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(10);
+  animator.setFrameSkip(frameSkip);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(AnimationMode.OFF);
   animator.update();
 
-  ////Check for high resolution display
-  //println("setup gui multiply");
-  //guiMultiply = 1;
-  //if (displayWidth >= 2560) {
-  //  guiMultiply = 2;
-  //}
+  //Check for high resolution display
+  println("setup gui multiply");
+  guiMultiply = 1;
+  if (displayWidth >= 2560) {
+    guiMultiply = 2;
+  }
 
   //set up window for 2d mapping
   window2d();
@@ -213,7 +214,7 @@ void draw() {
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       cam.read();
-      PGraphics pg = createGraphics(640, 480, P2D);
+      PGraphics pg = createGraphics(camWidth, camHeight, P2D);
       pg.beginDraw();
       pg.image(cam, 0, 0);
       pg.endDraw();
@@ -257,9 +258,11 @@ void draw() {
 
   // Display the camera input
   camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+  camFBO.image(videoInput, 0, 0 );
+ //   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
+
   camFBO.endDraw();
-  image(camFBO, 0, (70), camDisplayWidth, camDisplayHeight);
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // OpenCV processing
   /*
@@ -295,13 +298,7 @@ void draw() {
     }
   }
   cvFBO.endDraw();
-  image(cvFBO, camDisplayWidth, 70, camDisplayWidth, camDisplayHeight);
-
-  // Secondary Camera for Stereo Capture
-  //if (camWindows==3 && cam2!=null) {
-  //  cam2.read();
-  //  image(cam2, camDisplayWidth*2, (70), camDisplayWidth, camDisplayHeight);
-  //}
+  image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     processCV(); 
@@ -318,7 +315,7 @@ void draw() {
   // Draw the array of colors going out to the LEDs
   if (showLEDColors) {
     // scale based on window size and leds in array
-    float x = (float)width/ (float)leds.size(); //TODO: display is missing a bit on the right?
+    float x = (float)width/ (float)leds.size(); 
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
       noStroke();
@@ -579,52 +576,6 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
 }
-
-//Filter duplicates from point array
-//ArrayList <PVector> removeDuplicates(ArrayList <PVector> points) {
-//  println( "Removing duplicates");
-
-//  float thresh = 3.0; 
-
-//  // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
-//  for (PVector p : points) {
-//    float i = points.get(1).dist(p); // distance to current point, used to avoid comporating a point to itself
-//    //PVector pt = p;
-
-//    // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
-//    if (p.x == 0 && p.y == 0) {
-//      continue; // Go to the next iteration
-//    }
-
-//    // Compare point to all other points
-//    for (Iterator iter = points.iterator(); iter.hasNext();) {
-//      PVector item = (PVector)iter.next();
-//      float j = points.get(1).dist(item); 
-//      //PVector pt2 = item;
-//      float dist = p.dist(item);
-
-//      // Comparing point to itself... do nothing and move on.
-//      if (i == j) {
-//        //ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
-//        continue; // Move on to the next j point
-//      }
-//      // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
-//      //else if (pt.x == pt2.x && pt.y == pt2.y) {
-//      //  //ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
-//      //  iter = points.remove(iter);
-//      //  break;
-//      //}
-//      // Check point distance, remove points that are too close
-//      else if (dist < thresh) {
-//        println("removing duplicate point");
-//        points.remove(iter);
-//        break;
-//      }
-//    }
-//  }
-
-//  return points;
-//}
 
 //Console warranty  and OS info
 void warranty() {

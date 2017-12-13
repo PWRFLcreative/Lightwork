@@ -39,14 +39,15 @@ void buildUI() {
 
   float startTime = millis(); 
   println("Building UI... at time: " + startTime);
-  int uiGrid = 60;
-  int uiSpacing = 20;
-  int buttonHeight = 30;
-  int buttonWidth =150;
+  int uiGrid = 60*guiMultiply;
+  int uiSpacing = 20*guiMultiply;
+  int buttonHeight = 30*guiMultiply;
+  int buttonWidth =150*guiMultiply;
+  int topBarHeight = 70*guiMultiply;
 
   println("Creating font...");
-  PFont pfont = createFont("OpenSans-Regular.ttf", 12, false); // use true/false for smooth/no-smooth
-  ControlFont font = new ControlFont(pfont, 12);
+  PFont pfont = createFont("OpenSans-Regular.ttf", 12*guiMultiply, false); // use true/false for smooth/no-smooth
+  ControlFont font = new ControlFont(pfont, 12*guiMultiply);
   cp5.setFont(font);
   cp5.setColorBackground(#333333);
   cp5.setPosition(uiSpacing, uiSpacing);
@@ -68,7 +69,7 @@ void buildUI() {
     ;
 
   Group net = cp5.addGroup("network")
-    .setPosition(0, (70)+camDisplayHeight)
+    .setPosition(0, (topBarHeight)+camDisplayHeight)
     .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
@@ -76,7 +77,7 @@ void buildUI() {
     ;
 
   Group settings = cp5.addGroup("settings")
-    .setPosition((uiGrid+uiSpacing)*4, (70)+camDisplayHeight)
+    .setPosition((uiGrid+uiSpacing)*4, (topBarHeight)+camDisplayHeight)
     .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
@@ -84,7 +85,7 @@ void buildUI() {
     ;
 
   Group mapping = cp5.addGroup("mapping")
-    .setPosition((uiGrid+uiSpacing)*8, (70)+camDisplayHeight)
+    .setPosition((uiGrid+uiSpacing)*8, (topBarHeight)+camDisplayHeight)
     .setBackgroundHeight(200)
     .setWidth(uiGrid*4)
     //.setBackgroundColor(color(255, 50))
@@ -92,8 +93,8 @@ void buildUI() {
     ;
 
   Group buttons = cp5.addGroup("buttons")
-    .setPosition(-uiSpacing, height-70)
-    .setBackgroundHeight(70)
+    .setPosition(-uiSpacing, height-topBarHeight)
+    .setBackgroundHeight(topBarHeight)
     .setWidth(width)
     .setBackgroundColor(color(70))
     .hideBar()
@@ -245,7 +246,7 @@ void buildUI() {
     .setGroup("buttons")
     .setCaptionLabel("map")
     ;
-    
+
   cp5.addButton("map2")
     .setPosition((uiGrid+uiSpacing)*4+buttonWidth+2+uiSpacing, uiSpacing/2)
     .setSize(buttonWidth/2-2, buttonHeight)
@@ -277,6 +278,7 @@ void buildUI() {
     .setSize(buttonWidth, buttonHeight)
     .setRange(6, 30)
     .plugTo(frameSkip)
+    .setValue(12)
     .setGroup("mapping")
     .setBroadcast(true)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
@@ -542,7 +544,7 @@ public void saveLayout() {
     println("No point data to save, run mapping first");
     return;
   } else {
-    //savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
+    //savePath = "../LightWork_Scraper/data/layout.csv";
     File sketch = new File("../LightWork_Scraper/data/layout.csv");
     selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveCSV(leds, savePath);
@@ -579,16 +581,6 @@ void stereoToggle(boolean theFlag) {
   }
 }
 
-//void videoIn(boolean theFlag) {
-//  if (theFlag==true) {
-//    videoMode = VideoMode.CAMERA; 
-//    println("Video mode: Camera");
-//  } else {
-//    videoMode = VideoMode.FILE; 
-//    println("Video mode: File");
-//  }
-//}
-
 void mappingToggle(int n) {
   if (n==0) {
     videoMode = VideoMode.IMAGE_SEQUENCE; 
@@ -601,18 +593,11 @@ void mappingToggle(int n) {
   }
 }
 
-// 
+
 public void map() {
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
-    isMapping=true;
-  } else {
+    //turn off mapping
+  if (isMapping) {
+    println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
@@ -622,6 +607,32 @@ public void map() {
     currentFrame = 0;
     isMapping = false;
   }
+  //Binary pattern mapping
+  if (!isMapping && patternMapping==true) {
+    //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
+    //if (patternMapping==true) {
+    println("Binary pattern mapping started"); 
+    blobList.clear();
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.setMode(AnimationMode.BINARY);
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save(dataPath("backgroundImage.png"));
+    blobLifetime = 200;
+    isMapping=true;
+  }
+  //sequential mapping
+  if (!isMapping && patternMapping==false) {
+    //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
+    //if (patternMapping==false) {
+    println("Sequential mapping started");  
+    blobList.clear();
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.CHASE);
+    //animator.resetPixels();
+    blobLifetime = 200;
+    isMapping=true;
+  } 
 }
 
 public void map2() {
@@ -634,7 +645,6 @@ public void map2() {
     backgroundImage.save(dataPath("backgroundImage.png"));
     blobLifetime = 200;
     isMapping=true;
-  
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
@@ -691,30 +701,18 @@ void switchCamera(String name) {
 
 
 void window2d() {
-  //camWindows = 2;
-  //println("Setting window size");
-  //Window size based on screen dimensions, centered
-  //windowSizeX = (int)(displayWidth/3 * 0.8 *camWindows); // max width is 80% of monitor width, with room for 3 cam windows
-  //windowSizeY = (int)(displayHeight / 2 + (140)); // adds to height for ui elements
+  println("Setting window size");
+  windowSizeX = 960*guiMultiply; 
+  windowSizeY = 700*guiMultiply; // adds to height for ui elements above and below cams
+  surface.setSize(windowSizeX, windowSizeY);
 
-  //surface.setSize(windowSizeX, windowSizeY);
-  //surface.setSize(960, 740);
-  
   println("display: "+displayWidth+", "+displayHeight+"  Window: "+width+", "+height);
-  
-  if(displayDensity()==2){
-    surface.setLocation((int)(displayWidth / 2)-width, (int)(displayHeight / 2) - height);
-  }
-  else{
-      surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
-  }
 
-  //camDisplayWidth = (int)(displayWidth/3 * 0.8);
-  //camDisplayHeight = (int)(camDisplayWidth/camAspect);
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+
   camDisplayWidth = (int)(width/2);
   camDisplayHeight = (int)(camDisplayWidth/camAspect);
-
-  camArea = new Rectangle(0, 70, camDisplayWidth, camDisplayHeight);
+  camArea = new Rectangle(0, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
 
   println("camDisplayWidth: "+camDisplayWidth);
   println("camDisplayHeight: "+camDisplayHeight);
