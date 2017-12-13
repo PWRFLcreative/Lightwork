@@ -114,7 +114,7 @@ void setup()
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
   animator.setLedBrightness(ledBrightness);
-  animator.setFrameSkip(10);
+  animator.setFrameSkip(20);
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.setMode(AnimationMode.OFF);
   animator.update();
@@ -386,7 +386,7 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   println("CSV saved");
   for (int i = 0; i < ledArray.size(); i++) {
     output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
-    println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+leds.get(i).coord.y);
+    println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+ledArray.get(i).coord.y);
   }
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
