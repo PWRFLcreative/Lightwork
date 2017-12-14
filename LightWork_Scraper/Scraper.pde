@@ -1,4 +1,4 @@
-public class Scraper { //<>// //<>//
+public class Scraper {  //<>//
   String file;
 
   //SVG variables
@@ -100,10 +100,6 @@ public class Scraper { //<>// //<>//
         colors[i] = get((int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
       }
     }
-
-
-
-    //println(loc.size());
   }
 
   ArrayList getArray() {
