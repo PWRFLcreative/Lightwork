@@ -1,16 +1,23 @@
-public class Scraper {
+public class Scraper { //<>// //<>//
   String file;
 
+  //SVG variables
   PShape s;
-  ArrayList<PVector> loc = new ArrayList<PVector>();
-
   float[] viewBox;
 
-  Scraper ( String in) {
+  ArrayList<PVector> loc;
+  color[] colors;
+
+  Scraper ( String in) {  
     file=in;
+    loc = new ArrayList<PVector>();
+    //thread("loadCSV(file)");
+    loadCSV(file);
+    normCoords();
+    colors = new color[loc.size()];
   }
 
-  void init() {
+  void loadSVG() {
     s = loadShape(file);
 
     // Iterate over the children
@@ -30,7 +37,24 @@ public class Scraper {
     }
   }
 
-  //normalize point coordinates
+  //load position data from csv
+  void loadCSV(String file_) {
+    Table table = loadTable(file_, "header");
+
+    for (TableRow row : table.rows ()) {
+      int index = row.getInt("address");
+      float x = row.getFloat("x");
+      float y = row.getFloat("y");
+      float z = row.getFloat("z");
+
+      PVector v = new PVector();
+
+      v.set (x, y, z);
+      loc.add(v);
+    }
+  }
+
+  //normalize point coordinates to scale with window size
   void normCoords()
   {
     float[] norm = new float[4];
@@ -67,19 +91,27 @@ public class Scraper {
     }
   }
 
-  //set led coords in opc client
-  void update() { //<>//
-    int index =0;
-    for (PVector temp : loc) {
-      opc.led(index, (int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
-      index++;
+  //update colors to be sent for next network packet
+  void update() {
+
+    for (int i = 0; i<loc.size(); i++) {
+      PVector temp = loc.get(i);
+      if (!(temp.x == 0.0) && !(temp.y == 0.0)) { // Don't sample from 0,0 coord
+        colors[i] = get((int)map(temp.x, 0, 1, margin, width-margin), (int)map(temp.y, 0, 1, margin, height-margin));
+      }
     }
 
-    println(loc.size());
+
+
+    //println(loc.size());
   }
 
   ArrayList getArray() {
     return loc;
+  }
+
+  color[] getColors() {
+    return colors;
   }
 
   //deterimines bounding box of points in SVG for normalizing

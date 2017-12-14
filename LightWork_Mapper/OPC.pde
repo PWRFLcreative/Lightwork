@@ -246,7 +246,7 @@ public class OPC implements Runnable
     int numPixels = pixelLocations.length;
     int ledAddress = 4;
 
-    setPixelCount(numPixels);
+    //setPixelCount(numPixels);
     loadPixels();
 
     for (int i = 0; i < numPixels; i++) {
@@ -274,7 +274,7 @@ public class OPC implements Runnable
   // This is normally not needed; the output packet is automatically sized
   // by draw() and by setPixel().
   void setPixelCount(int numPixels) {
-    println("setPixelCount: " + numPixels);
+    //println("setPixelCount: " + numPixels);
     int numBytes = 3 * numPixels;
     int packetLen = 4 + numBytes;
     if (packetData == null || packetData.length != packetLen) {

@@ -1,66 +1,105 @@
-/* Make OPC LED layout, based on vertecies of an input SVG
+/* Make LED layout, based on vertecies of an input CSV/SVG
  Tim Rolls 2017*/
+import processing.video.*; 
 
 Scraper scrape;
-OPC opc;
+Interface network; 
+Capture cam; 
 
 PImage clouds;
 int pos;
-float margin =50;
+float margin = 50; //prevents scraper from operating outside the canvas
+PGraphics gradient; 
 
 void setup() {
-  size(640, 480, JAVA2D); //wtf
-  background(0);
+  size(640, 480, P3D); 
+  //background(0);
+  // Init webcam
+  //cam = new Capture(this, 640, 480); 
+  //cam.start();
 
+  gradient = createGraphics(width, height); 
   //initialize scraper
-  scrape = new Scraper("layout.svg"); 
-  scrape.init();
-  scrape.normCoords();
+  //replace with your filename, make sure it's in the sketch or /data folder
+  scrape = new Scraper("layout.csv"); 
 
-  opc = new OPC(this, "fade1.local", 7890);
+  //initialize connection to LED driver
+  //network = new Interface(device.PIXELPUSHER, "192.168.1.137", 1,100);
+  network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  network.connect(this);
+
+  //update scraper after network connects
   scrape.update();
-  opc.showLocations(true);
 
-  //display array of points from SVG
+  colorMode(HSB, 360, 100, 100); 
+  //output scraper locations to console
   //println(scrape.getArray());
 }
 
 void draw() {
   background(0);
-<<<<<<< HEAD
 
-
-=======
-  
-  // Test animation
-  //noFill();
-  //strokeWeight(25);
-  //for (int i = 0; i < 100; i+=10) {
-  //  stroke(255-i*2.5*sin(frameCount*0.7), i*2.5*sin(frameCount*0.5), 255*sin(frameCount*0.2));
-  //  ellipse(width/2, height/2, i*100*sin(frameCount*0.02), i*100*sin(frameCount*0.02));
-  //}
-  // End test animation
-  
-  
-  //rect(0,0,50,50); //test margin bounds
-  scrape.display();
->>>>>>> a7dcef3d99a78fdf21186678aa80b4b2df344fb1
-
-  //simple chase animation
+  //simple chase animation - replace with your drawing code
   noStroke();
-  fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
-  if (pos<=width)pos+=5;
-  else pos=0;
-<<<<<<< HEAD
-  //rect(pos, 0, 100, height);
-  ellipse(mouseX, mouseY, 30, 30);
-  
-    //rect(0,0,50,50); //test margin bounds
-  scrape.display();
-=======
-  rect(pos, 0, 100, height);
-  ellipse(mouseX, mouseY, 30, 30);
-  
 
->>>>>>> a7dcef3d99a78fdf21186678aa80b4b2df344fb1
+  //fill(255*sin(frameCount*0.1), 255*sin(frameCount*0.3), 255*cos(frameCount*0.6));
+  ellipse(mouseX, mouseY, 30, 30);
+
+  //fill(frameCount%255, 23, 145, 232);
+  fill(abs(sin(frameCount*0.01))*360, 100, 100); 
+
+  //rect(0, pos, width, 100);
+
+  // Gradient line
+  //horizontalGradient(); 
+  verticalGradient(); 
+
+  //cursor to test accuracy
+  noStroke();
+  fill(255, 255, 255);
+  ellipse(mouseX, mouseY, 30, 30);
+
+
+  //filter(BLUR, 3); 
+  //Show locations loaded from layout in processing sketch 
+  scrape.display();
+  scrape.update();
+  network.update(scrape.getColors());
+}
+
+void horizontalGradient() {
+  int numLines = 450; 
+  if (pos<=height+numLines)pos+=5;
+  else pos=0;
+  for (int i = 0; i < numLines; i++) {
+    color c;
+    if (i < numLines/2) {
+      c = color (abs(sin(frameCount*0.01))*360+i, 100, i);
+    } else {
+      c = color (abs(sin(frameCount*0.01))*360, 100, numLines-i);
+    }
+    stroke(c); 
+    line(0, i+pos-numLines, width, i+pos-numLines);
+  }
+}
+
+void verticalGradient() {
+  int numLines = 250; 
+  if (pos<=width+numLines)pos+=5;
+  else pos=0;
+
+  for (int i = 0; i < numLines; i++) {
+    int x = i+pos-numLines; 
+    color c;
+    if (i < numLines/2) {
+      //c = color (abs(sin(frameCount*0.01))*(i+pos/width*360), 100, i);
+      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, i);
+    } else {
+      //c = color (abs(sin(frameCount*0.01))*(i-pos/width*360), 100, numLines-i);
+      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, numLines-i);
+    }
+    stroke(c); 
+
+    line(x, 0, x, width );
+  }
 }
