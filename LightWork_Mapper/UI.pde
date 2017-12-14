@@ -1,4 +1,4 @@
-/*  //<>//
+/* //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -21,7 +21,7 @@ boolean showLEDColors = true;
 boolean patternMapping = true;
 boolean stereoMode = false;
 
-int frameSkip = 12;
+int frameSkip = 20;
 
 String savePath;
 
@@ -277,6 +277,7 @@ void buildUI() {
     .setPosition(0, 0)
     .setSize(buttonWidth, buttonHeight)
     .setRange(6, 30)
+    .setValue(frameSkip)
     .plugTo(frameSkip)
     .setValue(12)
     .setGroup("mapping")
@@ -293,7 +294,7 @@ void buildUI() {
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10)
     .setRange(1, 100)
-    .setRangeValues(minBlobSize, maxBlobSize)
+    .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
     // after the initialization we turn broadcast back on again
     .setBroadcast(true)
@@ -302,7 +303,7 @@ void buildUI() {
     ;
 
   println("adding blob distance slider");
-  cp5.addSlider("distance")
+  cp5.addSlider("setBlobDistanceThreshold")
     .setBroadcast(false)
     .setCaptionLabel("min blob distance")
     .setPosition(0, (buttonHeight+uiSpacing)*2)
@@ -506,15 +507,20 @@ public void ledBrightness(int value) {
 }
 
 public void frameskip(int value) {
-  frameSkip =value;
+  frameSkip = value;
   animator.setFrameSkip(value);
+}
+
+void setBlobDistanceThreshold(float t) {
+  blobManager.distanceThreshold = t;
 }
 
 void controlEvent(ControlEvent theControlEvent) {
   if (theControlEvent.isFrom("blobSize")) {
-    minBlobSize = int(theControlEvent.getController().getArrayValue(0));
-    maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
+    blobManager.minBlobSize = int(theControlEvent.getController().getArrayValue(0));
+    blobManager.maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
   }
+  //else if (theControlEvent.isFrom("
 }
 
 public void calibrate() {
@@ -540,14 +546,14 @@ public void calibrate() {
 }
 
 public void saveLayout() {
-  if (leds.size() == 0) { // TODO: review, does this work?
+  if (leds.size() <= 0) { // TODO: review, does this work?
     //User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
   } else {
-    //savePath = "../LightWork_Scraper/data/layout.csv";
-    File sketch = new File("../LightWork_Scraper/data/layout.csv");
-    selectOutput("Select a file to write to:", "fileSelected", sketch);
+    savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
+    //File sketch = new File("../LightWork_Scraper/data/layout.csv");
+    //selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveCSV(leds, savePath);
   }
 }
@@ -596,13 +602,33 @@ void mappingToggle(int n) {
 
 
 public void map() {
+
+  // Start Image Sequence mode
+  /*
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+    // Set frameskip so we have enough time to capture an image of each animation frame. 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+    animator.setMode(AnimationMode.BINARY);
+    leds.clear(); 
+    network.populateLeds();
+    //animator.resetPixels();
+    backgroundImage = videoInput.copy();
+    backgroundImage.save(dataPath("backgroundImage.png"));
+    blobManager.setBlobLifetime(200); 
+    isMapping=true;
+  } 
+  
+  else {
+
+    */
     //turn off mapping
   if (isMapping) {
     println("Mapping stopped");
+
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
-    blobList.clear();
+    blobManager.clearAllBlobs();
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
@@ -613,13 +639,13 @@ public void map() {
     //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
     //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
-    blobList.clear();
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.setMode(AnimationMode.BINARY);
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
+    blobManager.setBlobLifetime(200);
     isMapping=true;
   }
   //sequential mapping
@@ -627,13 +653,14 @@ public void map() {
     //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
     //if (patternMapping==false) {
     println("Sequential mapping started");  
-    blobList.clear();
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
     //animator.resetPixels();
-    blobLifetime = 200;
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
   } 
+  
 }
 
 public void map2() {
@@ -644,13 +671,13 @@ public void map2() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
   } else {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
-    blobList.clear();
+    blobManager.clearAllBlobs();
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
