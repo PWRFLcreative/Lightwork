@@ -1,12 +1,11 @@
-/* //<>//
- *  LED
- *  
- *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
- *  
- *  Copyright (C) 2017 PWRFL
- *  
- *  @authors Leó Stefánsson and Tim Rolls
- */
+//  Interface.pde 
+//  Lightwork-Mapper
+//
+//  Created by Leo Stefansson and Tim Rolls
+//  
+//  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
+//
+//////////////////////////////////////////////////////////////
 
 
 //Pixel Pusher library imports
@@ -25,10 +24,11 @@ enum device {
 
 public class Interface {
 
-  device              mode;
+  device               mode;
+  private LED[]                leds; 
 
   //LED defaults
-  String               IP = "fade1.local";
+  String               IP = "fade2.local";
   int                  port = 7890;
   int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
   int                  numStrips = 8;
@@ -45,12 +45,34 @@ public class Interface {
   boolean isConnected =false;
 
   //////////////////////////////////////////////////////////////
-  //Constructor
+  //Constructors
   /////////////////////////////////////////////////////////////
 
   Interface() {
     mode = device.NULL;
-    populateLeds();
+    println("Interface created");
+  }
+
+  //setup for fadecandy
+  Interface(device m, String ip, int strips, int ledCount) {
+    mode = m;
+    IP = ip;
+    numStrips =strips;
+    ledsPerStrip = ledCount;
+    numLeds = ledsPerStrip*numStrips;
+    
+    //populateLeds();
+
+    println("Interface created");
+  }
+
+  //setup for pixel pusher (no address required)
+  Interface(device m, int strips, int ledCount) {
+    mode = m;
+    numStrips =strips;
+    ledsPerStrip = ledCount;
+    numLeds = ledsPerStrip*numStrips;
+    //populateLeds();
     println("Interface created");
   }
 
@@ -77,7 +99,6 @@ public class Interface {
   }
 
   void setNumStrips(int num) {
-    //ofLogNotice("animator") << "setNumStrips(): " << num;
     numStrips = num;
     numLeds = ledsPerStrip*numStrips;
     //resetPixels();
@@ -87,14 +108,32 @@ public class Interface {
     return numStrips;
   }
 
-  void setLedBrightness(int brightness) { //TODO: set overall brightness?
-    ledBrightness = brightness;
-
-    if (mode == device.PIXELPUSHER && isConnected()) {
-      registry.setOverallBrightnessScale(ledBrightness);
+  //load position data from csv
+  void loadCSV(String file_) {
+    // Populate table
+    println("LOAD CSV"); 
+    table = loadTable(file_, "header");
+    printArray(table.getColumnTitles()); 
+    
+    // Allocate LEDS
+    leds = new LED[table.getRowCount()];
+    
+    for (int i = 0; i < leds.length; i++) {
+      leds[i] = new LED(); 
     }
-
-    if (opc!=null&&opc.isConnected()) {
+    
+    int zDepth = 300; 
+    for ( int i = 0; i < table.getRowCount(); i++) {
+      TableRow row = table.getRow(i);
+      int address = row.getInt("address");
+      float x = row.getFloat("x")*width;
+      float y = row.getFloat("y")*height;
+      float z = row.getFloat("z")*zDepth;
+      //println(z); 
+      PVector v = new PVector();
+      v.set (x, y, z ); 
+      leds[i].address = address; 
+      leds[i].coord.set(v); 
     }
   }
 
@@ -106,26 +145,24 @@ public class Interface {
     println(IP);
     return IP;
   }
-  
+
   void setInterpolation(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setInterpolation(state);
-    }
-    else {
-      println("Interpolation only supported for FADECANDY."); 
+    } else {
+      println("Interpolation only supported for FADECANDY.");
     }
   }
-  
+
   void setDithering(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setDithering(state); 
       opc.setInterpolation(state);
-    }
-    else {
-      println("Dithering only supported for FADECANDY.");  
+    } else {
+      println("Dithering only supported for FADECANDY.");
     }
   }
-  
+
   boolean isConnected() {
     return isConnected;
   }
@@ -142,29 +179,21 @@ public class Interface {
     }
   }
 
-  // Reset the LED vector
-  void populateLeds() {
-
-    //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
-
-    if (leds.size()>0) {
-      println("Clearing leds"); 
-      leds.clear();
-    }
-
-    for (int i = 0; i < numLeds; i++) {
-      LED temp= new LED();
-      leds.add(temp);
-      leds.get(i).setAddress(i);
-      //leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
-    }
-  }
-
   //////////////////////////////////////////////////////////////
   // Network Methods
   //////////////////////////////////////////////////////////////
 
-  void update(color[] colors) {
+  void updateColorAtIndex(color c, int index) {
+    leds[index].c = c;
+  }
+  
+  void update() {
+    // Actualn colors[] array
+    color[] colors = new color[numLeds];
+
+    for (int i = 0; i < leds.length; i++) {
+      colors[i] = leds[i].c;
+    }
 
     switch(mode) {
     case FADECANDY: 
@@ -188,7 +217,6 @@ public class Interface {
             for (Strip strip : strips) {
               for (int stripPos = 0; stripPos < strip.getLength(); stripPos++) {
                 color c = colors[(ledsPerStrip*stripNum)+stripPos];
-
                 strip.setPixel(c, stripPos);
               }
               stripNum++;
@@ -240,22 +268,10 @@ public class Interface {
       }
 
       if (opc.isConnected()) {
-        // TODO: Find a more elegant way to initialize dithering
-        // Currently this is the only safe place where this is guaranteed to work
-        //opc.setDithering(false);
-        //opc.setInterpolation(false);
-        // TODO: Deal with this (doesn't work for FUTURE wall, works fine one LIGHT WORK wall).
-
-        // Clear LEDs
-        animator.setAllLEDColours(off);
-        // Update pixels twice (elegant, I know... but it works)
-        update(animator.getPixels());
-        //update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
       }
-      populateLeds();
     }
 
     if (mode == device.PIXELPUSHER ) {
@@ -291,19 +307,10 @@ public class Interface {
 
       if (testObserver.hasStrips) {
         isConnected =true;
-        
-        // Clear LEDs
-        animator.setAllLEDColours(off);
-        update(animator.getPixels());
       }
-
       registry.setLogging(false);
-      populateLeds();
     }
 
-    // Turn off LEDs
-    // Turn off LEDs first
-    //animator.resetPixels();
   }
 
   //Close existing connections
@@ -327,6 +334,7 @@ public class Interface {
     registry.setLogging(b);
   }
 }
+
 
 // PixelPusher Observer
 // Monitors network for changes in PixelPusher configuration
