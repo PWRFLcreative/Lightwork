@@ -1,4 +1,4 @@
-/* //<>// //<>// //<>// //<>// //<>//
+/* //<>// //<>// //<>// //<>// //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -603,6 +603,7 @@ void mappingToggle(int n) {
 public void map() {
 
   // Start Image Sequence mode
+  /*
   if (videoMode != VideoMode.IMAGE_SEQUENCE) {
     // Set frameskip so we have enough time to capture an image of each animation frame. 
     videoMode = VideoMode.IMAGE_SEQUENCE;
@@ -616,9 +617,9 @@ public void map() {
     isMapping=true;
   } 
   
-  /*else {
+  else {
 
-    
+    */
     //turn off mapping
   if (isMapping) {
     println("Mapping stopped");
@@ -637,13 +638,13 @@ public void map() {
     //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
     //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
-    blobList.clear();
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.setMode(AnimationMode.BINARY);
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobLifetime = 200;
+    blobManager.setBlobLifetime(200);
     isMapping=true;
   }
   //sequential mapping
@@ -651,14 +652,14 @@ public void map() {
     //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
     //if (patternMapping==false) {
     println("Sequential mapping started");  
-    blobList.clear();
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
     //animator.resetPixels();
-    blobLifetime = 200;
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
   } 
-  */
+  
 }
 
 public void map2() {
