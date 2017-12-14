@@ -1,4 +1,4 @@
-/*   //<>//
+/*    //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -78,7 +78,7 @@ int blobCount = 0; // Use this to assign new (unique) ID's to blobs
 
 int minBlobSize = 2;
 int maxBlobSize = 30;
-float distanceThreshold = 2; 
+float distanceThreshold = 4; 
 
 //Window size
 int windowSizeX, windowSizeY;

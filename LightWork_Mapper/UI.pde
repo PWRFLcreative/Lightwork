@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/*  //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -227,7 +227,7 @@ void buildUI() {
 
   tl1 = cp5.addTextlabel("mapMode")
     .setText("MAPPING MODE")
-    .setPosition(buttonWidth+5, 5+(buttonHeight+uiSpacing)*3)
+    .setPosition(buttonWidth+5, 5*guiMultiply+(buttonHeight+uiSpacing)*3)
     .setGroup("settings")
     .setFont(font)
     ;
@@ -307,6 +307,7 @@ void buildUI() {
     .setCaptionLabel("min blob distance")
     .setPosition(0, (buttonHeight+uiSpacing)*2)
     .setSize(buttonWidth, buttonHeight)
+    .setValue(4)
     .setRange(1, 10)
     .plugTo(distanceThreshold)
     .setGroup("mapping")
