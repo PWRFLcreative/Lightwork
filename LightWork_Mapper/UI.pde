@@ -110,7 +110,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(network.getIP())
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding textfield for ledsPerStrip");
@@ -122,7 +122,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(str(network.getNumLedsPerStrip()))
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding textfield for strips");
@@ -133,7 +133,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(str(network.getNumStrips()))
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("listing drivers");
@@ -172,7 +172,7 @@ void buildUI() {
     .setGroup("settings")
     .setMoveable(false)
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   ////set labels to bottom
@@ -189,7 +189,7 @@ void buildUI() {
     .setValue(cvThreshold)
     .setGroup("settings")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
 
     ;
 
@@ -208,7 +208,7 @@ void buildUI() {
     .setGroup("settings")
     //.plugTo(ledBrightness)
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   ////set labels to bottom
@@ -282,7 +282,7 @@ void buildUI() {
     .setValue(12)
     .setGroup("mapping")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding blob range slider");
@@ -296,11 +296,10 @@ void buildUI() {
     .setRange(1, 100)
     .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
-    // after the initialization we turn broadcast back on again
     .setBroadcast(true)
-    //.setColorForeground(color(255, 40))
-    //.setColorBackground(color(255, 40))  
     ;
+
+  cp5.getController("blobSize").getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply);
 
   println("adding blob distance slider");
   cp5.addSlider("setBlobDistanceThreshold")
@@ -310,46 +309,14 @@ void buildUI() {
     .setSize(buttonWidth, buttonHeight)
     .setValue(4)
     .setRange(1, 10)
-    .plugTo(distanceThreshold)
+    .plugTo(blobManager.distanceThreshold)
     .setGroup("mapping")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
-
-
-  //loadWidth = width/12*9;
-  //capture console events to ui
-
-  //cp5Console = cp5.addTextarea("cp5Console")
-  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70)+camDisplayHeight)
-  //  .setSize((uiGrid*4)-uiSpacing, 180)
-  //  .setFont(createFont("", 12))
-  //  .setLineHeight(16)
-  //  .setColor(color(200))
-  //  .setColorBackground(color(#333333))
-  //  .setColorForeground(color(255, 100))
-  //  ;
-  //;
-
-  //println("adding console");
-  //TODO: IS this breaking things?
-  //console = cp5.addConsole(cp5Console).;//
-  //console.play();
 
   println("add framerate panel");
   cp5.addFrameRate().setPosition((camDisplayWidth*2)-uiSpacing*3, 0);
-
-  //cp5.addToggle("videoIn")
-  //  .setBroadcast(false)
-  //  .setCaptionLabel("Video In")
-  //  .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
-  //  .setSize(buttonWidth/4, buttonHeight)
-  //  .setGroup("top")
-  //  .setValue(true)
-  //  .setMode(ControlP5.SWITCH)
-  //  .setBroadcast(true)
-  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
-  //  ;
 
   cp5.addToggle("stereoToggle")
     .setBroadcast(false)
@@ -383,19 +350,6 @@ void buildUI() {
     .setOpen(false)
     .setGroup("top")
     ;
-
-  // made last - enumerating cams will break the ui if done earlier in the sequence
-  //println("cp5: adding camera dropdown list");
-  //cp5.addScrollableList("camera2")
-  //  .setPosition(buttonWidth*3+uiSpacing*4, 0)
-  //  .setSize(buttonWidth, 300)
-  //  .setBarHeight(buttonHeight)
-  //  .setItemHeight(buttonHeight)
-  //  .addItems(cams)
-  //  .setOpen(false)
-  //  .setVisible(false)
-  //  .setGroup("top")
-  //  ;
 
   //load defaults
   if (defaults.exists()) {
@@ -606,25 +560,28 @@ public void map() {
   // Start Image Sequence mode
   /*
   if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.setMode(AnimationMode.BINARY);
-    leds.clear(); 
-    network.populateLeds();
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200); 
-    isMapping=true;
-  } 
-  
-  else {
+   // Set frameskip so we have enough time to capture an image of each animation frame. 
+   videoMode = VideoMode.IMAGE_SEQUENCE;
+   animator.setMode(AnimationMode.BINARY);
+   leds.clear(); 
+   network.populateLeds();
+   //animator.resetPixels();
+   backgroundImage = videoInput.copy();
+   backgroundImage.save(dataPath("backgroundImage.png"));
+   blobManager.setBlobLifetime(200); 
+   isMapping=true;
+   } 
+   
+   else {
+   
+   */
 
-    */
-    //turn off mapping
-  if (isMapping) {
+  if (network.isConnected()==false) {
+    println("Please connect to an LED driver before mapping");
+  }
+  //turn off mapping
+  else if (isMapping) {
     println("Mapping stopped");
-
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
     animator.resetPixels();
@@ -635,7 +592,7 @@ public void map() {
     isMapping = false;
   }
   //Binary pattern mapping
-  if (!isMapping && patternMapping==true) {
+  else if (!isMapping && patternMapping==true) {
     //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
     //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
@@ -649,7 +606,7 @@ public void map() {
     isMapping=true;
   }
   //sequential mapping
-  if (!isMapping && patternMapping==false) {
+  else if (!isMapping && patternMapping==false) {
     //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
     //if (patternMapping==false) {
     println("Sequential mapping started");  
@@ -659,8 +616,7 @@ public void map() {
     //animator.resetPixels();
     blobManager.setBlobLifetime(200); 
     isMapping=true;
-  } 
-  
+  }
 }
 
 public void map2() {

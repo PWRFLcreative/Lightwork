@@ -64,7 +64,7 @@ public class Interface {
     println("Interface created");
   }
   
-    //setup for pixel pusher (no address required)
+  //setup for pixel pusher (no address required)
   Interface(device m, int strips, int leds){
     mode = m;
     numStrips =strips;
