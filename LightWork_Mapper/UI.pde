@@ -21,6 +21,14 @@ boolean showLEDColors = true;
 boolean patternMapping = true;
 boolean stereoMode = false;
 
+//Window size
+int windowSizeX, windowSizeY;
+int guiMultiply = 1;
+
+// Actual display size for camera
+int camDisplayWidth, camDisplayHeight;
+Rectangle camArea;
+
 int frameSkip = 20;
 
 String savePath;
@@ -478,14 +486,19 @@ void controlEvent(ControlEvent theControlEvent) {
 }
 
 public void calibrate() {
+  if (network.isConnected()==false) {
+    println("Please connect to an LED driver before calibrating");
+  }
   // Activate Calibration Mode
-  if (videoMode != VideoMode.CALIBRATION) {
+  else if (videoMode != VideoMode.CALIBRATION) {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
     if ( patternMapping == true) {
+      println("Calibration: pattern");
       animator.setMode(AnimationMode.BINARY);
     } else {
+      println("Calibration: sequence");
       animator.setMode(AnimationMode.CHASE);
     }
   } 
@@ -496,6 +509,7 @@ public void calibrate() {
     opencv.loadImage(backgroundImage); // Clears OpenCV frame
     animator.setMode(AnimationMode.OFF); 
     animator.resetPixels();
+    println("Calibration: off");
   }
 }
 

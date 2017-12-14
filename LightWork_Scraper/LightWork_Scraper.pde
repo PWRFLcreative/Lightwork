@@ -1,7 +1,8 @@
-/* Make LED layout, based on vertecies of an input CSV/SVG
- Tim Rolls 2017*/
-import processing.video.*; 
-
+ /* 
+  * Make LED layout, based on vertecies of an input CSV/SVG
+  * Tim Rolls 2017
+  */
+  
 Scraper scrape;
 Interface network; 
 

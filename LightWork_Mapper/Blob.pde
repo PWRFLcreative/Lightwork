@@ -1,12 +1,12 @@
 /*
- * Blob Class
+ *  Blob Class
  *
- * Based on this example by Daniel Shiffman:
- * http://shiffman.net/2011/04/26/opencv-matching-faces-over-time/
+ *  Based on this example by Daniel Shiffman:
+ *  http://shiffman.net/2011/04/26/opencv-matching-faces-over-time/
  * 
- * @author: Jordi Tost (@jorditost)
+ *  @author: Jordi Tost (@jorditost)
  * 
- * University of Applied Sciences Potsdam, 2014
+ *  University of Applied Sciences Potsdam, 2014
  */
 
 class Blob {

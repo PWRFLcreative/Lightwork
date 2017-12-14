@@ -1,3 +1,12 @@
+/*
+ *  Blob Manager
+ *  
+ *  This class manages blobs used to detect locations and patterns
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @author Leó Stefánsson
+ */
 
 class BlobManager {
 
