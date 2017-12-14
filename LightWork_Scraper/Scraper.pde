@@ -49,7 +49,7 @@ public class Scraper { //<>//
 
       PVector v = new PVector();
 
-      v.set (x, y, z );
+      v.set (x, y, z);
       loc.add(v);
     }
   }

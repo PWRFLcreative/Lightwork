@@ -20,7 +20,6 @@ class Blob {
   public boolean available;
 
   // How long should I live if I have disappeared?
-  private int lifetime = blobLifetime; // Global (set using UI); 
   public int timer;
 
   // Unique ID for each blob
@@ -38,7 +37,7 @@ class Blob {
     this.id = id;
     this.contour = new Contour(parent, c.pointMat);
     this.available = true;
-    this.timer = lifetime;
+    this.timer = 100; // TODO: Synchronize with Blob class and/or UI
 
     detectedPattern = new BinaryPattern();
     brightness = 0; 
@@ -52,9 +51,7 @@ class Blob {
     //set draw location based on displayed camera position, accounts for moving cam in UI
     float x = map(r.x, 0, (float)camWidth, (float)camArea.x, camArea.x+camArea.width);
     float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
-    //float x = r.x;
-    //float y = r.y; 
-    float opacity = map(timer, 0, lifetime, 0, 127);
+    float opacity = map(timer+1, 0, 255, 0, 127);
 
     fill(0, 255, 0, opacity);
     stroke(255, 0, 0);
@@ -62,16 +59,11 @@ class Blob {
     fill(255, 0, 0);
     textSize(12);
     stroke(0, 255, 0); 
-
-    //text(""+id, x+15, y+5);
-    String decoded = detectedPattern.decodedString.toString();
-    fill(0, 255, 0); 
-    //text(decoded, x+30, y+5);
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
-    this.timer = lifetime;
+    //this.timer = lifetime;
 
   }
 

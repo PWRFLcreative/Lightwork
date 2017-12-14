@@ -38,7 +38,7 @@ void keyPressed() {
       animator.setMode(AnimationMode.OFF);
       println("Animator off");
     }
-    blobLifetime = animator.frameSkip; // Make sure there's only one blob at a time.
+    blobManager.setBlobLifetime(animator.frameSkip); // Make sure there's only one blob at a time.
     isMapping = !isMapping;
   }
   
