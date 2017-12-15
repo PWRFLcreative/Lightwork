@@ -1,3 +1,12 @@
+/*
+ *  Blob Manager
+ *  
+ *  This class manages blobs used to detect locations and patterns
+ *  
+ *  Copyright (C) 2017 PWRFL
+ *  
+ *  @author Leó Stefánsson
+ */
 
 class BlobManager {
 
@@ -116,6 +125,9 @@ class BlobManager {
     blobList.clear(); 
   }
   
+  int numBlobs(){
+    return blobList.size();
+  }
 
   // Filter out contours that are too small or too big
   ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {

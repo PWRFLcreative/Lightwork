@@ -274,7 +274,7 @@ public class OPC implements Runnable
   // This is normally not needed; the output packet is automatically sized
   // by draw() and by setPixel().
   void setPixelCount(int numPixels) {
-    println("setPixelCount: " + numPixels);
+    //println("setPixelCount: " + numPixels);  //Commented out, because it spams console when adding LEDS to array
     int numBytes = 3 * numPixels;
     int packetLen = 4 + numBytes;
     if (packetData == null || packetData.length != packetLen) {

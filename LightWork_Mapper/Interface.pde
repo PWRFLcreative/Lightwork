@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/* //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.

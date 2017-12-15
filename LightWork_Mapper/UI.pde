@@ -1,4 +1,4 @@
-/* //<>// //<>// //<>// //<>// //<>// //<>//
+/*  //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -20,6 +20,14 @@ boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
 boolean stereoMode = false;
+
+//Window size
+int windowSizeX, windowSizeY;
+int guiMultiply = 1;
+
+// Actual display size for camera
+int camDisplayWidth, camDisplayHeight;
+Rectangle camArea;
 
 int frameSkip = 20;
 
@@ -110,7 +118,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(network.getIP())
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding textfield for ledsPerStrip");
@@ -122,7 +130,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(str(network.getNumLedsPerStrip()))
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding textfield for strips");
@@ -133,7 +141,7 @@ void buildUI() {
     .setGroup("network")
     .setValue(str(network.getNumStrips()))
     .setVisible(false)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("listing drivers");
@@ -172,7 +180,7 @@ void buildUI() {
     .setGroup("settings")
     .setMoveable(false)
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   ////set labels to bottom
@@ -189,7 +197,7 @@ void buildUI() {
     .setValue(cvThreshold)
     .setGroup("settings")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
 
     ;
 
@@ -208,7 +216,7 @@ void buildUI() {
     .setGroup("settings")
     //.plugTo(ledBrightness)
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   ////set labels to bottom
@@ -227,7 +235,7 @@ void buildUI() {
 
   tl1 = cp5.addTextlabel("mapMode")
     .setText("MAPPING MODE")
-    .setPosition(buttonWidth+5, 5+(buttonHeight+uiSpacing)*3)
+    .setPosition(buttonWidth+5, 5*guiMultiply+(buttonHeight+uiSpacing)*3)
     .setGroup("settings")
     .setFont(font)
     ;
@@ -282,7 +290,7 @@ void buildUI() {
     .setValue(12)
     .setGroup("mapping")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
   println("adding blob range slider");
@@ -293,14 +301,13 @@ void buildUI() {
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10)
-    .setRange(1, 100)
+    .setRange(1, 50)
     .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
-    // after the initialization we turn broadcast back on again
     .setBroadcast(true)
-    //.setColorForeground(color(255, 40))
-    //.setColorBackground(color(255, 40))  
     ;
+
+  cp5.getController("blobSize").getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply);
 
   println("adding blob distance slider");
   cp5.addSlider("setBlobDistanceThreshold")
@@ -308,47 +315,16 @@ void buildUI() {
     .setCaptionLabel("min blob distance")
     .setPosition(0, (buttonHeight+uiSpacing)*2)
     .setSize(buttonWidth, buttonHeight)
-    .setRange(1, 25)
+    .setValue(4)
+    .setRange(1, 10)
     .plugTo(blobManager.distanceThreshold)
     .setGroup("mapping")
     .setBroadcast(true)
-    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
-
-
-  //loadWidth = width/12*9;
-  //capture console events to ui
-
-  //cp5Console = cp5.addTextarea("cp5Console")
-  //  .setPosition((cp5.get("settings").getWidth())*2 +uiSpacing*2, (70)+camDisplayHeight)
-  //  .setSize((uiGrid*4)-uiSpacing, 180)
-  //  .setFont(createFont("", 12))
-  //  .setLineHeight(16)
-  //  .setColor(color(200))
-  //  .setColorBackground(color(#333333))
-  //  .setColorForeground(color(255, 100))
-  //  ;
-  //;
-
-  //println("adding console");
-  //TODO: IS this breaking things?
-  //console = cp5.addConsole(cp5Console).;//
-  //console.play();
 
   println("add framerate panel");
   cp5.addFrameRate().setPosition((camDisplayWidth*2)-uiSpacing*3, 0);
-
-  //cp5.addToggle("videoIn")
-  //  .setBroadcast(false)
-  //  .setCaptionLabel("Video In")
-  //  .setPosition((buttonWidth*1.5)+uiSpacing*2, 0)    
-  //  .setSize(buttonWidth/4, buttonHeight)
-  //  .setGroup("top")
-  //  .setValue(true)
-  //  .setMode(ControlP5.SWITCH)
-  //  .setBroadcast(true)
-  //  .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
-  //  ;
 
   cp5.addToggle("stereoToggle")
     .setBroadcast(false)
@@ -382,19 +358,6 @@ void buildUI() {
     .setOpen(false)
     .setGroup("top")
     ;
-
-  // made last - enumerating cams will break the ui if done earlier in the sequence
-  //println("cp5: adding camera dropdown list");
-  //cp5.addScrollableList("camera2")
-  //  .setPosition(buttonWidth*3+uiSpacing*4, 0)
-  //  .setSize(buttonWidth, 300)
-  //  .setBarHeight(buttonHeight)
-  //  .setItemHeight(buttonHeight)
-  //  .addItems(cams)
-  //  .setOpen(false)
-  //  .setVisible(false)
-  //  .setGroup("top")
-  //  ;
 
   //load defaults
   if (defaults.exists()) {
@@ -523,14 +486,19 @@ void controlEvent(ControlEvent theControlEvent) {
 }
 
 public void calibrate() {
+  if (network.isConnected()==false) {
+    println("Please connect to an LED driver before calibrating");
+  }
   // Activate Calibration Mode
-  if (videoMode != VideoMode.CALIBRATION) {
+  else if (videoMode != VideoMode.CALIBRATION) {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
     if ( patternMapping == true) {
+      println("Calibration: pattern");
       animator.setMode(AnimationMode.BINARY);
     } else {
+      println("Calibration: sequence");
       animator.setMode(AnimationMode.CHASE);
     }
   } 
@@ -541,6 +509,7 @@ public void calibrate() {
     opencv.loadImage(backgroundImage); // Clears OpenCV frame
     animator.setMode(AnimationMode.OFF); 
     animator.resetPixels();
+    println("Calibration: off");
   }
 }
 
@@ -602,51 +571,66 @@ void mappingToggle(int n) {
 
 public void map() {
 
-  // Turn Off Mapping
-  if (isMapping) {
+  // Start Image Sequence mode
+  /*
+  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
+   // Set frameskip so we have enough time to capture an image of each animation frame. 
+   videoMode = VideoMode.IMAGE_SEQUENCE;
+   animator.setMode(AnimationMode.BINARY);
+   leds.clear(); 
+   network.populateLeds();
+   //animator.resetPixels();
+   backgroundImage = videoInput.copy();
+   backgroundImage.save(dataPath("backgroundImage.png"));
+   blobManager.setBlobLifetime(200); 
+   isMapping=true;
+   } 
+   
+   else {
+   
+   */
+
+  if (network.isConnected()==false) {
+    println("Please connect to an LED driver before mapping");
+  }
+  //turn off mapping
+  else if (isMapping) {
     println("Mapping stopped");
-    // Set Video and Animator Modes
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
-    
-    // Clear LEDS
-    animator.resetPixels();       // Reconstruct the LED array with empty pixels. Also Updates Physical LED state (Interface class). 
-
-    //blobManager.clearAllBlobs();  // Clear all blobs
+    animator.resetPixels();
+    blobManager.clearAllBlobs();
     shouldStartDecoding = false; 
-    images.clear();               // Clear image sequence
+    images.clear();
     currentFrame = 0;
     isMapping = false;
   }
-  // Turn On Binary Pattern Mapping
+  //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
+    //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
-    // Set Video and Animator modes
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.setMode(AnimationMode.BINARY);
-    
-    // Clear all Blobs. This is important because the first image in the sequence defines all the blobs we will decode. (General LED locations).
-    blobManager.clearAllBlobs();
-    
-    // Capture a background image for image diff
+    //animator.resetPixels();
     backgroundImage = videoInput.copy();
-    // Save background image (for debugging purposes only, not needed for decoding procedure.)
     backgroundImage.save(dataPath("backgroundImage.png"));
-    
-    // Set the blob lifetime to be high enough to last through the image sequence (10 frames for a 10-bit pattern). 
-    blobManager.setBlobLifetime(frameSkip*10); // TODO: Update this with pattern length when we have the ability to change pattern length.
+    blobManager.setBlobLifetime(200);
     isMapping=true;
   }
-  // Turn On Sequential Mapping
+  //sequential mapping
   else if (!isMapping && patternMapping==false) {
+    //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
+    //if (patternMapping==false) {
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
-    blobManager.setBlobLifetime(frameSkip); // We only want one blob at a time in Sequential Mode
+    //animator.resetPixels();
+    blobManager.setBlobLifetime(200); 
     isMapping=true;
-  } 
-  
+  }
 }
 
 public void map2() {
@@ -713,6 +697,53 @@ void switchCamera(String name) {
   cam.start();
 }
 
+// Draw the array of colors going out to the LEDs
+void showLEDOutput() {
+  if (showLEDColors) {
+    // scale based on window size and leds in array
+    float x = (float)width/ (float)leds.size(); 
+    for (int i = 0; i<leds.size(); i++) {
+      fill(leds.get(i).c);
+      noStroke();
+      rect(i*x, (camArea.y+camArea.height)-(5), x, 5);
+    }
+  }
+}
+
+//Display feedback on how many blobs and LEDs have been detected
+void showBlobCount() {
+  fill(255);
+  textAlign(LEFT);
+  textSize(12*guiMultiply);
+  String blobTemp = "Blobs: "+blobManager.numBlobs();
+  String ledTemp = "Matched LEDs: "+listMatchedLEDs();
+  text(blobTemp, 20*guiMultiply, 100*guiMultiply);
+  text(ledTemp, width/2+(20*guiMultiply), 100*guiMultiply);
+}
+
+//loading screen
+void loading() {
+  background(0);
+  if (frameCount%1000==0) {
+    println("DrawLoop: Building UI....");
+  }
+
+  int size = (millis()/5%255);
+
+  pushMatrix(); 
+  translate(width/2, height/2);
+  noFill();
+  stroke(255, size);
+  strokeWeight(4);
+  ellipse(0, 0, size, size);
+  translate(0, 200);
+  fill(255);
+  noStroke();
+  textSize(18);
+  textAlign(CENTER);
+  text("LOADING...", 0, 0);
+  popMatrix();
+}
 
 void window2d() {
   println("Setting window size");

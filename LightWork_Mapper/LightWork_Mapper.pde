@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/* //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -52,7 +52,7 @@ color off = color(0, 0, 0);
 int camWidth = 640;
 int camHeight = 480;
 float camAspect;
-int camWindows = 2;
+
 PGraphics camFBO;
 PGraphics cvFBO;
 PGraphics blobFBO;
@@ -67,14 +67,6 @@ int FPS = 30;
 
 PImage videoInput; 
 PImage cvOutput;
-
-//Window size
-int windowSizeX, windowSizeY;
-int guiMultiply = 1;
-
-// Actual display size for camera
-int camDisplayWidth, camDisplayHeight;
-Rectangle camArea;
 
 // Image sequence stuff
 int numFrames = 10;  // The number of frames in the animation
@@ -110,8 +102,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(6);
-  network.setNumLedsPerStrip(40); // TODO: Fix these setters...
+  network.setNumStrips(3);
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
   //network.populateLeds();
 
   // Animator
@@ -120,12 +112,10 @@ void setup()
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(frameSkip);
   animator.setAllLEDColours(off); // Clear the LED strips
-  animator.setMode(AnimationMode.OFF);
   animator.update();
 
   //Check for high resolution display
   println("setup gui multiply");
-  guiMultiply = 1;
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
@@ -151,7 +141,6 @@ void setup()
   images = new ArrayList<PGraphics>();
   diff = createGraphics(camWidth, camHeight, P2D); 
   background(0);
-
 }
 
 // -----------------------------------------------------------
@@ -159,38 +148,21 @@ void setup()
 void draw() {
   // LOADING SCREEN
   if (!isUIReady) {
-    background(0);
-    if (frameCount%1000==0) {
-      println("DrawLoop: Building UI....");
-    }
-
-    int size = (millis()/5%255);
-
-    pushMatrix(); 
-    translate(width/2, height/2);
-    noFill();
-    stroke(255, size);
-    strokeWeight(4);
-    ellipse(0, 0, size, size);
-    translate(0, 200);
-    fill(255);
-    noStroke();
-    textSize(18);
-    textAlign(CENTER);
-    text("LOADING...", 0, 0);
-    popMatrix();
-
+    loading();
     return;
   } else if (!cp5.isVisible()) {
     cp5.setVisible(true);
   }
-  // END LOADING SCREEN 
+  // END LOADING SCREEN
+
+  //UI is drawn on canvas background, update to clear last frame's UI changes
+  background(#222222);
 
   // Update the LEDs (before we do anything else). 
   animator.update();
 
   // BLOB MANAGER DEBUG BLOCK --------------------------------------------------------------------------------
-  
+
   //ArrayList<Contour> con = opencv.findContours();
   //processCV();
   //blobManager.update(con);
@@ -245,14 +217,9 @@ void draw() {
     blobManager.display(); 
   }
 
-  //UI is drawn on canvas background, update to clear last frame's UI changes
-  background(#222222);
-
   // Display the camera input
   camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0 );
- //   camFBO.image(videoInput, 0, 0, camWidth, camHeight);
-
+  camFBO.image(videoInput, 0, 0);
   camFBO.endDraw();
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
@@ -262,33 +229,36 @@ void draw() {
     blobManager.display();
     processCV();
     decode();
-    
+
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
   }
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
-
   cvFBO.beginDraw();
   PImage snap = opencv.getSnapshot(); 
   cvFBO.image(snap, 0, 0, 640, 480);
+
   if (leds.size()>0) {
     for (LED led : leds) {
-      cvFBO.noFill();
-      cvFBO.stroke(255, 0, 0);
-      cvFBO.ellipse(led.coord.x, led.coord.y, 10, 10);
+      if (led.coord.x!=0 && led.coord.y!=0) {
+        cvFBO.noFill();
+        cvFBO.stroke(255, 0, 0);
+        cvFBO.ellipse(led.coord.x, led.coord.y, 10, 10);
+      }
     }
   }
   cvFBO.endDraw();
-
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
 
   if (isMapping) {
     //processCV(); 
     //blobManager.update(opencv.findContours()); // Find and manage blobs
     //blobManager.display(); 
-    if(!patternMapping){sequentialMapping();}
+    if (!patternMapping) {
+      sequentialMapping();
+    }
   }
 
   // Display blobs
@@ -296,24 +266,14 @@ void draw() {
   blobManager.display();
   blobFBO.endDraw();
 
-  // Draw the array of colors going out to the LEDs
-  if (showLEDColors) {
-    // scale based on window size and leds in array
-    float x = (float)width/ (float)leds.size(); 
-    for (int i = 0; i<leds.size(); i++) {
-      fill(leds.get(i).c);
-      noStroke();
-      rect(i*x, (camArea.y+camArea.height)-(5), x, 5);
-    }
-  }
+  showLEDOutput();
+  showBlobCount(); //TODO: display during calibration/ after mapping
 }
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
-
-
-
 // Mapping methods
+
 void sequentialMapping() {
   //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobManager.blobList.size()!=0) {
@@ -323,7 +283,7 @@ void sequentialMapping() {
 
     int index = animator.getLedIndex();
     leds.get(index).setCoord(loc);
-    //println(loc);
+    println(loc);
   }
 }
 
@@ -349,8 +309,6 @@ void sequentialMapping() {
 //  }
 //}
 
-
-
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
@@ -372,6 +330,56 @@ void matchBinaryPatterns() {
     }
   }
 }
+
+void decode() {
+  // Update brightness levels for all the blobs
+  if (blobManager.blobList.size() > 0) {
+    for (int i = 0; i < blobManager.blobList.size(); i++) {
+      // Get the blob brightness to determine it's state (HIGH/LOW)
+      //println("decoding this blob: "+blobList.get(i).id);
+      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
+      // TODO: Which texture do we decode?
+      PImage snap = opencv.getSnapshot();
+      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      int br = 0; 
+      for (color c : cropped.pixels) {
+        br += brightness(c);
+      }
+
+      br = br/ cropped.pixels.length;
+
+      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
+      blobManager.blobList.get(i).decode(); // Decode the pattern
+    }
+  }
+}
+
+//Open CV processing functions
+void processCV() {
+  diff.beginDraw();
+  diff.background(0);
+  diff.blendMode(NORMAL);
+  diff.image(videoInput, 0, 0);
+  diff.blendMode(SUBTRACT);
+  diff.image(backgroundImage, 0, 0);
+  diff.endDraw();
+  opencv.loadImage(diff);
+  opencv.contrast(cvContrast);
+  opencv.threshold(cvThreshold);
+}
+
+//Count LEDs that have been matched
+int listMatchedLEDs() {
+  int count=0;
+  for (LED led : leds) {
+    if (led.foundMatch==true) count++;
+  }
+  return count;
+}
+
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// Utility methods
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
@@ -402,88 +410,6 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   }
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
-}
-
-//Filter duplicates from point array
-//ArrayList <PVector> removeDuplicates(ArrayList <PVector> points) {
-//  println( "Removing duplicates");
-
-//  float thresh = 3.0; 
-
-//  // Iterate through all the points and remove duplicates and 'extra' points (under threshold distance).
-//  for (PVector p : points) {
-//    float i = points.get(1).dist(p); // distance to current point, used to avoid comporating a point to itself
-//    //PVector pt = p;
-
-//    // Do not remove 0,0 points (they're 'invisible' LEDs, we need to keep them).
-//    if (p.x == 0 && p.y == 0) {
-//      continue; // Go to the next iteration
-//    }
-
-//    // Compare point to all other points
-//    for (Iterator iter = points.iterator(); iter.hasNext();) {
-//      PVector item = (PVector)iter.next();
-//      float j = points.get(1).dist(item); 
-//      //PVector pt2 = item;
-//      float dist = p.dist(item);
-
-//      // Comparing point to itself... do nothing and move on.
-//      if (i == j) {
-//        //ofLogVerbose("tracking") << "COMPARING POINT TO ITSELF " << pt << endl;
-//        continue; // Move on to the next j point
-//      }
-//      // Duplicate point detection. (This might be covered by the distance check below and therefor redundant...)
-//      //else if (pt.x == pt2.x && pt.y == pt2.y) {
-//      //  //ofLogVerbose("tracking") << "FOUND DUPLICATE POINT (that is not 0,0) - removing..." << endl;
-//      //  iter = points.remove(iter);
-//      //  break;
-//      //}
-//      // Check point distance, remove points that are too close
-//      else if (dist < thresh) {
-//        println("removing duplicate point");
-//        points.remove(iter);
-//        break;
-//      }
-//    }
-//  }
-
-//  return points;
-//}
-
-void decode() {
-  // Update brightness levels for all the blobs
-  if (blobManager.blobList.size() > 0) {
-    for (int i = 0; i < blobManager.blobList.size(); i++) {
-      // Get the blob brightness to determine it's state (HIGH/LOW)
-      //println("decoding this blob: "+blobList.get(i).id);
-      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
-      // TODO: Which texture do we decode?
-      PImage snap = opencv.getSnapshot();
-      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
-      int br = 0; 
-      for (color c : cropped.pixels) {
-        br += brightness(c);
-      }
-
-      br = br/ cropped.pixels.length;
-
-      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
-      blobManager.blobList.get(i).decode(); // Decode the pattern
-    }
-  }
-}
-
-void processCV() {
-  diff.beginDraw();
-  diff.background(0);
-  diff.blendMode(NORMAL);
-  diff.image(videoInput, 0, 0);
-  diff.blendMode(SUBTRACT);
-  diff.image(backgroundImage, 0, 0);
-  diff.endDraw();
-  opencv.loadImage(diff);
-  opencv.contrast(cvContrast);
-  opencv.threshold(cvThreshold);
 }
 
 //Console warranty  and OS info
