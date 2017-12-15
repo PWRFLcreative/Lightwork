@@ -229,6 +229,9 @@ void draw() {
       matchBinaryPatterns();
     }
   }
+  else {
+    processCV();  
+  }
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();

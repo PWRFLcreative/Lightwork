@@ -146,11 +146,14 @@ public class Interface {
   void populateLeds() {
     // Clear existing LEDs
     if (leds.size()>0) {
-      println("Clearing leds"); 
+      println("Clearing LED Array"); 
       leds.clear();
+      println("Turning off physical LEDs"); 
+      network.clearLeds();
     }
 
     // Create new LEDS
+    println("Creating LED Array"); 
     for (int i = 0; i < numLeds; i++) {
       LED temp= new LED();
       leds.add(temp);
