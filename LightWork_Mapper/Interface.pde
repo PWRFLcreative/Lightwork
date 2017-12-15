@@ -207,6 +207,14 @@ public class Interface {
     };
   }
 
+  void clearLeds() {
+    color[] col = new color[numLeds]; 
+    for (color c : col) {
+      c = color(0);  
+    }
+    update(col); // Update Physical LEDs with black (off)
+  }
+  
   //open connection to controller
   void connect(PApplet parent) {
     //if (isConnected) {

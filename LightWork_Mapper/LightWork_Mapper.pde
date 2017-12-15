@@ -212,9 +212,9 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
-    processCV();
     blobManager.update(opencv.findContours()); 
     blobManager.display(); 
+    processCV();
   }
 
   // Display the camera input

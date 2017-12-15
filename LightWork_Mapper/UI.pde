@@ -572,46 +572,48 @@ void mappingToggle(int n) {
 
 
 public void map() {
-
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before mapping");
+    return;
   }
-  //turn off mapping
+  // Turn off mapping
   else if (isMapping) {
     println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobManager.clearAllBlobs();
+    network.clearLeds(); 
+    //animator.resetPixels();
+    //blobManager.clearAllBlobs();
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
   }
+  
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
-    //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
-    //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
-    blobManager.clearAllBlobs();
     videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
+
+    blobManager.clearAllBlobs();
     blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
+
+    animator.setMode(AnimationMode.BINARY);
+    animator.resetPixels();
+    
+    backgroundImage = videoInput.copy();
+    backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
+
     isMapping=true;
   }
-  //sequential mapping
+  // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
-    //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
-    //if (patternMapping==false) {
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
     //animator.resetPixels();
-    blobManager.setBlobLifetime(200); 
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace 10 with binary pattern length
     isMapping=true;
   }
 }
