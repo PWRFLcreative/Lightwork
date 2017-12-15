@@ -491,6 +491,7 @@ public void calibrate() {
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
+    blobManager.setBlobLifetime(frameSkip);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
@@ -504,6 +505,7 @@ public void calibrate() {
   } 
   // Decativate Calibration Mode
   else if (videoMode == VideoMode.CALIBRATION) {
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     backgroundImage = createImage(camWidth, camHeight, RGB);
     opencv.loadImage(backgroundImage); // Clears OpenCV frame
@@ -571,25 +573,6 @@ void mappingToggle(int n) {
 
 public void map() {
 
-  // Start Image Sequence mode
-  /*
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-   // Set frameskip so we have enough time to capture an image of each animation frame. 
-   videoMode = VideoMode.IMAGE_SEQUENCE;
-   animator.setMode(AnimationMode.BINARY);
-   leds.clear(); 
-   network.populateLeds();
-   //animator.resetPixels();
-   backgroundImage = videoInput.copy();
-   backgroundImage.save(dataPath("backgroundImage.png"));
-   blobManager.setBlobLifetime(200); 
-   isMapping=true;
-   } 
-   
-   else {
-   
-   */
-
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before mapping");
   }
@@ -616,7 +599,7 @@ public void map() {
     //animator.resetPixels();
     backgroundImage = videoInput.copy();
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200);
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
     isMapping=true;
   }
   //sequential mapping
