@@ -1,4 +1,4 @@
-/*  //<>//
+/*  //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -218,7 +218,6 @@ void draw() {
       } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
         captureTimer = 0;
       }
-
       videoInput = cam;
     }
 
@@ -242,6 +241,8 @@ void draw() {
     videoInput = cam; 
     // Background diff
     processCV();
+    blobManager.update(opencv.findContours()); 
+    blobManager.display(); 
   }
 
   //UI is drawn on canvas background, update to clear last frame's UI changes

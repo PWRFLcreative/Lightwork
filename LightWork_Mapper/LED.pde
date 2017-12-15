@@ -29,6 +29,7 @@ public class LED {
     c = col;
   }
 
+  // Set LED address and generate a unique binary pattern
   void setAddress(int addr) {
     address = addr;
     binaryPattern.generatePattern(address+bPatternOffset);

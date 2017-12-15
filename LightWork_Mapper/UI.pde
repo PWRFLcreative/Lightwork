@@ -602,61 +602,48 @@ void mappingToggle(int n) {
 
 public void map() {
 
-  // Start Image Sequence mode
-  /*
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.setMode(AnimationMode.BINARY);
-    leds.clear(); 
-    network.populateLeds();
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200); 
-    isMapping=true;
-  } 
-  
-  else {
-
-    */
-    //turn off mapping
+  // Turn Off Mapping
   if (isMapping) {
     println("Mapping stopped");
-
+    // Set Video and Animator Modes
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobManager.clearAllBlobs();
+    
+    // Clear LEDS
+    animator.resetPixels();       // Reconstruct the LED array with empty pixels. Also Updates Physical LED state (Interface class). 
+
+    //blobManager.clearAllBlobs();  // Clear all blobs
     shouldStartDecoding = false; 
-    images.clear();
+    images.clear();               // Clear image sequence
     currentFrame = 0;
     isMapping = false;
   }
-  //Binary pattern mapping
-  if (!isMapping && patternMapping==true) {
-    //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
-    //if (patternMapping==true) {
+  // Turn On Binary Pattern Mapping
+  else if (!isMapping && patternMapping==true) {
     println("Binary pattern mapping started"); 
-    blobManager.clearAllBlobs();
+    // Set Video and Animator modes
     videoMode = VideoMode.IMAGE_SEQUENCE;
     animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
+    
+    // Clear all Blobs. This is important because the first image in the sequence defines all the blobs we will decode. (General LED locations).
+    blobManager.clearAllBlobs();
+    
+    // Capture a background image for image diff
     backgroundImage = videoInput.copy();
+    // Save background image (for debugging purposes only, not needed for decoding procedure.)
     backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200);
+    
+    // Set the blob lifetime to be high enough to last through the image sequence (10 frames for a 10-bit pattern). 
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Update this with pattern length when we have the ability to change pattern length.
     isMapping=true;
   }
-  //sequential mapping
-  if (!isMapping && patternMapping==false) {
-    //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
-    //if (patternMapping==false) {
+  // Turn On Sequential Mapping
+  else if (!isMapping && patternMapping==false) {
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
-    //animator.resetPixels();
-    blobManager.setBlobLifetime(200); 
+    blobManager.setBlobLifetime(frameSkip); // We only want one blob at a time in Sequential Mode
     isMapping=true;
   } 
   
