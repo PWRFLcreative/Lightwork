@@ -1,4 +1,4 @@
-/*      //<>//
+/* //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
