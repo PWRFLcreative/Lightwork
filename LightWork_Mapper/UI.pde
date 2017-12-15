@@ -301,7 +301,7 @@ void buildUI() {
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10)
-    .setRange(1, 100)
+    .setRange(1, 50)
     .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
     .setBroadcast(true)

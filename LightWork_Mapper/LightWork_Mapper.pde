@@ -102,8 +102,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(6);
-  network.setNumLedsPerStrip(40); // TODO: Fix these setters...
+  network.setNumStrips(3);
+  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
   //network.populateLeds();
 
   // Animator
@@ -112,7 +112,6 @@ void setup()
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(frameSkip);
   animator.setAllLEDColours(off); // Clear the LED strips
-  animator.setMode(AnimationMode.OFF);
   animator.update();
 
   //Check for high resolution display
@@ -267,7 +266,7 @@ void draw() {
   blobFBO.endDraw();
 
   showLEDOutput();
-  showBlobCount();
+  showBlobCount(); //TODO: display during calibration/ after mapping
 }
 
 // -----------------------------------------------------------
