@@ -125,6 +125,9 @@ class BlobManager {
     blobList.clear(); 
   }
   
+  int numBlobs(){
+    return blobList.size();
+  }
 
   // Filter out contours that are too small or too big
   ArrayList<Contour> filterContours(ArrayList<Contour> newContours) {

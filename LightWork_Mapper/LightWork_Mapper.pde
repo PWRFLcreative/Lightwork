@@ -217,8 +217,6 @@ void draw() {
     processCV();
   }
 
-
-
   // Display the camera input
   camFBO.beginDraw();
   camFBO.image(videoInput, 0, 0);
@@ -268,24 +266,14 @@ void draw() {
   blobManager.display();
   blobFBO.endDraw();
 
-  // Draw the array of colors going out to the LEDs
-  if (showLEDColors) {
-    // scale based on window size and leds in array
-    float x = (float)width/ (float)leds.size(); 
-    for (int i = 0; i<leds.size(); i++) {
-      fill(leds.get(i).c);
-      noStroke();
-      rect(i*x, (camArea.y+camArea.height)-(5), x, 5);
-    }
-  }
+  showLEDOutput();
+  showBlobCount();
 }
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
-
-
-
 // Mapping methods
+
 void sequentialMapping() {
   //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobManager.blobList.size()!=0) {
@@ -321,8 +309,6 @@ void sequentialMapping() {
 //  }
 //}
 
-
-
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
@@ -344,6 +330,56 @@ void matchBinaryPatterns() {
     }
   }
 }
+
+void decode() {
+  // Update brightness levels for all the blobs
+  if (blobManager.blobList.size() > 0) {
+    for (int i = 0; i < blobManager.blobList.size(); i++) {
+      // Get the blob brightness to determine it's state (HIGH/LOW)
+      //println("decoding this blob: "+blobList.get(i).id);
+      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
+      // TODO: Which texture do we decode?
+      PImage snap = opencv.getSnapshot();
+      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
+      int br = 0; 
+      for (color c : cropped.pixels) {
+        br += brightness(c);
+      }
+
+      br = br/ cropped.pixels.length;
+
+      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
+      blobManager.blobList.get(i).decode(); // Decode the pattern
+    }
+  }
+}
+
+//Open CV processing functions
+void processCV() {
+  diff.beginDraw();
+  diff.background(0);
+  diff.blendMode(NORMAL);
+  diff.image(videoInput, 0, 0);
+  diff.blendMode(SUBTRACT);
+  diff.image(backgroundImage, 0, 0);
+  diff.endDraw();
+  opencv.loadImage(diff);
+  opencv.contrast(cvContrast);
+  opencv.threshold(cvThreshold);
+}
+
+//Count LEDs that have been matched
+int listMatchedLEDs() {
+  int count=0;
+  for (LED led : leds) {
+    if (led.foundMatch==true) count++;
+  }
+  return count;
+}
+
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// Utility methods
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
@@ -376,43 +412,6 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   println("Exported CSV File to "+path);
 }
 
-
-void decode() {
-  // Update brightness levels for all the blobs
-  if (blobManager.blobList.size() > 0) {
-    for (int i = 0; i < blobManager.blobList.size(); i++) {
-      // Get the blob brightness to determine it's state (HIGH/LOW)
-      //println("decoding this blob: "+blobList.get(i).id);
-      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
-      // TODO: Which texture do we decode?
-      PImage snap = opencv.getSnapshot();
-      PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
-      int br = 0; 
-      for (color c : cropped.pixels) {
-        br += brightness(c);
-      }
-
-      br = br/ cropped.pixels.length;
-
-      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
-      blobManager.blobList.get(i).decode(); // Decode the pattern
-    }
-  }
-}
-
-void processCV() {
-  diff.beginDraw();
-  diff.background(0);
-  diff.blendMode(NORMAL);
-  diff.image(videoInput, 0, 0);
-  diff.blendMode(SUBTRACT);
-  diff.image(backgroundImage, 0, 0);
-  diff.endDraw();
-  opencv.loadImage(diff);
-  opencv.contrast(cvContrast);
-  opencv.threshold(cvThreshold);
-}
-
 //Console warranty  and OS info
 void warranty() {
   println("Lightwork-Mapper"); 
@@ -421,29 +420,6 @@ void warranty() {
   println("");
   String os=System.getProperty("os.name");
   println("Operating System: "+os);
-}
-
-void loading() {
-  background(0);
-  if (frameCount%1000==0) {
-    println("DrawLoop: Building UI....");
-  }
-
-  int size = (millis()/5%255);
-
-  pushMatrix(); 
-  translate(width/2, height/2);
-  noFill();
-  stroke(255, size);
-  strokeWeight(4);
-  ellipse(0, 0, size, size);
-  translate(0, 200);
-  fill(255);
-  noStroke();
-  textSize(18);
-  textAlign(CENTER);
-  text("LOADING...", 0, 0);
-  popMatrix();
 }
 
 //Closes connections (once deployed as applet)

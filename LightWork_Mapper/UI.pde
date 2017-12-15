@@ -1,4 +1,4 @@
-/* //<>//
+/*  //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -697,6 +697,53 @@ void switchCamera(String name) {
   cam.start();
 }
 
+// Draw the array of colors going out to the LEDs
+void showLEDOutput() {
+  if (showLEDColors) {
+    // scale based on window size and leds in array
+    float x = (float)width/ (float)leds.size(); 
+    for (int i = 0; i<leds.size(); i++) {
+      fill(leds.get(i).c);
+      noStroke();
+      rect(i*x, (camArea.y+camArea.height)-(5), x, 5);
+    }
+  }
+}
+
+//Display feedback on how many blobs and LEDs have been detected
+void showBlobCount() {
+  fill(255);
+  textAlign(LEFT);
+  textSize(12*guiMultiply);
+  String blobTemp = "Blobs: "+blobManager.numBlobs();
+  String ledTemp = "Matched LEDs: "+listMatchedLEDs();
+  text(blobTemp, 20*guiMultiply, 100*guiMultiply);
+  text(ledTemp, width/2+(20*guiMultiply), 100*guiMultiply);
+}
+
+//loading screen
+void loading() {
+  background(0);
+  if (frameCount%1000==0) {
+    println("DrawLoop: Building UI....");
+  }
+
+  int size = (millis()/5%255);
+
+  pushMatrix(); 
+  translate(width/2, height/2);
+  noFill();
+  stroke(255, size);
+  strokeWeight(4);
+  ellipse(0, 0, size, size);
+  translate(0, 200);
+  fill(255);
+  noStroke();
+  textSize(18);
+  textAlign(CENTER);
+  text("LOADING...", 0, 0);
+  popMatrix();
+}
 
 void window2d() {
   println("Setting window size");
