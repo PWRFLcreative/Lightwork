@@ -580,10 +580,13 @@ public void map() {
   else if (isMapping) {
     println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
+    
     animator.setMode(AnimationMode.OFF);
-    network.clearLeds(); 
-    //animator.resetPixels();
-    //blobManager.clearAllBlobs();
+    network.clearLeds();
+  
+    // Clear CV FBO
+    //cvFBO = createGraphics(camWidth, camHeight, P3D);
+    
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
@@ -594,6 +597,9 @@ public void map() {
   else if (!isMapping && patternMapping==true) {
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
+    
+    backgroundImage = cam.copy();
+    backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
 
     blobManager.clearAllBlobs();
     blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
@@ -601,9 +607,7 @@ public void map() {
     animator.setMode(AnimationMode.BINARY);
     animator.resetPixels();
     
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
-
+    currentFrame = 0; // Reset current image sequence index
     isMapping=true;
   }
   // Sequential Mapping
