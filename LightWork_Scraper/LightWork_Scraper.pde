@@ -54,7 +54,6 @@ void draw() {
   scrape.display(); //Show locations loaded from CSV 
   scrape.update(); //Update colors to be sent to LEDs
   network.update(scrape.getColors()); //Send colors to LEDs
-
 }
 
 

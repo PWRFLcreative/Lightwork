@@ -627,6 +627,7 @@ public void map() {
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
+    backgroundImage = videoInput.copy();
     //animator.resetPixels();
     blobManager.setBlobLifetime(200); 
     isMapping=true;

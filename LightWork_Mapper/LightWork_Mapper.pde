@@ -234,10 +234,23 @@ void draw() {
     }
   }
 
+
+
+  if (isMapping) {
+    blobManager.update(opencv.findContours()); // Find and manage blobs
+    blobManager.display(); 
+
+    if (!patternMapping) {
+      sequentialMapping();
+    }
+        processCV();  
+
+  }
+
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getSnapshot(); 
-  cvFBO.image(snap, 0, 0, 640, 480);
+  cvFBO.image(snap, 0, 0);
 
   if (leds.size()>0) {
     for (LED led : leds) {
@@ -250,15 +263,6 @@ void draw() {
   }
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
-
-  if (isMapping) {
-    //processCV(); 
-    //blobManager.update(opencv.findContours()); // Find and manage blobs
-    //blobManager.display(); 
-    if (!patternMapping) {
-      sequentialMapping();
-    }
-  }
 
   // Display blobs
   blobFBO.beginDraw();
