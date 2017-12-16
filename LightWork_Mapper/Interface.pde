@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/* //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -144,19 +144,20 @@ public class Interface {
 
   // Reset the LED vector
   void populateLeds() {
-
-    //int bPatOffset = 150; // Offset to get more meaningful patterns (and avoid 000000000);
-
+    // Clear existing LEDs
     if (leds.size()>0) {
-      println("Clearing leds"); 
+      println("Clearing LED Array"); 
       leds.clear();
+      println("Turning off physical LEDs"); 
+      network.clearLeds();
     }
 
+    // Create new LEDS
+    println("Creating LED Array"); 
     for (int i = 0; i < numLeds; i++) {
       LED temp= new LED();
       leds.add(temp);
       leds.get(i).setAddress(i);
-      //leds[i].binaryPattern.generatePattern(i+bPatOffset); // Generate a unique binary pattern for each LED
     }
   }
 
@@ -209,6 +210,14 @@ public class Interface {
     };
   }
 
+  void clearLeds() {
+    color[] col = new color[numLeds]; 
+    for (color c : col) {
+      c = color(0);  
+    }
+    update(col); // Update Physical LEDs with black (off)
+  }
+  
   //open connection to controller
   void connect(PApplet parent) {
     //if (isConnected) {

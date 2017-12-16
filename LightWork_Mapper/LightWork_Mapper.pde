@@ -1,4 +1,4 @@
-/*      //<>//
+/* //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -161,20 +161,14 @@ void draw() {
   // Update the LEDs (before we do anything else). 
   animator.update();
 
-  // BLOB MANAGER DEBUG BLOCK --------------------------------------------------------------------------------
-
-  //ArrayList<Contour> con = opencv.findContours();
-  //processCV();
-  //blobManager.update(con);
-
-  // END BLOB MANAGER DEBUG BLOCK ----------------------------------------------------------------------------
-
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
   if (videoMode == VideoMode.CAMERA && cam!=null ) { 
     cam.read();
     videoInput = cam;
-  } else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
+  } 
+  // Binary Image Sequence Capture and Decoding
+  else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
 
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
@@ -190,8 +184,8 @@ void draw() {
       } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
         captureTimer = 0;
       }
-
       videoInput = cam;
+      //processCV();
     }
 
     // If sequence exists, playback and decode
@@ -213,6 +207,8 @@ void draw() {
     cam.read(); 
     videoInput = cam; 
     // Background diff
+    blobManager.update(opencv.findContours()); 
+    blobManager.display(); 
     processCV();
   }
 
@@ -232,6 +228,9 @@ void draw() {
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
+  }
+  else {
+    processCV();  
   }
 
   if (isMapping && !patternMapping) {
@@ -264,7 +263,20 @@ void draw() {
   blobManager.display();
   blobFBO.endDraw();
 
-  showLEDOutput();
+  // Draw the background image (dor debugging) 
+  
+  // Draw a sequence of the sequential captured frames
+  if (images.size() > 0) {
+    for (int i = 0; i < images.size(); i++) {
+      image(images.get(i), i*width/10, /*70+*/camDisplayHeight, width/10, height/10);
+    }
+    stroke(255, 0, 0); 
+    strokeWeight(3);
+    noFill(); 
+    rect(currentFrame*width/10, camDisplayHeight, width/10, height/10);
+  }
+
+  showLEDOutput(); 
   showBlobCount(); //TODO: display during calibration/ after mapping
 }
 
@@ -275,12 +287,12 @@ void draw() {
 void sequentialMapping() {
   //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobManager.blobList.size()!=0) {
-    Rectangle rect = blobManager.blobList.get(blobManager.blobList.size()-1).contour.getBoundingBox();
+    Rectangle rect = blobManager.blobList.get(blobManager.blobList.size()-1).contour.getBoundingBox(); 
     PVector loc = new PVector(); 
-    loc.set((float)rect.getCenterX(), (float)rect.getCenterY());
+    loc.set((float)rect.getCenterX(), (float)rect.getCenterY()); 
 
-    int index = animator.getLedIndex();
-    leds.get(index).setCoord(loc);
+    int index = animator.getLedIndex(); 
+    leds.get(index).setCoord(loc); 
     println(loc);
   }
 }
@@ -319,10 +331,10 @@ void matchBinaryPatterns() {
       //println("checking match with decodedPattern: "+decodedPattern);
       if (targetPattern.equals(decodedPattern)) {
         leds.get(i).foundMatch = true; 
-        Rectangle rect = blobManager.blobList.get(j).contour.getBoundingBox();
+        Rectangle rect = blobManager.blobList.get(j).contour.getBoundingBox(); 
         PVector pvec = new PVector(); 
-        pvec.set((float)rect.getCenterX(), (float)rect.getCenterY());
-        leds.get(i).setCoord(pvec);
+        pvec.set((float)rect.getCenterX(), (float)rect.getCenterY()); 
+        leds.get(i).setCoord(pvec); 
         println("LED: "+i+" Blob: "+j+" --- "+targetPattern + " --- " + decodedPattern);
       }
     }
@@ -335,16 +347,16 @@ void decode() {
     for (int i = 0; i < blobManager.blobList.size(); i++) {
       // Get the blob brightness to determine it's state (HIGH/LOW)
       //println("decoding this blob: "+blobList.get(i).id);
-      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox();
+      Rectangle r = blobManager.blobList.get(i).contour.getBoundingBox(); 
       // TODO: Which texture do we decode?
-      PImage snap = opencv.getSnapshot();
+      PImage snap = opencv.getSnapshot(); 
       PImage cropped = snap.get(r.x, r.y, r.width, r.height); // TODO: replace with videoInput
       int br = 0; 
       for (color c : cropped.pixels) {
         br += brightness(c);
       }
 
-      br = br/ cropped.pixels.length;
+      br = br/ cropped.pixels.length; 
 
       blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
       blobManager.blobList.get(i).decode(); // Decode the pattern
@@ -354,21 +366,21 @@ void decode() {
 
 //Open CV processing functions
 void processCV() {
-  diff.beginDraw();
-  diff.background(0);
-  diff.blendMode(NORMAL);
-  diff.image(videoInput, 0, 0);
-  diff.blendMode(SUBTRACT);
-  diff.image(backgroundImage, 0, 0);
-  diff.endDraw();
-  opencv.loadImage(diff);
-  opencv.contrast(cvContrast);
+  diff.beginDraw(); 
+  diff.background(0); 
+  diff.blendMode(NORMAL); 
+  diff.image(videoInput, 0, 0); 
+  diff.blendMode(SUBTRACT); 
+  diff.image(backgroundImage, 0, 0); 
+  diff.endDraw(); 
+  opencv.loadImage(diff); 
+  opencv.contrast(cvContrast); 
   opencv.threshold(cvThreshold);
 }
 
 //Count LEDs that have been matched
 int listMatchedLEDs() {
-  int count=0;
+  int count=0; 
   for (LED led : leds) {
     if (led.foundMatch==true) count++;
   }
@@ -382,28 +394,28 @@ int listMatchedLEDs() {
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
     //User is trying to save without anything to output - bail
-    println("No point data to save, run mapping first");
+    println("No point data to save, run mapping first"); 
     return;
   } else {
     beginRecord(SVG, savePath); 
     for (PVector p : points) {
       point(p.x, p.y);
     }
-    endRecord();
+    endRecord(); 
     println("SVG saved");
   }
 }
 
 void saveCSV(ArrayList <LED> ledArray, String path) {
-  PrintWriter output;
+  PrintWriter output; 
   output = createWriter(path); 
 
   //write vals out to file, start with csv header
-  output.println("address"+","+"x"+","+"y"+","+"z");
+  output.println("address"+","+"x"+","+"y"+","+"z"); 
 
-  println("CSV saved");
+  println("CSV saved"); 
   for (int i = 0; i < ledArray.size(); i++) {
-    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
     println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+ledArray.get(i).coord.y);
   }
   output.close(); // Finishes the file
@@ -413,23 +425,23 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
 //Console warranty  and OS info
 void warranty() {
   println("Lightwork-Mapper"); 
-  println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL");
-  println("This program comes with ABSOLUTELY NO WARRANTY");
-  println("");
-  String os=System.getProperty("os.name");
+  println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL"); 
+  println("This program comes with ABSOLUTELY NO WARRANTY"); 
+  println(""); 
+  String os=System.getProperty("os.name"); 
   println("Operating System: "+os);
 }
 
 //Closes connections (once deployed as applet)
 void stop()
 {
-  cam =null;
+  cam =null; 
   super.stop();
 }
 
 //Closes connections
 void exit()
 {
-  cam =null;
+  cam =null; 
   super.exit();
 }

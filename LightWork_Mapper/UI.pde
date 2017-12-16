@@ -497,6 +497,7 @@ public void calibrate() {
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
+    blobManager.setBlobLifetime(frameSkip);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
@@ -510,6 +511,7 @@ public void calibrate() {
   } 
   // Decativate Calibration Mode
   else if (videoMode == VideoMode.CALIBRATION) {
+    blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     backgroundImage = createImage(camWidth, camHeight, RGB);
     opencv.loadImage(backgroundImage); // Clears OpenCV frame
@@ -576,66 +578,53 @@ void mappingToggle(int n) {
 
 
 public void map() {
-
-  // Start Image Sequence mode
-  /*
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-   // Set frameskip so we have enough time to capture an image of each animation frame. 
-   videoMode = VideoMode.IMAGE_SEQUENCE;
-   animator.setMode(AnimationMode.BINARY);
-   leds.clear(); 
-   network.populateLeds();
-   //animator.resetPixels();
-   backgroundImage = videoInput.copy();
-   backgroundImage.save(dataPath("backgroundImage.png"));
-   blobManager.setBlobLifetime(200); 
-   isMapping=true;
-   } 
-   
-   else {
-   
-   */
-
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before mapping");
+    return;
   }
-  //turn off mapping
+  // Turn off mapping
   else if (isMapping) {
     println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
+    
     animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobManager.clearAllBlobs();
+    network.clearLeds();
+  
+    // Clear CV FBO
+    //cvFBO = createGraphics(camWidth, camHeight, P3D);
+    
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
   }
+  
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
-    //if (videoMode != VideoMode.IMAGE_SEQUENCE && patternMapping==true) {
-    //if (patternMapping==true) {
     println("Binary pattern mapping started"); 
-    blobManager.clearAllBlobs();
     videoMode = VideoMode.IMAGE_SEQUENCE;
+    
+    backgroundImage = cam.copy();
+    backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
+
+    blobManager.clearAllBlobs();
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
+
     animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200);
+    animator.resetPixels();
+    
+    currentFrame = 0; // Reset current image sequence index
     isMapping=true;
   }
-  //sequential mapping
+  // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
-    //if (videoMode != VideoMode.CAMERA && patternMapping==false) {
-    //if (patternMapping==false) {
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
     backgroundImage = videoInput.copy();
     //animator.resetPixels();
-    blobManager.setBlobLifetime(200); 
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace 10 with binary pattern length
     isMapping=true;
   }
 }
