@@ -234,17 +234,12 @@ void draw() {
     }
   }
 
-
-
-  if (isMapping) {
+  if (isMapping && !patternMapping) {
     blobManager.update(opencv.findContours()); // Find and manage blobs
     blobManager.display(); 
+    processCV();
 
-    if (!patternMapping) {
-      sequentialMapping();
-    }
-        processCV();  
-
+    sequentialMapping();
   }
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 

@@ -9,6 +9,7 @@
  */
 
 import controlP5.*;
+import java.util.*;
 
 Textarea cp5Console;
 Println console;
@@ -38,8 +39,8 @@ void buildUI() {
 
   cp5 = new ControlP5(this);
   cp5.setVisible(false);
-  //cp5.getProperties().setFormat(ControlP5.SERIALIZED);
-
+  //cp5.getProperties().setFormat(ControlP5.SERIALIZED);  
+ 
   cp5.enableShortcuts();
 
   //check for defaults file  
@@ -229,6 +230,7 @@ void buildUI() {
     .setPosition(0, (buttonHeight+uiSpacing)*3)
     .setSize(buttonWidth, buttonHeight)
     .addItems(mapToggle)
+    .setDefaultValue(0)
     //.setId(0)
     .setGroup("settings")
     ;
@@ -359,11 +361,15 @@ void buildUI() {
     .setGroup("top")
     ;
 
+  //cp5.getController("camera").getCaptionLabel().align(ControlP5.CENTER, CENTER).setPadding(10*guiMultiply, 5*guiMultiply);
+
   //load defaults
   if (defaults.exists()) {
     cp5.loadProperties("controlP5.json");
     cp5.update();
   }
+  
+  addMouseWheelListener();
 
   // Wrap up, report done
   //loadWidth = width;
@@ -744,6 +750,16 @@ void loading() {
   textAlign(CENTER);
   text("LOADING...", 0, 0);
   popMatrix();
+}
+
+//Mousewheel support in Desktop mode
+void addMouseWheelListener() {
+  frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+    public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+      cp5.setMouseWheelRotation(e.getWheelRotation());
+    }
+  }
+  );
 }
 
 void window2d() {
