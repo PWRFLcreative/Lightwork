@@ -64,6 +64,7 @@ int ledBrightness = 45;
 ArrayList <LED>     leds; // Global, used by Animator and Interface classes
 
 int FPS = 30; 
+String savePath = "../LightWork_Scraper/data/layout.csv";
 
 PImage videoInput; 
 PImage cvOutput;
@@ -228,9 +229,8 @@ void draw() {
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
-  }
-  else {
-    processCV();  
+  } else {
+    processCV();
   }
 
   if (isMapping && !patternMapping) {
@@ -264,7 +264,7 @@ void draw() {
   blobFBO.endDraw();
 
   // Draw the background image (dor debugging) 
-  
+
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
     for (int i = 0; i < images.size(); i++) {
@@ -413,12 +413,17 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   //write vals out to file, start with csv header
   output.println("address"+","+"x"+","+"y"+","+"z"); 
 
-  println("CSV saved"); 
   for (int i = 0; i < ledArray.size(); i++) {
     output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
     println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+ledArray.get(i).coord.y);
   }
   output.close(); // Finishes the file
+
+  //wait until finished writing
+  //File f = new File(path);
+  //while (!f.exists())
+  //{
+  //}
   println("Exported CSV File to "+path);
 }
 

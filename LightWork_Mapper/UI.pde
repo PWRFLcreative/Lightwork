@@ -1,4 +1,4 @@
-/*  //<>//
+/*  //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -32,15 +32,13 @@ Rectangle camArea;
 
 int frameSkip = 20;
 
-String savePath;
-
 void buildUI() {
   println("setting up ControlP5");
 
   cp5 = new ControlP5(this);
   cp5.setVisible(false);
   //cp5.getProperties().setFormat(ControlP5.SERIALIZED);  
- 
+
   cp5.enableShortcuts();
 
   //check for defaults file  
@@ -368,7 +366,7 @@ void buildUI() {
     cp5.loadProperties("controlP5.json");
     cp5.update();
   }
-  
+
   addMouseWheelListener();
 
   // Wrap up, report done
@@ -527,9 +525,9 @@ public void saveLayout() {
     println("No point data to save, run mapping first");
     return;
   } else {
-    savePath = "../LightWork_Scraper/data/layout.csv"; //sketchPath()+
     //File sketch = new File("../LightWork_Scraper/data/layout.csv");
-    //selectOutput("Select a file to write to:", "fileSelected", sketch);
+    File sketch = new File(savePath);
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
     saveCSV(leds, savePath);
   }
 }
@@ -586,24 +584,24 @@ public void map() {
   else if (isMapping) {
     println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
-    
+
     animator.setMode(AnimationMode.OFF);
     network.clearLeds();
-  
+
     // Clear CV FBO
     //cvFBO = createGraphics(camWidth, camHeight, P3D);
-    
+
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
   }
-  
+
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
-    
+
     backgroundImage = cam.copy();
     backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
 
@@ -612,7 +610,7 @@ public void map() {
 
     animator.setMode(AnimationMode.BINARY);
     animator.resetPixels();
-    
+
     currentFrame = 0; // Reset current image sequence index
     isMapping=true;
   }
@@ -708,7 +706,7 @@ void showLEDOutput() {
 
 //Display feedback on how many blobs and LEDs have been detected
 void showBlobCount() {
-  fill(255);
+  fill(0, 255, 0);
   textAlign(LEFT);
   textSize(12*guiMultiply);
   String blobTemp = "Blobs: "+blobManager.numBlobs();
