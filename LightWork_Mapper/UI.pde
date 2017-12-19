@@ -16,6 +16,7 @@ Println console;
 RadioButton r1, r2;
 Range blob;
 Textlabel tl1;
+//ControlFrame cf;
 
 boolean isUIReady = false;
 boolean showLEDColors = true;
@@ -40,6 +41,8 @@ void buildUI() {
   //cp5.getProperties().setFormat(ControlP5.SERIALIZED);  
 
   cp5.enableShortcuts();
+
+  //cf = new ControlFrame(this, 400, 800, "Controls");
 
   //check for defaults file  
   File defaults = new File("controlP5.json");
@@ -300,7 +303,7 @@ void buildUI() {
     .setCaptionLabel("min/max blob size")
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
-    .setHandleSize(10)
+    .setHandleSize(10*guiMultiply)
     .setRange(1, 50)
     .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
@@ -628,24 +631,54 @@ public void map() {
 }
 
 public void map2() {
-  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-    // Set frameskip so we have enough time to capture an image of each animation frame. 
-    videoMode = VideoMode.IMAGE_SEQUENCE;
-    animator.setMode(AnimationMode.BINARY);
-    //animator.resetPixels();
-    backgroundImage = videoInput.copy();
-    backgroundImage.save(dataPath("backgroundImage.png"));
-    blobManager.setBlobLifetime(200); 
-    isMapping=true;
-  } else {
+  if (network.isConnected()==false) {
+    println("Please connect to an LED driver before mapping");
+    return;
+  }
+  // Turn off mapping
+  else if (isMapping) {
+    println("Mapping stopped");
     videoMode = VideoMode.CAMERA;
+
     animator.setMode(AnimationMode.OFF);
-    animator.resetPixels();
-    blobManager.clearAllBlobs();
+    network.clearLeds();
+
+    // Clear CV FBO
+    //cvFBO = createGraphics(camWidth, camHeight, P3D);
+
     shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
+  }
+
+  //Binary pattern mapping
+  else if (!isMapping && patternMapping==true) {
+    println("Binary pattern mapping started"); 
+    videoMode = VideoMode.IMAGE_SEQUENCE;
+
+    backgroundImage = cam.copy();
+    backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
+
+    blobManager.clearAllBlobs();
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
+
+    animator.setMode(AnimationMode.BINARY);
+    animator.resetPixels();
+
+    currentFrame = 0; // Reset current image sequence index
+    isMapping=true;
+  }
+  // Sequential Mapping
+  else if (!isMapping && patternMapping==false) {
+    println("Sequential mapping started");  
+    blobManager.clearAllBlobs();
+    videoMode = VideoMode.CAMERA;
+    animator.setMode(AnimationMode.CHASE);
+    backgroundImage = videoInput.copy();
+    //animator.resetPixels();
+    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace 10 with binary pattern length
+    isMapping=true;
   }
 }
 
@@ -767,3 +800,30 @@ void window2d() {
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
 }
+
+//class ControlFrame extends PApplet {
+
+//  int w, h;
+//  PApplet parent;
+//  ControlP5 cp5;
+
+//  public ControlFrame(PApplet _parent, int _w, int _h, String _name) {
+//    super();   
+//    parent = _parent;
+//    w=_w;
+//    h=_h;
+//    PApplet.runSketch(new String[]{this.getClass().getName()}, this);
+//  }
+
+//  public void settings() {
+//    size(w, h, P3D);
+//  }
+
+//  public void setup() {
+//    surface.setLocation(10, 10);
+//  }
+
+//  void draw() {
+//    background(190);
+//  }
+//}
