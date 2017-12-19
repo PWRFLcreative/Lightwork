@@ -528,6 +528,11 @@ public void saveLayout() {
     //User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
+  } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
+    calculateZ(leftMap,rightMap);
+    File sketch = new File(savePath);
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
+    saveCSV(leds, savePath);
   } else {
     //File sketch = new File("../LightWork_Scraper/data/layout.csv");
     File sketch = new File(savePath);

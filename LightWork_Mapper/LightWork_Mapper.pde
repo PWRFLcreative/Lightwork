@@ -412,7 +412,7 @@ PVector[] getLEDVectors() {
     temp = leds.get(i).coord.copy();
     loc[i]=temp;
   }  
-  printArray(loc);
+  //printArray(loc);
   return loc;
 }
 
