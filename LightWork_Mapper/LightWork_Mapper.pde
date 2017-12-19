@@ -140,7 +140,8 @@ void setup()
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
-  diff = createGraphics(camWidth, camHeight, P2D); 
+  diff = createGraphics(camWidth, camHeight, P2D);
+  backgroundImage = createImage(camWidth, camHeight, RGB); 
   background(0);
 }
 
@@ -164,10 +165,12 @@ void draw() {
 
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
-  if (cam.available() ) { 
+  if (cam.available() == true) { 
     cam.read();
     videoInput = cam;
+    processCV();
   } 
+   
   // Binary Image Sequence Capture and Decoding
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
 
@@ -196,16 +199,18 @@ void draw() {
         currentFrame = 0;
       }
       // Background diff
-      processCV();
+      //processCV();
     }
     // Assign diff to videoInput
   }
 
   // Calibration mode, use this to tweak your parameters before mapping
   else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
-    blobManager.update(opencv.findContours()); 
+    PImage output = opencv.getOutput(); 
+    OpenCV contourFinder = new OpenCV(this, output);
+    blobManager.update(contourFinder.findContours()); 
     blobManager.display(); 
-    processCV();
+    //processCV();
   }
 
   // Display the camera input
@@ -218,21 +223,17 @@ void draw() {
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     blobManager.update(opencv.findContours()); 
     blobManager.display();
-    processCV();
+    //processCV();
     decode();
 
     if (shouldStartDecoding) {
       matchBinaryPatterns();
     }
-  } else {
-    processCV();
   }
 
   if (isMapping && !patternMapping) {
     blobManager.update(opencv.findContours()); // Find and manage blobs
     blobManager.display(); 
-    processCV();
-
     sequentialMapping();
   }
 
@@ -361,6 +362,7 @@ void decode() {
 
 //Open CV processing functions
 void processCV() {
+  
   diff.beginDraw(); 
   diff.background(0); 
   diff.blendMode(NORMAL); 
@@ -371,6 +373,11 @@ void processCV() {
   opencv.loadImage(diff); 
   opencv.contrast(cvContrast); 
   opencv.threshold(cvThreshold);
+  
+  //opencv.loadImage(videoInput);
+  //opencv.diff(backgroundImage); 
+  //opencv.contrast(cvContrast); 
+  //opencv.threshold(cvThreshold);
 }
 
 //Count LEDs that have been matched
