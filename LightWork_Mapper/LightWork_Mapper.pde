@@ -168,9 +168,8 @@ void draw() {
   if (cam.available() == true) { 
     cam.read();
     videoInput = cam;
-    processCV();
   } 
-   
+
   // Binary Image Sequence Capture and Decoding
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
     // Capture sequence if it doesn't exist
@@ -198,8 +197,10 @@ void draw() {
     }
   }
 
+  processCV(); // Call this AFTER videoInput has been assigned
+
   // Calibration mode, use this to tweak your parameters before mapping
-  else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
+  if (videoMode == VideoMode.CALIBRATION && cam.available()) {
     PImage output = opencv.getOutput(); 
     OpenCV contourFinder = new OpenCV(this, output);
     blobManager.update(contourFinder.findContours()); 
@@ -350,7 +351,7 @@ void decode() {
       }
 
       br = br/ cropped.pixels.length; 
-      
+
       blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }
@@ -358,7 +359,7 @@ void decode() {
 
 //Open CV processing functions
 void processCV() {
-  
+
   diff.beginDraw(); 
   diff.background(0); 
   diff.blendMode(NORMAL); 
@@ -369,7 +370,7 @@ void processCV() {
   opencv.loadImage(diff); 
   opencv.contrast(cvContrast); 
   opencv.threshold(cvThreshold);
-  
+
   //opencv.loadImage(videoInput);
   //opencv.diff(backgroundImage); 
   //opencv.contrast(cvContrast); 

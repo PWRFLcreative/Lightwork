@@ -514,8 +514,8 @@ public void calibrate() {
   else if (videoMode == VideoMode.CALIBRATION) {
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
-    backgroundImage = createImage(camWidth, camHeight, RGB);
-    opencv.loadImage(backgroundImage); // Clears OpenCV frame
+    //backgroundImage = createImage(camWidth, camHeight, RGB);
+    //opencv.loadImage(backgroundImage); // Clears OpenCV frame
     animator.setMode(AnimationMode.OFF); 
     animator.resetPixels();
     println("Calibration: off");
