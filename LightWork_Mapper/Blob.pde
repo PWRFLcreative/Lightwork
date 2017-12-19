@@ -82,20 +82,16 @@ class Blob {
     return contour.getBoundingBox();
   }
 
-  void registerBrightness(int br) {
-    brightness = br;
-  }
-
   // Decode Binary Pattern
-  void decode() { 
-    int br = brightness;
+  void decode(int br) { 
+    brightness = br; 
     int threshold = 25; 
     //println(brightness);
 
     // Edge detection (rising/falling);
-    if (br >= threshold) {
+    if (brightness >= threshold) {
       detectedPattern.state = 1;
-    } else if (br < threshold) {
+    } else if (brightness < threshold) {
       detectedPattern.state = 0;
     }
     // Write the detected bit to pattern

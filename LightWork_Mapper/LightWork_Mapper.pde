@@ -173,7 +173,6 @@ void draw() {
    
   // Binary Image Sequence Capture and Decoding
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
-
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
       PGraphics pg = createGraphics(camWidth, camHeight, P2D);
@@ -187,9 +186,7 @@ void draw() {
       } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
         captureTimer = 0;
       }
-      //processCV();
     }
-
     // If sequence exists, playback and decode
     else {
       videoInput = images.get(currentFrame);
@@ -198,10 +195,7 @@ void draw() {
         shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
-      // Background diff
-      //processCV();
     }
-    // Assign diff to videoInput
   }
 
   // Calibration mode, use this to tweak your parameters before mapping
@@ -221,9 +215,10 @@ void draw() {
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    blobManager.update(opencv.findContours()); 
+    PImage output = opencv.getOutput(); 
+    OpenCV contourFinder = new OpenCV(this, output);
+    blobManager.update(contourFinder.findContours());
     blobManager.display();
-    //processCV();
     decode();
 
     if (shouldStartDecoding) {
@@ -232,7 +227,9 @@ void draw() {
   }
 
   if (isMapping && !patternMapping) {
-    blobManager.update(opencv.findContours()); // Find and manage blobs
+    PImage output = opencv.getOutput(); 
+    OpenCV contourFinder = new OpenCV(this, output);
+    blobManager.update(contourFinder.findContours());
     blobManager.display(); 
     sequentialMapping();
   }
@@ -353,9 +350,8 @@ void decode() {
       }
 
       br = br/ cropped.pixels.length; 
-
-      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
-      blobManager.blobList.get(i).decode(); // Decode the pattern
+      
+      blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }
 }
