@@ -163,63 +163,58 @@ void draw() {
   // Update the LEDs (before we do anything else). 
   animator.update();
 
-  // Video Input Assignment (Camera or Image Sequence)
-  // Read the video input (webcam or videofile)
+  // -------------------------------------------------------
+  //              VIDEO INPUT + OPENCV PROCESSING
+  // -------------------------------------------------------
   if (cam.available() == true) { 
     cam.read();
     videoInput = cam;
-  } 
 
-  // Binary Image Sequence Capture and Decoding
-  if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
-    // Capture sequence if it doesn't exist
-    if (images.size() < numFrames) {
-      PGraphics pg = createGraphics(camWidth, camHeight, P2D);
-      pg.beginDraw();
-      pg.image(videoInput, 0, 0);
-      pg.endDraw();
-      captureTimer++;
-      if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
-        println("adding image frame to sequence");
-        images.add(pg);
-      } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
-        captureTimer = 0;
+    // Binary Image Sequence Capture and Decoding
+    if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
+      // Capture sequence if it doesn't exist
+      if (images.size() < numFrames) {
+        PGraphics pg = createGraphics(camWidth, camHeight, P2D);
+        pg.beginDraw();
+        pg.image(videoInput, 0, 0);
+        pg.endDraw();
+        captureTimer++;
+        if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
+          println("adding image frame to sequence");
+          images.add(pg);
+        } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
+          captureTimer = 0;
+        }
+      }
+      // If sequence exists, playback and decode
+      else {
+        videoInput = images.get(currentFrame);
+        currentFrame++; 
+        if (currentFrame >= numFrames) {
+          shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
+          currentFrame = 0;
+        }
       }
     }
-    // If sequence exists, playback and decode
-    else {
-      videoInput = images.get(currentFrame);
-      currentFrame++; 
-      if (currentFrame >= numFrames) {
-        shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
-        currentFrame = 0;
-      }
-    }
+    processCV(); // Call this AFTER videoInput has been assigned
   }
-
-  processCV(); // Call this AFTER videoInput has been assigned
-
+  
+  // -------------------------------------------------------
+  //                      MAPPING
+  // -------------------------------------------------------
+  
   // Calibration mode, use this to tweak your parameters before mapping
   if (videoMode == VideoMode.CALIBRATION && cam.available()) {
     PImage output = opencv.getOutput(); 
     OpenCV contourFinder = new OpenCV(this, output);
     blobManager.update(contourFinder.findContours()); 
-    blobManager.display(); 
-    //processCV();
   }
-
-  // Display the camera input
-  camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0);
-  camFBO.endDraw();
-  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     PImage output = opencv.getOutput(); 
     OpenCV contourFinder = new OpenCV(this, output);
     blobManager.update(contourFinder.findContours());
-    blobManager.display();
     decode();
 
     if (shouldStartDecoding) {
@@ -231,10 +226,13 @@ void draw() {
     PImage output = opencv.getOutput(); 
     OpenCV contourFinder = new OpenCV(this, output);
     blobManager.update(contourFinder.findContours());
-    blobManager.display(); 
     sequentialMapping();
   }
 
+  // -------------------------------------------------------
+  //                        DISPLAY
+  // -------------------------------------------------------
+  
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
@@ -251,6 +249,12 @@ void draw() {
   }
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
+  // Display the camera input
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0);
+  camFBO.endDraw();
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
 
   // Display blobs
   blobFBO.beginDraw();
