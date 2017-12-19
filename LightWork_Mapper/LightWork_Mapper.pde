@@ -164,19 +164,18 @@ void draw() {
 
   // Video Input Assignment (Camera or Image Sequence)
   // Read the video input (webcam or videofile)
-  if (videoMode == VideoMode.CAMERA && cam!=null ) { 
+  if (cam.available() ) { 
     cam.read();
     videoInput = cam;
   } 
   // Binary Image Sequence Capture and Decoding
-  else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
+  if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
 
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
-      cam.read();
       PGraphics pg = createGraphics(camWidth, camHeight, P2D);
       pg.beginDraw();
-      pg.image(cam, 0, 0);
+      pg.image(videoInput, 0, 0);
       pg.endDraw();
       captureTimer++;
       if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
@@ -185,7 +184,6 @@ void draw() {
       } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
         captureTimer = 0;
       }
-      videoInput = cam;
       //processCV();
     }
 
@@ -205,9 +203,6 @@ void draw() {
 
   // Calibration mode, use this to tweak your parameters before mapping
   else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
-    cam.read(); 
-    videoInput = cam; 
-    // Background diff
     blobManager.update(opencv.findContours()); 
     blobManager.display(); 
     processCV();
@@ -243,7 +238,7 @@ void draw() {
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
-  PImage snap = opencv.getSnapshot(); 
+  PImage snap = opencv.getOutput(); 
   cvFBO.image(snap, 0, 0);
 
   if (leds.size()>0) {
