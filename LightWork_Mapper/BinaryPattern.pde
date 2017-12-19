@@ -14,10 +14,10 @@ public class BinaryPattern {
   int previousState;
   int detectedState;
   int state; // Current bit state, used by animator
-  int animationPatternLength; // 6 bit pattern with a START at the end and an OFF after each one
+  int animationPatternLength; // 10 bit pattern with a START at the end and an OFF after each one
   int readIndex; // For reading bit at index (for the animation)
   int numBits;
-  
+
   StringBuffer decodedString; 
   int writeIndex; // For writing detected bits
 
@@ -26,31 +26,21 @@ public class BinaryPattern {
   String animationPatternString;
   int[]  animationPatternVector;
 
-  //enum pattern_state_t {
-  //  LOW, HIGH, START, OFF
-  //};
-
-  //pattern_state_t state;
-
   int frameNum;
 
   // Constructor
-
   BinaryPattern() {
     numBits = 10; 
     animationPatternLength = 10;
     frameNum = 0; // Used for animation
     readIndex = 0; // Used by the detector to write bits 
     writeIndex = 0; 
-    //state = pattern_state_t.START;
-    //generatePattern(0);
     previousState = 0;
     detectedState = 0;
-    
-    writeIndex = 0; 
+
     decodedString = new StringBuffer(10); // Init with capacity
     decodedString.append("0000000000");
-    
+
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
     animationPatternVector = new int[animationPatternLength];
@@ -80,24 +70,16 @@ public class BinaryPattern {
       frameNum = 0;
     }
   }
-  
+
   // Pattern storage
-  // TODO: Finish or delete this part
   void writeNextBit(int bit) {
-    //decodedString.append(bit);
     String s =  String.valueOf(bit);
-    decodedString.replace(writeIndex,writeIndex+1,s);
-    //decodedString.setCharAt(writeIndex,s);
-    //print(bit);
-    
-    //binaryPatternString.charAt(writeIndex) = String(bit);
-    
+    decodedString.replace(writeIndex, writeIndex+1, s);
     writeIndex++; 
-    
+
     if (writeIndex >= animationPatternLength) {
-    writeIndex = 0;  
+      writeIndex = 0;
     }
-    
   }
   
 }

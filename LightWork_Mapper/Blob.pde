@@ -58,6 +58,7 @@ class Blob {
     rect(x, y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
+    text(detectedPattern.decodedString.toString(), x, y+10); 
     stroke(0, 255, 0); 
   }
 
@@ -86,8 +87,7 @@ class Blob {
   void decode(int br) { 
     brightness = br; 
     int threshold = 25; 
-    //println(brightness);
-
+    
     // Edge detection (rising/falling);
     if (brightness >= threshold) {
       detectedPattern.state = 1;

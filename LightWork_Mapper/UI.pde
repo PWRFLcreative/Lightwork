@@ -594,7 +594,7 @@ public void map() {
     // Clear CV FBO
     //cvFBO = createGraphics(camWidth, camHeight, P3D);
 
-    shouldStartDecoding = false; 
+    shouldStartPatternMatching = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
@@ -646,7 +646,7 @@ public void map2() {
     // Clear CV FBO
     //cvFBO = createGraphics(camWidth, camHeight, P3D);
 
-    shouldStartDecoding = false; 
+    shouldStartPatternMatching = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;

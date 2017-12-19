@@ -77,7 +77,7 @@ PImage backgroundImage = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
 int captureTimer = 0; 
-boolean shouldStartDecoding; // Only start decoding once we've decoded a full sequence
+boolean shouldStartPatternMatching; // Only start decoding once we've decoded a full sequence
 
 void setup()
 {
@@ -186,12 +186,12 @@ void draw() {
           captureTimer = 0;
         }
       }
-      // If sequence exists, playback and decode
+      // If sequence exists assign
       else {
         videoInput = images.get(currentFrame);
         currentFrame++; 
         if (currentFrame >= numFrames) {
-          shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
+          shouldStartPatternMatching = true; // We've decoded a full sequence, start pattern matchin
           currentFrame = 0;
         }
       }
@@ -205,27 +205,21 @@ void draw() {
   
   // Calibration mode, use this to tweak your parameters before mapping
   if (videoMode == VideoMode.CALIBRATION && cam.available()) {
-    PImage output = opencv.getOutput(); 
-    OpenCV contourFinder = new OpenCV(this, output);
-    blobManager.update(contourFinder.findContours()); 
+    blobManager.update(opencv.getOutput()); 
   }
 
   // Decode image sequence
   if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    PImage output = opencv.getOutput(); 
-    OpenCV contourFinder = new OpenCV(this, output);
-    blobManager.update(contourFinder.findContours());
+    blobManager.update(opencv.getOutput());
     decode();
 
-    if (shouldStartDecoding) {
+    if (shouldStartPatternMatching) {
       matchBinaryPatterns();
     }
   }
 
   if (isMapping && !patternMapping) {
-    PImage output = opencv.getOutput(); 
-    OpenCV contourFinder = new OpenCV(this, output);
-    blobManager.update(contourFinder.findContours());
+    blobManager.update(opencv.getOutput());
     sequentialMapping();
   }
 
@@ -311,7 +305,7 @@ void sequentialMapping() {
 //    animator.setMode(AnimationMode.OFF);
 //    animator.resetPixels();
 //    blobList.clear();
-//    shouldStartDecoding = false; 
+//    shouldStartPatternMatching = false; 
 //    images.clear();
 //    currentFrame = 0;
 //  }
@@ -337,6 +331,7 @@ void matchBinaryPatterns() {
       }
     }
   }
+  //isMapping = false; 
 }
 
 void decode() {
