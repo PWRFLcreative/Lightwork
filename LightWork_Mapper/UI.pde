@@ -498,7 +498,7 @@ public void calibrate() {
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
-    blobManager.setBlobLifetime(400);
+    blobManager.setBlobLifetime(1000);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
