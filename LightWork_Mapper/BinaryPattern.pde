@@ -75,8 +75,8 @@ public class BinaryPattern {
   void writeNextBit(int bit) {
     String s =  String.valueOf(bit);
     decodedString.replace(writeIndex, writeIndex+1, s);
+    
     writeIndex++; 
-
     if (writeIndex >= animationPatternLength) {
       writeIndex = 0;
     }

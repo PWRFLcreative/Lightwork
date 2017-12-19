@@ -498,7 +498,7 @@ public void calibrate() {
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
-    blobManager.setBlobLifetime(frameSkip);
+    blobManager.setBlobLifetime(400);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
@@ -609,7 +609,7 @@ public void map() {
     backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
 
     blobManager.clearAllBlobs();
-    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
+    blobManager.setBlobLifetime(400); // TODO: Replace hardcoded 10 with binary pattern length
 
     animator.setMode(AnimationMode.BINARY);
     animator.resetPixels();
@@ -625,7 +625,7 @@ public void map() {
     animator.setMode(AnimationMode.CHASE);
     backgroundImage = videoInput.copy();
     //animator.resetPixels();
-    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace 10 with binary pattern length
+    blobManager.setBlobLifetime(frameSkip*20); // TODO: Replace 10 with binary pattern length
     isMapping=true;
   }
 }
@@ -661,7 +661,7 @@ public void map2() {
     backgroundImage.save(dataPath("backgroundImage.png")); // Save background image for debugging purposes
 
     blobManager.clearAllBlobs();
-    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace hardcoded 10 with binary pattern length
+    blobManager.setBlobLifetime(400); // TODO: Replace hardcoded 10 with binary pattern length
 
     animator.setMode(AnimationMode.BINARY);
     animator.resetPixels();
@@ -677,7 +677,7 @@ public void map2() {
     animator.setMode(AnimationMode.CHASE);
     backgroundImage = videoInput.copy();
     //animator.resetPixels();
-    blobManager.setBlobLifetime(frameSkip*10); // TODO: Replace 10 with binary pattern length
+    blobManager.setBlobLifetime(400); // TODO: Replace 10 with binary pattern length
     isMapping=true;
   }
 }

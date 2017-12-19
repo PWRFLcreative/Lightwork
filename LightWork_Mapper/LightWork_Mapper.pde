@@ -169,56 +169,52 @@ void draw() {
   if (cam.available() == true) { 
     cam.read();
     videoInput = cam;
-
-    // Binary Image Sequence Capture and Decoding
-    if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
-      // Capture sequence if it doesn't exist
-      if (images.size() < numFrames) {
-        PGraphics pg = createGraphics(camWidth, camHeight, P2D);
-        pg.beginDraw();
-        pg.image(videoInput, 0, 0);
-        pg.endDraw();
-        captureTimer++;
-        if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
-          println("adding image frame to sequence");
-          images.add(pg);
-        } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
-          captureTimer = 0;
-        }
-      }
-      // If sequence exists assign
-      else {
-        videoInput = images.get(currentFrame);
-        currentFrame++; 
-        if (currentFrame >= numFrames) {
-          shouldStartPatternMatching = true; // We've decoded a full sequence, start pattern matchin
-          currentFrame = 0;
-        }
+  }
+  // Binary Image Sequence Capture
+  if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
+    // Capture sequence if it doesn't exist
+    if (images.size() < numFrames) {
+      PGraphics pg = createGraphics(camWidth, camHeight, P2D);
+      pg.beginDraw();
+      pg.image(videoInput, 0, 0);
+      pg.endDraw();
+      captureTimer++;
+      if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
+        println("adding image frame to sequence");
+        images.add(pg);
+      } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
+        captureTimer = 0;
       }
     }
-    processCV(); // Call this AFTER videoInput has been assigned
+    // If sequence exists assign it to videoInput
+    else {
+      videoInput = images.get(currentFrame);
+      currentFrame++; 
+      if (currentFrame >= numFrames) {
+        shouldStartPatternMatching = true; // We've decoded a full sequence, start pattern matchin
+        currentFrame = 0;
+      }
+    }
   }
-  
+  processCV(); // Call this AFTER videoInput has been assigned
+
   // -------------------------------------------------------
   //                      MAPPING
   // -------------------------------------------------------
-  
+
   // Calibration mode, use this to tweak your parameters before mapping
-  if (videoMode == VideoMode.CALIBRATION && cam.available()) {
-    blobManager.update(opencv.getOutput()); 
+  if (videoMode == VideoMode.CALIBRATION) {
+    blobManager.update(opencv.getOutput());
   }
 
   // Decode image sequence
-  if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
+  else if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
     blobManager.update(opencv.getOutput());
     decode();
-
     if (shouldStartPatternMatching) {
       matchBinaryPatterns();
     }
-  }
-
-  if (isMapping && !patternMapping) {
+  } else if (isMapping && !patternMapping) {
     blobManager.update(opencv.getOutput());
     sequentialMapping();
   }
@@ -226,7 +222,7 @@ void draw() {
   // -------------------------------------------------------
   //                        DISPLAY
   // -------------------------------------------------------
-  
+
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
@@ -270,6 +266,7 @@ void draw() {
 
   showLEDOutput(); 
   showBlobCount(); //TODO: display during calibration/ after mapping
+  //processCV();
 }
 
 // -----------------------------------------------------------
@@ -331,7 +328,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-  //isMapping = false; 
+  //isMapping = false;
 }
 
 void decode() {
@@ -351,6 +348,7 @@ void decode() {
 
       br = br/ cropped.pixels.length; 
 
+      //println("decoding blob no: "+i+" brightness: "+br);
       blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }
