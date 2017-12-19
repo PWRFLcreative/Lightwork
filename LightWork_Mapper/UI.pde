@@ -22,6 +22,7 @@ boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
 boolean stereoMode = false;
+boolean mapRight = false;
 
 //Window size
 int windowSizeX, windowSizeY;
@@ -560,7 +561,6 @@ void stereoToggle(boolean theFlag) {
     stereoMode=true;
     cp5.get(Button.class, "map").setCaptionLabel("map left");
     cp5.get(Button.class, "map2").setVisible(true);
-
     println("Stereo mode on");
   }
 }
@@ -602,6 +602,7 @@ public void map() {
 
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    mappingDone = false;
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
 
@@ -654,6 +655,8 @@ public void map2() {
 
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    mappingDone = false;
+    mapRight = true; 
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
 
@@ -681,7 +684,6 @@ public void map2() {
     isMapping=true;
   }
 }
-
 
 //////////////////////////////////////////////////////////////
 // UI Methods

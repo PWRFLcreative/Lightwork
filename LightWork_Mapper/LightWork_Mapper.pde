@@ -38,7 +38,8 @@ Interface network;
 BlobManager blobManager; 
 
 int captureIndex; // For capturing each binary state (decoding later). 
-boolean isMapping = false; 
+boolean isMapping = false;
+boolean mappingDone = false;
 
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
@@ -62,6 +63,8 @@ float cvContrast = 1.15;
 int ledBrightness = 45;
 
 ArrayList <LED>     leds; // Global, used by Animator and Interface classes
+PVector[] leftMap;
+PVector[] rightMap;
 
 int FPS = 30; 
 String savePath = "../LightWork_Scraper/data/layout.csv";
@@ -273,7 +276,7 @@ void draw() {
     stroke(255, 0, 0); 
     strokeWeight(3);
     noFill(); 
-    rect(currentFrame*width/10, camDisplayHeight, width/10, height/10);
+    rect(currentFrame*width/10, camDisplayHeight, width/10, height/10); //TODO: make this length adjustable
   }
 
   showLEDOutput(); 
@@ -339,6 +342,19 @@ void matchBinaryPatterns() {
       }
     }
   }
+
+  //Done matching / mapping TODO: is this necessary
+  mappingDone = true;
+
+  if (stereoMode ==true && mapRight==true) {
+    rightMap= new PVector[leds.size()];
+    arrayCopy(  getLEDVectors(), rightMap);
+    saveCSV(leds, dataPath("right.csv"));
+  } else if (stereoMode ==true) {
+    leftMap= new PVector[leds.size()];
+    arrayCopy(  getLEDVectors(), leftMap);
+    saveCSV(leds, dataPath("left.csv"));
+  }
 }
 
 void decode() {
@@ -385,6 +401,27 @@ int listMatchedLEDs() {
     if (led.foundMatch==true) count++;
   }
   return count;
+}
+
+//return LED locations as PVectors
+PVector[] getLEDVectors() {
+  PVector[] loc= new PVector[leds.size()];
+
+  for (int i = 0; i<loc.length; i++) {
+    PVector temp=new PVector();
+    temp = leds.get(i).coord.copy();
+    loc[i]=temp;
+  }  
+  printArray(loc);
+  return loc;
+}
+
+//Estimate LED z location from left and right captures
+void calculateZ(PVector[] l, PVector[] r) {
+  for (int i = 0; i<l.length; i++) {
+    float z = l[i].dist(r[i]); // change from left to right capture
+    leds.get(i).coord.set(r[i].x, r[i].y, z);
+  }
 }
 
 // -----------------------------------------------------------
