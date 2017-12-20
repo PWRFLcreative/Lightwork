@@ -83,16 +83,16 @@ public class Animator {
 
 
   //////////////////////////////////////////////////////////////  
-  // Animation Methods  //<>//
-  ////////////////////////////////////////////////////////////// //<>//
+  // Animation Methods 
+  //////////////////////////////////////////////////////////////
 
   void update() { 
- //<>//
-    switch(mode) {  //<>//
+
+    switch(mode) { 
     case CHASE: 
       { 
-        chase(); //<>//
-        break; //<>//
+        chase();
+        break;
       }
     case TEST: 
       {
@@ -132,18 +132,18 @@ public class Animator {
       leds.get(i).setColor(col);
     }
 
-    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>//
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly
     if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) { 
-      this.setMode(AnimationMode.OFF); //<>//
-    } //<>// //<>//
-  } //<>//
+      this.setMode(AnimationMode.OFF);
+    } //<>//
+  }
 
-  // Set all LEDs to the same colour (useful to turn them all on or off).  //<>//
-  void setAllLEDColours(color col) {  //<>//
-    for (int i = 0; i <  leds.size(); i++) { //<>//
+  // Set all LEDs to the same colour (useful to turn them all on or off). 
+  void setAllLEDColours(color col) { 
+    for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).setColor(col);
     }
   }

@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/*  //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -532,12 +532,12 @@ public void saveLayout() {
     calculateZ(leftMap,rightMap);
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveCSV(leds, savePath);
+    saveCSV(normCoords(leds), savePath);
   } else {
     //File sketch = new File("../LightWork_Scraper/data/layout.csv");
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveCSV(leds, savePath);
+    saveCSV(normCoords(leds), savePath);
   }
 }
 
