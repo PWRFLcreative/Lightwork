@@ -346,7 +346,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-  //isMapping = false;
+  map(); // Toggle mapping off
 }
 
 void decode() {
@@ -365,8 +365,6 @@ void decode() {
       }
 
       br = br/ cropped.pixels.length; 
-
-      println("decoding blob id: "+blobManager.blobList.get(i).id+" brightness: "+br);
       blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }

@@ -73,9 +73,7 @@ public class BinaryPattern {
 
   // Pattern storage
   void writeNextBit(int bit) {
-    println("writing bit: "+bit+" to writeIndex: "+this.writeIndex); 
     String s =  String.valueOf(bit);
-  
     decodedString.replace(this.writeIndex, this.writeIndex+1, s);
     
     this.writeIndex++; 

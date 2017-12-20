@@ -57,15 +57,13 @@ class Blob {
     stroke(255, 0, 0);
     rect(x, y, r.width, r.height);
     fill(255, 0, 0);
-    textSize(12);
-    text(id+ ": "+detectedPattern.decodedString.toString(), x+30, y); 
+    //textSize(12);
+    //text(id+ ": "+detectedPattern.decodedString.toString(), x+30, y); 
     stroke(0, 255, 0); 
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
-    //this.timer = lifetime;
-
   }
 
   // Count me down, I am gone
@@ -95,7 +93,6 @@ class Blob {
       bit = 0;
     }
     // Write the detected bit to pattern
-    //println("writing bit: "+this.detectedPattern.state+" for blobId: "+this.id); 
     detectedPattern.writeNextBit(bit);
   }
 }

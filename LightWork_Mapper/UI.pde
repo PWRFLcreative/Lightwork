@@ -595,6 +595,7 @@ public void map() {
     //cvFBO = createGraphics(camWidth, camHeight, P3D);
 
     shouldStartPatternMatching = false; 
+    shouldStartDecoding = false; 
     images.clear();
     currentFrame = 0;
     isMapping = false;
