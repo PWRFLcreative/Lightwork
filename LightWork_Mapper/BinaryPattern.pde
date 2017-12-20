@@ -39,7 +39,7 @@ public class BinaryPattern {
     detectedState = 0;
 
     decodedString = new StringBuffer(10); // Init with capacity
-    decodedString.append("0000000000");
+    decodedString.append("W123456789");
 
     binaryPatternVector = new int[numBits];
     binaryPatternString = "";
@@ -73,10 +73,12 @@ public class BinaryPattern {
 
   // Pattern storage
   void writeNextBit(int bit) {
+    println("writing bit: "+bit+" to writeIndex: "+this.writeIndex); 
     String s =  String.valueOf(bit);
-    decodedString.replace(writeIndex, writeIndex+1, s);
+  
+    decodedString.replace(this.writeIndex, this.writeIndex+1, s);
     
-    writeIndex++; 
+    this.writeIndex++; 
     if (writeIndex >= animationPatternLength) {
       writeIndex = 0;
     }

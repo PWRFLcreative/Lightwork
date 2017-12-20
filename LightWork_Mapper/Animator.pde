@@ -1,4 +1,4 @@
-/*    //<>// //<>//
+/*    //<>//
  *  Animator
  *  
  *  This Class handles timing and generates the state and color of all connected LEDs
@@ -28,7 +28,7 @@ public class Animator {
     mode = AnimationMode.OFF;
     testIndex = 0;
     frameCounter = 0;
-    frameSkip = 3;
+    this.frameSkip = 3;
   }
 
   //////////////////////////////////////////////////////////////
@@ -54,11 +54,11 @@ public class Animator {
   }
 
   void setFrameSkip(int num) {
-    frameSkip = num;
+    this.frameSkip = num;
   }
 
   int getFrameSkip() {
-    return frameSkip;
+    return this.frameSkip;
   }
 
   int getLedIndex() {
@@ -83,16 +83,16 @@ public class Animator {
 
 
   //////////////////////////////////////////////////////////////  
-  // Animation Methods  //<>//
-  ////////////////////////////////////////////////////////////// //<>//
+  // Animation Methods 
+  //////////////////////////////////////////////////////////////
 
   void update() { 
- //<>//
-    switch(mode) {  //<>//
+
+    switch(mode) { 
     case CHASE: 
       { 
-        chase(); //<>//
-        break; //<>//
+        chase();
+        break;
       }
     case TEST: 
       {
@@ -133,17 +133,17 @@ public class Animator {
     }
 
     if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>//
-    if (frameCounter%frameSkip==0)ledIndex++; // use frameskip to delay animation updates
+    if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) { 
-      this.setMode(AnimationMode.OFF); //<>//
-    } //<>// //<>//
-  } //<>//
+      this.setMode(AnimationMode.OFF);
+    } //<>//
+  }
 
-  // Set all LEDs to the same colour (useful to turn them all on or off).  //<>//
-  void setAllLEDColours(color col) {  //<>//
-    for (int i = 0; i <  leds.size(); i++) { //<>//
+  // Set all LEDs to the same colour (useful to turn them all on or off). 
+  void setAllLEDColours(color col) { 
+    for (int i = 0; i <  leds.size(); i++) {
       leds.get(i).setColor(col);
     }
   }
@@ -168,7 +168,7 @@ public class Animator {
   }
 
   void binaryAnimation() {
-    if (frameCounter%frameSkip==0) {
+    if (frameCounter%this.frameSkip==0) {
       for (int i = 0; i <  leds.size(); i++) {
         leds.get(i).binaryPattern.advance();
 

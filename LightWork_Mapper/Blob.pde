@@ -58,7 +58,7 @@ class Blob {
     rect(x, y, r.width, r.height);
     fill(255, 0, 0);
     textSize(12);
-    text(detectedPattern.decodedString.toString(), x, y+10); 
+    text(id+ ": "+detectedPattern.decodedString.toString(), x+30, y); 
     stroke(0, 255, 0); 
   }
 
@@ -87,14 +87,15 @@ class Blob {
   void decode(int br) { 
     brightness = br; 
     int threshold = 25; 
-    
+    int bit = 0; 
     // Edge detection (rising/falling);
     if (brightness >= threshold) {
-      detectedPattern.state = 1;
+      bit = 1;
     } else if (brightness < threshold) {
-      detectedPattern.state = 0;
+      bit = 0;
     }
     // Write the detected bit to pattern
-    detectedPattern.writeNextBit(detectedPattern.state);
+    //println("writing bit: "+this.detectedPattern.state+" for blobId: "+this.id); 
+    detectedPattern.writeNextBit(bit);
   }
 }

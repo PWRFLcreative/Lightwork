@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -77,7 +77,8 @@ PImage backgroundImage = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
 int captureTimer = 0; 
-boolean shouldStartPatternMatching; // Only start decoding once we've decoded a full sequence
+boolean shouldStartPatternMatching; // Only start matching once we've decoded a full sequence
+boolean shouldStartDecoding; // Start decoding once we've captured all binary pattern states
 
 void setup()
 {
@@ -142,6 +143,9 @@ void setup()
   images = new ArrayList<PGraphics>();
   diff = createGraphics(camWidth, camHeight, P2D);
   backgroundImage = createImage(camWidth, camHeight, RGB); 
+  
+  shouldStartPatternMatching = false; 
+  shouldStartDecoding = false; 
   background(0);
 }
 
@@ -168,8 +172,11 @@ void draw() {
   // -------------------------------------------------------
   if (cam.available() == true) { 
     cam.read();
-    videoInput = cam;
+    if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
+      videoInput = cam;
+    }
   }
+
   // Binary Image Sequence Capture
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
     // Capture sequence if it doesn't exist
@@ -188,6 +195,7 @@ void draw() {
     }
     // If sequence exists assign it to videoInput
     else {
+      shouldStartDecoding = true; 
       videoInput = images.get(currentFrame);
       currentFrame++; 
       if (currentFrame >= numFrames) {
@@ -196,28 +204,8 @@ void draw() {
       }
     }
   }
+
   processCV(); // Call this AFTER videoInput has been assigned
-
-  // -------------------------------------------------------
-  //                      MAPPING
-  // -------------------------------------------------------
-
-  // Calibration mode, use this to tweak your parameters before mapping
-  if (videoMode == VideoMode.CALIBRATION) {
-    blobManager.update(opencv.getOutput());
-  }
-
-  // Decode image sequence
-  else if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    blobManager.update(opencv.getOutput());
-    decode();
-    if (shouldStartPatternMatching) {
-      matchBinaryPatterns();
-    }
-  } else if (isMapping && !patternMapping) {
-    blobManager.update(opencv.getOutput());
-    sequentialMapping();
-  }
 
   // -------------------------------------------------------
   //                        DISPLAY
@@ -251,7 +239,7 @@ void draw() {
   blobManager.display();
   blobFBO.endDraw();
 
-  // Draw the background image (dor debugging) 
+  // Draw the background image (for debugging) 
 
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
@@ -267,6 +255,35 @@ void draw() {
   showLEDOutput(); 
   showBlobCount(); //TODO: display during calibration/ after mapping
   //processCV();
+  
+  // -------------------------------------------------------
+  //                      MAPPING
+  // -------------------------------------------------------
+
+  // Calibration mode, use this to tweak your parameters before mapping
+  if (videoMode == VideoMode.CALIBRATION) {
+    blobManager.update(opencv.getOutput());
+  }
+
+  // Decode image sequence
+  else if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
+    blobManager.update(opencv.getSnapshot());
+    blobManager.display();
+    if (shouldStartDecoding) {
+      decode();
+    }
+      
+    
+    if (shouldStartPatternMatching) {
+      matchBinaryPatterns();
+    }//else {
+
+    //}
+  } else if (isMapping && !patternMapping) {
+    blobManager.update(opencv.getOutput());
+    sequentialMapping();
+  }
+  
 }
 
 // -----------------------------------------------------------
@@ -311,7 +328,8 @@ void sequentialMapping() {
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
-      return;
+      //println("Already found match for LED: "+leds.get(i).address); 
+      continue;
     }
     String targetPattern = leds.get(i).binaryPattern.binaryPatternString.toString(); 
     //println("finding target pattern: "+targetPattern);
@@ -348,7 +366,7 @@ void decode() {
 
       br = br/ cropped.pixels.length; 
 
-      //println("decoding blob no: "+i+" brightness: "+br);
+      println("decoding blob id: "+blobManager.blobList.get(i).id+" brightness: "+br);
       blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }

@@ -122,6 +122,7 @@ class BlobManager {
   
   void setBlobLifetime(int lt) {
     lifetime = lt; 
+    println("blob lifetime: "+this.lifetime); 
     for (Blob b : blobList) {
       b.timer = lt; // TODO: None of the blobs exist when I set the bloblifetime
     }
