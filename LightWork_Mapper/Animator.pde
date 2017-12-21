@@ -1,11 +1,11 @@
-/*    //<>//
+/*     //<>//
  *  Animator
  *  
  *  This Class handles timing and generates the state and color of all connected LEDs
  *  
  *  Copyright (C) 2017 PWRFL
  *  
- *  @author Leó Stefánsson and Tim Rolls
+ *  @authors Leó Stefánsson and Tim Rolls
  */
 
 

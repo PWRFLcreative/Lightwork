@@ -1,4 +1,4 @@
-/*  //<>//
+/*  
  *  UI
  *  
  *  This class builds the UI for the application
@@ -39,11 +39,7 @@ void buildUI() {
 
   cp5 = new ControlP5(this);
   cp5.setVisible(false);
-  //cp5.getProperties().setFormat(ControlP5.SERIALIZED);  
-
   cp5.enableShortcuts();
-
-  //cf = new ControlFrame(this, 400, 800, "Controls");
 
   //check for defaults file  
   File defaults = new File("controlP5.json");
@@ -186,9 +182,6 @@ void buildUI() {
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
-  ////set labels to bottom
-  //cp5.getController("cvContrast").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
-  //cp5.getController("cvContrast").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
   println("adding slider for cvThreshold");
   cp5.addSlider("cvThreshold")
@@ -448,7 +441,7 @@ public void connect() {
   }
 
   if (network.isConnected()) {
-    cp5.get("connect").setColorBackground(color(0, 255, 0));
+    cp5.get("connect").setColorBackground(#00aaff);
     cp5.get("connect").setCaptionLabel("Refresh");
   }
 }
@@ -503,6 +496,8 @@ public void calibrate() {
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
     backgroundImage.save("data/calibrationBackgroundImage.png");
+    cp5.get("calibrate").setCaptionLabel("stop");
+    cp5.get("calibrate").setColorBackground(#00aaff);
     if ( patternMapping == true) {
       println("Calibration: pattern");
       animator.setMode(AnimationMode.BINARY);
@@ -519,6 +514,8 @@ public void calibrate() {
     //opencv.loadImage(backgroundImage); // Clears OpenCV frame
     animator.setMode(AnimationMode.OFF); 
     animator.resetPixels();
+    cp5.get("calibrate").setCaptionLabel("calibrate");
+    cp5.get("calibrate").setColorBackground(#333333);
     println("Calibration: off");
   }
 }
@@ -530,7 +527,7 @@ public void saveLayout() {
     return;
   } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
     //Save stereo map with Z
-    calculateZ(leftMap,rightMap);
+    calculateZ(leftMap, rightMap);
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
   } else {
@@ -604,6 +601,8 @@ public void map() {
     images.clear();
     currentFrame = 0;
     isMapping = false;
+    cp5.get("map").setColorBackground(#333333);
+    cp5.get("map").setCaptionLabel("map");
   }
 
   //Binary pattern mapping
@@ -622,6 +621,8 @@ public void map() {
 
     currentFrame = 0; // Reset current image sequence index
     isMapping=true;
+    cp5.get("map").setColorBackground(#00aaff);
+    cp5.get("map").setCaptionLabel("Stop");
   }
   // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
@@ -633,6 +634,8 @@ public void map() {
     //animator.resetPixels();
     blobManager.setBlobLifetime(frameSkip*20); // TODO: Replace 10 with binary pattern length
     isMapping=true;
+    cp5.get("map").setColorBackground(#00aaff);
+    cp5.get("map").setCaptionLabel("Stop");
   }
 }
 
@@ -656,6 +659,8 @@ public void map2() {
     images.clear();
     currentFrame = 0;
     isMapping = false;
+    cp5.get("map2").setColorBackground(#333333);
+    cp5.get("map2").setCaptionLabel("Stop");
   }
 
   //Binary pattern mapping
@@ -675,6 +680,8 @@ public void map2() {
 
     currentFrame = 0; // Reset current image sequence index
     isMapping=true;
+    cp5.get("map2").setColorBackground(#00aaff);
+    cp5.get("map2").setCaptionLabel("Stop");
   }
   // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
@@ -686,6 +693,8 @@ public void map2() {
     //animator.resetPixels();
     blobManager.setBlobLifetime(400); // TODO: Replace 10 with binary pattern length
     isMapping=true;
+    cp5.get("map2").setColorBackground(#00aaff);
+    cp5.get("map2").setCaptionLabel("Stop");
   }
 }
 

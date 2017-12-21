@@ -415,39 +415,4 @@ public class OPC implements Runnable
     writePixels();
   }
 
-
-  //void autoWriteData(color[] pix)
-  //{
-  //  // Bail early if there's no pixel data or there is too much data
-  //  if (pix.length ==0)
-  //  {
-  //    println("No Data");
-  //    return;
-  //  }
-
-  //  // If there is more than [ledsPerStrip] pixels per channel limit the amount to [ledsPerStrip]
-  //  if (pix.length > ledsPerStrip)
-  //  {
-  //    int a = (int)(ofGetElapsedTimef()*100);
-  //    int channelsToWriteTo = pix.length / ledsPerStrip;
-  //    //if (a % 500 == 0) ofLogNotice() << "Auto Splitting " << channelsToWriteTo;
-
-  //    for (int c = 1; c < channelsToWriteTo; c++)
-  //    {
-  //      byte channel = c;
-  //      int channel_offset = (int)((channel - 1) * ledsPerStrip); //not sure about this
-  //      for (int i = 0; i < ledsPerStrip; i++)
-  //      {
-  //        OPC_SPC_packet_data[channel_offset + i].r = pix[channel_offset+i].r;
-  //        OPC_SPC_packet_data[channel_offset + i].g = pix[channel_offset+i].g;
-  //        OPC_SPC_packet_data[channel_offset + i].b = pix[channel_offset+i].b;
-  //      }
-  //      client.sendRawBytes((char *)(OPC_SPC_packet), OPC_SPC_packet_length);
-  //    }
-  //  }
-  //  // We only have one channel...
-  //  else {
-  //    writeChannelOne(pix);
-  //  }
-  //}
 }

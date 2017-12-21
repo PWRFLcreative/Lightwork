@@ -5,7 +5,7 @@
  *  
  *  Copyright (C) 2017 PWRFL
  *  
- *  @author Leó Stefánsson
+ *  @authors Leó Stefánsson and Tim Rolls
  */
 
 public class BinaryPattern {
