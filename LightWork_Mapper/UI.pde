@@ -529,15 +529,14 @@ public void saveLayout() {
     println("No point data to save, run mapping first");
     return;
   } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
+    //Save stereo map with Z
     calculateZ(leftMap,rightMap);
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    //saveCSV(normCoords(leds), savePath);
   } else {
-    //File sketch = new File("../LightWork_Scraper/data/layout.csv");
+    //Save 2d Map
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    //saveCSV(normCoords(leds), savePath);
   }
 }
 
@@ -808,30 +807,3 @@ void window2d() {
   println("camDisplayHeight: "+camDisplayHeight);
   println("camArea.x: "+ camArea.x +" camArea.y: "+ camArea.y +" camArea.width: "+ camArea.width +" camArea.height: "+ camArea.height);
 }
-
-//class ControlFrame extends PApplet {
-
-//  int w, h;
-//  PApplet parent;
-//  ControlP5 cp5;
-
-//  public ControlFrame(PApplet _parent, int _w, int _h, String _name) {
-//    super();   
-//    parent = _parent;
-//    w=_w;
-//    h=_h;
-//    PApplet.runSketch(new String[]{this.getClass().getName()}, this);
-//  }
-
-//  public void settings() {
-//    size(w, h, P3D);
-//  }
-
-//  public void setup() {
-//    surface.setLocation(10, 10);
-//  }
-
-//  void draw() {
-//    background(190);
-//  }
-//}

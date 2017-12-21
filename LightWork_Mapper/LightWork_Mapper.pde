@@ -39,7 +39,6 @@ BlobManager blobManager;
 
 int captureIndex; // For capturing each binary state (decoding later). 
 boolean isMapping = false;
-boolean mappingDone = false;
 
 enum  VideoMode {
   CAMERA, FILE, IMAGE_SEQUENCE, CALIBRATION, OFF
@@ -241,7 +240,7 @@ void draw() {
     blobManager.display(); 
     processCV();
 
-    if (frameCount%frameSkip==1) {
+    if (frameCount%frameSkip==0) {
       sequentialMapping();
     }
   }
@@ -344,10 +343,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-
-  //Done matching / mapping TODO: is this necessary
-  mappingDone = true;
-
+  
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
     arrayCopy(  getLEDVectors(leds).toArray(), rightMap);
