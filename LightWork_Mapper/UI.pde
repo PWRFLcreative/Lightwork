@@ -22,6 +22,7 @@ boolean isUIReady = false;
 boolean showLEDColors = true;
 boolean patternMapping = true;
 boolean stereoMode = false;
+boolean mapRight = false;
 
 //Window size
 int windowSizeX, windowSizeY;
@@ -527,11 +528,16 @@ public void saveLayout() {
     //User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
+  } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
+    calculateZ(leftMap,rightMap);
+    File sketch = new File(savePath);
+    selectOutput("Select a file to write to:", "fileSelected", sketch);
+    //saveCSV(normCoords(leds), savePath);
   } else {
     //File sketch = new File("../LightWork_Scraper/data/layout.csv");
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveCSV(leds, savePath);
+    //saveCSV(normCoords(leds), savePath);
   }
 }
 
@@ -542,6 +548,7 @@ void fileSelected(File selection) {
   } else {
     savePath = selection.getAbsolutePath();
     println("User selected " + selection.getAbsolutePath());
+    saveCSV(normCoords(leds), savePath);
   }
 }
 
@@ -560,7 +567,6 @@ void stereoToggle(boolean theFlag) {
     stereoMode=true;
     cp5.get(Button.class, "map").setCaptionLabel("map left");
     cp5.get(Button.class, "map2").setVisible(true);
-
     println("Stereo mode on");
   }
 }
@@ -655,6 +661,7 @@ public void map2() {
 
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    mapRight = true; 
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
 
@@ -682,7 +689,6 @@ public void map2() {
     isMapping=true;
   }
 }
-
 
 //////////////////////////////////////////////////////////////
 // UI Methods

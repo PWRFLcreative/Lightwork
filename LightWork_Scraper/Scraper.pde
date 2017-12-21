@@ -11,9 +11,7 @@ public class Scraper {  //<>//
   Scraper ( String in) {  
     file=in;
     loc = new ArrayList<PVector>();
-    //thread("loadCSV(file)");
     loadCSV(file);
-    normCoords();
     colors = new color[loc.size()];
   }
 
@@ -54,7 +52,7 @@ public class Scraper {  //<>//
     }
   }
 
-  //normalize point coordinates to scale with window size
+  //normalize point coordinates to scale with window size (doing this in the mapper now)
   void normCoords()
   {
     float[] norm = new float[4];
