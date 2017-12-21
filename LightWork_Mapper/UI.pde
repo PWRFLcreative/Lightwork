@@ -532,12 +532,12 @@ public void saveLayout() {
     calculateZ(leftMap,rightMap);
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveCSV(normCoords(leds), savePath);
+    //saveCSV(normCoords(leds), savePath);
   } else {
     //File sketch = new File("../LightWork_Scraper/data/layout.csv");
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
-    saveCSV(normCoords(leds), savePath);
+    //saveCSV(normCoords(leds), savePath);
   }
 }
 
@@ -548,6 +548,7 @@ void fileSelected(File selection) {
   } else {
     savePath = selection.getAbsolutePath();
     println("User selected " + selection.getAbsolutePath());
+    saveCSV(normCoords(leds), savePath);
   }
 }
 

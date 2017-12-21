@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>// //<>// //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -241,7 +241,9 @@ void draw() {
     blobManager.display(); 
     processCV();
 
-    if(frameCount%frameSkip==1){sequentialMapping();}
+    if (frameCount%frameSkip==1) {
+      sequentialMapping();
+    }
   }
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
@@ -406,16 +408,16 @@ int listMatchedLEDs() {
 //return LED locations as PVectors
 ArrayList<PVector> getLEDVectors(ArrayList<LED> l) {
   ArrayList<PVector> loc= new ArrayList<PVector>();
-  println("l size: "+l.size());
+  //println("l size: "+l.size());
 
   for (int i = 0; i<l.size(); i++) {
     PVector temp=new PVector();
     temp = l.get(i).coord;
     loc.add(temp);
   } 
-  
-  println("loc:");
-  printArray(loc);
+
+  //println("loc:");
+  //printArray(loc);
   return loc;
 }
 
@@ -433,14 +435,14 @@ void calculateZ(PVector[] l, PVector[] r) {
 float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
   //ArrayList<PVector> pointsCopy = new ArrayList<PVector>(points);
 
-  for (int i=pointsCopy.size()-1; i>=0; i--) { //<>//
+  for (int i=pointsCopy.size()-1; i>=0; i--) {
     PVector temp = pointsCopy.get(i);
     if (temp.x==0 && temp.y==0) {
       pointsCopy.remove(i);
     }
   }
 
-  float xArr[] = new float[pointsCopy.size()]; //<>//
+  float xArr[] = new float[pointsCopy.size()];
   float yArr[] = new float[pointsCopy.size()];
   float zArr[] = new float[pointsCopy.size()];
 
@@ -454,7 +456,7 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
     index++;
   }
 
-  float minX = min(xArr); //<>//
+  float minX = min(xArr);
   float minY = min(yArr);
   float minZ = min(zArr);
   float maxX = max(xArr);
@@ -466,26 +468,33 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 }
 
 //normalize point coordinates 
-  ArrayList<LED> normCoords(ArrayList<LED> in)
-  {
-    float[] norm = new float[6];
-    norm = getMinMaxCoords(getLEDVectors(in)); //<>//
-    ArrayList<LED> out = in;
-    int index=0;
+ArrayList<LED> normCoords(ArrayList<LED> in)
+{
+  float[] norm = new float[6];
+  norm = getMinMaxCoords(getLEDVectors(in));
+  ArrayList<LED> out = in;
+  int index=0;
 
-    //println(loc);
+  //println(loc);
 
-    for (LED temp : out) {
-      if (temp.coord.x>0 && temp.coord.y>0 && temp.coord.z>0) {
+  for (LED temp : out) {
+    //ignore 0,0 points
+    if (temp.coord.x>0 && temp.coord.y>0) {
+      if (temp.coord.z!=0) {
+        //3d coords
         temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1), map(temp.coord.z, norm[2], norm[5], 0.001, 1));
         out.set(index, temp);
-
+      } else {
+        //2d coords
+        temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1));
+        out.set(index, temp);
       }
-      index++;
     }
-    
-    return out;
+    index++;
   }
+
+  return out;
+}
 
 // -----------------------------------------------------------
 // -----------------------------------------------------------
@@ -509,7 +518,7 @@ void saveSVG(ArrayList <PVector> points) {
 void saveCSV(ArrayList <LED> ledArray, String path) {
   PrintWriter output; 
   output = createWriter(path);
-  
+
   //write vals out to file, start with csv header
   output.println("address"+","+"x"+","+"y"+","+"z"); 
 
