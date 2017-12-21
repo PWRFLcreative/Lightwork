@@ -119,9 +119,42 @@ Can be enabled in Keypress.pde - disabled to prevent interfering with text field
 
 ## Lightwork Scraper
 
-Use with your own sketch to map your content onto the LED array
+Use with your own sketch to map your content onto the LED array.
 
-Requires Interface.pde, OPC.pde and Scraper.pde in your sketch folder, as well as a layout SVG in the sketch or data folder.
+Requires `Interface.pde`, `OPC.pde` and `Scraper.pde` in your sketch folder, as well as a layout CSV in the sketch or data folder.
 
 Replace the drawing code in the example to display your own content.
+
+
+**Example Setup:**
+```
+void setup() {
+  size(1280, 960, P3D);
+
+  //initialize scraper
+  //replace with your filename, make sure it's in the sketch or /data folder
+  scrape = new Scraper("layout.csv");
+
+  //initialize connection to LED driver - replace with adress and LED config for your setup
+  //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
+  network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  network.connect(this);
+
+  //update scraper after network connects
+  scrape.update();
+}
+```
+
+**Example draw loop:**
+```
+void draw() {
+  //Your drawing code here
+
+  //Scraper functions
+  scrape.update(); //Update colors to be sent to LEDs
+  network.update(scrape.getColors()); //Send colors to LEDs
+  scrape.display(); //Show locations loaded from CSV
+}
+```
+
 

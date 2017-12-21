@@ -1,8 +1,8 @@
- /* 
-  * Make LED layout, based on vertecies of an input CSV/SVG
-  * Tim Rolls 2017
-  */
-  
+/* 
+ * Make LED layout, based on vertecies of an input CSV/SVG
+ * Tim Rolls 2017
+ */
+
 Scraper scrape;
 Interface network; 
 
@@ -11,7 +11,7 @@ float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
 void setup() {
-  size(640, 480, P3D); 
+  size(1280, 960, P3D); 
 
   gradient = createGraphics(width, height); 
   //initialize scraper
@@ -26,7 +26,7 @@ void setup() {
 
   //update scraper after network connects
   scrape.update();
-  colorMode(HSB, 360, 100, 100); 
+  colorMode(HSB, 360, 100, 100);
 }
 
 void draw() {
@@ -49,11 +49,11 @@ void draw() {
 
   //end animation code
   //////////////////
-  
+
   //Scraper functions  
-  scrape.display(); //Show locations loaded from CSV 
   scrape.update(); //Update colors to be sent to LEDs
   network.update(scrape.getColors()); //Send colors to LEDs
+  scrape.display(); //Show locations loaded from CSV
 }
 
 
