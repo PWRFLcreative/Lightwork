@@ -1,4 +1,4 @@
-/* //<>// //<>// //<>// //<>// //<>//
+/*   //<>// //<>// //<>// //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -79,7 +79,8 @@ PImage backgroundImage = new PImage();
 PGraphics diff; // Background subtracted from Binary Pattern Image
 int imageIndex = 0;
 int captureTimer = 0; 
-boolean shouldStartDecoding; // Only start decoding once we've decoded a full sequence
+boolean shouldStartPatternMatching; // Only start matching once we've decoded a full sequence
+boolean shouldStartDecoding; // Start decoding once we've captured all binary pattern states
 
 void setup()
 {
@@ -142,7 +143,11 @@ void setup()
   // Image sequence
   captureIndex = 0; 
   images = new ArrayList<PGraphics>();
-  diff = createGraphics(camWidth, camHeight, P2D); 
+  diff = createGraphics(camWidth, camHeight, P2D);
+  backgroundImage = createImage(camWidth, camHeight, RGB); 
+
+  shouldStartPatternMatching = false; 
+  shouldStartDecoding = false; 
   background(0);
 }
 
@@ -164,21 +169,23 @@ void draw() {
   // Update the LEDs (before we do anything else). 
   animator.update();
 
-  // Video Input Assignment (Camera or Image Sequence)
-  // Read the video input (webcam or videofile)
-  if (videoMode == VideoMode.CAMERA && cam!=null ) { 
+  // -------------------------------------------------------
+  //              VIDEO INPUT + OPENCV PROCESSING
+  // -------------------------------------------------------
+  if (cam.available() == true) { 
     cam.read();
-    videoInput = cam;
-  } 
-  // Binary Image Sequence Capture and Decoding
-  else if (videoMode == VideoMode.IMAGE_SEQUENCE && cam.available() && isMapping) {
+    if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
+      videoInput = cam;
+    }
+  }
 
+  // Binary Image Sequence Capture
+  if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
     // Capture sequence if it doesn't exist
     if (images.size() < numFrames) {
-      cam.read();
       PGraphics pg = createGraphics(camWidth, camHeight, P2D);
       pg.beginDraw();
-      pg.image(cam, 0, 0);
+      pg.image(videoInput, 0, 0);
       pg.endDraw();
       captureTimer++;
       if (captureTimer == animator.frameSkip/2) { // Capture halfway through animation frame
@@ -187,67 +194,30 @@ void draw() {
       } else if (captureTimer >= animator.frameSkip) { // Reset counter when frame is done
         captureTimer = 0;
       }
-      videoInput = cam;
-      //processCV();
     }
-
-    // If sequence exists, playback and decode
+    // If sequence exists assign it to videoInput
     else {
+      shouldStartDecoding = true; 
       videoInput = images.get(currentFrame);
       currentFrame++; 
       if (currentFrame >= numFrames) {
-        shouldStartDecoding = true; // We've decoded a full sequence, start pattern matchin
+        shouldStartPatternMatching = true; // We've decoded a full sequence, start pattern matchin
         currentFrame = 0;
       }
-      // Background diff
-      processCV();
-    }
-    // Assign diff to videoInput
-  }
-
-  // Calibration mode, use this to tweak your parameters before mapping
-  else if (videoMode == VideoMode.CALIBRATION && cam.available()) {
-    cam.read(); 
-    videoInput = cam; 
-    // Background diff
-    blobManager.update(opencv.findContours()); 
-    blobManager.display(); 
-    processCV();
-  }
-
-  // Display the camera input
-  camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0);
-  camFBO.endDraw();
-  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-
-  // Decode image sequence
-  if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
-    blobManager.update(opencv.findContours()); 
-    blobManager.display();
-    processCV();
-    decode();
-
-    if (shouldStartDecoding) {
-      matchBinaryPatterns();
-    }
-  } else {
-    processCV();
-  }
-
-  if (isMapping && !patternMapping) {
-    blobManager.update(opencv.findContours()); // Find and manage blobs
-    blobManager.display(); 
-    processCV();
-
-    if (frameCount%frameSkip==0) {
-      sequentialMapping();
     }
   }
+
+  processCV(); // Call this AFTER videoInput has been assigned
+
+
+  // -------------------------------------------------------
+  //                        DISPLAY
+  // -------------------------------------------------------
+
 
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
-  PImage snap = opencv.getSnapshot(); 
+  PImage snap = opencv.getOutput(); 
   cvFBO.image(snap, 0, 0);
 
   if (leds.size()>0) {
@@ -262,12 +232,18 @@ void draw() {
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
 
+  // Display the camera input
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0);
+  camFBO.endDraw();
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+
   // Display blobs
   blobFBO.beginDraw();
   blobManager.display();
   blobFBO.endDraw();
 
-  // Draw the background image (dor debugging) 
+  // Draw the background image (for debugging) 
 
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
@@ -282,6 +258,37 @@ void draw() {
 
   showLEDOutput(); 
   showBlobCount(); //TODO: display during calibration/ after mapping
+  //processCV();
+
+  // -------------------------------------------------------
+  //                      MAPPING
+  // -------------------------------------------------------
+
+  // Calibration mode, use this to tweak your parameters before mapping
+  if (videoMode == VideoMode.CALIBRATION) {
+    blobManager.update(opencv.getOutput());
+  }
+
+  // Decode image sequence
+  else if (videoMode == VideoMode.IMAGE_SEQUENCE && images.size() >= numFrames) {
+    blobManager.update(opencv.getSnapshot());
+    blobManager.display();
+    if (shouldStartDecoding) {
+      decode();
+    }
+
+
+    if (shouldStartPatternMatching) {
+      matchBinaryPatterns();
+    }//else {
+
+    //}
+  } else if (isMapping && !patternMapping) {
+    blobManager.update(opencv.getOutput());
+    if (frameCount%frameSkip==0) {
+      sequentialMapping();
+    }
+  }
 }
 
 // -----------------------------------------------------------
@@ -317,7 +324,7 @@ void sequentialMapping() {
 //    animator.setMode(AnimationMode.OFF);
 //    animator.resetPixels();
 //    blobList.clear();
-//    shouldStartDecoding = false; 
+//    shouldStartPatternMatching = false; 
 //    images.clear();
 //    currentFrame = 0;
 //  }
@@ -326,7 +333,8 @@ void sequentialMapping() {
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
-      return;
+      //println("Already found match for LED: "+leds.get(i).address); 
+      continue;
     }
     String targetPattern = leds.get(i).binaryPattern.binaryPatternString.toString(); 
     //println("finding target pattern: "+targetPattern);
@@ -344,6 +352,10 @@ void matchBinaryPatterns() {
     }
   }
   
+
+  //map(); // Toggle mapping off
+  // Mapping is done, Save CSV for LEFT or RIGHT channels
+  // TODO: refactor. Maybe this method should return true when done, and then call saveCSV()
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
     arrayCopy(  getLEDVectors(leds).toArray(), rightMap);
@@ -353,6 +365,7 @@ void matchBinaryPatterns() {
     arrayCopy(  getLEDVectors(leds).toArray(), leftMap);
     saveCSV(leds, dataPath("left.csv"));
   }
+
 }
 
 void decode() {
@@ -371,15 +384,14 @@ void decode() {
       }
 
       br = br/ cropped.pixels.length; 
-
-      blobManager.blobList.get(i).registerBrightness(br); // Set blob brightness
-      blobManager.blobList.get(i).decode(); // Decode the pattern
+      blobManager.blobList.get(i).decode(br); // Decode the pattern
     }
   }
 }
 
 //Open CV processing functions
 void processCV() {
+
   diff.beginDraw(); 
   diff.background(0); 
   diff.blendMode(NORMAL); 
@@ -390,6 +402,11 @@ void processCV() {
   opencv.loadImage(diff); 
   opencv.contrast(cvContrast); 
   opencv.threshold(cvThreshold);
+
+  //opencv.loadImage(videoInput);
+  //opencv.diff(backgroundImage); 
+  //opencv.contrast(cvContrast); 
+  //opencv.threshold(cvThreshold);
 }
 
 //Count LEDs that have been matched

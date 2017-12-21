@@ -37,7 +37,7 @@ class Blob {
     this.id = id;
     this.contour = new Contour(parent, c.pointMat);
     this.available = true;
-    this.timer = 100; // TODO: Synchronize with Blob class and/or UI
+    this.timer = blobManager.lifetime; // TODO: Synchronize with Blob class and/or UI
 
     detectedPattern = new BinaryPattern();
     brightness = 0; 
@@ -57,14 +57,13 @@ class Blob {
     stroke(255, 0, 0);
     rect(x, y, r.width, r.height);
     fill(255, 0, 0);
-    textSize(12);
+    //textSize(12);
+    //text(id+ ": "+detectedPattern.decodedString.toString(), x+30, y); 
     stroke(0, 255, 0); 
   }
 
   void update(Contour newContour) {
     this.contour = newContour;
-    //this.timer = lifetime;
-
   }
 
   // Count me down, I am gone
@@ -82,23 +81,18 @@ class Blob {
     return contour.getBoundingBox();
   }
 
-  void registerBrightness(int br) {
-    brightness = br;
-  }
-
   // Decode Binary Pattern
-  void decode() { 
-    int br = brightness;
+  void decode(int br) { 
+    brightness = br; 
     int threshold = 25; 
-    //println(brightness);
-
+    int bit = 0; 
     // Edge detection (rising/falling);
-    if (br >= threshold) {
-      detectedPattern.state = 1;
-    } else if (br < threshold) {
-      detectedPattern.state = 0;
+    if (brightness >= threshold) {
+      bit = 1;
+    } else if (brightness < threshold) {
+      bit = 0;
     }
     // Write the detected bit to pattern
-    detectedPattern.writeNextBit(detectedPattern.state);
+    detectedPattern.writeNextBit(bit);
   }
 }

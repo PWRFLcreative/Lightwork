@@ -11,7 +11,9 @@
 class BlobManager {
 
   private PApplet parent;
-
+ 
+  OpenCV contourFinder; 
+    
   int minBlobSize = 5;
   int maxBlobSize = 30;
   float distanceThreshold = 2; 
@@ -28,16 +30,19 @@ class BlobManager {
   BlobManager(PApplet parent, OpenCV cv) {
     this.parent = parent; 
     blobList = new ArrayList<Blob>();
+    contourFinder= new OpenCV(this.parent, createImage(camWidth, camHeight, RGB));
   }
 
-  void update(ArrayList<Contour> contours) {
+  void update(PImage cvOutput) {
+    contourFinder.loadImage(cvOutput); 
+     
     // Find all contours
     //blobCV.loadImage(opencv.getSnapshot());
     //ArrayList<Contour> contours = opencv.findContours();
 
     // Filter contours, remove contours that are too big or too small
     // The filtered results are our 'Blobs' (Should be detected LEDs)
-    ArrayList<Contour> newBlobs = filterContours(contours); // Stores all blobs found in this frame
+    ArrayList<Contour> newBlobs = filterContours(contourFinder.findContours()); // Stores all blobs found in this frame
 
     // Note: newBlobs is actually of the Contours datatype
     // Register all the new blobs if the blobList is empty
@@ -116,8 +121,10 @@ class BlobManager {
   }
   
   void setBlobLifetime(int lt) {
+    lifetime = lt; 
+    println("blob lifetime: "+this.lifetime); 
     for (Blob b : blobList) {
-      b.timer = lt;
+      b.timer = lt; // TODO: None of the blobs exist when I set the bloblifetime
     }
   }
   
