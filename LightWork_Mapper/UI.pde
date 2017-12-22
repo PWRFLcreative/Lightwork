@@ -1,4 +1,4 @@
-/*  
+/*   //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -391,6 +391,9 @@ void driver(int n) {
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
 
   if (label.equals("PIXELPUSHER")) {
+    if (network.isConnected) {
+      network.shutdown();
+    }
     network.setMode(device.PIXELPUSHER);
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
@@ -398,6 +401,9 @@ void driver(int n) {
     println("network: PixelPusher");
   }
   if (label.equals("FADECANDY")) {
+    if (network.isConnected) {
+      network.shutdown();
+    }
     network.setMode(device.FADECANDY);
     cp5.get(Textfield.class, "ip").setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(true);
@@ -427,12 +433,12 @@ public void strips(String theText) {
 
 public void connect() {
 
-  if (network.getMode()!=device.NULL) { //<>//
+  if (network.getMode()!=device.NULL) {
     network.connect(this);
   } else {
     println("Please select a driver type from the dropdown before attempting to connect");
   }
-  
+
   //Fetch hardware configuration from PixelPusher
   if (network.getMode()==device.PIXELPUSHER) {
     network.fetchPPConfig();
