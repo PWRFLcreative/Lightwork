@@ -1,4 +1,4 @@
-/*
+/* //<>// //<>// //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -106,26 +106,24 @@ public class Interface {
     println(IP);
     return IP;
   }
-  
+
   void setInterpolation(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setInterpolation(state);
-    }
-    else {
-      println("Interpolation only supported for FADECANDY."); 
+    } else {
+      println("Interpolation only supported for FADECANDY.");
     }
   }
-  
+
   void setDithering(boolean state) {
     if (mode == device.FADECANDY) {
       opc.setDithering(state); 
       opc.setInterpolation(state);
-    }
-    else {
-      println("Dithering only supported for FADECANDY.");  
+    } else {
+      println("Dithering only supported for FADECANDY.");
     }
   }
-  
+
   boolean isConnected() {
     return isConnected;
   }
@@ -213,25 +211,24 @@ public class Interface {
   void clearLeds() {
     color[] col = new color[numLeds]; 
     for (color c : col) {
-      c = color(0);  
+      c = color(0);
     }
     update(col); // Update Physical LEDs with black (off)
   }
-  
+
   //open connection to controller
   void connect(PApplet parent) {
-    //if (isConnected) {
-    //  shutdown();
-    //}
+    if (isConnected) {
+      shutdown();
+    }
 
     if (mode == device.FADECANDY) {
-      if (opc== null) {
+      if (opc== null || !opc.isConnected) {
         opc = new OPC(parent, IP, port);
-
         int startTime = millis();
 
         print("waiting");
-        while (!opc.isConnected) {
+        while (!opc.isConnected()) {
           int currentTime = millis(); 
           int deltaTime = currentTime - startTime;
           if ((deltaTime%1000)==0) {
@@ -241,7 +238,7 @@ public class Interface {
             println(" ");
             println("connection failed, check your connections..."); 
             isConnected = false;
-            //network.shutdown();
+            network.shutdown();
             break;
           }
         }
@@ -263,8 +260,8 @@ public class Interface {
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
+        populateLeds();
       }
-      populateLeds();
     }
 
     if (mode == device.PIXELPUSHER ) {
@@ -300,7 +297,7 @@ public class Interface {
 
       if (testObserver.hasStrips) {
         isConnected =true;
-        
+
         // Clear LEDs
         animator.setAllLEDColours(off);
         update(animator.getPixels());
@@ -318,18 +315,21 @@ public class Interface {
   //Close existing connections
   void shutdown() {
     if (mode == device.FADECANDY && opc!=null) {
-      //opc.dispose();
-      opc = null;
+      opc.dispose();
+      isConnected = false;
+      //opc = null;
     }
-    if (mode==device.PIXELPUSHER && registry !=null) {
+    if (mode==device.PIXELPUSHER && registry!=null) {
       registry.stopPushing() ;  //TODO: Need to disconnect devices as well
       registry.deleteObserver(testObserver);
+      isConnected = false;
     }
     if (mode==device.ARTNET) {
     }
     if (mode==device.NULL) {
     }
   }
+
 
   //toggle verbose logging for PixelPusher
   void pusherLogging(boolean b) {

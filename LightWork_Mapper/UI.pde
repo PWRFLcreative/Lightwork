@@ -427,12 +427,13 @@ public void strips(String theText) {
 
 public void connect() {
 
-  if (network.getMode()!=device.NULL) {
+  if (network.getMode()!=device.NULL) { //<>//
     network.connect(this);
   } else {
     println("Please select a driver type from the dropdown before attempting to connect");
   }
-
+  
+  //Fetch hardware configuration from PixelPusher
   if (network.getMode()==device.PIXELPUSHER) {
     network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setValue(network.getIP()).setVisible(true);

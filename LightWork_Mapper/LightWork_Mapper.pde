@@ -1,4 +1,4 @@
-/*     //<>// //<>// //<>// //<>// //<>//
+/*      //<>// //<>// //<>// //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -108,7 +108,6 @@ void setup()
   network = new Interface();
   network.setNumStrips(3);
   network.setNumLedsPerStrip(50); // TODO: Fix these setters...
-  //network.populateLeds();
 
   // Animator
   println("creating animator");
@@ -248,9 +247,9 @@ void draw() {
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
     for (int i = 0; i < images.size(); i++) {
-      image(images.get(i), i*width/10, /*70+*/camDisplayHeight, width/10, height/10);
+      image(images.get(i), i*width/10, camDisplayHeight, width/10, height/10);
     }
-    stroke(255, 0, 0); 
+    stroke(#00aaff); 
     strokeWeight(3);
     noFill(); 
     rect(currentFrame*width/10, camDisplayHeight, width/10, height/10); //TODO: make this length adjustable
@@ -276,7 +275,6 @@ void draw() {
     if (shouldStartDecoding) {
       decode();
     }
-
 
     if (shouldStartPatternMatching) {
       matchBinaryPatterns();
@@ -307,28 +305,6 @@ void sequentialMapping() {
     println(loc);
   }
 }
-
-// TODO: implement this method in main pde properly
-//public void binaryMapping() {
-//  if (videoMode != VideoMode.IMAGE_SEQUENCE) {
-//    // Set frameskip so we have enough time to capture an image of each animation frame. 
-//    videoMode = VideoMode.IMAGE_SEQUENCE;
-//    animator.frameSkip = 18;
-//    animator.setMode(AnimationMode.BINARY);
-//    //animator.resetPixels();
-//    backgroundImage = videoInput.copy();
-//    backgroundImage.save("backgroundImage.png");
-//    blobLifetime = 200;
-//  } else {
-//    videoMode = VideoMode.CAMERA;
-//    animator.setMode(AnimationMode.OFF);
-//    animator.resetPixels();
-//    blobList.clear();
-//    shouldStartPatternMatching = false; 
-//    images.clear();
-//    currentFrame = 0;
-//  }
-//}
 
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
