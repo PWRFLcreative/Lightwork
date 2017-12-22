@@ -1,5 +1,7 @@
 # Lightwork BETA
 
+![Lightwork GIF](https://media.giphy.com/media/l49JQlaE3VGtHAM1i/giphy.gif)
+
 Lightwork helps simplify the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your creations.
 
 To use it, you’ll want to set up your driver hardware and LEDs first.
@@ -42,6 +44,8 @@ Consult your hardware’s manual for setup. (ArtNet support is currently incompl
 
 LightWork Mapper
 --------------
+
+![Lightwork Mapper Screenshot](https://raw.github.com/PWRFLcreative/Lightwork/master/doc/images/LightworkUI_BETA.png)
 
 The application used to map your LED array. Use an attached webcam to capture LED states and translate their physical locations into screen locations. Outputs a normalized CSV of LED locations for use in the Lightwork Scraper, or any software of your choice.
 
@@ -118,6 +122,8 @@ Can be enabled in Keypress.pde - disabled to prevent interfering with text field
 
 
 ## Lightwork Scraper
+
+![Lightwork Scraper Screenshot](https://raw.github.com/PWRFLcreative/Lightwork/master/doc/images/LightworkScraper.png)
 
 Use with your own sketch to map your content onto the LED array.
 
