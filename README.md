@@ -1,6 +1,6 @@
 # Lightwork BETA
 
-![Lightwork GIF](https://media.giphy.com/media/l49JQlaE3VGtHAM1i/giphy.gif)
+![Lightwork GIF](https://media.giphy.com/media/xUNd9SDWXJ85FUaUbC/giphy.gif)
 
 Lightwork helps simplify the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your creations.
 
