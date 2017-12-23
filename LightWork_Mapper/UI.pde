@@ -1,4 +1,4 @@
-/*   //<>//
+/*   //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -537,7 +537,7 @@ public void saveLayout() {
   } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
     //Save stereo map with Z
     calculateZ(leftMap, rightMap);
-    savePath = "../Lightwork_Scraper_3D/data/stereoLayout.csv"
+    savePath = "../Lightwork_Scraper_3D/data/stereoLayout.csv";
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
   } else {
