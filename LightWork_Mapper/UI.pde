@@ -393,6 +393,7 @@ void driver(int n) {
   if (label.equals("PIXELPUSHER")) {
     if (network.isConnected) {
       network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
     }
     network.setMode(device.PIXELPUSHER);
     cp5.get(Textfield.class, "ip").setVisible(false);
@@ -403,6 +404,7 @@ void driver(int n) {
   if (label.equals("FADECANDY")) {
     if (network.isConnected) {
       network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
     }
     network.setMode(device.FADECANDY);
     cp5.get(Textfield.class, "ip").setVisible(true);
@@ -535,6 +537,7 @@ public void saveLayout() {
   } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
     //Save stereo map with Z
     calculateZ(leftMap, rightMap);
+    savePath = "../Lightwork_Scraper_3D/data/stereoLayout.csv"
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
   } else {

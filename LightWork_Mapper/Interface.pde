@@ -70,6 +70,7 @@ public class Interface {
   void setNumLedsPerStrip(int num) {
     ledsPerStrip = num;
     numLeds = ledsPerStrip*numStrips;
+    populateLeds();
   }
 
   int getNumLedsPerStrip() {
@@ -77,10 +78,9 @@ public class Interface {
   }
 
   void setNumStrips(int num) {
-    //ofLogNotice("animator") << "setNumStrips(): " << num;
     numStrips = num;
     numLeds = ledsPerStrip*numStrips;
-    //resetPixels();
+    populateLeds();
   }
 
   int getNumStrips() {
@@ -306,10 +306,6 @@ public class Interface {
       registry.setLogging(false);
       populateLeds();
     }
-
-    // Turn off LEDs
-    // Turn off LEDs first
-    //animator.resetPixels();
   }
 
   //Close existing connections
