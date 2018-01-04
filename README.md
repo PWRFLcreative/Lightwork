@@ -4,7 +4,7 @@
 
 Lightwork simplifies the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your light based creations.
 
- * Quick binary mapping tutorial: [LightWork Tutorial](https://youtu.be/e6FVKlNUhWI)
+ * Quick binary mapping tutorial: [LightWork Tutorial](https://youtu.be/7UJ1Ocxc8eg)
 
 
 Requirements
