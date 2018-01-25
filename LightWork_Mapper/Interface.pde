@@ -1,4 +1,4 @@
-/*  //<>//
+/*  //<>// //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -19,6 +19,9 @@ import com.heroicrobot.dropbit.registry.*;
 import java.util.*;
 import java.io.*;
 
+// ArtNet
+import artnetP5.*;
+
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, NULL
 };
@@ -30,17 +33,24 @@ public class Interface {
   //LED defaults
   String               IP = "fade2.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
-  int                  numStrips = 8;
+  int                  ledsPerStrip = 9; // TODO: DOn't hardcode this
+  int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
+  
+  int                  numArtnetChannels = 5; // Channels per ArtNet fixture
+  int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
 
-  //Pixelpusher objects
+  // Pixelpusher objects
   DeviceRegistry registry;
   TestObserver testObserver;
 
-  //Fadecandy Objects
+  // Fadecandy Objects
   OPC opc;
+
+  // ArtNet objects
+  ArtnetP5 artnet;
+  byte artnetPacket[];
 
   boolean isConnected =false;
 
@@ -136,6 +146,7 @@ public class Interface {
         IP = pp.getIp().toString();
         numStrips = pp.getNumberOfStrips();
         ledsPerStrip = pp.getPixelsPerStrip();
+        numLeds = numStrips*ledsPerStrip;
       }
     }
   }
@@ -153,10 +164,12 @@ public class Interface {
     // Create new LEDS
     println("Creating LED Array"); 
     for (int i = 0; i < numLeds; i++) {
-      LED temp= new LED();
+      LED temp = new LED();
       leds.add(temp);
       leds.get(i).setAddress(i);
     }
+    
+    numLeds = leds.size();
   }
 
   //////////////////////////////////////////////////////////////
@@ -200,6 +213,20 @@ public class Interface {
 
     case ARTNET:
       {
+        for (int i = 0; i < colors.length; i++) { //<>//
+          int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
+          int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
+          int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
+
+          int index = i*numArtnetChannels; 
+          artnetPacket[index]   = byte(r); // Red
+          artnetPacket[index+1] = byte(g); // Green
+          artnetPacket[index+2] = byte(b); // Blue
+          artnetPacket[index+3] = byte(0); // White 
+          artnetPacket[index+4] = (byte(0)); // Unused channnel
+        }
+
+        artnet.broadcast(artnetPacket);
       }
 
     case NULL: 
@@ -209,7 +236,7 @@ public class Interface {
   }
 
   void clearLeds() {
-    color[] col = new color[numLeds]; 
+    color[] col = new color[numLeds];  //<>//
     for (color c : col) {
       c = color(0);
     }
@@ -220,9 +247,7 @@ public class Interface {
   void connect(PApplet parent) {
     if (isConnected) {
       shutdown();
-    }
-
-    if (mode == device.FADECANDY) {
+    } else if (mode == device.FADECANDY) {
       if (opc== null || !opc.isConnected) {
         opc = new OPC(parent, IP, port);
         int startTime = millis();
@@ -262,9 +287,7 @@ public class Interface {
         opc.setPixelCount(numLeds);
         populateLeds();
       }
-    }
-
-    if (mode == device.PIXELPUSHER ) {
+    } else if (mode == device.PIXELPUSHER ) {
       // does not like being instantiated a second time
       if (registry == null) {
         registry = new DeviceRegistry();
@@ -305,6 +328,10 @@ public class Interface {
 
       registry.setLogging(false);
       populateLeds();
+    } else if (mode == device.ARTNET) {
+      artnet = new ArtnetP5();
+      isConnected = true; 
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
     }
   }
 
@@ -321,6 +348,7 @@ public class Interface {
       isConnected = false;
     }
     if (mode==device.ARTNET) {
+      //artnet = null;
     }
     if (mode==device.NULL) {
     }

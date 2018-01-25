@@ -1,4 +1,4 @@
-/*    //<>//
+/*    //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -145,7 +145,7 @@ void buildUI() {
 
   println("listing drivers");
   //draw after text boxes so the dropdown overlaps properly
-  List driver = Arrays.asList("PixelPusher", "Fadecandy"); //"ArtNet"  removed for now - throws errors
+  List driver = Arrays.asList("PixelPusher", "Fadecandy", "ArtNet"); //"ArtNet"  removed for now - throws errors
   println("adding scrollable list for drivers");
   cp5.addScrollableList("driver")
     .setPosition(0, 0)
@@ -335,7 +335,7 @@ void buildUI() {
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5, 5)
     ;
 
-  //Refresh connected cameras
+  // Refresh connected cameras
   println("cp5: adding refresh button");
   cp5.addButton("refresh")
     .setPosition(int(buttonWidth*1.5)+uiSpacing, 0)
@@ -343,6 +343,7 @@ void buildUI() {
     .setGroup("top")
     ;
 
+  println("Enumerating cameras"); 
   String[] cams = enumerateCams();
   // made last - enumerating cams will break the ui if done earlier in the sequence
   println("cp5: adding camera dropdown list");
@@ -401,7 +402,7 @@ void driver(int n) {
     cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: PixelPusher");
   }
-  if (label.equals("FADECANDY")) {
+  else if (label.equals("FADECANDY")) {
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
@@ -412,7 +413,7 @@ void driver(int n) {
     cp5.get(Textfield.class, "strips").setVisible(true);
     println("network: Fadecandy");
   }
-  if (label.equals("ARTNET")) {
+  else if (label.equals("ARTNET")) {
     network.setMode(device.ARTNET);
     println("network: ArtNet");
   }

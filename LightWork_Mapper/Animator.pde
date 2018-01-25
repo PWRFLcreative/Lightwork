@@ -74,7 +74,7 @@ public class Animator {
 
   // Return pixels (to update OPC or PixelPusher) --Changed to array, arraylist wasn't working on return
   color[] getPixels() {
-    color[] l = new color[leds.size()];
+    color[] l = new color[leds.size()]; //<>//
     for (int i = 0; i<leds.size(); i++) {
       l[i]=leds.get(i).c;
     }
