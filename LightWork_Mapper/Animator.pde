@@ -74,11 +74,11 @@ public class Animator {
 
   // Return pixels (to update OPC or PixelPusher) --Changed to array, arraylist wasn't working on return
   color[] getPixels() {
-    color[] l = new color[leds.size()]; //<>//
+    color[] l = new color[leds.size()];
     for (int i = 0; i<leds.size(); i++) {
       l[i]=leds.get(i).c;
     }
-    return l;
+    return l; //<>// //<>//
   }
 
 
@@ -132,13 +132,13 @@ public class Animator {
       leds.get(i).setColor(col);
     }
 
-    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>//
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>// //<>//
     if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) { 
       this.setMode(AnimationMode.OFF);
-    } //<>//
+    } //<>// //<>//
   }
 
   // Set all LEDs to the same colour (useful to turn them all on or off). 
