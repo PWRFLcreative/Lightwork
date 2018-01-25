@@ -106,8 +106,8 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(3);
-  network.setNumLedsPerStrip(50); // TODO: Fix these setters...
+  network.setNumStrips(1);
+  network.setNumLedsPerStrip(9); // TODO: Fix these setters...
 
   // Animator
   println("creating animator");

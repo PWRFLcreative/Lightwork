@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/*  //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -213,10 +213,15 @@ public class Interface {
 
     case ARTNET:
       {
-        for (int i = 0; i < colors.length; i++) { //<>//
-          int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
-          int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
-          int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
+        color cols[] = new int[9];
+        for (int i = 0; i < cols.length; i++) {
+          cols[i] = color(254, 254, 254);
+        }
+        color c = color(254, 254, 254);
+        for (int i = 0; i < cols.length; i++) {
+          int r = (c >> 16) & 0xFF;  // Faster way of getting red(argb)
+          int g = (c >> 8) & 0xFF;   // Faster way of getting green(argb)
+          int b = c & 0xFF;          // Faster way of getting blue(argb)
 
           int index = i*numArtnetChannels; 
           artnetPacket[index]   = byte(r); // Red
@@ -226,7 +231,7 @@ public class Interface {
           artnetPacket[index+4] = (byte(0)); // Unused channnel
         }
 
-        artnet.broadcast(artnetPacket);
+        artnet.broadcast(artnetPacket); //<>//
       }
 
     case NULL: 
@@ -236,7 +241,7 @@ public class Interface {
   }
 
   void clearLeds() {
-    color[] col = new color[numLeds];  //<>//
+    color[] col = new color[numLeds]; 
     for (color c : col) {
       c = color(0);
     }
