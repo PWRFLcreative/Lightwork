@@ -21,7 +21,9 @@ void setup() {
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //network = new Interface(device.PIXELPUSHER, 1,100);
-  network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  network = new Interface(device.ARTNET, 0, 0, 9, 5); 
+  
   network.connect(this);
 
   //update scraper after network connects
