@@ -101,9 +101,19 @@ public class Interface {
     return numArtnetFixtures;  
   }
   
+  void setNumArtnetFixtures(int numFixtures) {
+    numArtnetFixtures = numFixtures; 
+    populateLeds();
+  }
+  
   int getNumArtnetChannels() {
      return numArtnetChannels; 
   }
+  
+  void setNumArtnetChannels(int numChannels) {
+    numArtnetChannels = numChannels;
+  }
+  
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
     ledBrightness = brightness;
@@ -161,6 +171,14 @@ public class Interface {
 
   // Reset the LED vector
   void populateLeds() {
+    int val  = 0; 
+    
+    if (mode == device.ARTNET) {
+      val = getNumArtnetFixtures(); 
+    }
+    else {
+      val = numLeds;  
+    }
     // Clear existing LEDs
     if (leds.size()>0) {
       println("Clearing LED Array"); 
@@ -171,7 +189,7 @@ public class Interface {
 
     // Create new LEDS
     println("Creating LED Array"); 
-    for (int i = 0; i < numLeds; i++) {
+    for (int i = 0; i < val; i++) {
       LED temp = new LED();
       leds.add(temp);
       leds.get(i).setAddress(i);
@@ -252,12 +270,20 @@ public class Interface {
   }
 
   void clearLeds() {
-    color[] col = new color[numLeds]; 
+    int valCount = 0; 
+    if (mode == device.ARTNET) {
+      valCount = numArtnetFixtures; 
+    }
+    else {
+      valCount = numLeds; 
+    }
+    color[] col = new color[valCount]; 
     for (color c : col) {
       c = color(0);
     }
     update(col); // Update Physical LEDs with black (off)
   }
+  
 
   //open connection to controller
   void connect(PApplet parent) {

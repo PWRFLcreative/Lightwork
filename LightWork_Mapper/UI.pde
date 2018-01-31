@@ -464,6 +464,15 @@ public void strips(String theText) {
   network.setNumStrips(int(theText));
 }
 
+public void fixtures(String numFixtures) {
+  println("numFixtures: "+numFixtures); 
+  network.setNumArtnetFixtures(int(numFixtures)); 
+}
+
+public void channels(String numChannels) {
+  network.setNumArtnetChannels(int(numChannels));
+}
+
 public void connect() {
 
   if (network.getMode()!=device.NULL) {
@@ -491,17 +500,12 @@ public void refresh() {
   cp5.get(ScrollableList.class, "camera").setItems(cameras);
 }
 
-
 public void cvThreshold(int value) {
   cvThreshold = value;
-  //opencv.threshold(cvThreshold);
-  //println("set Open CV threshold to "+cvThreshold);
 }
 
 public void cvContrast(float value) {
   cvContrast =value;
-  //opencv.contrast(cvContrast);
-  //println("set Open CV contrast to "+cvContrast);
 }
 
 public void ledBrightness(int value) {
