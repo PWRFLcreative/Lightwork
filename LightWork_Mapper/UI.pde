@@ -143,6 +143,19 @@ void buildUI() {
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
+  println("adding textfield for number of DMX/ArtNet fixtures");
+  cp5.addTextfield("fixtures")
+    .setPosition(0, buttonHeight*3+uiSpacing*3)
+    .setSize(buttonWidth, buttonHeight)
+    .setAutoClear(false)
+    .setGroup("network")
+    .setValue(str(network.getNumArtnetFixtures()))
+    .setVisible(false)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    ;
+
+
+
   println("listing drivers");
   //draw after text boxes so the dropdown overlaps properly
   List driver = Arrays.asList("PixelPusher", "Fadecandy", "ArtNet"); //"ArtNet"  removed for now - throws errors
@@ -400,9 +413,9 @@ void driver(int n) {
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
+    cp5.get(Textfield.class, "fixtures").setVisible(false);
     println("network: PixelPusher");
-  }
-  else if (label.equals("FADECANDY")) {
+  } else if (label.equals("FADECANDY")) {
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
@@ -411,10 +424,13 @@ void driver(int n) {
     cp5.get(Textfield.class, "ip").setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(true);
     cp5.get(Textfield.class, "strips").setVisible(true);
+    cp5.get(Textfield.class, "fixtures").setVisible(false);
     println("network: Fadecandy");
-  }
-  else if (label.equals("ARTNET")) {
+  } else if (label.equals("ARTNET")) {
     network.setMode(device.ARTNET);
+    cp5.get(Textfield.class, "fixtures").setVisible(true);
+    cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
+    cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: ArtNet");
   }
 }

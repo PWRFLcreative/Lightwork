@@ -96,6 +96,14 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
+  
+  int getNumArtnetFixtures() {
+    return numArtnetFixtures;  
+  }
+  
+  int getNumArtnetChannels() {
+     return numArtnetChannels; 
+  }
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
     ledBrightness = brightness;
