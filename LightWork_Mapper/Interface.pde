@@ -1,4 +1,4 @@
-/*  //<>//
+/*  //<>// //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -37,7 +37,7 @@ public class Interface {
   int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
-  
+
   int                  numArtnetChannels = 5; // Channels per ArtNet fixture
   int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
 
@@ -168,7 +168,7 @@ public class Interface {
       leds.add(temp);
       leds.get(i).setAddress(i);
     }
-    
+
     numLeds = leds.size();
   }
 
@@ -212,18 +212,26 @@ public class Interface {
       }
 
     case ARTNET:
-      { //<>//
+      {
+        // Grab all the colors
         for (int i = 0; i < colors.length; i++) {
+          // Extract RGB values
+          // We assume the first three channels are RGB, and the rest is WHITE.
           int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
           int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
           int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
 
+          // Write RGB values to the packet
           int index = i*numArtnetChannels; 
           artnetPacket[index]   = byte(r); // Red
           artnetPacket[index+1] = byte(g); // Green
           artnetPacket[index+2] = byte(b); // Blue
-          artnetPacket[index+3] = byte(0); // White 
-          artnetPacket[index+4] = (byte(0)); // Unused channnel
+
+          // Populate remaining channels (presumably W) with color brightness
+          for (int j = 3; j < numArtnetChannels; j++) {
+            int br = int(brightness(colors[i]));
+            artnetPacket[index+j] = byte(br); // White 
+          }
         }
 
         artnet.broadcast(artnetPacket);
