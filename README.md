@@ -158,4 +158,4 @@ void draw() {
 --------------
 
 Developed with the participation of Creative BC, the Province of British Columbia and the British Columbia Arts Council
-![CBCBCACLogos](https://raw.github.com/PWRFLcreative/Lightwork/master/doc/images/logos.png)
+![CBCBCACLogos](https://raw.github.com/PWRFLcreative/Lightwork/master/doc/images/CreativeBC_BC_joint_RGB.png)
