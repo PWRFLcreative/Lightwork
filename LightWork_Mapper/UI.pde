@@ -153,6 +153,17 @@ void buildUI() {
     .setVisible(false)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
+    
+  println("adding textfield for number of number of channels per DMX/Artnet Fixture");
+  cp5.addTextfield("channels")
+    .setPosition(0, buttonHeight*2+uiSpacing*2)
+    .setSize(buttonWidth, buttonHeight)
+    .setAutoClear(false)
+    .setGroup("network")
+    .setValue(str(network.getNumArtnetChannels()))
+    .setVisible(false)
+    .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
+    ;
 
 
 
@@ -414,6 +425,7 @@ void driver(int n) {
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(false);
+    cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: PixelPusher");
   } else if (label.equals("FADECANDY")) {
     if (network.isConnected) {
@@ -425,10 +437,12 @@ void driver(int n) {
     cp5.get(Textfield.class, "leds_per_strip").setVisible(true);
     cp5.get(Textfield.class, "strips").setVisible(true);
     cp5.get(Textfield.class, "fixtures").setVisible(false);
+    cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: Fadecandy");
   } else if (label.equals("ARTNET")) {
     network.setMode(device.ARTNET);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
+    cp5.get(Textfield.class, "channels").setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: ArtNet");
