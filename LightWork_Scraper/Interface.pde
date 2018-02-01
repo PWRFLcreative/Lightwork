@@ -87,6 +87,7 @@ public class Interface {
     } else if (mode == device.ARTNET) {
       numArtnetFixtures = numFixtures; 
       numArtnetChannels = numChans; // Number of channels per fixture
+
     }
 
     //populateLeds();
@@ -125,7 +126,25 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
+  
+  int getNumArtnetFixtures() {
+    return numArtnetFixtures;  
+  }
+  
+  void setNumArtnetFixtures(int numFixtures) {
+    numArtnetFixtures = numFixtures; 
 
+  }
+  
+  int getNumArtnetChannels() {
+     return numArtnetChannels; 
+  }
+  
+  void setNumArtnetChannels(int numChannels) {
+    numArtnetChannels = numChannels;
+  }
+  
+ 
   //TODO: rework this to work in mapper and scraper
 
   //void setLedBrightness(int brightness) { //TODO: set overall brightness?
@@ -241,17 +260,25 @@ public class Interface {
 
     case ARTNET:
       {
+        // Grab all the colors
         for (int i = 0; i < colors.length; i++) {
+          // Extract RGB values
+          // We assume the first three channels are RGB, and the rest is WHITE.
           int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
           int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
           int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
 
-          int index = i*numArtnetFixtures; 
+          // Write RGB values to the packet
+          int index = i*numArtnetChannels; 
           artnetPacket[index]   = byte(r); // Red
           artnetPacket[index+1] = byte(g); // Green
           artnetPacket[index+2] = byte(b); // Blue
-          artnetPacket[index+3] = byte(0); // White 
-          artnetPacket[index+4] = (byte(0)); // Unused channnel
+
+          // Populate remaining channels (presumably W) with color brightness
+          for (int j = 3; j < numArtnetChannels; j++) {
+            int br = int(brightness(colors[i]));
+            artnetPacket[index+j] = byte(br); // White 
+          }
         }
 
         artnet.broadcast(artnetPacket);
@@ -355,6 +382,7 @@ public class Interface {
       artnet = new ArtnetP5();
       isConnected = true; 
       artnetPacket = new byte[numArtnetFixtures*numArtnetChannels]; // Reusing numLeds to indicate the number of fixtures (even though
+      
       update(scrape.getColors());  
   }
 
