@@ -267,7 +267,7 @@ public class Interface {
           int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
           int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
           int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
-
+          
           // Write RGB values to the packet
           int index = i*numArtnetChannels; 
           artnetPacket[index]   = byte(r); // Red
@@ -275,8 +275,12 @@ public class Interface {
           artnetPacket[index+2] = byte(b); // Blue
 
           // Populate remaining channels (presumably W) with color brightness
+          //int br = int(brightness(colors[i])); // Follow the brightness
+          color c = colors[i]; 
+          
+          int br = int(min(red(c), green(c), blue(c))); // White tracks the minimum color channel value
+          println(min(red(c), green(c), blue(c)));
           for (int j = 3; j < numArtnetChannels; j++) {
-            int br = int(brightness(colors[i]));
             artnetPacket[index+j] = byte(br); // White 
           }
         }

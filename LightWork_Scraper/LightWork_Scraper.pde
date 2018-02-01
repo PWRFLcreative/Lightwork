@@ -11,7 +11,7 @@ float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
 void setup() {
-  size(1280, 960, P3D); 
+  size(640, 480, P3D); 
 
   gradient = createGraphics(width, height); 
   //initialize scraper
@@ -46,7 +46,7 @@ void draw() {
 
   //cursor to test accuracy
   noStroke();
-  fill(255, 255, 255);
+  fill(100, 50, 20);
   ellipse(mouseX, mouseY, 30, 30);
 
   //end animation code
