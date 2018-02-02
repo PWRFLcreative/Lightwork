@@ -1,4 +1,4 @@
-/*       //<>// //<>//
+/* //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -71,7 +71,7 @@ String savePath = "../LightWork_Scraper/data/layout.csv";
 PImage videoInput; 
 PImage cvOutput;
 
-// Image sequence stuff
+// Image sequence parameters
 int numFrames = 10;  // The number of frames in the animation
 int currentFrame = 0;
 ArrayList <PGraphics> images;
@@ -117,12 +117,12 @@ void setup()
   animator.setAllLEDColours(off); // Clear the LED strips
   animator.update();
 
-  //Check for high resolution display
+  // Check for high resolution display
   println("setup gui multiply");
   if (displayWidth >= 2560) {
     guiMultiply = 2;
   }
-  //set up window for 2d mapping
+  // Set up window for 2d mapping
   window2d();
 
   println("calling buildUI on a separate thread");
@@ -256,8 +256,7 @@ void draw() {
   }
 
   showLEDOutput(); 
-  showBlobCount(); //TODO: display during calibration/ after mapping
-  //processCV();
+  showBlobCount(); 
 
   // -------------------------------------------------------
   //                      MAPPING
@@ -278,9 +277,7 @@ void draw() {
 
     if (shouldStartPatternMatching) {
       matchBinaryPatterns();
-    }//else {
-
-    //}
+    }
   } else if (isMapping && !patternMapping) {
     blobManager.update(opencv.getOutput());
     if (frameCount%frameSkip==0) {
@@ -294,7 +291,6 @@ void draw() {
 // Mapping methods
 
 void sequentialMapping() {
-  //println("sequentialMapping() -> blobList size() = "+blobList.size()); 
   if (blobManager.blobList.size()!=0) {
     Rectangle rect = blobManager.blobList.get(blobManager.blobList.size()-1).contour.getBoundingBox(); 
     PVector loc = new PVector(); 
@@ -309,11 +305,9 @@ void sequentialMapping() {
 void matchBinaryPatterns() {
   for (int i = 0; i < leds.size(); i++) {
     if (leds.get(i).foundMatch) {
-      //println("Already found match for LED: "+leds.get(i).address); 
       continue;
     }
     String targetPattern = leds.get(i).binaryPattern.binaryPatternString.toString(); 
-    //println("finding target pattern: "+targetPattern);
     for (int j = 0; j < blobManager.blobList.size(); j++) {
       String decodedPattern = blobManager.blobList.get(j).detectedPattern.decodedString.toString(); 
       //println("checking match with decodedPattern: "+decodedPattern);
@@ -328,10 +322,7 @@ void matchBinaryPatterns() {
     }
   }
   
-
-  //map(); // Toggle mapping off
   // Mapping is done, Save CSV for LEFT or RIGHT channels
-  // TODO: refactor. Maybe this method should return true when done, and then call saveCSV()
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
     arrayCopy(  getLEDVectors(leds).toArray(), rightMap);
@@ -366,9 +357,8 @@ void decode() {
   }
 }
 
-//Open CV processing functions
+// OpenCV Processing
 void processCV() {
-
   diff.beginDraw(); 
   diff.background(0); 
   diff.blendMode(NORMAL); 
@@ -379,14 +369,9 @@ void processCV() {
   opencv.loadImage(diff); 
   opencv.contrast(cvContrast); 
   opencv.threshold(cvThreshold);
-
-  //opencv.loadImage(videoInput);
-  //opencv.diff(backgroundImage); 
-  //opencv.contrast(cvContrast); 
-  //opencv.threshold(cvThreshold);
 }
 
-//Count LEDs that have been matched
+// Count LEDs that have been matched
 int listMatchedLEDs() {
   int count=0; 
   for (LED led : leds) {
@@ -395,23 +380,18 @@ int listMatchedLEDs() {
   return count;
 }
 
-//return LED locations as PVectors
+// Return LED locations as PVectors
 ArrayList<PVector> getLEDVectors(ArrayList<LED> l) {
   ArrayList<PVector> loc= new ArrayList<PVector>();
-  //println("l size: "+l.size());
-
   for (int i = 0; i<l.size(); i++) {
     PVector temp=new PVector();
     temp = l.get(i).coord;
     loc.add(temp);
   } 
-
-  //println("loc:");
-  //printArray(loc);
   return loc;
 }
 
-//Estimate LED z location from left and right captures
+// Estimate LED z location from left and right captures
 void calculateZ(PVector[] l, PVector[] r) {
   for (int i = 0; i<l.length; i++) {
     if (l[i].x!=0 && l[i].y!=0 && r[i].x!=0 && r[i].y!=0) {
@@ -421,7 +401,7 @@ void calculateZ(PVector[] l, PVector[] r) {
   }
 }
 
-//deterimines bounding box of points for normalizing
+// Deterimine bounding box of points for normalizing
 float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
   //ArrayList<PVector> pointsCopy = new ArrayList<PVector>(points);
 
@@ -438,7 +418,6 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 
   int index =0;
   for (PVector temp : pointsCopy) {
-
     xArr[index] = temp.x;
     yArr[index] = temp.y;
     zArr[index] = temp.z;
@@ -457,7 +436,7 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
   return out;
 }
 
-//normalize point coordinates 
+// Normalize point coordinates 
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
   float[] norm = new float[6];
@@ -465,17 +444,15 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
   ArrayList<LED> out = in;
   int index=0;
 
-  //println(loc);
-
   for (LED temp : out) {
-    //ignore 0,0 points
+    // Ignore 0,0 coordinates
     if (temp.coord.x>0 && temp.coord.y>0) {
       if (temp.coord.z!=0) {
-        //3d coords
+        // 3D coords
         temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1), map(temp.coord.z, norm[2], norm[5], 0.001, 1));
         out.set(index, temp);
       } else {
-        //2d coords
+        // 2D coords
         temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1));
         out.set(index, temp);
       }
@@ -492,7 +469,7 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
-    //User is trying to save without anything to output - bail
+    // User is trying to save without anything to output - bail
     println("No point data to save, run mapping first"); 
     return;
   } else {
@@ -514,19 +491,12 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
 
   for (int i = 0; i < ledArray.size(); i++) {
     output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
-    //println(ledArray.get(i).address+" "+ledArray.get(i).coord.x+" "+ledArray.get(i).coord.y);
   }
   output.close(); // Finishes the file
-
-  //wait until finished writing
-  //File f = new File(path);
-  //while (!f.exists())
-  //{
-  //}
   println("Exported CSV File to "+path);
 }
 
-//Console warranty  and OS info
+// Console warranty  and OS info
 void warranty() {
   println("Lightwork-Mapper"); 
   println("Copyright (C) 2017  Leó Stefánsson and Tim Rolls @PWRFL"); 
@@ -536,16 +506,16 @@ void warranty() {
   println("Operating System: "+os);
 }
 
-//Closes connections (once deployed as applet)
+// Close connections (once deployed as applet)
 void stop()
 {
-  cam =null; 
+  cam = null; 
   super.stop();
 }
 
-//Closes connections
+// Closes connections
 void exit()
 {
-  cam =null; 
+  cam = null; 
   super.exit();
 }

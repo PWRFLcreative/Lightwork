@@ -8,9 +8,10 @@
  *  @authors Leó Stefánsson and Tim Rolls
  */
 
-//ALT-SHIFT-S : Save UI properties to file
-//ALT-SHIFT-L : Load UI properties to file
-//SHIFT-H : Disable dragging (if accidentally activated with shift)
+// Shortcuts: 
+// ALT-SHIFT-S : Save UI properties to file
+// ALT-SHIFT-L : Load UI properties to file
+// SHIFT-H : Disable dragging (if accidentally activated with shift)
 
 void keyPressed() {
   //if (key == 's') {

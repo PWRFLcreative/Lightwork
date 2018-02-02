@@ -7,6 +7,8 @@
  *  @author: Jordi Tost (@jorditost)
  * 
  *  University of Applied Sciences Potsdam, 2014
+ * 
+ *  Modified by Leó Stefánsson
  */
 
 class Blob {
@@ -51,16 +53,10 @@ class Blob {
     //set draw location based on displayed camera position, accounts for moving cam in UI
     float x = map(r.x, 0, (float)camWidth, (float)camArea.x, camArea.x+camArea.width);
     float y = map(r.y, 0, (float)camHeight, (float)camArea.y, camArea.y+camArea.height);
-    //float opacity = map(timer+1, 0, 255, 0, 127);
 
-    //fill(0, 255, 0, opacity);
     noFill(); 
     stroke(255, 0, 0);
     rect(x, y, r.width, r.height);
-    //fill(255, 0, 0);
-    //textSize(12);
-    //text(id+ ": "+detectedPattern.decodedString.toString(), x+30, y); 
-    //stroke(0, 255, 0); 
   }
 
   void update(Contour newContour) {

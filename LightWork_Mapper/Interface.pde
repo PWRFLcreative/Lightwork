@@ -1,4 +1,4 @@
-/*  //<>// //<>//
+/* //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -55,7 +55,7 @@ public class Interface {
   boolean isConnected =false;
 
   //////////////////////////////////////////////////////////////
-  //Constructor
+  // Constructor
   /////////////////////////////////////////////////////////////
 
   Interface() {
@@ -156,7 +156,7 @@ public class Interface {
     return isConnected;
   }
 
-  //Set number of strips and pixels based on pusher config - only pulling for one right now.
+  // Set number of strips and pixels based on pusher config - only pulling for one right now.
   void fetchPPConfig() {
     if (mode == device.PIXELPUSHER && isConnected()) {
       List<PixelPusher> pps = registry.getPushers();
@@ -173,12 +173,14 @@ public class Interface {
   void populateLeds() {
     int val  = 0; 
     
+    // Deal with ArtNet vs. LED structure
     if (mode == device.ARTNET) {
       val = getNumArtnetFixtures(); 
     }
     else {
       val = numLeds;  
     }
+    
     // Clear existing LEDs
     if (leds.size()>0) {
       println("Clearing LED Array"); 
@@ -207,7 +209,7 @@ public class Interface {
     switch(mode) {
     case FADECANDY: 
       {
-        //check if opc object exists and is connected before writing data
+        // Check if OPC object exists and is connected before writing data
         if (opc!=null&&opc.isConnected()) {
           opc.autoWriteData(colors);
         }
@@ -215,11 +217,11 @@ public class Interface {
       }
     case PIXELPUSHER: 
       {
-        //check if network observer exists and has discovered strips before writing data
+        // Check if network observer exists and has discovered strips before writing data
         if (testObserver!=null&&testObserver.hasStrips) {
           registry.startPushing();
 
-          //iterate through PP strip objects to set LED colors
+          // Iterate through PixelPusher strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
           if (strips.size() > 0) {
             int stripNum =0;
@@ -271,6 +273,8 @@ public class Interface {
 
   void clearLeds() {
     int valCount = 0; 
+    
+    // Deal with ArtNet vs. LED addresses
     if (mode == device.ARTNET) {
       valCount = numArtnetFixtures; 
     }
@@ -285,7 +289,7 @@ public class Interface {
   }
   
 
-  //open connection to controller
+  // Open Connection to Controller
   void connect(PApplet parent) {
     if (isConnected) {
       shutdown();
@@ -323,14 +327,13 @@ public class Interface {
         animator.setAllLEDColours(off);
         // Update pixels twice (elegant, I know... but it works)
         update(animator.getPixels());
-        //update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
         populateLeds();
       }
     } else if (mode == device.PIXELPUSHER ) {
-      // does not like being instantiated a second time
+      // Does not like being instantiated a second time
       if (registry == null) {
         registry = new DeviceRegistry();
         testObserver = new TestObserver();
@@ -377,12 +380,11 @@ public class Interface {
     }
   }
 
-  //Close existing connections
+  // Close existing connections
   void shutdown() {
     if (mode == device.FADECANDY && opc!=null) {
       opc.dispose();
       isConnected = false;
-      //opc = null;
     }
     if (mode==device.PIXELPUSHER && registry!=null) {
       registry.stopPushing() ;  //TODO: Need to disconnect devices as well
@@ -390,6 +392,7 @@ public class Interface {
       isConnected = false;
     }
     if (mode==device.ARTNET) {
+      // TODO: deinitialize artnet connection
       //artnet = null;
     }
     if (mode==device.NULL) {
@@ -397,7 +400,7 @@ public class Interface {
   }
 
 
-  //toggle verbose logging for PixelPusher
+  // Toggle verbose logging for PixelPusher
   void pusherLogging(boolean b) {
     registry.setLogging(b);
   }

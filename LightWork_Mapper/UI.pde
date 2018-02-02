@@ -1,4 +1,4 @@
-/*    //<>// //<>//
+/* //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -41,7 +41,7 @@ void buildUI() {
   cp5.setVisible(false);
   cp5.enableShortcuts();
 
-  //check for defaults file  
+  // Check for defaults file  
   File defaults = new File("controlP5.json");
 
   float startTime = millis(); 
@@ -107,7 +107,7 @@ void buildUI() {
     .hideBar()
     ;
 
-  //loadWidth = width/12*6;
+  // loadWidth = width/12*6;
   println("adding textfield for IP");
   cp5.addTextfield("ip")
     .setCaptionLabel("ip address")
@@ -182,7 +182,7 @@ void buildUI() {
     .bringToFront() 
     .setGroup("network");
   ;
-  //TODO  fix style on dropdown 
+  // TODO:  fix style on dropdown 
   cp5.getController("driver").getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(uiSpacing);
 
   println("adding connect button");
@@ -239,11 +239,11 @@ void buildUI() {
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
 
-  ////set labels to bottom
+  //// Set labels to bottom
   //cp5.getController("ledBrightness").getValueLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
   //cp5.getController("ledBrightness").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0);
 
-  //Mapping type toggle
+  // Mapping type toggle
   List mapToggle = Arrays.asList("Pattern", "Sequence");
   ButtonBar b = cp5.addButtonBar("mappingToggle")
     .setPosition(0, (buttonHeight+uiSpacing)*3)
@@ -383,7 +383,7 @@ void buildUI() {
 
   //cp5.getController("camera").getCaptionLabel().align(ControlP5.CENTER, CENTER).setPadding(10*guiMultiply, 5*guiMultiply);
 
-  //load defaults
+  // Load defaults
   if (defaults.exists()) {
     cp5.loadProperties("controlP5.json");
     cp5.update();
@@ -392,7 +392,7 @@ void buildUI() {
   addMouseWheelListener();
 
   // Wrap up, report done
-  //loadWidth = width;
+  // loadWidth = width;
   float deltaTime = millis()-startTime; 
   println("Done building GUI, total time: " + deltaTime + " ms"); 
   cp5.setVisible(true);
@@ -527,7 +527,6 @@ void controlEvent(ControlEvent theControlEvent) {
     blobManager.minBlobSize = int(theControlEvent.getController().getArrayValue(0));
     blobManager.maxBlobSize = int(theControlEvent.getController().getArrayValue(1));
   }
-  //else if (theControlEvent.isFrom("
 }
 
 public void calibrate() {
@@ -566,17 +565,17 @@ public void calibrate() {
 
 public void saveLayout() {
   if (leds.size() <= 0) { // TODO: review, does this work?
-    //User is trying to save without anything to output - bail
+    // User is trying to save without anything to output - bail
     println("No point data to save, run mapping first");
     return;
   } else if (stereoMode == true && leftMap!=null && rightMap!=null) {
-    //Save stereo map with Z
+    // Save stereo map with Z
     calculateZ(leftMap, rightMap);
     savePath = "../Lightwork_Scraper_3D/data/stereoLayout.csv";
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
   } else {
-    //Save 2d Map
+    // Save 2D Map
     File sketch = new File(savePath);
     selectOutput("Select a file to write to:", "fileSelected", sketch);
   }
@@ -593,7 +592,7 @@ void fileSelected(File selection) {
   }
 }
 
-//TODO: investigate "ignoring" error and why this doesn't work, but keypress do
+// TODO: investigate "ignoring" error and why this doesn't work, but keypress do
 void saveSettings(float v) {
   cp5.saveProperties("default");
 }
@@ -637,10 +636,7 @@ public void map() {
 
     animator.setMode(AnimationMode.OFF);
     network.clearLeds();
-
-    // Clear CV FBO
-    //cvFBO = createGraphics(camWidth, camHeight, P3D);
-
+    
     shouldStartPatternMatching = false; 
     shouldStartDecoding = false; 
     images.clear();
@@ -697,9 +693,6 @@ public void map2() {
     animator.setMode(AnimationMode.OFF);
     network.clearLeds();
 
-    // Clear CV FBO
-    //cvFBO = createGraphics(camWidth, camHeight, P3D);
-
     shouldStartPatternMatching = false; 
     images.clear();
     currentFrame = 0;
@@ -708,7 +701,7 @@ public void map2() {
     cp5.get("map2").setCaptionLabel("Stop");
   }
 
-  //Binary pattern mapping
+  // Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
     mapRight = true; 
     println("Binary pattern mapping started"); 
@@ -735,8 +728,8 @@ public void map2() {
     videoMode = VideoMode.CAMERA;
     animator.setMode(AnimationMode.CHASE);
     backgroundImage = videoInput.copy();
-    //animator.resetPixels();
-    blobManager.setBlobLifetime(400); // TODO: Replace 10 with binary pattern length
+
+    blobManager.setBlobLifetime(400); // TODO: Review blob lifetime
     isMapping=true;
     cp5.get("map2").setColorBackground(#00aaff);
     cp5.get("map2").setCaptionLabel("Stop");
@@ -747,12 +740,12 @@ public void map2() {
 // UI Methods
 //////////////////////////////////////////////////////////////
 
-//get the list of currently connected cameras
+// Get the list of currently connected cameras
 String[] enumerateCams() {
 
   String[] list = Capture.list();
 
-  //catch null cases
+  // Catch null cases
   if (list == null) {
     println("Failed to retrieve the list of available cameras, will try the default...");
     //cam = new Capture(this, camWidth, camHeight, FPS);
@@ -760,15 +753,15 @@ String[] enumerateCams() {
     println("There are no cameras available for capture.");
   }
 
-  //parse out camera names from device listing
+  // Parse out camera names from device listing
   for (int i=0; i<list.length; i++) {
     String item = list[i]; 
     String[] temp = splitTokens(item, ",=");
     list[i] = temp[1];
   }
 
-  //This operation removes duplicates from the camera names, leaving only individual device names
-  //the set format automatically removes duplicates without having to iterate through them
+  // This operation removes duplicates from the camera names, leaving only individual device names
+  // the set format automatically removes duplicates without having to iterate through them
   Set<String> set = new HashSet<String>();
   Collections.addAll(set, list);
   String[] cameras = set.toArray(new String[0]);
@@ -776,7 +769,7 @@ String[] enumerateCams() {
   return cameras;
 }
 
-//UI camera switching - Cam 1
+// UI camera switching - Cam 1
 void switchCamera(String name) {
   cam.stop();
   cam=null;
@@ -787,7 +780,7 @@ void switchCamera(String name) {
 // Draw the array of colors going out to the LEDs
 void showLEDOutput() {
   if (showLEDColors) {
-    // scale based on window size and leds in array
+    // Scale based on window size and leds in array
     float x = (float)width/ (float)leds.size(); 
     for (int i = 0; i<leds.size(); i++) {
       fill(leds.get(i).c);
@@ -797,7 +790,7 @@ void showLEDOutput() {
   }
 }
 
-//Display feedback on how many blobs and LEDs have been detected
+// Display feedback on how many blobs and LEDs have been detected
 void showBlobCount() {
   fill(0, 255, 0);
   textAlign(LEFT);
@@ -808,7 +801,7 @@ void showBlobCount() {
   text(ledTemp, width/2+(20*guiMultiply), 100*guiMultiply);
 }
 
-//loading screen
+// Loading screen
 void loading() {
   background(0);
   if (frameCount%1000==0) {
@@ -832,7 +825,7 @@ void loading() {
   popMatrix();
 }
 
-//Mousewheel support in Desktop mode
+// Mousewheel support in Desktop mode
 void addMouseWheelListener() {
   frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
     public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
