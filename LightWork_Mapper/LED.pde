@@ -1,7 +1,7 @@
 /*
  *  LED
  *  
- *  This class tracks location, pattern and color data per LED
+ *  This class tracks location, pattern and color data for an LED object
  *  
  *  Copyright (C) 2017 PWRFL
  *  
@@ -33,7 +33,6 @@ public class LED {
   void setAddress(int addr) {
     address = addr;
     binaryPattern.generatePattern(address+bPatternOffset);
-    //println("LED Address: "+addr+" pattern: "+binaryPattern.binaryPatternString);
   }
 
   void setCoord(PVector coordinates) {

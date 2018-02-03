@@ -1,4 +1,4 @@
-/*  //<>//
+/* //<>//
  *  LED
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
@@ -19,6 +19,9 @@ import com.heroicrobot.dropbit.registry.*;
 import java.util.*;
 import java.io.*;
 
+// ArtNet
+import artnetP5.*;
+
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, NULL
 };
@@ -30,22 +33,29 @@ public class Interface {
   //LED defaults
   String               IP = "fade2.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
-  int                  numStrips = 8;
+  int                  ledsPerStrip = 9; // TODO: DOn't hardcode this
+  int                  numStrips = 1;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
-  //Pixelpusher objects
+  int                  numArtnetChannels = 5; // Channels per ArtNet fixture
+  int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
+
+  // Pixelpusher objects
   DeviceRegistry registry;
   TestObserver testObserver;
 
-  //Fadecandy Objects
+  // Fadecandy Objects
   OPC opc;
+
+  // ArtNet objects
+  ArtnetP5 artnet;
+  byte artnetPacket[];
 
   boolean isConnected =false;
 
   //////////////////////////////////////////////////////////////
-  //Constructor
+  // Constructor
   /////////////////////////////////////////////////////////////
 
   Interface() {
@@ -86,6 +96,24 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
+  
+  int getNumArtnetFixtures() {
+    return numArtnetFixtures;  
+  }
+  
+  void setNumArtnetFixtures(int numFixtures) {
+    numArtnetFixtures = numFixtures; 
+    populateLeds();
+  }
+  
+  int getNumArtnetChannels() {
+     return numArtnetChannels; 
+  }
+  
+  void setNumArtnetChannels(int numChannels) {
+    numArtnetChannels = numChannels;
+  }
+  
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
     ledBrightness = brightness;
@@ -128,7 +156,7 @@ public class Interface {
     return isConnected;
   }
 
-  //Set number of strips and pixels based on pusher config - only pulling for one right now.
+  // Set number of strips and pixels based on pusher config - only pulling for one right now.
   void fetchPPConfig() {
     if (mode == device.PIXELPUSHER && isConnected()) {
       List<PixelPusher> pps = registry.getPushers();
@@ -136,12 +164,23 @@ public class Interface {
         IP = pp.getIp().toString();
         numStrips = pp.getNumberOfStrips();
         ledsPerStrip = pp.getPixelsPerStrip();
+        numLeds = numStrips*ledsPerStrip;
       }
     }
   }
 
   // Reset the LED vector
   void populateLeds() {
+    int val  = 0; 
+    
+    // Deal with ArtNet vs. LED structure
+    if (mode == device.ARTNET) {
+      val = getNumArtnetFixtures(); 
+    }
+    else {
+      val = numLeds;  
+    }
+    
     // Clear existing LEDs
     if (leds.size()>0) {
       println("Clearing LED Array"); 
@@ -152,11 +191,13 @@ public class Interface {
 
     // Create new LEDS
     println("Creating LED Array"); 
-    for (int i = 0; i < numLeds; i++) {
-      LED temp= new LED();
+    for (int i = 0; i < val; i++) {
+      LED temp = new LED();
       leds.add(temp);
       leds.get(i).setAddress(i);
     }
+
+    numLeds = leds.size();
   }
 
   //////////////////////////////////////////////////////////////
@@ -168,7 +209,7 @@ public class Interface {
     switch(mode) {
     case FADECANDY: 
       {
-        //check if opc object exists and is connected before writing data
+        // Check if OPC object exists and is connected before writing data
         if (opc!=null&&opc.isConnected()) {
           opc.autoWriteData(colors);
         }
@@ -176,11 +217,11 @@ public class Interface {
       }
     case PIXELPUSHER: 
       {
-        //check if network observer exists and has discovered strips before writing data
+        // Check if network observer exists and has discovered strips before writing data
         if (testObserver!=null&&testObserver.hasStrips) {
           registry.startPushing();
 
-          //iterate through PP strip objects to set LED colors
+          // Iterate through PixelPusher strip objects to set LED colors
           List<Strip> strips = registry.getStrips();
           if (strips.size() > 0) {
             int stripNum =0;
@@ -200,6 +241,28 @@ public class Interface {
 
     case ARTNET:
       {
+        // Grab all the colors
+        for (int i = 0; i < colors.length; i++) {
+          // Extract RGB values
+          // We assume the first three channels are RGB, and the rest is WHITE.
+          int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
+          int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
+          int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
+
+          // Write RGB values to the packet
+          int index = i*numArtnetChannels; 
+          artnetPacket[index]   = byte(r); // Red
+          artnetPacket[index+1] = byte(g); // Green
+          artnetPacket[index+2] = byte(b); // Blue
+
+          // Populate remaining channels (presumably W) with color brightness
+          for (int j = 3; j < numArtnetChannels; j++) {
+            int br = int(brightness(colors[i]));
+            artnetPacket[index+j] = byte(br); // White 
+          }
+        }
+
+        artnet.broadcast(artnetPacket);
       }
 
     case NULL: 
@@ -209,20 +272,28 @@ public class Interface {
   }
 
   void clearLeds() {
-    color[] col = new color[numLeds]; 
+    int valCount = 0; 
+    
+    // Deal with ArtNet vs. LED addresses
+    if (mode == device.ARTNET) {
+      valCount = numArtnetFixtures; 
+    }
+    else {
+      valCount = numLeds; 
+    }
+    color[] col = new color[valCount]; 
     for (color c : col) {
       c = color(0);
     }
     update(col); // Update Physical LEDs with black (off)
   }
+  
 
-  //open connection to controller
+  // Open Connection to Controller
   void connect(PApplet parent) {
     if (isConnected) {
       shutdown();
-    }
-
-    if (mode == device.FADECANDY) {
+    } else if (mode == device.FADECANDY) {
       if (opc== null || !opc.isConnected) {
         opc = new OPC(parent, IP, port);
         int startTime = millis();
@@ -256,16 +327,13 @@ public class Interface {
         animator.setAllLEDColours(off);
         // Update pixels twice (elegant, I know... but it works)
         update(animator.getPixels());
-        //update(animator.getPixels());
         println("Connected to Fadecandy OPC server at: "+IP+":"+port); 
         isConnected =true;
         opc.setPixelCount(numLeds);
         populateLeds();
       }
-    }
-
-    if (mode == device.PIXELPUSHER ) {
-      // does not like being instantiated a second time
+    } else if (mode == device.PIXELPUSHER ) {
+      // Does not like being instantiated a second time
       if (registry == null) {
         registry = new DeviceRegistry();
         testObserver = new TestObserver();
@@ -305,15 +373,18 @@ public class Interface {
 
       registry.setLogging(false);
       populateLeds();
+    } else if (mode == device.ARTNET) {
+      artnet = new ArtnetP5();
+      isConnected = true; 
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
     }
   }
 
-  //Close existing connections
+  // Close existing connections
   void shutdown() {
     if (mode == device.FADECANDY && opc!=null) {
       opc.dispose();
       isConnected = false;
-      //opc = null;
     }
     if (mode==device.PIXELPUSHER && registry!=null) {
       registry.stopPushing() ;  //TODO: Need to disconnect devices as well
@@ -321,13 +392,15 @@ public class Interface {
       isConnected = false;
     }
     if (mode==device.ARTNET) {
+      // TODO: deinitialize artnet connection
+      //artnet = null;
     }
     if (mode==device.NULL) {
     }
   }
 
 
-  //toggle verbose logging for PixelPusher
+  // Toggle verbose logging for PixelPusher
   void pusherLogging(boolean b) {
     registry.setLogging(b);
   }

@@ -1,4 +1,4 @@
-/*       //<>//
+/*      
  *  Animator
  *  
  *  This Class handles timing and generates the state and color of all connected LEDs
@@ -42,7 +42,6 @@ public class Animator {
     ledIndex = 0; // TODO: resetInternalVariables() method?
     testIndex = 0;
     frameCounter = 0;
-    //resetPixels();
   }
 
   AnimationMode getMode() {
@@ -79,7 +78,7 @@ public class Animator {
       l[i]=leds.get(i).c;
     }
     return l;
-  }
+  } //<>// //<>//
 
 
   //////////////////////////////////////////////////////////////  
@@ -113,7 +112,7 @@ public class Animator {
     // Advance the internal counter
     frameCounter++;
 
-    //send pixel data over network
+    // Send pixel data over network
     if (mode!=AnimationMode.OFF && network.isConnected) {
       network.update(this.getPixels());
     }
@@ -132,14 +131,14 @@ public class Animator {
       leds.get(i).setColor(col);
     }
 
-    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>//
-    if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>// //<>//
+    if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates //<>// //<>//
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) { 
       this.setMode(AnimationMode.OFF);
-    } //<>//
-  }
+    }
+  } //<>// //<>//
 
   // Set all LEDs to the same colour (useful to turn them all on or off). 
   void setAllLEDColours(color col) { 
@@ -148,7 +147,7 @@ public class Animator {
     }
   }
 
-  //LED pre-flight test. Cycle: White, Red, Green, Blue.
+  // LED pre-flight test. Cycle: White, Red, Green, Blue.
   void test() {
     testIndex++;
 
