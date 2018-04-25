@@ -11,7 +11,7 @@ float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
 void setup() {
-  size(1280, 960, P3D); 
+  size(640, 480, P3D); 
 
   gradient = createGraphics(width, height); 
   //initialize scraper
@@ -21,7 +21,9 @@ void setup() {
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //network = new Interface(device.PIXELPUSHER, 1,100);
-  network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
+  network = new Interface(device.ARTNET, 0, 0, 9, 5); 
+  
   network.connect(this);
 
   //update scraper after network connects
@@ -44,7 +46,7 @@ void draw() {
 
   //cursor to test accuracy
   noStroke();
-  fill(255, 255, 255);
+  fill(100, 50, 20);
   ellipse(mouseX, mouseY, 30, 30);
 
   //end animation code

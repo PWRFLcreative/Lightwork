@@ -32,12 +32,13 @@ public class BinaryPattern {
   BinaryPattern() {
     numBits = 10; 
     animationPatternLength = 10;
-    frameNum = 0; // Used for animation
-    readIndex = 0; // Used by the detector to write bits 
-    writeIndex = 0; 
+    frameNum = 0;   // Used for animation
+    readIndex = 0;  // Used by the detector to read bits 
+    writeIndex = 0; // Used by the detector to write bits 
     previousState = 0;
     detectedState = 0;
 
+    // TODO: Review initial capacity
     decodedString = new StringBuffer(10); // Init with capacity
     decodedString.append("W123456789");
 

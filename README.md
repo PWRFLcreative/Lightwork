@@ -4,7 +4,7 @@
 
 Lightwork simplifies the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your light based creations.
 
- * Quick binary mapping tutorial: [LightWork Tutorial](https://youtu.be/e6FVKlNUhWI)
+ * Quick binary mapping tutorial: [LightWork Tutorial](https://youtu.be/7UJ1Ocxc8eg)
 
 
 Requirements
@@ -15,7 +15,7 @@ Requirements
 
 All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
 
-**Software**
+**Operating System**
 
 Tested and developed in OSX 10.12 and Windows 10, may not behave well in other operating systems.
 
@@ -24,6 +24,7 @@ Tested and developed in OSX 10.12 and Windows 10, may not behave well in other o
 We recommend, and have built this using the Logitech C920 webcam. It's cheap, is tripod mount compatible, and generally provides high quality and high speed capture.
 
 **Hardware**
+
 PixelPusher, Fadecandy or Artnet controller and individually addressable LEDs are required.
 
 1440x900 or higher resolution monitor recommended.
@@ -154,4 +155,9 @@ void draw() {
 }
 ```
 
+--------------
 
+Developed with the participation of Creative BC, the Province of British Columbia and the British Columbia Arts Council.
+
+
+![CBCBCACLogos](https://raw.github.com/PWRFLcreative/Lightwork/master/doc/images/CreativeBC_BC_joint_RGB.png)
