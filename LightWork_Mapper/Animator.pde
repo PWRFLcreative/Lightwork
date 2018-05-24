@@ -30,6 +30,8 @@ public class Animator {
     this.frameSkip = 3;
     println("Animator created");
   }
+  
+  //TODO: additional constructors to set variables more clearly
 
   //////////////////////////////////////////////////////////////
   // Setters and getters

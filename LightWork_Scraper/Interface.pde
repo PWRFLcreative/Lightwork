@@ -40,6 +40,12 @@ public class Interface {
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
+  byte artnetPacket[];
+  int                  numArtnetChannels = 5; // Channels per ArtNet fixture
+  int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
+  int                  numArtnetUniverses = 1; // Currently only one universe is supported
+
+  boolean isConnected =false;
 
   //Pixelpusher objects
   DeviceRegistry registry;
@@ -50,13 +56,10 @@ public class Interface {
 
   // ArtNet objects
   ArtnetP5 artnet;
-  
-  byte artnetPacket[];
-  int                  numArtnetChannels = 5; // Channels per ArtNet fixture
-  int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
-  int                  numArtnetUniverses = 1; // Currently only one universe is supported
 
-  boolean isConnected =false;
+  //sACN objects
+  sACNSource source;
+  sACNUniverse universe1;
 
   //////////////////////////////////////////////////////////////
   //Constructors
@@ -68,7 +71,7 @@ public class Interface {
     println("Interface created");
   }
 
-  //setup for fadecandy
+  // setup for Fadecandy
   Interface(device m, String ip, int strips, int leds) {
     mode = m;
     IP = ip;
@@ -298,6 +301,41 @@ public class Interface {
         artnet.broadcast(artnetPacket);
       }
 
+    case SACN:
+      {
+        // Grab all the colors
+        for (int i = 0; i < colors.length; i++) {
+          // Extract RGB values
+          // We assume the first three channels are RGB, and the rest is WHITE.
+          int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
+          int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
+          int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
+
+          // Write RGB values to the packet
+          int index = i*numArtnetChannels; 
+          artnetPacket[index]   = byte(r); // Red
+          artnetPacket[index+1] = byte(g); // Green
+          artnetPacket[index+2] = byte(b); // Blue
+
+          // Populate remaining channels (presumably W) with color brightness
+          for (int j = 3; j < numArtnetChannels; j++) {
+            int br = int(brightness(colors[i]));
+            artnetPacket[index+j] = byte(br); // White
+          }
+        }
+
+        //slots referring to channels per fixture
+        universe1.setSlots(numArtnetChannels, artnetPacket);
+
+        try {
+          universe1.sendData();
+        } 
+        catch (Exception e) {
+          e.printStackTrace();
+          exit();
+        }
+      }
+
     case NULL: 
       {
       }
@@ -398,6 +436,13 @@ public class Interface {
       artnetPacket = new byte[numArtnetFixtures*numArtnetChannels]; // Reusing numLeds to indicate the number of fixtures (even though
 
       update(scrape.getColors());
+    } else if (mode == device.SACN) {
+      source = new sACNSource(parent, "LightWork");
+      universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
+      isConnected = true; 
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+
+      update(scrape.getColors());
     }
 
     // Turn off LEDs
@@ -416,6 +461,10 @@ public class Interface {
       registry.deleteObserver(testObserver);
     }
     if (mode==device.ARTNET) {
+    }
+    if (mode==device.SACN) {
+      source = null;
+      universe1 = null;
     }
     if (mode==device.NULL) {
     }

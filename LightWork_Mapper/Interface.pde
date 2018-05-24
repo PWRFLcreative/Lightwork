@@ -41,8 +41,12 @@ public class Interface {
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
+  byte artnetPacket[];
   int                  numArtnetChannels = 3; // Channels per ArtNet fixture
   int                  numArtnetFixtures = 48; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
+  int                  numArtnetUniverses = 1; // Currently only one universe is supported
+
+  boolean isConnected =false;
 
   // Pixelpusher objects
   DeviceRegistry registry;
@@ -53,16 +57,13 @@ public class Interface {
 
   // ArtNet objects
   ArtnetP5 artnet;
-  byte artnetPacket[];
 
   //sACN objects
   sACNSource source;
   sACNUniverse universe1;
 
-  boolean isConnected =false;
-
   //////////////////////////////////////////////////////////////
-  // Constructor
+  // Constructors
   /////////////////////////////////////////////////////////////
 
   Interface() {
@@ -70,6 +71,46 @@ public class Interface {
     populateLeds();
     println("Interface created");
   }
+
+  //TODO: additional constructors to set variables more clearly
+  
+    // setup for Fadecandy
+  Interface(device m, String ip, int strips, int leds) {
+    mode = m;
+    IP = ip;
+    numStrips = strips;
+    ledsPerStrip = leds;
+    numLeds = ledsPerStrip*numStrips;
+    populateLeds();
+    println("Fadecandy Interface created");
+  }
+
+  // Setup for PixelPusher(no address required)
+  Interface(device m, int strips, int leds) {
+    mode = m;
+    if (mode == device.PIXELPUSHER) {
+      numStrips = strips;
+      ledsPerStrip = leds;
+      numLeds = ledsPerStrip*numStrips;
+    }
+
+    populateLeds();
+    println("PixelPusher Interface created");
+  }
+
+  // Setup ArtNet / sACN (uses network discovery/multicast so no ip required)
+  Interface(device m, int universes, int numFixtures, int numChans) {
+    mode = m;
+    if (mode == device.ARTNET || mode == device.SACN) {
+      numArtnetFixtures = numFixtures; 
+      numArtnetChannels = numChans; // Number of channels per fixture
+      numArtnetUniverses = universes; // TODO: support more than one universe
+    }
+
+    populateLeds();
+    println("ArtNet/sACN Interface created");
+  }
+
 
   //////////////////////////////////////////////////////////////
   // Setters and getters
@@ -325,9 +366,9 @@ public class Interface {
     for (color c : col) {
       c = color(0);
     }
-     
+
     if (isConnected) {
-        update(col); // Update Physical LEDs with black (off)
+      update(col); // Update Physical LEDs with black (off)
     }
   }
 
