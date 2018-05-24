@@ -109,10 +109,10 @@ void setup()
   println("setting up network Interface");
   network = new Interface();
   //These can be set via UI, but can be faster to set them here. 
-  network.setNumStrips(3);
-  network.setNumLedsPerStrip(16); 
-  network.setNumArtnetChannels(3);
-  network.setNumArtnetFixtures(16); 
+  //network.setNumStrips(3);
+  //network.setNumLedsPerStrip(16); 
+  //network.setNumArtnetChannels(3);
+  //network.setNumArtnetFixtures(16); 
 
   // Animator
   println("creating animator");

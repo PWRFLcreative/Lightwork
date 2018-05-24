@@ -325,7 +325,7 @@ public class Interface {
         }
 
         //slots referring to channels per fixture
-        universe1.setSlots(numArtnetChannels, artnetPacket);
+        universe1.setSlots(0, artnetPacket);
 
         try {
           universe1.sendData();
@@ -344,6 +344,7 @@ public class Interface {
 
   //open connection to controller
   void connect(PApplet parent) {
+
     //if (isConnected) {
     //  shutdown();
     //}

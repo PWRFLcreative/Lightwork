@@ -43,7 +43,7 @@ public class Interface {
 
   byte artnetPacket[];
   int                  numArtnetChannels = 3; // Channels per ArtNet fixture
-  int                  numArtnetFixtures = 48; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
+  int                  numArtnetFixtures = 16; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
   int                  numArtnetUniverses = 1; // Currently only one universe is supported
 
   boolean isConnected =false;
@@ -66,6 +66,8 @@ public class Interface {
   // Constructors
   /////////////////////////////////////////////////////////////
 
+
+  //blank constructor to allow GUI setup
   Interface() {
     mode = device.NULL;
     populateLeds();
@@ -73,8 +75,8 @@ public class Interface {
   }
 
   //TODO: additional constructors to set variables more clearly
-  
-    // setup for Fadecandy
+
+  // setup for Fadecandy
   Interface(device m, String ip, int strips, int leds) {
     mode = m;
     IP = ip;
@@ -335,8 +337,8 @@ public class Interface {
           }
         }
 
-        //slots referring to channels per fixture
-        universe1.setSlots(numArtnetChannels, artnetPacket);
+        //slots can add channel offset to the beginning of the packet
+        universe1.setSlots(0, artnetPacket);
 
         try {
           universe1.sendData();
@@ -375,6 +377,8 @@ public class Interface {
 
   // Open Connection to Controller
   void connect(PApplet parent) {
+    populateLeds(); //rebuild LED vector - helps avoid out of bounds errors
+
     if (isConnected) {
       shutdown();
     } else if (mode == device.FADECANDY) {
@@ -485,7 +489,6 @@ public class Interface {
       //artnet = null;
     }
     if (mode==device.SACN) {
-      // TODO: deinitialize SACN connection
       source = null;
       universe1 = null;
     }
