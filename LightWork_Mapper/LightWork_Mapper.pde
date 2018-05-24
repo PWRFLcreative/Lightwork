@@ -1,4 +1,4 @@
-/* //<>//
+/*  //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
@@ -29,7 +29,7 @@ import gab.opencv.*;
 import java.awt.Rectangle;
 
 Capture cam;
-Capture cam2;
+//Capture cam2;
 OpenCV opencv;
 
 ControlP5 cp5;
@@ -100,8 +100,10 @@ void setup()
 
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
-
-  cam = new Capture(this, camWidth, camHeight, 30);
+  
+  //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
+  println("initializing camera");
+  thread("cam = new Capture(this, camWidth, camHeight, 30)"); 
 
   // Network
   println("setting up network Interface");
@@ -171,7 +173,7 @@ void draw() {
   // -------------------------------------------------------
   //              VIDEO INPUT + OPENCV PROCESSING
   // -------------------------------------------------------
-  if (cam.available() == true) { 
+  if (cam!=null && cam.available() == true) { 
     cam.read();
     if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
       videoInput = cam;
@@ -287,8 +289,9 @@ void draw() {
 }
 
 // -----------------------------------------------------------
-// -----------------------------------------------------------
 // Mapping methods
+// -----------------------------------------------------------
+
 
 void sequentialMapping() {
   if (blobManager.blobList.size()!=0) {

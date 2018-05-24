@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -153,7 +153,7 @@ void buildUI() {
     .setVisible(false)
     .getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER).setPadding(5*guiMultiply, 5*guiMultiply)
     ;
-    
+
   println("adding textfield for number of number of channels per DMX/Artnet Fixture");
   cp5.addTextfield("channels")
     .setPosition(0, buttonHeight*2+uiSpacing*2)
@@ -169,7 +169,7 @@ void buildUI() {
 
   println("listing drivers");
   //draw after text boxes so the dropdown overlaps properly
-  List driver = Arrays.asList("PixelPusher", "Fadecandy", "ArtNet"); //"ArtNet"  removed for now - throws errors
+  List driver = Arrays.asList("PixelPusher", "Fadecandy", "ArtNet", "sACN");
   println("adding scrollable list for drivers");
   cp5.addScrollableList("driver")
     .setPosition(0, 0)
@@ -441,11 +441,20 @@ void driver(int n) {
     println("network: Fadecandy");
   } else if (label.equals("ARTNET")) {
     network.setMode(device.ARTNET);
+    cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
     cp5.get(Textfield.class, "channels").setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: ArtNet");
+  } else if (label.equals("SACN")) {
+    network.setMode(device.SACN);
+    cp5.get(Textfield.class, "ip").setVisible(false);
+    cp5.get(Textfield.class, "fixtures").setVisible(true);
+    cp5.get(Textfield.class, "channels").setVisible(true);
+    cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
+    cp5.get(Textfield.class, "strips").setVisible(false);
+    println("network: sACN");
   }
 }
 
@@ -465,11 +474,12 @@ public void strips(String theText) {
 }
 
 public void fixtures(String numFixtures) {
-  println("numFixtures: "+numFixtures); 
-  network.setNumArtnetFixtures(int(numFixtures)); 
+  println("Fixtures set to: "+numFixtures); 
+  network.setNumArtnetFixtures(int(numFixtures));
 }
 
 public void channels(String numChannels) {
+  println("DMX Channels per Fixture set to: "+numChannels); 
   network.setNumArtnetChannels(int(numChannels));
 }
 
@@ -636,7 +646,7 @@ public void map() {
 
     animator.setMode(AnimationMode.OFF);
     network.clearLeds();
-    
+
     shouldStartPatternMatching = false; 
     shouldStartDecoding = false; 
     images.clear();
@@ -771,8 +781,10 @@ String[] enumerateCams() {
 
 // UI camera switching - Cam 1
 void switchCamera(String name) {
-  cam.stop();
-  cam=null;
+  if (cam!=null) {
+    cam.stop();
+    cam=null;
+  }
   cam =new Capture(this, camWidth, camHeight, name, 30);
   cam.start();
 }

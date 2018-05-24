@@ -1,5 +1,5 @@
 /* //<>//
- *  LED
+ *  Interface
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
  *  
@@ -22,8 +22,11 @@ import java.io.*;
 // ArtNet
 import artnetP5.*;
 
+//sACN
+import eDMX.*;
+
 enum device {
-  FADECANDY, PIXELPUSHER, ARTNET, NULL
+  FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
 };
 
 public class Interface {
@@ -51,6 +54,10 @@ public class Interface {
   // ArtNet objects
   ArtnetP5 artnet;
   byte artnetPacket[];
+
+  //sACN objects
+  sACNSource source;
+  sACNUniverse universe1;
 
   boolean isConnected =false;
 
@@ -96,24 +103,24 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
-  
+
   int getNumArtnetFixtures() {
-    return numArtnetFixtures;  
+    return numArtnetFixtures;
   }
-  
+
   void setNumArtnetFixtures(int numFixtures) {
     numArtnetFixtures = numFixtures; 
     populateLeds();
   }
-  
+
   int getNumArtnetChannels() {
-     return numArtnetChannels; 
+    return numArtnetChannels;
   }
-  
+
   void setNumArtnetChannels(int numChannels) {
     numArtnetChannels = numChannels;
   }
-  
+
 
   void setLedBrightness(int brightness) { //TODO: set overall brightness?
     ledBrightness = brightness;
@@ -172,15 +179,14 @@ public class Interface {
   // Reset the LED vector
   void populateLeds() {
     int val  = 0; 
-    
+
     // Deal with ArtNet vs. LED structure
-    if (mode == device.ARTNET) {
-      val = getNumArtnetFixtures(); 
+    if (mode == device.ARTNET || mode == device.SACN) {
+      val = getNumArtnetFixtures();
+    } else {
+      val = numLeds;
     }
-    else {
-      val = numLeds;  
-    }
-    
+
     // Clear existing LEDs
     if (leds.size()>0) {
       println("Clearing LED Array"); 
@@ -258,11 +264,46 @@ public class Interface {
           // Populate remaining channels (presumably W) with color brightness
           for (int j = 3; j < numArtnetChannels; j++) {
             int br = int(brightness(colors[i]));
-            artnetPacket[index+j] = byte(br); // White 
+            artnetPacket[index+j] = byte(br); // White
           }
         }
 
         artnet.broadcast(artnetPacket);
+      }
+
+    case SACN:
+      {
+        // Grab all the colors
+        for (int i = 0; i < colors.length; i++) {
+          // Extract RGB values
+          // We assume the first three channels are RGB, and the rest is WHITE.
+          int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
+          int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
+          int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
+
+          // Write RGB values to the packet
+          int index = i*numArtnetChannels; 
+          artnetPacket[index]   = byte(r); // Red
+          artnetPacket[index+1] = byte(g); // Green
+          artnetPacket[index+2] = byte(b); // Blue
+
+          // Populate remaining channels (presumably W) with color brightness
+          for (int j = 3; j < numArtnetChannels; j++) {
+            int br = int(brightness(colors[i]));
+            artnetPacket[index+j] = byte(br); // White
+          }
+        }
+
+        //slots referring to channels per fixture
+        universe1.setSlots(numArtnetChannels, artnetPacket);
+
+        try {
+          universe1.sendData();
+        } 
+        catch (Exception e) {
+          e.printStackTrace();
+          exit();
+        }
       }
 
     case NULL: 
@@ -273,21 +314,23 @@ public class Interface {
 
   void clearLeds() {
     int valCount = 0; 
-    
+
     // Deal with ArtNet vs. LED addresses
-    if (mode == device.ARTNET) {
-      valCount = numArtnetFixtures; 
-    }
-    else {
-      valCount = numLeds; 
+    if (mode == device.ARTNET || mode == device.SACN) {
+      valCount = numArtnetFixtures;
+    } else {
+      valCount = numLeds;
     }
     color[] col = new color[valCount]; 
     for (color c : col) {
       c = color(0);
     }
-    update(col); // Update Physical LEDs with black (off)
+     
+    if (isConnected) {
+        update(col); // Update Physical LEDs with black (off)
+    }
   }
-  
+
 
   // Open Connection to Controller
   void connect(PApplet parent) {
@@ -321,7 +364,7 @@ public class Interface {
         // Currently this is the only safe place where this is guaranteed to work
         //opc.setDithering(false);
         //opc.setInterpolation(false);
-        // TODO: Deal with this (doesn't work for FUTURE wall, works fine one LIGHT WORK wall).
+        // TODO: Deal with this (doesn't work for FUTURE wall, works fine on LIGHT WORK wall).
 
         // Clear LEDs
         animator.setAllLEDColours(off);
@@ -377,6 +420,11 @@ public class Interface {
       artnet = new ArtnetP5();
       isConnected = true; 
       artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+    } else if (mode == device.SACN) {
+      source = new sACNSource(parent, "LightWork");
+      universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
+      isConnected = true; 
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
     }
   }
 
@@ -394,6 +442,11 @@ public class Interface {
     if (mode==device.ARTNET) {
       // TODO: deinitialize artnet connection
       //artnet = null;
+    }
+    if (mode==device.SACN) {
+      // TODO: deinitialize SACN connection
+      source = null;
+      universe1 = null;
     }
     if (mode==device.NULL) {
     }
