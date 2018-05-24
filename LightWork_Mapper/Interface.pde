@@ -1,7 +1,7 @@
 /* //<>//
  *  Interface
  *  
- *  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
+ *  This class handles connecting to and switching between PixelPusher, FadeCandy, ArtNet and sACN devices.
  *  
  *  Copyright (C) 2017 PWRFL
  *  
@@ -36,13 +36,13 @@ public class Interface {
   //LED defaults
   String               IP = "fade2.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 9; // TODO: DOn't hardcode this
-  int                  numStrips = 1;
+  int                  ledsPerStrip = 64; 
+  int                  numStrips = 8;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
-  int                  numArtnetChannels = 5; // Channels per ArtNet fixture
-  int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
+  int                  numArtnetChannels = 3; // Channels per ArtNet fixture
+  int                  numArtnetFixtures = 48; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
 
   // Pixelpusher objects
   DeviceRegistry registry;

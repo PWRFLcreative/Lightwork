@@ -1,4 +1,4 @@
-//  Interface.pde 
+//  Interface.pde  //<>//
 //  Lightwork-Mapper
 //
 //  Created by Leo Stefansson and Tim Rolls
@@ -21,8 +21,11 @@ import java.io.*;
 // ArtNet
 import artnetP5.*;
 
+//sACN
+import eDMX.*;
+
 enum device {
-  FADECANDY, PIXELPUSHER, ARTNET, NULL
+  FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
 };
 
 public class Interface {
@@ -32,7 +35,7 @@ public class Interface {
   //LED defaults
   String               IP = "fade2.local";
   int                  port = 7890;
-  int                  ledsPerStrip = 64; // TODO: DOn't hardcode this
+  int                  ledsPerStrip = 64; 
   int                  numStrips = 8;
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
@@ -47,10 +50,11 @@ public class Interface {
 
   // ArtNet objects
   ArtnetP5 artnet;
+  
   byte artnetPacket[];
   int                  numArtnetChannels = 5; // Channels per ArtNet fixture
   int                  numArtnetFixtures = 9; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs
-
+  int                  numArtnetUniverses = 1; // Currently only one universe is supported
 
   boolean isConnected =false;
 
@@ -72,26 +76,33 @@ public class Interface {
     ledsPerStrip = leds;
     numLeds = ledsPerStrip*numStrips;
     //populateLeds();
-    println("Interface created");
+    println("Fadecandy Interface created");
   }
 
-  // Setup for PixelPusher and ArtNet (no address required)
-  // strips and leds are from PIXELPUSHER
-  // numFixtures and numChans are for ARTNET
-  Interface(device m, int strips, int leds, int numFixtures, int numChans) {
+  // Setup for PixelPusher(no address required)
+  Interface(device m, int strips, int leds) {
     mode = m;
     if (mode == device.PIXELPUSHER) {
       numStrips = strips;
       ledsPerStrip = leds;
       numLeds = ledsPerStrip*numStrips;
-    } else if (mode == device.ARTNET) {
-      numArtnetFixtures = numFixtures; 
-      numArtnetChannels = numChans; // Number of channels per fixture
-
     }
 
     //populateLeds();
-    println("Interface created");
+    println("PixelPusher Interface created");
+  }
+
+  // Setup ArtNet / sACN (uses network discovery/multicast so no ip required)
+  Interface(device m, int universes, int numFixtures, int numChans) {
+    mode = m;
+    if (mode == device.ARTNET || mode == device.SACN) {
+      numArtnetFixtures = numFixtures; 
+      numArtnetChannels = numChans; // Number of channels per fixture
+      numArtnetUniverses = universes; // TODO: support more than one universe
+    }
+
+    //populateLeds();
+    println("ArtNet/sACN Interface created");
   }
 
 
@@ -126,25 +137,24 @@ public class Interface {
   int getNumStrips() {
     return numStrips;
   }
-  
-  int getNumArtnetFixtures() {
-    return numArtnetFixtures;  
-  }
-  
-  void setNumArtnetFixtures(int numFixtures) {
-    numArtnetFixtures = numFixtures; 
 
+  int getNumArtnetFixtures() {
+    return numArtnetFixtures;
   }
-  
+
+  void setNumArtnetFixtures(int numFixtures) {
+    numArtnetFixtures = numFixtures;
+  }
+
   int getNumArtnetChannels() {
-     return numArtnetChannels; 
+    return numArtnetChannels;
   }
-  
+
   void setNumArtnetChannels(int numChannels) {
     numArtnetChannels = numChannels;
   }
-  
- 
+
+
   //TODO: rework this to work in mapper and scraper
 
   //void setLedBrightness(int brightness) { //TODO: set overall brightness?
@@ -225,7 +235,7 @@ public class Interface {
 
   void update(color[] colors) {
 
-    switch(mode) { //<>//
+    switch(mode) {
     case FADECANDY: 
       {
         //check if opc object exists and is connected before writing data
@@ -267,7 +277,7 @@ public class Interface {
           int r = (colors[i] >> 16) & 0xFF;  // Faster way of getting red(argb)
           int g = (colors[i] >> 8) & 0xFF;   // Faster way of getting green(argb)
           int b = colors[i] & 0xFF;          // Faster way of getting blue(argb)
-          
+
           // Write RGB values to the packet
           int index = i*numArtnetChannels; 
           artnetPacket[index]   = byte(r); // Red
@@ -277,11 +287,11 @@ public class Interface {
           // Populate remaining channels (presumably W) with color brightness
           //int br = int(brightness(colors[i])); // Follow the brightness
           color c = colors[i]; 
-          
+
           int br = int(min(red(c), green(c), blue(c))); // White tracks the minimum color channel value
           println(min(red(c), green(c), blue(c)));
           for (int j = 3; j < numArtnetChannels; j++) {
-            artnetPacket[index+j] = byte(br); // White 
+            artnetPacket[index+j] = byte(br); // White
           }
         }
 
@@ -386,9 +396,9 @@ public class Interface {
       artnet = new ArtnetP5();
       isConnected = true; 
       artnetPacket = new byte[numArtnetFixtures*numArtnetChannels]; // Reusing numLeds to indicate the number of fixtures (even though
-      
-      update(scrape.getColors());  
-  }
+
+      update(scrape.getColors());
+    }
 
     // Turn off LEDs
     // Turn off LEDs first

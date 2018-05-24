@@ -108,12 +108,16 @@ void setup()
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(1);
-  network.setNumLedsPerStrip(9); // TODO: Fix these setters...
+  //These can be set via UI, but can be faster to set them here. 
+  network.setNumStrips(3);
+  network.setNumLedsPerStrip(16); 
+  network.setNumArtnetChannels(3);
+  network.setNumArtnetFixtures(16); 
 
   // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
+  animator.setFrameSkip(frameSkip);
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(frameSkip);
   animator.setAllLEDColours(off); // Clear the LED strips
