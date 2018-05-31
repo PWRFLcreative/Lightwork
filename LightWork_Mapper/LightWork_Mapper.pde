@@ -66,7 +66,7 @@ PVector[] leftMap;
 PVector[] rightMap;
 
 int FPS = 30; 
-String savePath = "../LightWork_Scraper/data/layout.csv";
+String savePath = "../LightWork_Scraper/data/layout.csv"; //defaults to scraper data folder
 
 PImage videoInput; 
 PImage cvOutput;

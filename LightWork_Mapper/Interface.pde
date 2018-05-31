@@ -25,13 +25,17 @@ import artnetP5.*;
 //sACN
 import eDMX.*;
 
+//OSC 
+import oscP5.*;
+import netP5.*;
+
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
 };
 
 public class Interface {
 
-  device              mode;
+  device               mode;
 
   //LED defaults
   String               IP = "fade2.local";
@@ -41,12 +45,13 @@ public class Interface {
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
-  byte artnetPacket[];
+  byte                 artnetPacket[];
   int                  numArtnetChannels = 3; // Channels per ArtNet fixture
   int                  numArtnetFixtures = 16; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
   int                  numArtnetUniverses = 1; // Currently only one universe is supported
 
-  boolean isConnected =false;
+  boolean              isConnected =false;
+  boolean              scraperActive = true;
 
   // Pixelpusher objects
   DeviceRegistry registry;
@@ -62,15 +67,19 @@ public class Interface {
   sACNSource source;
   sACNUniverse universe1;
 
+  //OSC objects
+  OscP5 oscP5;
+  NetAddress myRemoteLocation;
+
   //////////////////////////////////////////////////////////////
   // Constructors
   /////////////////////////////////////////////////////////////
-
 
   //blank constructor to allow GUI setup
   Interface() {
     mode = device.NULL;
     populateLeds();
+    setupOSC();
     println("Interface created");
   }
 
@@ -115,7 +124,7 @@ public class Interface {
 
 
   //////////////////////////////////////////////////////////////
-  // Setters and getters
+  // Setters / getters and utility methods
   //////////////////////////////////////////////////////////////
 
   void setMode(device m) {
@@ -247,6 +256,14 @@ public class Interface {
     }
 
     numLeds = leds.size();
+  }
+
+  //set up OSC here to make constructors cleaner
+  void setupOSC() {
+    oscP5 = new OscP5(this, 12000);
+    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+    //oscP5.plug(this, "toggleScraper", "/toggleScraper");
+    //oscP5.plug(this, "newFile", "/newFile");
   }
 
   //////////////////////////////////////////////////////////////
@@ -500,6 +517,19 @@ public class Interface {
   // Toggle verbose logging for PixelPusher
   void pusherLogging(boolean b) {
     registry.setLogging(b);
+  }
+
+  void oscToggleScraper() {
+    scraperActive=!scraperActive;
+    OscMessage myMessage = new OscMessage("/toggleScraper");
+    myMessage.add(int(scraperActive));
+    oscP5.send(myMessage, myRemoteLocation);
+  }
+
+  void oscNewFile() {
+    OscMessage myMessage = new OscMessage("/newFile");
+    myMessage.add(1);
+    oscP5.send(myMessage, myRemoteLocation);
   }
 }
 
