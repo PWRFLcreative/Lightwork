@@ -43,6 +43,11 @@ void draw() {
   // Gradient line
   //horizontalGradient(); 
   verticalGradient(); 
+  
+  //BG color cycle
+  //color c;
+  //c = color (abs(sin(frameCount*0.01))*360, 100, 100);
+  //background(c);
 
   //cursor to test accuracy
   noStroke();
@@ -80,7 +85,7 @@ void horizontalGradient() {
 }
 
 void verticalGradient() {
-  int numLines = 250; 
+  int numLines = 800; 
   if (pos<=width+numLines)pos+=5;
   else pos=0;
 
