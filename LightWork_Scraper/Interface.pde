@@ -80,6 +80,7 @@ public class Interface {
 
   Interface() {
     mode = device.NULL;
+    setupOSC();
     //populateLeds();
     println("Interface created");
   }
@@ -91,6 +92,7 @@ public class Interface {
     numStrips = strips;
     ledsPerStrip = leds;
     numLeds = ledsPerStrip*numStrips;
+    setupOSC();
     //populateLeds();
     println("Fadecandy Interface created");
   }
@@ -103,7 +105,7 @@ public class Interface {
       ledsPerStrip = leds;
       numLeds = ledsPerStrip*numStrips;
     }
-
+    setupOSC();
     //populateLeds();
     println("PixelPusher Interface created");
   }
@@ -235,7 +237,7 @@ public class Interface {
   //set up OSC here to make constructors cleaner
   void setupOSC() {
     oscP5 = new OscP5(this, 12000);
-    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+    myRemoteLocation = new NetAddress("127.0.0.1", 12001);
     oscP5.plug(this, "toggleScraper", "/toggleScraper");
     //oscP5.plug(this, "newFile", "/newFile");
   }

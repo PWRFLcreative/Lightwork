@@ -103,7 +103,7 @@ void setup()
   
   //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
   println("initializing camera");
-  thread("cam = new Capture(this, camWidth, camHeight, 30)"); 
+  thread("setupCam"); 
 
   // Network
   println("setting up network Interface");
@@ -473,6 +473,10 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 // -----------------------------------------------------------
 // -----------------------------------------------------------
 // Utility methods
+
+void setupCam(){
+  cam = new Capture(this, camWidth, camHeight, 30);
+}
 
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {

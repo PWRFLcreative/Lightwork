@@ -260,7 +260,7 @@ public class Interface {
 
   //set up OSC here to make constructors cleaner
   void setupOSC() {
-    oscP5 = new OscP5(this, 12000);
+    oscP5 = new OscP5(this, 12001);
     myRemoteLocation = new NetAddress("127.0.0.1", 12000);
     //oscP5.plug(this, "toggleScraper", "/toggleScraper");
     //oscP5.plug(this, "newFile", "/newFile");
@@ -518,7 +518,8 @@ public class Interface {
   void pusherLogging(boolean b) {
     registry.setLogging(b);
   }
-
+  
+  // Send osc to local scraper, toggling sending data to LEDs. This allows us to quickly switch from mapping to scraping.
   void oscToggleScraper() {
     scraperActive=!scraperActive;
     OscMessage myMessage = new OscMessage("/toggleScraper");

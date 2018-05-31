@@ -543,8 +543,13 @@ public void calibrate() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before calibrating");
   }
+  if (cam==null || !cam.available()) {
+    println("Please select a camera before mapping");
+    return;
+  }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
+    network.oscToggleScraper();
     blobManager.setBlobLifetime(1000);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
@@ -561,6 +566,7 @@ public void calibrate() {
   } 
   // Decativate Calibration Mode
   else if (videoMode == VideoMode.CALIBRATION) {
+    network.oscToggleScraper();
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     //backgroundImage = createImage(camWidth, camHeight, RGB);
@@ -639,9 +645,14 @@ public void map() {
     println("Please connect to an LED driver before mapping");
     return;
   }
+  if (cam==null || !cam.available()) {
+    println("Please select a camera before mapping");
+    return;
+  }
   // Turn off mapping
   else if (isMapping) {
     println("Mapping stopped");
+    network.oscToggleScraper();
     videoMode = VideoMode.CAMERA;
 
     animator.setMode(AnimationMode.OFF);
@@ -658,6 +669,7 @@ public void map() {
 
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    network.oscToggleScraper();
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
 
@@ -677,6 +689,7 @@ public void map() {
   }
   // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
+    network.oscToggleScraper();
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
