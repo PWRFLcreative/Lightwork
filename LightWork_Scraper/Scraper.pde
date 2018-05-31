@@ -7,12 +7,15 @@ public class Scraper {  //<>//
 
   ArrayList<PVector> loc;
   color[] colors;
+  
+  boolean isActive;
 
   Scraper ( String in) {  
     file=in;
     loc = new ArrayList<PVector>();
     loadCSV(file);
     colors = new color[loc.size()];
+    isActive=true;
   }
 
   void loadSVG() {
@@ -106,6 +109,14 @@ public class Scraper {  //<>//
 
   color[] getColors() {
     return colors;
+  }
+  
+  void setActive(boolean val){
+    isActive=val;
+  }
+  
+  boolean isActive(){
+   return isActive; 
   }
 
   //deterimines bounding box of points in SVG for normalizing

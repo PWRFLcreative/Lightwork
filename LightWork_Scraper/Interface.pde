@@ -3,7 +3,11 @@
 //
 //  Created by Leo Stefansson and Tim Rolls
 //  
-//  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
+//  This class handles connecting to and switching between 
+//  PixelPusher, FadeCandy and ArtNet devices. It also handles
+//  OSC messaging over network. Note there are 
+//  some differences in methods between this Interface class and
+//  the one packaged with Lightwork_Mapper.
 //
 //////////////////////////////////////////////////////////////
 
@@ -23,6 +27,10 @@ import artnetP5.*;
 
 //sACN
 import eDMX.*;
+
+//OSC 
+import oscP5.*;
+import netP5.*;
 
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
@@ -60,6 +68,11 @@ public class Interface {
   //sACN objects
   sACNSource source;
   sACNUniverse universe1;
+
+  //OSC objects
+  OscP5 oscP5;
+  NetAddress myRemoteLocation;
+
 
   //////////////////////////////////////////////////////////////
   //Constructors
@@ -104,13 +117,14 @@ public class Interface {
       numArtnetUniverses = universes; // TODO: support more than one universe
     }
 
+    setupOSC();
     //populateLeds();
     println("ArtNet/sACN Interface created");
   }
 
 
   //////////////////////////////////////////////////////////////
-  // Setters and getters
+  // Setters / getters and utility methods
   //////////////////////////////////////////////////////////////
 
   void setMode(device m) {
@@ -211,6 +225,19 @@ public class Interface {
         ledsPerStrip = pp.getPixelsPerStrip();
       }
     }
+  }
+
+  public void toggleScraper(int val) {
+    println("received a message /toggleScraper.");
+    scrape.setActive(boolean(val));
+  }
+
+  //set up OSC here to make constructors cleaner
+  void setupOSC() {
+    oscP5 = new OscP5(this, 12000);
+    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+    oscP5.plug(this, "toggleScraper", "/toggleScraper");
+    //oscP5.plug(this, "newFile", "/newFile");
   }
 
   //TODO: rework this to work in mapper and scrapergit 

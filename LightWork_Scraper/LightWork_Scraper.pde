@@ -23,7 +23,7 @@ void setup() {
   //network = new Interface(device.PIXELPUSHER, 1,100);
   //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
   network = new Interface(device.SACN, 1, 16, 3); 
-  
+
   network.connect(this);
 
   //update scraper after network connects
@@ -43,7 +43,7 @@ void draw() {
   // Gradient line
   //horizontalGradient(); 
   verticalGradient(); 
-  
+
   //BG color cycle
   //color c;
   //c = color (abs(sin(frameCount*0.01))*360, 100, 100);
@@ -57,10 +57,12 @@ void draw() {
   //end animation code
   //////////////////
 
-  //Scraper functions  
-  scrape.update(); //Update colors to be sent to LEDs
-  network.update(scrape.getColors()); //Send colors to LEDs
-  scrape.display(); //Show locations loaded from CSV
+  //Scraper functions
+  if (scrape.isActive()) {
+    scrape.update(); //Update colors to be sent to LEDs
+    network.update(scrape.getColors()); //Send colors to LEDs
+    scrape.display(); //Show locations loaded from CSV
+  }
 }
 
 
