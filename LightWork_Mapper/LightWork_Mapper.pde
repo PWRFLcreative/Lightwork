@@ -100,10 +100,12 @@ void setup()
 
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
-  
+
   //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
   println("initializing camera");
-  thread("setupCam"); 
+  //thread("setupCam"); 
+  //Thread may be causing strange state issues with PixelPusher
+  setupCam();
 
   // Network
   println("setting up network Interface");
@@ -328,7 +330,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-  
+
   // Mapping is done, Save CSV for LEFT or RIGHT channels
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
@@ -339,6 +341,8 @@ void matchBinaryPatterns() {
     arrayCopy(  getLEDVectors(leds).toArray(), leftMap);
     saveCSV(leds, dataPath("left.csv"));
   }
+  
+  network.saveOSC(normCoords(leds));
 
   map();
 }
@@ -474,7 +478,7 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 // -----------------------------------------------------------
 // Utility methods
 
-void setupCam(){
+void setupCam() {
   cam = new Capture(this, camWidth, camHeight, 30);
 }
 
@@ -501,11 +505,13 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   output.println("address"+","+"x"+","+"y"+","+"z"); 
 
   for (int i = 0; i < ledArray.size(); i++) {
-    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
   }
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
 }
+
+
 
 // Console warranty  and OS info
 void warranty() {

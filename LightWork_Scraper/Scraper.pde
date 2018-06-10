@@ -7,7 +7,7 @@ public class Scraper {  //<>//
 
   ArrayList<PVector> loc;
   color[] colors;
-  
+
   boolean isActive;
 
   Scraper ( String in) {  
@@ -55,6 +55,16 @@ public class Scraper {  //<>//
     }
   }
 
+  //use this to clear current locations. Called when new coords are sent over OSC from mapper
+  void clearLoc() {
+    loc.clear();
+  }
+  
+  //adds a location to the scraper coordinates. Used for coords from OSC messages
+  void addLoc(PVector v) {
+    loc.add(v);
+  }
+
   //normalize point coordinates to scale with window size (doing this in the mapper now)
   void normCoords()
   {
@@ -69,7 +79,6 @@ public class Scraper {  //<>//
       if (temp.x>0 && temp.y>0) {
         temp.set (map(temp.x, norm[0], norm[2], 0.001, 1), map(temp.y, norm[1], norm[3], 0.001, 1));
         loc.set(index, temp);
-
       }
       index++;
     }
@@ -88,7 +97,6 @@ public class Scraper {  //<>//
       if (!(temp.x == 0.0) && !(temp.y == 0.0)) {
         ellipse(map(temp.x, 0, 1, margin, width-margin), map(temp.y, 0, 1, margin, height-margin), 10, 10);
       }
-
     }
   }
 
@@ -110,13 +118,13 @@ public class Scraper {  //<>//
   color[] getColors() {
     return colors;
   }
-  
-  void setActive(boolean val){
+
+  void setActive(boolean val) {
     isActive=val;
   }
-  
-  boolean isActive(){
-   return isActive; 
+
+  boolean isActive() {
+    return isActive;
   }
 
   //deterimines bounding box of points in SVG for normalizing

@@ -229,6 +229,55 @@ public class Interface {
     }
   }
 
+  void oscEvent(OscMessage theOscMessage) {
+    /* check if theOscMessage has the address pattern we are looking for. */
+
+    if (theOscMessage.checkAddrPattern("/coords")==true) {
+      if (theOscMessage.checkTypetag("iifff")) {
+        /* parse theOscMessage and extract the values from the osc message arguments. */
+        int address = theOscMessage.get(0).intValue();  
+        int arraySize = theOscMessage.get(1).intValue();
+        float x = theOscMessage.get(2).floatValue();
+        float y = theOscMessage.get(3).floatValue(); 
+        float z = theOscMessage.get(4).floatValue();
+
+        PVector v = new PVector();
+
+        v.set (x, y, z);
+
+        //delete current locations when receiving new coords over OSC
+        if ( address==0 ) {
+          scrape.clearLoc();
+        }
+
+        scrape.addLoc(v);
+
+        print("### received an osc message /coords with typetag iifff.");
+        println(" values: "+x+", "+y+", "+z);
+
+        if (address==arraySize-1) {
+          return;
+        }
+      }
+    } 
+    println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
+  }
+
+  //public void oscCoords(int val) {
+  //  println("received a message /coords.");
+  //      for (TableRow row : table.rows ()) {
+  //    int index = row.getInt("address");
+  //    float x = row.getFloat("x");
+  //    float y = row.getFloat("y");
+  //    float z = row.getFloat("z");
+
+  //    PVector v = new PVector();
+
+  //    v.set (x, y, z);
+  //    loc.add(v);
+  //  }
+  //}
+
   public void toggleScraper(int val) {
     println("received a message /toggleScraper.");
     scrape.setActive(boolean(val));
@@ -239,7 +288,7 @@ public class Interface {
     oscP5 = new OscP5(this, 12000);
     myRemoteLocation = new NetAddress("127.0.0.1", 12001);
     oscP5.plug(this, "toggleScraper", "/toggleScraper");
-    //oscP5.plug(this, "newFile", "/newFile");
+    oscP5.plug(this, "coords", "/coords");
   }
 
   //TODO: rework this to work in mapper and scrapergit 

@@ -421,6 +421,7 @@ void driver(int n) {
       cp5.get("connect").setCaptionLabel("Connect");
     }
     network.setMode(device.PIXELPUSHER);
+    network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);

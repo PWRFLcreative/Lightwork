@@ -46,7 +46,7 @@ void draw() {
 
   //BG color cycle
   //color c;
-  //c = color (abs(sin(frameCount*0.01))*360, 100, 100);
+  //c = color (abs(sin(frameCount*0.001))*360, 100, 100);
   //background(c);
 
   //cursor to test accuracy
@@ -71,7 +71,7 @@ void draw() {
 //////////////////
 
 void horizontalGradient() {
-  int numLines = 450; 
+  int numLines = 200; 
   if (pos<=height+numLines)pos+=5;
   else pos=0;
   for (int i = 0; i < numLines; i++) {
@@ -87,8 +87,8 @@ void horizontalGradient() {
 }
 
 void verticalGradient() {
-  int numLines = 800; 
-  if (pos<=width+numLines)pos+=5;
+  int numLines = 600; 
+  if (pos<=width+numLines)pos+=1;
   else pos=0;
 
   for (int i = 0; i < numLines; i++) {

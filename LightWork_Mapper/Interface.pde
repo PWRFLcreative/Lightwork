@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>// //<>//
  *  Interface
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy, ArtNet and sACN devices.
@@ -171,6 +171,7 @@ public class Interface {
 
   void setNumArtnetChannels(int numChannels) {
     numArtnetChannels = numChannels;
+    populateLeds();
   }
 
 
@@ -219,13 +220,15 @@ public class Interface {
   void fetchPPConfig() {
     if (mode == device.PIXELPUSHER && isConnected()) {
       List<PixelPusher> pps = registry.getPushers();
-      for (PixelPusher pp : pps) {
+      for (PixelPusher pp : pps) {  //TODO: calculate total strips / LEDs here for multiple pushers
         IP = pp.getIp().toString();
         numStrips = pp.getNumberOfStrips();
         ledsPerStrip = pp.getPixelsPerStrip();
         numLeds = numStrips*ledsPerStrip;
       }
     }
+
+    populateLeds();
   }
 
   // Reset the LED vector
@@ -260,8 +263,8 @@ public class Interface {
 
   //set up OSC here to make constructors cleaner
   void setupOSC() {
-    oscP5 = new OscP5(this, 12001);
-    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+    oscP5 = new OscP5(this, 12001); // Listening on port 12001
+    myRemoteLocation = new NetAddress("127.0.0.1", 12000); // sending over port 12000 to localhost
     //oscP5.plug(this, "toggleScraper", "/toggleScraper");
     //oscP5.plug(this, "newFile", "/newFile");
   }
@@ -466,9 +469,10 @@ public class Interface {
       }
       println(" ");
 
-      fetchPPConfig();
+      // fetchPPConfig();
 
       if (testObserver.hasStrips) {
+        fetchPPConfig();
         isConnected =true;
 
         // Clear LEDs
@@ -518,7 +522,7 @@ public class Interface {
   void pusherLogging(boolean b) {
     registry.setLogging(b);
   }
-  
+
   // Send osc to local scraper, toggling sending data to LEDs. This allows us to quickly switch from mapping to scraping.
   void oscToggleScraper() {
     scraperActive=!scraperActive;
@@ -531,6 +535,28 @@ public class Interface {
     OscMessage myMessage = new OscMessage("/newFile");
     myMessage.add(1);
     oscP5.send(myMessage, myRemoteLocation);
+  }
+
+  void saveOSC(ArrayList <LED> ledArray) {
+
+    //write vals out to file, start with csv header
+    //output.println("address"+","+"x"+","+"y"+","+"z"); 
+    
+    //ledArray=normCoords(ledArray); //normalize before sending
+
+    for (int i = 0; i < ledArray.size(); i++) {
+      OscMessage myMessage = new OscMessage("/coords");
+      myMessage.add(ledArray.get(i).address)
+        .add(ledArray.size()) //include array size so scraper knows total numbers of LEDs
+        .add(ledArray.get(i).coord.x)
+        .add(ledArray.get(i).coord.y)
+        .add(ledArray.get(i).coord.z)
+        ;
+      oscP5.send(myMessage, myRemoteLocation);
+    }
+
+
+    println("Exported coords to scraper via OSC");
   }
 }
 
