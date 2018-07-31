@@ -22,7 +22,8 @@ How it Works
 
 Lightwork uses OpenCV to detect and map your LED arrangements. Set up your LEDs, point a webcam at them, run Lightwork and you'll have a comprehensive map that enables you to put content on them as if they were a screen.  
 
-Here's a quick video walking through the binary mapping process: [LightWork Tutorial](https://youtu.be/7UJ1Ocxc8eg)
+Here's a video walking through the binary mapping process: 
+[![Lightwork Tutorial](http://img.youtube.com/vi/7UJ1Ocxc8eg/0.jpg)](http://www.youtube.com/watch?v=7UJ1Ocxc8eg)
 
 Requirements
 --------------
