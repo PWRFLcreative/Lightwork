@@ -143,7 +143,7 @@ Replace the drawing code in the example to display your own content.
 
 
 **Example Setup:**
-```
+```java
 void setup() {
   size(1280, 960, P3D);
 
@@ -162,7 +162,7 @@ void setup() {
 ```
 
 **Example draw loop:**
-```
+```java
 void draw() {
   //Your drawing code here
 
