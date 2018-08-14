@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/*  //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -416,12 +416,13 @@ void driver(int n) {
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
 
   if (label.equals("PIXELPUSHER")) {
+    //handles switching to another driver while connected
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
     }
     network.setMode(device.PIXELPUSHER);
-    network.fetchPPConfig();
+    //network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
@@ -429,6 +430,7 @@ void driver(int n) {
     cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: PixelPusher");
   } else if (label.equals("FADECANDY")) {
+    //handles switching to another driver while connected
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
@@ -441,6 +443,11 @@ void driver(int n) {
     cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: Fadecandy");
   } else if (label.equals("ARTNET")) {
+    //handles switching to another driver while connected
+    if (network.isConnected) {
+      network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
+    }
     network.setMode(device.ARTNET);
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
@@ -449,6 +456,11 @@ void driver(int n) {
     cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: ArtNet");
   } else if (label.equals("SACN")) {
+    //handles switching to another driver while connected
+    if (network.isConnected) {
+      network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
+    }
     network.setMode(device.SACN);
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
@@ -485,7 +497,8 @@ public void channels(String numChannels) {
 }
 
 public void connect() {
-
+  
+  //No driver selected
   if (network.getMode()!=device.NULL) {
     network.connect(this);
   } else {
@@ -493,7 +506,7 @@ public void connect() {
   }
 
   //Fetch hardware configuration from PixelPusher
-  if (network.getMode()==device.PIXELPUSHER) {
+  if (network.getMode()==device.PIXELPUSHER && network.isConnected()) {
     network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setValue(network.getIP()).setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip())).setVisible(true);

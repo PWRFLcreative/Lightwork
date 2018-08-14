@@ -11,9 +11,11 @@ Requirements
 --------------
 
 **Libraries:**
-**PixelPusher, OpenCV, ControlP5**
+**PixelPusher, OpenCV, ControlP5, eDMX, oscP5**
 
 All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
+
+ *  ArtNet P5 - included in this repo or clone from https://github.com/sadmb/artnetP5
 
 **Operating System**
 

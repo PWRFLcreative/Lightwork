@@ -109,9 +109,9 @@ void setup()
 
   //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
   println("initializing camera");
-  //thread("setupCam"); 
+  thread("setupCam"); 
   //Thread may be causing strange state issues with PixelPusher
-  setupCam();
+  //setupCam();
 
   // Network
   println("setting up network Interface");
@@ -484,6 +484,7 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 // -----------------------------------------------------------
 // Utility methods
 
+//used to thread camera initialization. USB enumeration can be slow, and if it exceeds 5seconds the app will fail at startup. 
 void setupCam() {
   cam = new Capture(this, camWidth, camHeight, 30);
 }
@@ -516,8 +517,6 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
 }
-
-
 
 // Console warranty  and OS info
 void warranty() {

@@ -1,4 +1,4 @@
-/* //<>// //<>// //<>//
+/*  //<>//
  *  Interface
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy, ArtNet and sACN devices.
@@ -447,12 +447,15 @@ public class Interface {
         testObserver = new TestObserver();
       }
 
+
       registry.addObserver(testObserver);
       registry.setAntiLog(true);
+      //Prevents PP from spamming the console
       registry.setLogging(false);
 
       int startTime = millis();
 
+      //Test for connection
       print("waiting");
       while (!testObserver.hasStrips) {
         int currentTime = millis(); 
@@ -469,8 +472,7 @@ public class Interface {
       }
       println(" ");
 
-      // fetchPPConfig();
-
+      //Setup on connection
       if (testObserver.hasStrips) {
         fetchPPConfig();
         isConnected =true;
@@ -478,19 +480,18 @@ public class Interface {
         // Clear LEDs
         animator.setAllLEDColours(off);
         update(animator.getPixels());
-      }
 
-      registry.setLogging(false);
-      populateLeds();
+        populateLeds();
+      }
     } else if (mode == device.ARTNET) {
       artnet = new ArtnetP5();
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
     } else if (mode == device.SACN) {
       source = new sACNSource(parent, "LightWork");
       universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
     }
   }
 
@@ -506,12 +507,14 @@ public class Interface {
       isConnected = false;
     }
     if (mode==device.ARTNET) {
-      // TODO: deinitialize artnet connection
-      //artnet = null;
+      // TODO: deinitialize artnet connection,library keeps looking for nodes - no visible stop methods
+      artnet = null;
+      isConnected = false;
     }
     if (mode==device.SACN) {
       source = null;
       universe1 = null;
+      isConnected = false;
     }
     if (mode==device.NULL) {
     }
@@ -541,7 +544,7 @@ public class Interface {
 
     //write vals out to file, start with csv header
     //output.println("address"+","+"x"+","+"y"+","+"z"); 
-    
+
     //ledArray=normCoords(ledArray); //normalize before sending
 
     for (int i = 0; i < ledArray.size(); i++) {
