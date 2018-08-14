@@ -1,10 +1,15 @@
-/*  //<>// //<>//
-
+/*   //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
  *  Currently, Fadecandy, PixelPusher, Artnet and sACN are supported.
+ *
+ *  Required Libraries available from Processing library manager:
+ *  PixelPusher, OpenCV, ControlP5, eDMX, oscP5
  *  
+ *  Additional Libraries:
+ *  ArtNet P5 - included in this repo or from https://github.com/sadmb/artnetP5
+ *     
  *  Copyright (C) 2017 PWRFL
  *  
  *  @authors Leó Stefánsson and Tim Rolls
