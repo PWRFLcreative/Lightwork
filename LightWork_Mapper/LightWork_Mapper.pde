@@ -1,8 +1,9 @@
-/* //<>// //<>//
+/*  //<>// //<>//
+
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
- *  Currently, Fadecandy and PixelPusher are supported.
+ *  Currently, Fadecandy, PixelPusher, Artnet and sACN are supported.
  *  
  *  Copyright (C) 2017 PWRFL
  *  
@@ -29,7 +30,7 @@ import gab.opencv.*;
 import java.awt.Rectangle;
 
 Capture cam;
-Capture cam2;
+//Capture cam2;
 OpenCV opencv;
 
 ControlP5 cp5;
@@ -66,7 +67,7 @@ PVector[] leftMap;
 PVector[] rightMap;
 
 int FPS = 30; 
-String savePath = "../LightWork_Scraper/data/layout.csv";
+String savePath = "../LightWork_Scraper/data/layout.csv"; //defaults to scraper data folder
 
 PImage videoInput; 
 PImage cvOutput;
@@ -101,17 +102,25 @@ void setup()
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
 
-  cam = new Capture(this, camWidth, camHeight, 30);
+  //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
+  println("initializing camera");
+  //thread("setupCam"); 
+  //Thread may be causing strange state issues with PixelPusher
+  setupCam();
 
   // Network
   println("setting up network Interface");
   network = new Interface();
-  network.setNumStrips(1);
-  network.setNumLedsPerStrip(9); // TODO: Fix these setters...
+  //These can be set via UI, but can be faster to set them here. 
+  //network.setNumStrips(3);
+  //network.setNumLedsPerStrip(16); 
+  //network.setNumArtnetChannels(3);
+  //network.setNumArtnetFixtures(16); 
 
   // Animator
   println("creating animator");
   animator =new Animator(); //ledsPerstrip, strips, brightness
+  animator.setFrameSkip(frameSkip);
   animator.setLedBrightness(ledBrightness);
   animator.setFrameSkip(frameSkip);
   animator.setAllLEDColours(off); // Clear the LED strips
@@ -171,7 +180,7 @@ void draw() {
   // -------------------------------------------------------
   //              VIDEO INPUT + OPENCV PROCESSING
   // -------------------------------------------------------
-  if (cam.available() == true) { 
+  if (cam!=null && cam.available() == true) { 
     cam.read();
     if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
       videoInput = cam;
@@ -287,8 +296,9 @@ void draw() {
 }
 
 // -----------------------------------------------------------
-// -----------------------------------------------------------
 // Mapping methods
+// -----------------------------------------------------------
+
 
 void sequentialMapping() {
   if (blobManager.blobList.size()!=0) {
@@ -321,7 +331,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-  
+
   // Mapping is done, Save CSV for LEFT or RIGHT channels
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
@@ -332,6 +342,8 @@ void matchBinaryPatterns() {
     arrayCopy(  getLEDVectors(leds).toArray(), leftMap);
     saveCSV(leds, dataPath("left.csv"));
   }
+  
+  network.saveOSC(normCoords(leds));
 
   map();
 }
@@ -467,6 +479,10 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 // -----------------------------------------------------------
 // Utility methods
 
+void setupCam() {
+  cam = new Capture(this, camWidth, camHeight, 30);
+}
+
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
     // User is trying to save without anything to output - bail
@@ -490,11 +506,13 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   output.println("address"+","+"x"+","+"y"+","+"z"); 
 
   for (int i = 0; i < ledArray.size(); i++) {
-    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
   }
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);
 }
+
+
 
 // Console warranty  and OS info
 void warranty() {

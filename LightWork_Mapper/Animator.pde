@@ -1,4 +1,4 @@
-/*      
+/*       //<>// //<>// //<>// //<>//
  *  Animator
  *  
  *  This Class handles timing and generates the state and color of all connected LEDs
@@ -23,13 +23,15 @@ public class Animator {
   AnimationMode       mode;
 
   Animator() {
-    println("Animator created");
     ledIndex = 0; // Internal counter
     mode = AnimationMode.OFF;
     testIndex = 0;
     frameCounter = 0;
     this.frameSkip = 3;
+    println("Animator created");
   }
+  
+  //TODO: additional constructors to set variables more clearly
 
   //////////////////////////////////////////////////////////////
   // Setters and getters
@@ -78,7 +80,7 @@ public class Animator {
       l[i]=leds.get(i).c;
     }
     return l;
-  } //<>// //<>//
+  } 
 
 
   //////////////////////////////////////////////////////////////  
@@ -131,14 +133,14 @@ public class Animator {
       leds.get(i).setColor(col);
     }
 
-    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>// //<>//
-    if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates //<>// //<>//
+    if (frameCounter == 0) return; // Avoid the first LED going off too quickly //<>//
+    if (frameCounter%this.frameSkip==0)ledIndex++; // use frameskip to delay animation updates //<>//
 
     // Stop at end of LEDs
     if (ledIndex >= leds.size()) { 
       this.setMode(AnimationMode.OFF);
     }
-  } //<>// //<>//
+  } //<>//
 
   // Set all LEDs to the same colour (useful to turn them all on or off). 
   void setAllLEDColours(color col) { 

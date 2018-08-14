@@ -22,8 +22,8 @@ void setup() {
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //network = new Interface(device.PIXELPUSHER, 1,100);
   //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
-  network = new Interface(device.ARTNET, 0, 0, 9, 5); 
-  
+  network = new Interface(device.SACN, 1, 16, 3); 
+
   network.connect(this);
 
   //update scraper after network connects
@@ -44,6 +44,11 @@ void draw() {
   //horizontalGradient(); 
   verticalGradient(); 
 
+  //BG color cycle
+  //color c;
+  //c = color (abs(sin(frameCount*0.001))*360, 100, 100);
+  //background(c);
+
   //cursor to test accuracy
   noStroke();
   fill(100, 50, 20);
@@ -52,10 +57,12 @@ void draw() {
   //end animation code
   //////////////////
 
-  //Scraper functions  
-  scrape.update(); //Update colors to be sent to LEDs
-  network.update(scrape.getColors()); //Send colors to LEDs
-  scrape.display(); //Show locations loaded from CSV
+  //Scraper functions
+  if (scrape.isActive()) {
+    scrape.update(); //Update colors to be sent to LEDs
+    network.update(scrape.getColors()); //Send colors to LEDs
+    scrape.display(); //Show locations loaded from CSV
+  }
 }
 
 
@@ -64,7 +71,7 @@ void draw() {
 //////////////////
 
 void horizontalGradient() {
-  int numLines = 450; 
+  int numLines = 200; 
   if (pos<=height+numLines)pos+=5;
   else pos=0;
   for (int i = 0; i < numLines; i++) {
@@ -80,8 +87,8 @@ void horizontalGradient() {
 }
 
 void verticalGradient() {
-  int numLines = 250; 
-  if (pos<=width+numLines)pos+=5;
+  int numLines = 600; 
+  if (pos<=width+numLines)pos+=1;
   else pos=0;
 
   for (int i = 0; i < numLines; i++) {
