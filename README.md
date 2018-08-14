@@ -4,8 +4,26 @@
 
 Lightwork simplifies the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your light based creations.
 
- * Quick binary mapping tutorial: [LightWork Tutorial](https://youtu.be/7UJ1Ocxc8eg)
+Features
+-------------- 
 
+* Compatible with Fadecandy, Pixelpusher, sACN and ArtNet driven LED arrays
+* Network discovery for Pixelpusher and ArtNet nodes
+* GUI controls for LED array configuration and OpenCV mapping calibration
+* Sequential mapping - Fire and detect LEDs one at a time, sequentially. Slow for large arrays but more reliable in some cases
+* Binary mapping - LEDs flash a unique binary pattern, and all LEDs are mapped simultaneously. Exponentially faster for large arrays, but more suceptible to lighting/environmental interference
+* Save as CSV for use with the included Scraper, or applications like MadMapper
+* Lightweight scraper that can be added to your application to drive LEDs
+* Seamless map updates while the scraper is running, over OSC
+* (Experimental) Stereo mode captures 3D coordinates by mapping from 2 camera locations
+
+How it Works
+-------------- 
+
+Lightwork uses OpenCV to detect and map your LED arrangements. Set up your LEDs, point a webcam at them, run Lightwork and you'll have a comprehensive map that enables you to put content on them as if they were a screen.  
+
+Here's a video walking through the binary mapping process: 
+[![Lightwork Tutorial](http://img.youtube.com/vi/7UJ1Ocxc8eg/0.jpg)](http://www.youtube.com/watch?v=7UJ1Ocxc8eg)
 
 Requirements
 --------------
@@ -127,7 +145,7 @@ Replace the drawing code in the example to display your own content.
 
 
 **Example Setup:**
-```
+```java
 void setup() {
   size(1280, 960, P3D);
 
@@ -146,7 +164,7 @@ void setup() {
 ```
 
 **Example draw loop:**
-```
+```java
 void draw() {
   //Your drawing code here
 
