@@ -557,8 +557,8 @@ public void calibrate() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before calibrating");
   }
-  if (cam==null || !cam.available()) {
-    println("Please select a camera before mapping");
+  if (cam==null || !cam.isLoaded() ) { //<>//
+    println("Please select a camera before calibrating");
     return;
   }
   // Activate Calibration Mode
@@ -659,7 +659,7 @@ public void map() {
     println("Please connect to an LED driver before mapping");
     return;
   }
-  if (cam==null || !cam.available()) {
+  if (cam==null || !cam.isLoaded() ) {
     println("Please select a camera before mapping");
     return;
   }
@@ -720,6 +720,11 @@ public void map() {
 public void map2() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before mapping");
+    return;
+  }
+  
+  if (cam==null || !cam.isLoaded() ) {
+    println("Please select a camera before mapping");
     return;
   }
   // Turn off mapping

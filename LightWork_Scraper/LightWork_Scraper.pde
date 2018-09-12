@@ -16,13 +16,13 @@ void setup() {
   gradient = createGraphics(width, height); 
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
-  scrape = new Scraper("layout.csv"); 
+  scrape = new Scraper("SkookumRightSequential1.csv"); 
 
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //network = new Interface(device.PIXELPUSHER, 1,100);
-  //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
-  network = new Interface(device.SACN, 1, 16, 3); 
+  network = new Interface(device.FADECANDY, "10.10.10.101", 8, 60);
+  //network = new Interface(device.SACN, 1, 16, 3); 
 
   network.connect(this);
 
