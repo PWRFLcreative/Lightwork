@@ -1,4 +1,4 @@
-/*  //<>//
+/*   //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -497,7 +497,7 @@ public void channels(String numChannels) {
 }
 
 public void connect() {
-  
+
   //No driver selected
   if (network.getMode()!=device.NULL) {
     network.connect(this);
@@ -556,8 +556,9 @@ void controlEvent(ControlEvent theControlEvent) {
 public void calibrate() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before calibrating");
-  }
-  if (cam==null || !cam.isLoaded() ) { //<>//
+    return;
+  } //<>//
+  if (cam==null || !cam.isLoaded() ) { 
     println("Please select a camera before calibrating");
     return;
   }
@@ -722,7 +723,7 @@ public void map2() {
     println("Please connect to an LED driver before mapping");
     return;
   }
-  
+
   if (cam==null || !cam.isLoaded() ) {
     println("Please select a camera before mapping");
     return;

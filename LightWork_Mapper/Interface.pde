@@ -1,4 +1,4 @@
-/*  //<>//
+/*   //<>//
  *  Interface
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy, ArtNet and sACN devices.
