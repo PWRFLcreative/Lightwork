@@ -401,7 +401,12 @@ public class Interface {
             artnetPacket[index+j] = byte(br); // White
           }
         }
-
+        
+        //fill rest of universe with 0's
+        for (int i = numArtnetChannels*numArtnetFixtures; i < 512 ; i++){
+         artnetPacket[i]=0;
+        }
+        
         //slots referring to channels per fixture
         universe1.setSlots(0, artnetPacket);
 
@@ -519,7 +524,9 @@ public class Interface {
       source = new sACNSource(parent, "LightWork");
       universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+     // artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      artnetPacket = new byte[512]; //size for full universe, helps make sure additional addresses get 0 values
+
 
       update(scrape.getColors());
     }

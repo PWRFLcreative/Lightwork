@@ -185,7 +185,7 @@ void draw() {
   // -------------------------------------------------------
   //              VIDEO INPUT + OPENCV PROCESSING
   // -------------------------------------------------------
-  if (cam!=null && cam.available() == true) { 
+  if (cam!=null && cam.available()== true) { 
     cam.read();
     if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
       videoInput = cam;
@@ -347,7 +347,7 @@ void matchBinaryPatterns() {
     arrayCopy(  getLEDVectors(leds).toArray(), leftMap);
     saveCSV(leds, dataPath("left.csv"));
   }
-  
+
   network.saveOSC(normCoords(leds));
 
   map();
@@ -377,7 +377,7 @@ void decode() {
 // OpenCV Processing
 void processCV() {
   diff.beginDraw(); 
-  diff.background(0); 
+  //diff.background(0); 
   diff.blendMode(NORMAL); 
   diff.image(videoInput, 0, 0); 
   diff.blendMode(SUBTRACT); 
@@ -456,8 +456,14 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 // Normalize point coordinates 
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
+  if (in.size()==0) {
+    //TODO display error messsage: "no leds found"
+    return in;
+  }
+
   float[] norm = new float[6];
   norm = getMinMaxCoords(getLEDVectors(in));
+
   ArrayList<LED> out = in;
   int index=0;
 

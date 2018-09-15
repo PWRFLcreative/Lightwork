@@ -16,13 +16,13 @@ void setup() {
   gradient = createGraphics(width, height); 
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
-  scrape = new Scraper("SkookumRightSequential1.csv"); 
+  scrape = new Scraper("SPOREtest8.csv"); 
 
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //network = new Interface(device.PIXELPUSHER, 1,100);
-  network = new Interface(device.FADECANDY, "10.10.10.101", 8, 60);
-  //network = new Interface(device.SACN, 1, 16, 3); 
+  //network = new Interface(device.FADECANDY, "10.10.10.101", 8, 60);
+  network = new Interface(device.SACN, 1, 80, 3); 
 
   network.connect(this);
 
@@ -42,7 +42,10 @@ void draw() {
 
   // Gradient line
   //horizontalGradient(); 
-  verticalGradient(); 
+  //verticalGradient();
+  
+  rect(frameCount%width,0, 100, height);
+ 
 
   //BG color cycle
   //color c;
@@ -96,10 +99,10 @@ void verticalGradient() {
     color c;
     if (i < numLines/2) {
       //c = color (abs(sin(frameCount*0.01))*(i+pos/width*360), 100, i);
-      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, i);
+      c = color (abs(sin(frameCount*0.1))*x/(numLines+pos)*360, 100, i);
     } else {
       //c = color (abs(sin(frameCount*0.01))*(i-pos/width*360), 100, numLines-i);
-      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, numLines-i);
+      c = color (abs(sin(frameCount*0.1))*x/(numLines+pos)*360, 100, numLines-i);
     }
     stroke(c); 
 

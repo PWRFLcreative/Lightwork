@@ -357,6 +357,11 @@ public class Interface {
           }
         }
 
+        //fill rest of universe with 0's
+        for (int i = colors.length; i < 512; i++) {
+          artnetPacket[i]=0;
+        }
+
         //slots can add channel offset to the beginning of the packet
         universe1.setSlots(0, artnetPacket);
 
@@ -486,12 +491,13 @@ public class Interface {
     } else if (mode == device.ARTNET) {
       artnet = new ArtnetP5();
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures];
     } else if (mode == device.SACN) {
       source = new sACNSource(parent, "LightWork");
       universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
+      //artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
+      artnetPacket = new byte[512]; //size for full universe, helps make sure additional addresses get 0 values
     }
   }
 
