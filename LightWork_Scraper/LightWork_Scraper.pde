@@ -1,3 +1,5 @@
+import spout.*;
+
 /* 
  * Make LED layout, based on vertecies of an input CSV/SVG
  * Tim Rolls 2017
@@ -10,13 +12,16 @@ int pos;
 float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
-void setup() {
-  size(640, 480, P3D); 
+//SPOUT
+Spout spout;
 
-  gradient = createGraphics(width, height); 
+void setup() {
+  size(256, 256, P3D); 
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
+  
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
-  scrape = new Scraper("SPOREtest8.csv"); 
+  scrape = new Scraper("SPOREtest9.csv"); 
 
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
@@ -29,36 +34,20 @@ void setup() {
   //update scraper after network connects
   scrape.update();
   colorMode(HSB, 360, 100, 100);
+
+  // CREATE A NEW SPOUT OBJECT
+  spout = new Spout(this);
 }
 
 void draw() {
-  //////////////////
-  //rainbow chase animation - replace with your drawing code
-  background(0);
 
-  fill(0); 
-  noStroke();
-  fill(abs(sin(frameCount*0.01))*360, 100, 100); 
-
-  // Gradient line
-  //horizontalGradient(); 
-  //verticalGradient();
-  
-  rect(frameCount%width,0, 100, height);
- 
-
-  //BG color cycle
-  //color c;
-  //c = color (abs(sin(frameCount*0.001))*360, 100, 100);
-  //background(c);
+  spout.receiveTexture();
 
   //cursor to test accuracy
   noStroke();
   fill(100, 50, 20);
   ellipse(mouseX, mouseY, 30, 30);
 
-  //end animation code
-  //////////////////
 
   //Scraper functions
   if (scrape.isActive()) {
