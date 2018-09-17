@@ -233,13 +233,8 @@ void draw() {
   camFBO.image(videoInput, 0, 0);
   camFBO.endDraw();
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-
-  // Display blobs
-  blobFBO.beginDraw();
-  blobManager.display();
-  blobFBO.endDraw();
-
-  // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
+  
+    // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
   cvFBO.image(snap, 0, 0);
@@ -255,6 +250,11 @@ void draw() {
   }
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
+
+  // Display blobs
+  blobFBO.beginDraw();
+  blobManager.display();
+  blobFBO.endDraw();
   
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
@@ -455,8 +455,8 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
   
-  //check for at least 1 matched LED
-  if (listMatchedLEDs()==0) {
+  //check for at least 1 matched LED and we are pattern mapping
+  if (listMatchedLEDs()==0 && patternMapping) {
     println("no LEDs matched");
     return in;
   }
