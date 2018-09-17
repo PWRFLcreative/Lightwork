@@ -358,7 +358,7 @@ public class Interface {
         }
 
         //fill rest of universe with 0's
-        for (int i = colors.length; i < 512; i++) {
+        for (int i = numArtnetChannels*numArtnetFixtures; i < 512; i++) {
           artnetPacket[i]=0;
         }
 

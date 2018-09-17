@@ -140,7 +140,7 @@ public class Animator {
     if (ledIndex >= leds.size()) { 
       this.setMode(AnimationMode.OFF);
     }
-  } //<>// //<>//
+  } 
 
   // Set all LEDs to the same colour (useful to turn them all on or off). 
   void setAllLEDColours(color col) { 
@@ -178,8 +178,8 @@ public class Animator {
           leds.get(i).setColor(color(0, 0, 0));
           break;
         case 1:
-          //leds.get(i).setColor(color(ledBrightness, ledBrightness, ledBrightness));
-          leds.get(i).setColor(color(ledBrightness, 0, 0));
+          leds.get(i).setColor(color(ledBrightness, ledBrightness, ledBrightness));
+          //leds.get(i).setColor(color(ledBrightness, 0, 0)); //red for mapping can help in daylight
           break;
         }
       }

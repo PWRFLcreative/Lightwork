@@ -228,6 +228,17 @@ void draw() {
   // -------------------------------------------------------
 
 
+  // Display the camera input
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0);
+  camFBO.endDraw();
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+
+  // Display blobs
+  blobFBO.beginDraw();
+  blobManager.display();
+  blobFBO.endDraw();
+
   // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
@@ -244,20 +255,7 @@ void draw() {
   }
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
-
-  // Display the camera input
-  camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0);
-  camFBO.endDraw();
-  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-
-  // Display blobs
-  blobFBO.beginDraw();
-  blobManager.display();
-  blobFBO.endDraw();
-
-  // Draw the background image (for debugging) 
-
+  
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
     for (int i = 0; i < images.size(); i++) {
@@ -456,8 +454,10 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 // Normalize point coordinates 
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
-  if (in.size()==0) {
-    //TODO display error messsage: "no leds found"
+  
+  //check for at least 1 matched LED
+  if (listMatchedLEDs()==0) {
+    println("no LEDs matched");
     return in;
   }
 
