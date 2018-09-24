@@ -1,9 +1,8 @@
 /* 
  * Make LED layout, based on vertecies of an input CSV/SVG
- * Tim Rolls 2017
+ * Includes 2 test animations and optional Syphon/Spout input
+ * Tim Rolls 2017-2018
  */
-
-import spout.*; //*important* Spout is not available on OSX, replace with Syphon library
 
 Scraper scrape;
 Interface network; 
@@ -11,9 +10,6 @@ Interface network;
 int pos;
 float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
-
-//SPOUT
-Spout spout;
 
 void setup() {
   size(512, 512, P3D); 
@@ -26,6 +22,7 @@ void setup() {
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //Fadecandy/ PixelPusher = (Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
   //Artnet/ sACN = (Device type, Universe, number of fixtures, channels per fixture)
+  
   //network = new Interface(device.PIXELPUSHER, 1,100);
   //network = new Interface(device.FADECANDY, "10.10.10.101", 8, 60);
   network = new Interface(device.SACN, 1, 98, 3); 
@@ -36,16 +33,17 @@ void setup() {
   //update scraper after network connects
   scrape.update();
   colorMode(HSB, 360, 100, 100);
-
-  // CREATE A NEW SPOUT OBJECT
-  spout = new Spout(this);
+  
+  // Create a new Syphon or Spout object - comment out to disable
+  setupSyphonSpout();
 }
 
 void draw() {
   background(0);
 
-  verticalGradient();
-  spout.receiveTexture();
+  verticalGradient(); // Test pattern animation
+
+  updateSyphonSpout(); // receive sypon/spout input - comment out to disable
 
   //cursor to test accuracy
   noStroke();
@@ -66,7 +64,7 @@ void draw() {
 //////////////////
 
 void horizontalGradient() {
-  int numLines = 100; 
+  int numLines = 450; 
   if (pos<=height+numLines)pos+=5;
   else pos=0;
   for (int i = 0; i < numLines; i++) {
@@ -82,19 +80,19 @@ void horizontalGradient() {
 }
 
 void verticalGradient() {
-  int numLines = 100; 
-  if (pos<=width+numLines)pos+=1;
+  int numLines = 250; 
+  if (pos<=width+numLines)pos+=5;
   else pos=0;
 
   for (int i = 0; i < numLines; i++) {
     int x = i+pos-numLines; 
     color c;
     if (i < numLines/2) {
-      c = color (abs(sin(frameCount*0.01))*(i+pos/width*360), 100, i);
-      //c = color (abs(sin(frameCount*0.1))*x/(numLines+pos)*360, 100, i);
+      //c = color (abs(sin(frameCount*0.01))*(i+pos/width*360), 100, i);
+      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, i);
     } else {
-      c = color (abs(sin(frameCount*0.01))*(i-pos/width*360), 100, numLines-i);
-      //c = color (abs(sin(frameCount*0.1))*x/(numLines+pos)*360, 100, numLines-i);
+      //c = color (abs(sin(frameCount*0.01))*(i-pos/width*360), 100, numLines-i);
+      c = color (abs(sin(frameCount*0.01))*x/(numLines+pos)*360, 100, numLines-i);
     }
     stroke(c); 
 
