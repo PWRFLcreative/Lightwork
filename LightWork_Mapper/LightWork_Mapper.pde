@@ -4,7 +4,8 @@
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
  *  Currently, Fadecandy, PixelPusher, Artnet and sACN are supported.
  *
- *  Required Libraries available from Processing library manager:
+ *  Required Libraries available from P
+ rocessing library manager:
  *  PixelPusher, OpenCV, ControlP5, eDMX, oscP5
  *  
  *  Additional Libraries:
