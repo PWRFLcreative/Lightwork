@@ -1,4 +1,4 @@
-/* //<>//
+/*   //<>//
  *  Interface
  *  
  *  This class handles connecting to and switching between PixelPusher, FadeCandy, ArtNet and sACN devices.
@@ -25,13 +25,17 @@ import artnetP5.*;
 //sACN
 import eDMX.*;
 
+//OSC 
+import oscP5.*;
+import netP5.*;
+
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
 };
 
 public class Interface {
 
-  device              mode;
+  device               mode;
 
   //LED defaults
   String               IP = "fade2.local";
@@ -41,12 +45,13 @@ public class Interface {
   int                  numLeds = ledsPerStrip*numStrips;
   int                  ledBrightness;
 
-  byte artnetPacket[];
+  byte                 artnetPacket[];
   int                  numArtnetChannels = 3; // Channels per ArtNet fixture
   int                  numArtnetFixtures = 16; // Number of ArtNet DMX fixtures (each one can have multiple channels and LEDs)
   int                  numArtnetUniverses = 1; // Currently only one universe is supported
 
-  boolean isConnected =false;
+  boolean              isConnected =false;
+  boolean              scraperActive = true;
 
   // Pixelpusher objects
   DeviceRegistry registry;
@@ -62,15 +67,19 @@ public class Interface {
   sACNSource source;
   sACNUniverse universe1;
 
+  //OSC objects
+  OscP5 oscP5;
+  NetAddress myRemoteLocation;
+
   //////////////////////////////////////////////////////////////
   // Constructors
   /////////////////////////////////////////////////////////////
-
 
   //blank constructor to allow GUI setup
   Interface() {
     mode = device.NULL;
     populateLeds();
+    setupOSC();
     println("Interface created");
   }
 
@@ -115,7 +124,7 @@ public class Interface {
 
 
   //////////////////////////////////////////////////////////////
-  // Setters and getters
+  // Setters / getters and utility methods
   //////////////////////////////////////////////////////////////
 
   void setMode(device m) {
@@ -162,6 +171,7 @@ public class Interface {
 
   void setNumArtnetChannels(int numChannels) {
     numArtnetChannels = numChannels;
+    populateLeds();
   }
 
 
@@ -210,13 +220,15 @@ public class Interface {
   void fetchPPConfig() {
     if (mode == device.PIXELPUSHER && isConnected()) {
       List<PixelPusher> pps = registry.getPushers();
-      for (PixelPusher pp : pps) {
+      for (PixelPusher pp : pps) {  //TODO: calculate total strips / LEDs here for multiple pushers
         IP = pp.getIp().toString();
         numStrips = pp.getNumberOfStrips();
         ledsPerStrip = pp.getPixelsPerStrip();
         numLeds = numStrips*ledsPerStrip;
       }
     }
+
+    populateLeds();
   }
 
   // Reset the LED vector
@@ -247,6 +259,14 @@ public class Interface {
     }
 
     numLeds = leds.size();
+  }
+
+  //set up OSC here to make constructors cleaner
+  void setupOSC() {
+    oscP5 = new OscP5(this, 12001); // Listening on port 12001
+    myRemoteLocation = new NetAddress("127.0.0.1", 12000); // sending over port 12000 to localhost
+    //oscP5.plug(this, "toggleScraper", "/toggleScraper");
+    //oscP5.plug(this, "newFile", "/newFile");
   }
 
   //////////////////////////////////////////////////////////////
@@ -335,6 +355,11 @@ public class Interface {
             int br = int(brightness(colors[i]));
             artnetPacket[index+j] = byte(br); // White
           }
+        }
+
+        //fill rest of universe with 0's
+        for (int i = numArtnetChannels*numArtnetFixtures; i < 512; i++) {
+          artnetPacket[i]=0;
         }
 
         //slots can add channel offset to the beginning of the packet
@@ -427,12 +452,15 @@ public class Interface {
         testObserver = new TestObserver();
       }
 
+
       registry.addObserver(testObserver);
       registry.setAntiLog(true);
+      //Prevents PP from spamming the console
       registry.setLogging(false);
 
       int startTime = millis();
 
+      //Test for connection
       print("waiting");
       while (!testObserver.hasStrips) {
         int currentTime = millis(); 
@@ -449,27 +477,27 @@ public class Interface {
       }
       println(" ");
 
-      fetchPPConfig();
-
+      //Setup on connection
       if (testObserver.hasStrips) {
+        fetchPPConfig();
         isConnected =true;
 
         // Clear LEDs
         animator.setAllLEDColours(off);
         update(animator.getPixels());
-      }
 
-      registry.setLogging(false);
-      populateLeds();
+        populateLeds();
+      }
     } else if (mode == device.ARTNET) {
       artnet = new ArtnetP5();
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures];
     } else if (mode == device.SACN) {
       source = new sACNSource(parent, "LightWork");
       universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      //artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; 
+      artnetPacket = new byte[512]; //size for full universe, helps make sure additional addresses get 0 values
     }
   }
 
@@ -485,12 +513,14 @@ public class Interface {
       isConnected = false;
     }
     if (mode==device.ARTNET) {
-      // TODO: deinitialize artnet connection
-      //artnet = null;
+      // TODO: deinitialize artnet connection,library keeps looking for nodes - no visible stop methods
+      artnet = null;
+      isConnected = false;
     }
     if (mode==device.SACN) {
       source = null;
       universe1 = null;
+      isConnected = false;
     }
     if (mode==device.NULL) {
     }
@@ -500,6 +530,42 @@ public class Interface {
   // Toggle verbose logging for PixelPusher
   void pusherLogging(boolean b) {
     registry.setLogging(b);
+  }
+
+  // Send osc to local scraper, toggling sending data to LEDs. This allows us to quickly switch from mapping to scraping.
+  void oscToggleScraper() {
+    scraperActive=!scraperActive;
+    OscMessage myMessage = new OscMessage("/toggleScraper");
+    myMessage.add(int(scraperActive));
+    oscP5.send(myMessage, myRemoteLocation);
+  }
+
+  void oscNewFile() {
+    OscMessage myMessage = new OscMessage("/newFile");
+    myMessage.add(1);
+    oscP5.send(myMessage, myRemoteLocation);
+  }
+
+  void saveOSC(ArrayList <LED> ledArray) {
+
+    //write vals out to file, start with csv header
+    //output.println("address"+","+"x"+","+"y"+","+"z"); 
+
+    //ledArray=normCoords(ledArray); //normalize before sending
+
+    for (int i = 0; i < ledArray.size(); i++) {
+      OscMessage myMessage = new OscMessage("/coords");
+      myMessage.add(ledArray.get(i).address)
+        .add(ledArray.size()) //include array size so scraper knows total numbers of LEDs
+        .add(ledArray.get(i).coord.x)
+        .add(ledArray.get(i).coord.y)
+        .add(ledArray.get(i).coord.z)
+        ;
+      oscP5.send(myMessage, myRemoteLocation);
+    }
+
+
+    println("Exported coords to scraper via OSC");
   }
 }
 

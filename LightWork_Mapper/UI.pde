@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/*   //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -322,7 +322,7 @@ void buildUI() {
     .setPosition(0, buttonHeight+uiSpacing)
     .setSize(buttonWidth, buttonHeight)
     .setHandleSize(10*guiMultiply)
-    .setRange(1, 50)
+    .setRange(1, 100)
     .setRangeValues(blobManager.minBlobSize, blobManager.maxBlobSize)
     .setGroup("mapping")
     .setBroadcast(true)
@@ -416,11 +416,13 @@ void driver(int n) {
   String label = cp5.get(ScrollableList.class, "driver").getItem(n).get("name").toString().toUpperCase();
 
   if (label.equals("PIXELPUSHER")) {
+    //handles switching to another driver while connected
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
     }
     network.setMode(device.PIXELPUSHER);
+    //network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "leds_per_strip").setVisible(false);
     cp5.get(Textfield.class, "strips").setVisible(false);
@@ -428,6 +430,7 @@ void driver(int n) {
     cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: PixelPusher");
   } else if (label.equals("FADECANDY")) {
+    //handles switching to another driver while connected
     if (network.isConnected) {
       network.shutdown();
       cp5.get("connect").setCaptionLabel("Connect");
@@ -440,6 +443,11 @@ void driver(int n) {
     cp5.get(Textfield.class, "channels").setVisible(false);
     println("network: Fadecandy");
   } else if (label.equals("ARTNET")) {
+    //handles switching to another driver while connected
+    if (network.isConnected) {
+      network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
+    }
     network.setMode(device.ARTNET);
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
@@ -448,6 +456,11 @@ void driver(int n) {
     cp5.get(Textfield.class, "strips").setVisible(false);
     println("network: ArtNet");
   } else if (label.equals("SACN")) {
+    //handles switching to another driver while connected
+    if (network.isConnected) {
+      network.shutdown();
+      cp5.get("connect").setCaptionLabel("Connect");
+    }
     network.setMode(device.SACN);
     cp5.get(Textfield.class, "ip").setVisible(false);
     cp5.get(Textfield.class, "fixtures").setVisible(true);
@@ -485,6 +498,7 @@ public void channels(String numChannels) {
 
 public void connect() {
 
+  //No driver selected
   if (network.getMode()!=device.NULL) {
     network.connect(this);
   } else {
@@ -492,7 +506,7 @@ public void connect() {
   }
 
   //Fetch hardware configuration from PixelPusher
-  if (network.getMode()==device.PIXELPUSHER) {
+  if (network.getMode()==device.PIXELPUSHER && network.isConnected()) {
     network.fetchPPConfig();
     cp5.get(Textfield.class, "ip").setValue(network.getIP()).setVisible(true);
     cp5.get(Textfield.class, "leds_per_strip").setValue(str(network.getNumLedsPerStrip())).setVisible(true);
@@ -542,9 +556,15 @@ void controlEvent(ControlEvent theControlEvent) {
 public void calibrate() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before calibrating");
+    return;
+  } //<>//
+  if (cam==null || !cam.isLoaded() ) { 
+    println("Please select a camera before calibrating");
+    return;
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
+    network.oscToggleScraper();
     blobManager.setBlobLifetime(1000);
     videoMode = VideoMode.CALIBRATION; 
     backgroundImage = videoInput.copy();
@@ -561,6 +581,7 @@ public void calibrate() {
   } 
   // Decativate Calibration Mode
   else if (videoMode == VideoMode.CALIBRATION) {
+    network.oscToggleScraper();
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
     //backgroundImage = createImage(camWidth, camHeight, RGB);
@@ -639,9 +660,14 @@ public void map() {
     println("Please connect to an LED driver before mapping");
     return;
   }
+  if (cam==null || !cam.isLoaded() ) {
+    println("Please select a camera before mapping");
+    return;
+  }
   // Turn off mapping
   else if (isMapping) {
     println("Mapping stopped");
+    network.oscToggleScraper();
     videoMode = VideoMode.CAMERA;
 
     animator.setMode(AnimationMode.OFF);
@@ -658,6 +684,7 @@ public void map() {
 
   //Binary pattern mapping
   else if (!isMapping && patternMapping==true) {
+    network.oscToggleScraper();
     println("Binary pattern mapping started"); 
     videoMode = VideoMode.IMAGE_SEQUENCE;
 
@@ -677,6 +704,7 @@ public void map() {
   }
   // Sequential Mapping
   else if (!isMapping && patternMapping==false) {
+    network.oscToggleScraper();
     println("Sequential mapping started");  
     blobManager.clearAllBlobs();
     videoMode = VideoMode.CAMERA;
@@ -693,6 +721,11 @@ public void map() {
 public void map2() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before mapping");
+    return;
+  }
+
+  if (cam==null || !cam.isLoaded() ) {
+    println("Please select a camera before mapping");
     return;
   }
   // Turn off mapping

@@ -1,9 +1,16 @@
-/*  //<>//
+/*    //<>//
  *  Lightwork-Mapper
  *  
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
- *  Currently, Fadecandy and PixelPusher are supported.
+ *  Currently, Fadecandy, PixelPusher, Artnet and sACN are supported.
+ *
+ *  Required Libraries available from P
+ rocessing library manager:
+ *  PixelPusher, OpenCV, ControlP5, eDMX, oscP5
  *  
+ *  Additional Libraries:
+ *  ArtNet P5 - included in this repo or from https://github.com/sadmb/artnetP5
+ *     
  *  Copyright (C) 2017 PWRFL
  *  
  *  @authors Leó Stefánsson and Tim Rolls
@@ -66,7 +73,7 @@ PVector[] leftMap;
 PVector[] rightMap;
 
 int FPS = 30; 
-String savePath = "../LightWork_Scraper/data/layout.csv";
+String savePath = "../LightWork_Scraper/data/layout.csv"; //defaults to scraper data folder
 
 PImage videoInput; 
 PImage cvOutput;
@@ -100,10 +107,12 @@ void setup()
 
   println("making arraylists for LEDs and bloblist");
   leds = new ArrayList<LED>();
-  
+
   //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
   println("initializing camera");
-  thread("cam = new Capture(this, camWidth, camHeight, 30)"); 
+  thread("setupCam"); 
+  //Thread may be causing strange state issues with PixelPusher
+  //setupCam();
 
   // Network
   println("setting up network Interface");
@@ -177,7 +186,7 @@ void draw() {
   // -------------------------------------------------------
   //              VIDEO INPUT + OPENCV PROCESSING
   // -------------------------------------------------------
-  if (cam!=null && cam.available() == true) { 
+  if (cam!=null && cam.available()== true) { 
     cam.read();
     if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
       videoInput = cam;
@@ -220,7 +229,13 @@ void draw() {
   // -------------------------------------------------------
 
 
-  // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
+  // Display the camera input
+  camFBO.beginDraw();
+  camFBO.image(videoInput, 0, 0);
+  camFBO.endDraw();
+  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
+  
+    // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
   cvFBO.image(snap, 0, 0);
@@ -237,19 +252,11 @@ void draw() {
   cvFBO.endDraw();
   image(cvFBO, camDisplayWidth, 70*guiMultiply, camDisplayWidth, camDisplayHeight);
 
-  // Display the camera input
-  camFBO.beginDraw();
-  camFBO.image(videoInput, 0, 0);
-  camFBO.endDraw();
-  image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-
   // Display blobs
   blobFBO.beginDraw();
   blobManager.display();
   blobFBO.endDraw();
-
-  // Draw the background image (for debugging) 
-
+  
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
     for (int i = 0; i < images.size(); i++) {
@@ -328,7 +335,7 @@ void matchBinaryPatterns() {
       }
     }
   }
-  
+
   // Mapping is done, Save CSV for LEFT or RIGHT channels
   if (stereoMode ==true && mapRight==true) {
     rightMap= new PVector[leds.size()];
@@ -339,6 +346,8 @@ void matchBinaryPatterns() {
     arrayCopy(  getLEDVectors(leds).toArray(), leftMap);
     saveCSV(leds, dataPath("left.csv"));
   }
+
+  network.saveOSC(normCoords(leds));
 
   map();
 }
@@ -367,7 +376,7 @@ void decode() {
 // OpenCV Processing
 void processCV() {
   diff.beginDraw(); 
-  diff.background(0); 
+  //diff.background(0); 
   diff.blendMode(NORMAL); 
   diff.image(videoInput, 0, 0); 
   diff.blendMode(SUBTRACT); 
@@ -446,8 +455,16 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 // Normalize point coordinates 
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
+  
+  //check for at least 1 matched LED and we are pattern mapping
+  if (listMatchedLEDs()==0 && patternMapping) {
+    println("no LEDs matched");
+    return in;
+  }
+
   float[] norm = new float[6];
   norm = getMinMaxCoords(getLEDVectors(in));
+
   ArrayList<LED> out = in;
   int index=0;
 
@@ -474,6 +491,11 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
 // -----------------------------------------------------------
 // Utility methods
 
+//used to thread camera initialization. USB enumeration can be slow, and if it exceeds 5seconds the app will fail at startup. 
+void setupCam() {
+  cam = new Capture(this, camWidth, camHeight, 30);
+}
+
 void saveSVG(ArrayList <PVector> points) {
   if (points.size() == 0) {
     // User is trying to save without anything to output - bail
@@ -497,7 +519,7 @@ void saveCSV(ArrayList <LED> ledArray, String path) {
   output.println("address"+","+"x"+","+"y"+","+"z"); 
 
   for (int i = 0; i < ledArray.size(); i++) {
-    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z); 
+    output.println(ledArray.get(i).address+","+ledArray.get(i).coord.x+","+ledArray.get(i).coord.y+","+ledArray.get(i).coord.z);
   }
   output.close(); // Finishes the file
   println("Exported CSV File to "+path);

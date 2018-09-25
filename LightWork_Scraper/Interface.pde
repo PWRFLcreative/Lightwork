@@ -3,7 +3,11 @@
 //
 //  Created by Leo Stefansson and Tim Rolls
 //  
-//  This class handles connecting to and switching between PixelPusher, FadeCandy and ArtNet devices.
+//  This class handles connecting to and switching between 
+//  PixelPusher, FadeCandy and ArtNet devices. It also handles
+//  OSC messaging over network. Note there are 
+//  some differences in methods between this Interface class and
+//  the one packaged with Lightwork_Mapper.
 //
 //////////////////////////////////////////////////////////////
 
@@ -23,6 +27,10 @@ import artnetP5.*;
 
 //sACN
 import eDMX.*;
+
+//OSC 
+import oscP5.*;
+import netP5.*;
 
 enum device {
   FADECANDY, PIXELPUSHER, ARTNET, SACN, NULL
@@ -61,12 +69,18 @@ public class Interface {
   sACNSource source;
   sACNUniverse universe1;
 
+  //OSC objects
+  OscP5 oscP5;
+  NetAddress myRemoteLocation;
+
+
   //////////////////////////////////////////////////////////////
   //Constructors
   /////////////////////////////////////////////////////////////
 
   Interface() {
     mode = device.NULL;
+    setupOSC();
     //populateLeds();
     println("Interface created");
   }
@@ -78,6 +92,7 @@ public class Interface {
     numStrips = strips;
     ledsPerStrip = leds;
     numLeds = ledsPerStrip*numStrips;
+    setupOSC();
     //populateLeds();
     println("Fadecandy Interface created");
   }
@@ -90,7 +105,7 @@ public class Interface {
       ledsPerStrip = leds;
       numLeds = ledsPerStrip*numStrips;
     }
-
+    setupOSC();
     //populateLeds();
     println("PixelPusher Interface created");
   }
@@ -104,13 +119,14 @@ public class Interface {
       numArtnetUniverses = universes; // TODO: support more than one universe
     }
 
+    setupOSC();
     //populateLeds();
     println("ArtNet/sACN Interface created");
   }
 
 
   //////////////////////////////////////////////////////////////
-  // Setters and getters
+  // Setters / getters and utility methods
   //////////////////////////////////////////////////////////////
 
   void setMode(device m) {
@@ -211,6 +227,68 @@ public class Interface {
         ledsPerStrip = pp.getPixelsPerStrip();
       }
     }
+  }
+
+  void oscEvent(OscMessage theOscMessage) {
+    /* check if theOscMessage has the address pattern we are looking for. */
+
+    if (theOscMessage.checkAddrPattern("/coords")==true) {
+      if (theOscMessage.checkTypetag("iifff")) {
+        /* parse theOscMessage and extract the values from the osc message arguments. */
+        int address = theOscMessage.get(0).intValue();  
+        int arraySize = theOscMessage.get(1).intValue();
+        float x = theOscMessage.get(2).floatValue();
+        float y = theOscMessage.get(3).floatValue(); 
+        float z = theOscMessage.get(4).floatValue();
+
+        PVector v = new PVector();
+
+        v.set (x, y, z);
+
+        //delete current locations when receiving new coords over OSC
+        if ( address==0 ) {
+          scrape.clearLoc();
+        }
+
+        scrape.addLoc(v);
+
+        print("### received an osc message /coords with typetag iifff.");
+        println(" values: "+x+", "+y+", "+z);
+
+        if (address==arraySize-1) {
+          return;
+        }
+      }
+    } 
+    println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
+  }
+
+  //public void oscCoords(int val) {
+  //  println("received a message /coords.");
+  //      for (TableRow row : table.rows ()) {
+  //    int index = row.getInt("address");
+  //    float x = row.getFloat("x");
+  //    float y = row.getFloat("y");
+  //    float z = row.getFloat("z");
+
+  //    PVector v = new PVector();
+
+  //    v.set (x, y, z);
+  //    loc.add(v);
+  //  }
+  //}
+
+  public void toggleScraper(int val) {
+    println("received a message /toggleScraper.");
+    scrape.setActive(boolean(val));
+  }
+
+  //set up OSC here to make constructors cleaner
+  void setupOSC() {
+    oscP5 = new OscP5(this, 12000);
+    myRemoteLocation = new NetAddress("127.0.0.1", 12001);
+    oscP5.plug(this, "toggleScraper", "/toggleScraper");
+    oscP5.plug(this, "coords", "/coords");
   }
 
   //TODO: rework this to work in mapper and scrapergit 
@@ -323,7 +401,12 @@ public class Interface {
             artnetPacket[index+j] = byte(br); // White
           }
         }
-
+        
+        //fill rest of universe with 0's
+        for (int i = numArtnetChannels*numArtnetFixtures; i < 512 ; i++){
+         artnetPacket[i]=0;
+        }
+        
         //slots referring to channels per fixture
         universe1.setSlots(0, artnetPacket);
 
@@ -441,7 +524,9 @@ public class Interface {
       source = new sACNSource(parent, "LightWork");
       universe1 = new sACNUniverse(source, (short)1); // Just one universe for now
       isConnected = true; 
-      artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+     // artnetPacket = new byte[numArtnetChannels*numArtnetFixtures]; // Reusing numLeds to indicate the number of fixtures (even though
+      artnetPacket = new byte[512]; //size for full universe, helps make sure additional addresses get 0 values
+
 
       update(scrape.getColors());
     }

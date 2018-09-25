@@ -1,6 +1,7 @@
 /* 
  * Make LED layout, based on vertecies of an input CSV/SVG
- * Tim Rolls 2017
+ * Includes 2 test animations and optional Syphon/Spout input
+ * Tim Rolls 2017-2018
  */
 
 Scraper scrape;
@@ -11,56 +12,50 @@ float margin = 50; //prevents scraper from operating outside the canvas
 PGraphics gradient; 
 
 void setup() {
-  size(640, 480, P3D); 
+  size(512, 512, P3D); 
+  surface.setLocation((displayWidth / 2) - width / 2, ((int)displayHeight / 2) - height / 2);
 
-  gradient = createGraphics(width, height); 
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
   scrape = new Scraper("layout.csv"); 
 
   //initialize connection to LED driver - replace with adress and LED config for your setup
-  //(Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
-  //network = new Interface(device.PIXELPUSHER, 1,100);
-  //network = new Interface(device.FADECANDY, "fade2.local", 3, 50);
-  network = new Interface(device.SACN, 1, 16, 3); 
+  //Fadecandy/ PixelPusher = (Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
+  //Artnet/ sACN = (Device type, Universe, number of fixtures, channels per fixture)
   
+  //network = new Interface(device.PIXELPUSHER, 1,100);
+  //network = new Interface(device.FADECANDY, "10.10.10.101", 8, 60);
+  network = new Interface(device.SACN, 1, 98, 3); 
+
+  //connect to specified controller
   network.connect(this);
 
   //update scraper after network connects
   scrape.update();
   colorMode(HSB, 360, 100, 100);
+  
+  // Create a new Syphon or Spout object - comment out to disable
+  setupSyphonSpout();
 }
 
 void draw() {
-  //////////////////
-  //rainbow chase animation - replace with your drawing code
   background(0);
 
-  fill(0); 
-  noStroke();
-  fill(abs(sin(frameCount*0.01))*360, 100, 100); 
+  verticalGradient(); // Test pattern animation
 
-  // Gradient line
-  //horizontalGradient(); 
-  verticalGradient(); 
-  
-  //BG color cycle
-  //color c;
-  //c = color (abs(sin(frameCount*0.01))*360, 100, 100);
-  //background(c);
+  updateSyphonSpout(); // receive sypon/spout input - comment out to disable
 
   //cursor to test accuracy
   noStroke();
-  fill(100, 50, 20);
+  fill(360);
   ellipse(mouseX, mouseY, 30, 30);
 
-  //end animation code
-  //////////////////
-
-  //Scraper functions  
-  scrape.update(); //Update colors to be sent to LEDs
-  network.update(scrape.getColors()); //Send colors to LEDs
-  scrape.display(); //Show locations loaded from CSV
+  //Scraper functions - should always be at end of draw loop
+  if (scrape.isActive()) {
+    scrape.update(); //Update colors to be sent to LEDs
+    network.update(scrape.getColors()); //Send colors to LEDs
+    scrape.display(); //Show locations loaded from CSV
+  }
 }
 
 
@@ -85,7 +80,7 @@ void horizontalGradient() {
 }
 
 void verticalGradient() {
-  int numLines = 800; 
+  int numLines = 250; 
   if (pos<=width+numLines)pos+=5;
   else pos=0;
 
