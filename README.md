@@ -77,7 +77,7 @@ LightWork Mapper
 
 The application used to map your LED array. Use an attached webcam to capture LED states and translate their physical locations into screen locations. Outputs a normalized CSV of LED locations for use in the Lightwork Scraper, or any software of your choice.
 
-##Quick Start Guide
+## Quick Start Guide
 
 Set up your LEDs, their controller and ensure you can connect to it either locally or over network.
 
