@@ -5,24 +5,24 @@
 Lightwork simplifies the process of mapping complex arrangements of LEDs, removing the limitations of straight lines and grids from your light based creations.
 
 Features
--------------- 
+--------------
 
 * Compatible with Fadecandy, Pixelpusher, sACN and ArtNet driven LED arrays
 * Network discovery for Pixelpusher and ArtNet nodes
 * GUI controls for LED array configuration and OpenCV mapping calibration
 * Sequential mapping - Fire and detect LEDs one at a time, sequentially. Slow for large arrays but more reliable in some cases
 * Binary mapping - LEDs flash a unique binary pattern, and all LEDs are mapped simultaneously. Exponentially faster for large arrays, but more suceptible to lighting/environmental interference
-* Save as CSV for use with the included Scraper, or applications like MadMapper
+* Save as CSV for use with the included Scraper, or applications like MadMapper / Touchdesigner
 * Lightweight scraper that can be added to your application to drive LEDs
 * Seamless map updates while the scraper is running, over OSC
 * (Experimental) Stereo mode captures 3D coordinates by mapping from 2 camera locations
 
 How it Works
--------------- 
+--------------
 
-Lightwork uses OpenCV to detect and map your LED arrangements. Set up your LEDs, point a webcam at them, run Lightwork and you'll have a comprehensive map that enables you to put content on them as if they were a screen.  
+Lightwork uses OpenCV to detect and map your LED arrangements. Set up your LEDs, point a webcam at them, run Lightwork and you'll have a comprehensive map that enables you to put content on them as if they were a screen.
 
-Here's a video walking through the binary mapping process: 
+Here's a video walking through the binary mapping process:
 [![Lightwork Tutorial](http://img.youtube.com/vi/7UJ1Ocxc8eg/0.jpg)](http://www.youtube.com/watch?v=7UJ1Ocxc8eg)
 
 Requirements
@@ -34,6 +34,8 @@ Requirements
 All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
 
  *  ArtNet P5 - included in this repo or clone from https://github.com/sadmb/artnetP5
+
+*Scraper includes Syphon (Mac) and Spout (Win) client to receive content from another application. You'll need the appropriate library for your platform. This is optional, comment and remove the PDE if you don't need this functionality.
 
 **Operating System**
 
@@ -75,7 +77,29 @@ LightWork Mapper
 
 The application used to map your LED array. Use an attached webcam to capture LED states and translate their physical locations into screen locations. Outputs a normalized CSV of LED locations for use in the Lightwork Scraper, or any software of your choice.
 
-UI controls:
+##Quick Start Guide
+
+Set up your LEDs, their controller and ensure you can connect to it either locally or over network.
+
+Connect your webcam, and point it at the LED array. We recommend a tripod to allow positioning your cam as needed, and keeping it stable. Any movement will throw off your mapping results. Be sure to turn off "Auto" features on your webcam, like auto focus and auto white balance, these will make adjustments between frames while mapping, affecting results.
+
+Select your camera from the dropdown, and its output should appear. If it's not in the list, hit "Refresh"
+
+Select your LED controller type from the dropdown, and enter the appropriate details. Make sure to hit enter after changing settings. Once your settings are correct hit "Connect". On successful connect, the button will change to "Refresh", allowing you to reconnect with different settings.
+
+Now that you're connected, you can calibrate the OpenCV view to your LEDs and lighting conditions. Default is pattern mode, but you can also choose sequential for more challenging setups. Adjust the contrast and threshold until your lit LEDs appear well defined white blobs in the right window. In general, keep the LED brightness as low as possible to prevent flaring in the camera.
+
+Once you have the CV settings looking good, you're almost ready to map.
+The settings on the right are mapping controls. Frameskip controls the number of frames between captures, or the speed mapping runs at. Turn this up for more reliable results. Blob size controls the allowed size of blobs. The minimum should be set to detect actual LEDs but filter our noise. Max should be set to around the size of LEDs but small enough to filter out blobs that blend together due to flaring. Blob distance is used to filter duplicate blobs or blobs that appear very close together, often caused by flaring. These settings will depend on your setup and environmental settings, so adjust until you get the desired result.
+
+Now you can stop calibrating, and try mapping. Binary will capture a sequence of frames, then analyze them for patterns before returning the number of matched LEDs. Adjust your settings until you get the expected  number of matched LEDs. Sequential will show an ellipse at the location of detected LEDs, but not the total number.
+
+Once Mapping is complete, press "Stop" and "Save Layout". This will open a save dialog that should default to the Lightwork Scraper directory. The window may appear behind other open windows, which is a java issue, just al+tab to it. Make sure you add .csv to the saved file name.
+
+And that's it!
+You can now use the generated map in the Lightwork Scraper or another software of your choice.
+
+UI control reference:
 --------------
 
 **Camera:** select a connected USB webcam
@@ -141,7 +165,7 @@ Use with your own sketch to map your content onto the LED array.
 
 Requires `Interface.pde`, `OPC.pde` and `Scraper.pde` in your sketch folder, as well as a layout CSV in the sketch or data folder.
 
-Replace the drawing code in the example to display your own content.
+Replace the drawing code in the example to display your own content, or use Syphon/Spout to pipe in input from another application.
 
 
 **Example Setup:**
