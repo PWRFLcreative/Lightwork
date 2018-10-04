@@ -31,9 +31,10 @@ Requirements
 **Libraries:**
 **PixelPusher, OpenCV, ControlP5, eDMX, oscP5**
 
-All available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE.
+Most available from the `Sketch > Import Library > Add Library` dialog in the Processing IDE. 
 
  *  ArtNet P5 - included in this repo or clone from https://github.com/sadmb/artnetP5
+ *  eDMX - (will be added to repo shortly) https://github.com/jwarwick/processing-edmx
 
 *Scraper includes Syphon (Mac) and Spout (Win) client to receive content from another application. You'll need the appropriate library for your platform. This is optional, comment and remove the PDE if you don't need this functionality.
 
