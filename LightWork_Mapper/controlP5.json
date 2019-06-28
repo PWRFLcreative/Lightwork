@@ -2,42 +2,42 @@
   "/setBlobDistanceThreshold": {
     "min": 1,
     "max": 10,
-    "value": 4
+    "value": 5.559999942779541
   },
   "/mapMode": {
     "stringValue": "MAPPING MODE",
     "value": 0
   },
   "/stereoToggle": {"value": 1},
-  "/camera": {"value": 1},
+  "/camera": {"value": 2},
   "/channels": {"text": "3"},
   "/leds_per_strip": {"text": "64"},
-  "/fixtures": {"text": "65"},
+  "/fixtures": {"text": "3"},
   "/strips": {"text": "8"},
   "/ledBrightness": {
     "min": 0,
     "max": 255,
-    "value": 57.80000305175781
+    "value": 198.90000915527344
   },
   "/cvThreshold": {
     "min": 0,
     "max": 255,
-    "value": 120.70000457763672
+    "value": 94.3499984741211
   },
   "/ip": {"text": "fade2.local"},
   "/driver": {"value": 3},
   "/blobSize": {
-    "lowValue": 11.661538124084473,
-    "highValue": 82.48461151123047
+    "lowValue": 9.757692337036133,
+    "highValue": 46.69230651855469
   },
   "/frameskip": {
     "min": 6,
-    "max": 30,
-    "value": 12.720000267028809
+    "max": 90,
+    "value": 30.079999923706055
   },
   "/cvContrast": {
     "min": 0,
     "max": 5,
-    "value": 2.700000047683716
+    "value": 0.5166667103767395
   }
 }

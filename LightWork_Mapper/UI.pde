@@ -369,7 +369,7 @@ void buildUI() {
 
   println("Enumerating cameras"); 
   String[] cams = enumerateCams();
-  
+
 
   // made last - enumerating cams will break the ui if done earlier in the sequence
   println("cp5: adding camera dropdown list");
@@ -564,9 +564,11 @@ public void calibrate() {
     println("Please connect to an LED driver before calibrating");
     return;
   }
-  if (cam==null || !cam.isLoaded() ) { 
-    println("Please select a camera before calibrating");
-    return;
+  if (spoutSwitch==false) {
+    if (cam==null || !cam.isLoaded() ) { 
+      println("Please select a camera before calibrating");
+      return;
+    }
   }
   // Activate Calibration Mode
   else if (videoMode != VideoMode.CALIBRATION) {
@@ -666,9 +668,11 @@ public void map() {
     println("Please connect to an LED driver before mapping");
     return;
   }
-  if (cam==null || !cam.isLoaded() ) {
-    println("Please select a camera before mapping");
-    return;
+  if (spoutSwitch==false) {
+    if (cam==null || !cam.isLoaded() ) {
+      println("Please select a camera before mapping");
+      return;
+    }
   }
   // Turn off mapping
   else if (isMapping) {
@@ -814,7 +818,7 @@ String[] enumerateCams() {
   Set<String> set = new HashSet<String>();
   Collections.addAll(set, list);
   String[] cameras = set.toArray(new String[0]);
-  
+
   cameras = append(cameras, "SPOUT"); // Add Spout option for Camera input from another application
 
   return cameras;

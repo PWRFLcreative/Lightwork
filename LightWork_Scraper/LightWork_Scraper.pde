@@ -17,7 +17,7 @@ void setup() {
 
   //initialize scraper
   //replace with your filename, make sure it's in the sketch or /data folder
-  scrape = new Scraper("layout.csv"); 
+  scrape = new Scraper("360Test.csv"); 
 
   //initialize connection to LED driver - replace with adress and LED config for your setup
   //Fadecandy/ PixelPusher = (Device type, address (not required for PixelPusher), number of strips, LEDs per strip)
@@ -43,7 +43,7 @@ void draw() {
 
   verticalGradient(); // Test pattern animation
 
-  updateSyphonSpout(); // receive sypon/spout input - comment out to disable
+  //updateSyphonSpout(); // receive sypon/spout input - comment out to disable
 
   //cursor to test accuracy
   noStroke();

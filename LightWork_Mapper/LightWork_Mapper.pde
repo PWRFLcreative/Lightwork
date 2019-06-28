@@ -204,9 +204,9 @@ void draw() {
 
   //Spout receive frame
   if (spoutSwitch== true && spout!=null && videoMode != VideoMode.IMAGE_SEQUENCE) { 
-      videoInput = spout.receiveTexture(videoInput);
-    }
- 
+    videoInput = spout.receiveTexture(videoInput);
+  }
+
 
   // Binary Image Sequence Capture
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
@@ -491,8 +491,12 @@ ArrayList<LED> normCoords(ArrayList<LED> in)
         temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1), map(temp.coord.z, norm[2], norm[5], 0.001, 1));
         out.set(index, temp);
       } else {
-        // 2D coords
-        temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1));
+        //// 2D coords
+        //temp.coord.set (map(temp.coord.x, norm[0], norm[3], 0.001, 1), map(temp.coord.y, norm[1], norm[4], 0.001, 1));
+        //out.set(index, temp);
+
+        // 2D coords based on cam dimensions, not outer extents of points
+        temp.coord.set (map(temp.coord.x, 0, camWidth, 0.001, 1), map(temp.coord.y, 0, camHeight, 0.001, 1));
         out.set(index, temp);
       }
     }
