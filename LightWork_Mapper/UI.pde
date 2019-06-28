@@ -1,4 +1,4 @@
-/*   //<>//
+/*   //<>// //<>//
  *  UI
  *  
  *  This class builds the UI for the application
@@ -305,7 +305,7 @@ void buildUI() {
     .setBroadcast(false)
     .setPosition(0, 0)
     .setSize(buttonWidth, buttonHeight)
-    .setRange(6, 30)
+    .setRange(6, 90)
     .setValue(frameSkip)
     .plugTo(frameSkip)
     .setValue(12)
@@ -369,6 +369,8 @@ void buildUI() {
 
   println("Enumerating cameras"); 
   String[] cams = enumerateCams();
+  
+
   // made last - enumerating cams will break the ui if done earlier in the sequence
   println("cp5: adding camera dropdown list");
   cp5.addScrollableList("camera")
@@ -408,7 +410,11 @@ void camera(int n) {
   //println(m);
   String label=m.get("name").toString();
   //println(label);
-  switchCamera(label);
+  if (label != "SPOUT") {
+    switchCamera(label);
+  } else {
+    spoutSwitch = !spoutSwitch;
+  }
 }
 
 
@@ -557,7 +563,7 @@ public void calibrate() {
   if (network.isConnected()==false) {
     println("Please connect to an LED driver before calibrating");
     return;
-  } //<>//
+  }
   if (cam==null || !cam.isLoaded() ) { 
     println("Please select a camera before calibrating");
     return;
@@ -808,6 +814,8 @@ String[] enumerateCams() {
   Set<String> set = new HashSet<String>();
   Collections.addAll(set, list);
   String[] cameras = set.toArray(new String[0]);
+  
+  cameras = append(cameras, "SPOUT"); // Add Spout option for Camera input from another application
 
   return cameras;
 }

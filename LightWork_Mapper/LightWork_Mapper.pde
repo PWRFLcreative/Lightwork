@@ -4,8 +4,7 @@
  *  This sketch uses computer vision to automatically generate mapping for LEDs.
  *  Currently, Fadecandy, PixelPusher, Artnet and sACN are supported.
  *
- *  Required Libraries available from P
- rocessing library manager:
+ *  Required Libraries available from Processing library manager:
  *  PixelPusher, OpenCV, ControlP5, eDMX, oscP5
  *  
  *  Additional Libraries:
@@ -35,6 +34,13 @@ import processing.video.*;
 import gab.opencv.*;
 import java.awt.Rectangle;
 
+// IMPORT THE SPOUT LIBRARY
+import spout.*;
+// DECLARE A SPOUT OBJECT
+Spout spout;
+
+boolean spoutSwitch; // to handle switching between capture devices and spout
+
 Capture cam;
 //Capture cam2;
 OpenCV opencv;
@@ -56,7 +62,7 @@ VideoMode videoMode;
 color on = color(255, 255, 255);
 color off = color(0, 0, 0);
 
-int camWidth = 640;
+int camWidth = 960;
 int camHeight = 480;
 float camAspect;
 
@@ -95,6 +101,9 @@ void setup()
   frameRate(FPS);
   warranty();
 
+  // CREATE A NEW SPOUT OBJECT
+  spout = new Spout(this);
+
   camAspect = (float)camWidth / (float)camHeight;
   println("Cam Aspect: "+camAspect);
 
@@ -109,8 +118,8 @@ void setup()
   leds = new ArrayList<LED>();
 
   //Load Camera in a thread, because polling USB can hang the software, and fail OpenGL initialization
-  println("initializing camera");
-  thread("setupCam"); 
+  //println("initializing camera");
+  //thread("setupCam"); 
   //Thread may be causing strange state issues with PixelPusher
   //setupCam();
 
@@ -186,12 +195,18 @@ void draw() {
   // -------------------------------------------------------
   //              VIDEO INPUT + OPENCV PROCESSING
   // -------------------------------------------------------
-  if (cam!=null && cam.available()== true) { 
+  if (cam!=null && cam.available()== true && spoutSwitch==false) { 
     cam.read();
     if (videoMode != VideoMode.IMAGE_SEQUENCE) { //TODO: review
       videoInput = cam;
     }
   }
+
+  //Spout receive frame
+  if (spoutSwitch== true && spout!=null && videoMode != VideoMode.IMAGE_SEQUENCE) { 
+      videoInput = spout.receiveTexture(videoInput);
+    }
+ 
 
   // Binary Image Sequence Capture
   if (videoMode == VideoMode.IMAGE_SEQUENCE && isMapping) {
@@ -234,8 +249,8 @@ void draw() {
   camFBO.image(videoInput, 0, 0);
   camFBO.endDraw();
   image(camFBO, 0, (70*guiMultiply), camDisplayWidth, camDisplayHeight);
-  
-    // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
+
+  // Display OpenCV output and dots for detected LEDs (dots for sequential mapping only). 
   cvFBO.beginDraw();
   PImage snap = opencv.getOutput(); 
   cvFBO.image(snap, 0, 0);
@@ -256,7 +271,7 @@ void draw() {
   blobFBO.beginDraw();
   blobManager.display();
   blobFBO.endDraw();
-  
+
   // Draw a sequence of the sequential captured frames
   if (images.size() > 0) {
     for (int i = 0; i < images.size(); i++) {
@@ -455,7 +470,7 @@ float[] getMinMaxCoords(ArrayList<PVector> pointsCopy) {
 // Normalize point coordinates 
 ArrayList<LED> normCoords(ArrayList<LED> in)
 {
-  
+
   //check for at least 1 matched LED and we are pattern mapping
   if (listMatchedLEDs()==0 && patternMapping) {
     println("no LEDs matched");
@@ -545,6 +560,6 @@ void stop()
 // Closes connections
 void exit()
 {
-  cam = null; 
+  cam  = null; 
   super.exit();
 }
